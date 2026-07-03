@@ -2,6 +2,7 @@ let adminSession = {};
 let currentGameId = '';
 let currentRole = '';
 
+
 document.addEventListener('DOMContentLoaded', () => {
   adminSession = JSON.parse(localStorage.getItem('session_user') || '{}');
 
