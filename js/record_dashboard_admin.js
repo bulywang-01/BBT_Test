@@ -307,7 +307,10 @@ function cancelRecordAssignment(gameId, role){
     game_id:gameId,
     record_role:role
   }, res => {
-
+    
+  console.log('取消紀錄 API=', res);
+  console.log(JSON.stringify(res));
+    
     if (!res || res.result !== 'ok'){
       showAssignMessage(
         `❌ ${res?.message || '取消失敗'}`
