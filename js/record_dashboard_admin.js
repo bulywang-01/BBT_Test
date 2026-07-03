@@ -105,10 +105,8 @@ function renderPos(g, role, label) {
       <div class="pos-cell assigned">
         <div class="role">${label}</div>
         <div class="signup-name assigned">${assign.name}</div>
-        <button class="btn-change"
-          onclick="openRecordModal('${g.game_id}','${role}')">
-          變更
-        </button>
+        <button class="btn-change" onclick="openRecordModal('${g.game_id}','${role}')">變更</button>
+        <button class="btn-cancel" onclick="cancelRecordAssignment('${g.game_id}','${role}')">取消</button>
       </div>
     `;
   }
@@ -295,4 +293,29 @@ function showAssignMessage(msg) {
   setTimeout(() => {
     toast.remove();
   }, 2000);
+}
+
+// 取消指派功能
+function cancelRecordAssignment(gameId, role){
+
+  if (!confirm('確定取消此紀錄員指派？')){
+    return;
+  }
+
+  callApi({
+    action:'unassignRecord_admin',
+    game_id:gameId,
+    record_role:role
+  }, res => {
+
+    if (!res || res.result !== 'ok'){
+      showAssignMessage(
+        `❌ ${res?.message || '取消失敗'}`
+      );
+      return;
+    }
+
+    showAssignMessage('✅ 已取消指派');
+    loadAdminGames();
+  });
 }
