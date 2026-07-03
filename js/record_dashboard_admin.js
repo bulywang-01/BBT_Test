@@ -2,7 +2,6 @@ let adminSession = {};
 let currentGameId = '';
 let currentRole = '';
 
-
 document.addEventListener('DOMContentLoaded', () => {
   adminSession = JSON.parse(localStorage.getItem('session_user') || '{}');
 
@@ -28,7 +27,7 @@ function loadAdminGames() {
 }
 
 //✅ 前端 grouping（admin.js 新增 / 取代原本 render）
-//✅ 1️⃣ 先把 games 分組（日期 → 組別 → 排時間）
+//✅ 先把 games 分組（日期 → 組別 → 排時間）
 function groupAdminGames(games) {
   const map = {};
 
@@ -100,29 +99,46 @@ function renderPos(g, role, label) {
   const assign = g.record_assignments?.[role];
   const signups = g.record_signups?.[role] || [];
 
-  // ✅ 有指派（最高優先）
+  // ✅ 已指派（最高優先）
   if (assign) {
     return `
       <div class="pos-cell assigned">
         <div class="role">${label}</div>
         <div class="signup-name assigned">${assign.name}</div>
-        <button class="btn-change" onclick="openRecordModal('${g.game_id}','${role}')">變更</button>
-        <button class="btn-cancel" onclick="cancelRecordAssignment('${g.game_id}','${role}')">取消</button>
+        <button class="btn-change" onclick="openRecordModal('${g.game_id}','${role}')">換</button>
+        <button class="btn-cancel" onclick="cancelRecordAssignment('${g.game_id}','${role}')">刪</button>
       </div>
     `;
   }
 
-  // ✅ ✅ ✅ 多人報名（新版🔥）
+  // ✅ ✅ ✅ 裁判同款顯示（核心🔥）
   let signupHtml = '';
 
   if (signups.length){
+
     signupHtml = `
       <div class="signup-list">
-        ${signups.map((s, i) => `
-          <div class="signup-name signup">
-            ${signups.length > 1 ? `(${i+1}) ` : ''}${s.name}
-          </div>
-        `).join('')}
+        ${signups.map((s, i) => {
+
+          // ✅ 第一位 → 主人（有底色）
+          if (i === 0){
+            return `
+              <div class="signup-name primary">
+                ${s.name}
+              </div>
+            `;
+          }
+
+          // ✅ 其他 → 圓圈數字
+          const num = ['①','②','③','④','⑤'][i] || `(${i+1})`;
+
+          return `
+            <div class="signup-name sub">
+              ${num} ${s.name}
+            </div>
+          `;
+
+        }).join('')}
       </div>
     `;
   }
