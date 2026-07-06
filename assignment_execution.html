@@ -1036,6 +1036,9 @@ function renderRoleRow(role, rows, g){
 // 核心決策引擎
 function handleAutoDecision(gameId, role, status){
 
+ console.log('replacement=', replacement);
+ console.log('targetId=', targetId);
+ 
   const g = window._lastData?.find(x => x.game_id == gameId);
 
   if (!g){
