@@ -7,7 +7,7 @@ function callApi(params, callback) {
 
   const cbName = 'cb_' + Date.now() + '_' + Math.floor(Math.random()*1000);
 
-  // ✅ 組 URL
+  // ✅ 組 URL 
   const query = Object.keys(params)
     .map(k => `${k}=${encodeURIComponent(params[k])}`)
     .join('&');
