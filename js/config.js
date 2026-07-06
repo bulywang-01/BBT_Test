@@ -2,7 +2,6 @@
 const API_BASE =
   'https://script.google.com/macros/s/AKfycbwar2KAlNNzhZ822bqSIuE_dVqGP9n7zMIZGAyfQiEIgNJUFv0BlMaGda39f6Le4nG8uQ/exec';
 
-
 // ===== JSONP helper（封版唯一安全版）=====
 function callApi(params, callback) {
 
