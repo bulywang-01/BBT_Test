@@ -856,54 +856,27 @@ function renderGroup(g){
 
   const list = g.list || [];
 
+  // ✅ group by role
   const roleMap = {};
-
   list.forEach(p=>{
     if (!roleMap[p.role]) roleMap[p.role] = [];
     roleMap[p.role].push(p);
   });
 
-  const roleOrder = [];
-
-  // 裁判
-  roleOrder.push('PU');
-
-  if ((g.umpire_count || 4) >= 2) roleOrder.push('U1');
-  if ((g.umpire_count || 4) >= 3) roleOrder.push('U2');
-  if ((g.umpire_count || 4) >= 4) roleOrder.push('U3');
-
-  // 紀錄固定顯示
-  roleOrder.push('REC_MAIN');
-  roleOrder.push('REC_TRAINEE');
-  roleOrder.push('REC_VIDEO');
-
   let html = '';
 
-  roleOrder.forEach(role=>{
-
-    const rows = roleMap[role] || [];
-
-    // 沒資料也建立空列
-    if (rows.length === 0){
-
-      rows.push({
-        assignment_id:'',
-        role,
-        user_id:'',
-        name:'',
-        status:'scheduled',
-        is_replacement:0,
-        create_at:''
-      });
-
-    }
-
+  Object.keys(roleMap).forEach(role=>{
+  
+    // ✅ ✅ ✅ 🔥 防止 undefined / 空角色
+    if (!role || role === 'undefined') return;
+  
+    const rows = roleMap[role];
+  
     html += renderRoleRow(role, rows, g);
-
+  
   });
 
   return html;
-
 }
 
 // 配合上面的程式新增
