@@ -222,7 +222,7 @@ function renderPosCell(game, role) {
                   cancelJudgeSignup(
                     '${game.game_id}',
                     '${role}',
-                    '${j.user_id}'
+                    '${j.id}'
                   )
                 "
               >
