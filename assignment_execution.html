@@ -1355,7 +1355,8 @@ function renderRow(p, g, isReplacement=false){
      
        toast(`✅ 已標記：${textMap[status]}`);
      
-       updateRowUI(id, status);
+       // updateRowUI(id, status);
+       load();   // ✅ 直接重整
      
        // ✅ ✅ ✅ 🔥 如果是 no_show，要刷新（讓 "支" 出現）
        if (status === 'no_show'){
@@ -1690,15 +1691,32 @@ function completeGame(gameId){
 
   if(!confirm('確定整場完成？')) return;
 
-  callApi({
-    action:'completeGame',
-    game_id:gameId
-  }, res=>{
-    if (res.result === 'ok'){
-      toast('✅ 完成');
-      load();
-    }
-  });
+   callApi({
+     action:'completeGame',
+     game_id:gameId
+   }, res=>{
+   
+     console.log('completeGame=',res);
+   
+     if (
+       res &&
+       (
+         res.result === 'ok' ||
+         res.success === true
+       )
+     ){
+   
+       toast('✅ 完成');
+   
+       setTimeout(load,100);
+   
+     }else{
+   
+       toast('❌ 完成失敗','error');
+   
+     }
+   
+   });
 }
 
 
