@@ -448,6 +448,17 @@
     .role-tab.record.active{
       background:#f59e0b;
     }
+
+    .tab-bar{
+      display:flex;
+      align-items:center;
+      gap:24px;
+      margin-bottom:12px;
+    }
+    
+    .role-tabs{
+      margin-left:auto;
+    }
   </style>
 </head>
 
@@ -483,43 +494,50 @@
         <button class="btn primary" onclick="selectMonth('ALL')">今年度</button>
       </div>
       -->
-      <div class="view-tabs">
-        <button
-          class="view-tab active"
-          id="btnSummary"
-          onclick="switchView('summary')">
-          📊 年度總表
-        </button>
-        <button
-          class="view-tab"
-          id="btnCalendar"
-          onclick="switchView('calendar')">
-          📅 日曆模式
-        </button>
-      </div>
+      <div class="tab-bar">
       
-      <div class="role-tabs">
+        <div class="view-tabs">
       
-        <button
-          id="roleAll"
-          class="role-tab all active"
-          onclick="switchRoleTab('all')">
-          全部
-        </button>
+          <button
+            class="view-tab active"
+            id="btnSummary"
+            onclick="switchView('summary')">
+            📊 年度總表
+          </button>
       
-        <button
-          id="roleJudge"
-          class="role-tab judge"
-          onclick="switchRoleTab('judge')">
-          ⚾ 裁判
-        </button>
+          <button
+            class="view-tab"
+            id="btnCalendar"
+            onclick="switchView('calendar')">
+            📅 日曆模式
+          </button>
       
-        <button
-          id="roleRecord"
-          class="role-tab record"
-          onclick="switchRoleTab('record')">
-          📝 紀錄
-        </button>
+        </div>
+      
+        <div class="role-tabs">
+      
+          <button
+            id="roleAll"
+            class="role-tab all active"
+            onclick="switchRoleTab('all')">
+            全部
+          </button>
+      
+          <button
+            id="roleJudge"
+            class="role-tab judge"
+            onclick="switchRoleTab('judge')">
+            ⚾ 裁判
+          </button>
+      
+          <button
+            id="roleRecord"
+            class="role-tab record"
+            onclick="switchRoleTab('record')">
+            📝 紀錄
+          </button>
+      
+        </div>
       
       </div>
       
