@@ -1005,6 +1005,7 @@ function formatRole(roleStr){
   let currentView = 'summary';
   let lastData = null;
   let lastGameDays = null;
+  let currentRoleTab = 'all';
   
   // 切換tab
   function switchView(view){
@@ -1033,16 +1034,45 @@ function formatRole(roleStr){
   
   }
 
+  // 切換子tab
+  function switchRoleTab(tab){
+
+    currentRoleTab = tab;
+  
+    render(
+      lastData,
+      lastGameDays
+    );
+  
+  }
+    
   // 年度總表表格
   function renderSummary(data){
   
-    const users =
-      sortUsers(
-        Object.values(data)
-          .filter(u =>
-            (u.summary?.careerAttendance || 0) > 0
-          )
+    let users =
+      Object.values(data)
+        .filter(u =>
+          (u.summary?.careerAttendance || 0) > 0
+        );
+    
+    if(currentRoleTab === 'judge'){
+    
+      users = users.filter(u =>
+        String(u.roles || '').includes('judge')
       );
+    
+    }
+    
+    if(currentRoleTab === 'record'){
+    
+      users = users.filter(u =>
+        String(u.roles || '').includes('record')
+      );
+    
+    }
+    
+    users = sortUsers(users);
+
   
     let html = `
     
