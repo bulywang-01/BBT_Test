@@ -394,12 +394,6 @@
       border-radius:6px;
       font-size:13px;
     }
-
-    .role-tabs{
-      display:flex;
-      gap:6px;
-      margin-bottom:12px;
-    }
     
     .role-tab{
       border:none;
@@ -413,6 +407,46 @@
     .role-tab.active{
       background:#16a34a;
       color:#fff;
+    }
+
+    /* =========================
+       Role Tabs
+    ========================= */
+    
+    .role-tabs{
+      display:flex;
+      gap:8px;
+      margin-bottom:12px;
+    }
+    
+    .role-tab{
+      border:none;
+      padding:8px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      background:#f3f4f6;
+      color:#374151;
+      font-size:13px;
+    }
+    
+    .role-tab:hover{
+      background:#e5e7eb;
+    }
+    
+    .role-tab.active{
+      color:#fff;
+    }
+    
+    .role-tab.all.active{
+      background:#6b7280;
+    }
+    
+    .role-tab.judge.active{
+      background:#16a34a;
+    }
+    
+    .role-tab.record.active{
+      background:#f59e0b;
     }
   </style>
 </head>
@@ -468,26 +502,27 @@
       
         <button
           id="roleAll"
-          class="role-tab active"
+          class="role-tab all active"
           onclick="switchRoleTab('all')">
           全部
         </button>
       
         <button
           id="roleJudge"
-          class="role-tab"
+          class="role-tab judge"
           onclick="switchRoleTab('judge')">
           ⚾ 裁判
         </button>
       
         <button
           id="roleRecord"
-          class="role-tab"
+          class="role-tab record"
           onclick="switchRoleTab('record')">
           📝 紀錄
         </button>
       
       </div>
+      
       <!-- 右 -->
       <div class="btn-group">
         <!-- <button class="btn" onclick="setSort('score')">出勤排序</button> -->
@@ -1084,16 +1119,10 @@ function formatRole(roleStr){
     currentRoleTab = tab;
   
     document
-      .getElementById('roleAll')
-      .classList.remove('active');
-  
-    document
-      .getElementById('roleJudge')
-      .classList.remove('active');
-  
-    document
-      .getElementById('roleRecord')
-      .classList.remove('active');
+      .querySelectorAll('.role-tab')
+      .forEach(btn=>{
+        btn.classList.remove('active');
+      });
   
     if(tab === 'all'){
       document
