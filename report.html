@@ -469,7 +469,7 @@ function loadReport(){
   console.log('month=', m);
 
   callApi({
-    action:'getMonthlyReport',
+    action:'getAttendanceReportV2',
     month:m
   }, res => {
 
@@ -494,11 +494,15 @@ function sortUsers(list){
 
   const arr = [...list];
 
-  if(currentSort === 'score'){
-    return arr.sort((a,b)=>
-      (b.summary.total || 0) - (a.summary.total || 0)
-    );
-  }
+if(currentSort === 'score'){
+
+  return arr.sort((a,b)=>
+    (b.summary?.yearAttendance || 0)
+    -
+    (a.summary?.yearAttendance || 0)
+  );
+
+}
 
   if(currentSort === 'quality'){
     return arr.sort((a,b)=>
@@ -521,164 +525,191 @@ function setSort(mode){
 function render(data, gameDays){
 
   if(!gameDays || gameDays.length === 0){
+
     document.getElementById('reportArea').innerHTML =
       '⚠️ 沒有比賽資料';
+
     return;
   }
 
   const today = new Date();
   today.setHours(0,0,0,0);
 
-  const currentYear = today.getFullYear();
-
   const monthMap = {};
 
   gameDays.forEach(fullDate=>{
-    const [y, m, d] = fullDate.split('-');
+
+    const [y,m,d] = fullDate.split('-');
 
     if(!monthMap[m]){
       monthMap[m] = [];
     }
 
-    monthMap[m].push(d);
+    monthMap[m].push(fullDate);
+
   });
 
   let html = '';
-  const users = sortUsers(Object.values(data));
+
+  const users = sortUsers(
+    Object.values(data)
+  );
 
   users.forEach(u=>{
 
-    if(u.name === '系統管理員') return;
+    const roleStats = u.roleStats || {};
+    const summary = u.summary || {};
 
-    const finished = u.summary.total - u.summary.late - u.summary.no_show;
+    const roleText = Object.keys(roleStats)
+      .sort()
+      .map(r=>
+        `${mapRole(r)}(${roleStats[r]})`
+      )
+      .join('、');
 
     html += `
-    <div class="user-row">
-      <div class="user-header">
-        <div class="user-name">
-          ${u.name}
-          <span class="user-role">${u.roles ? formatRole(u.roles) : '—'}</span>
+      <div class="user-row">
+
+        <div class="user-header">
+
+          <div class="user-name">
+            ${u.name}
+            <span class="user-role">
+              ${formatRole(u.roles)}
+            </span>
+          </div>
+
         </div>
-      </div>
 
-      <div class="user-kpi">
-        <span class="label">生涯：</span>
-        <span class="day ok">${finished}</span>
-        <span class="day late">${u.summary.late}</span>
-        <span class="day no">${u.summary.no_show}</span>
-        <span class="day sub">${u.summary.playoff}</span>
-      </div>
+        <div class="user-kpi">
 
-      <div class="right-panel">
+          <span class="day ok">
+            年:${summary.yearAttendance || 0}
+          </span>
+
+          <span class="day ok">
+            生:${summary.careerAttendance || 0}
+          </span>
+
+          <span class="day late">
+            遲:${summary.late || 0}
+          </span>
+
+          <span class="day no">
+            缺:${summary.no_show || 0}
+          </span>
+
+          <span class="day sub">
+            支:${summary.support || 0}
+          </span>
+
+        </div>
+
+        <div style="
+          font-size:12px;
+          color:#666;
+          margin-bottom:6px;
+        ">
+          ${roleText}
+        </div>
+
+        <div class="right-panel">
     `;
 
     Object.keys(monthMap)
       .sort()
-      .forEach(m => {
+      .forEach(m=>{
 
         html += `
           <div class="month-row">
-            <div class="month-label">${Number(m)}月</div>
+
+            <div class="month-label">
+              ${Number(m)}月
+            </div>
+
             <div class="days">
         `;
 
         monthMap[m]
-          .sort((a,b)=>Number(a)-Number(b))
-          .forEach(d => {
+          .sort()
+          .forEach(fullDate=>{
 
-            const rec = u.days[d];
+            const d = fullDate.split('-')[2];
 
-            let cls = 'empty';
-            let tooltip = '';
+            const rec =
+              (u.days || {})[fullDate] || [];
 
-            const fullDateStr = `${currentYear}-${m}-${d}`;
-            const dateObj = new Date(fullDateStr);
-            dateObj.setHours(0,0,0,0);
+            let cls='empty';
 
-            const isFuture = dateObj > today;
+            if(rec.length){
 
-            /******** ✅ 核心邏輯 ********/
+              const hasSupport =
+                rec.some(x=>x.is_replacement);
 
-            if(rec && rec.length){
+              const hasNoShow =
+                rec.some(x=>x.status==='no_show');
 
-              if(!isFuture){
+              const hasLate =
+                rec.some(x=>x.status==='late');
 
-                const hasNo = rec.some(x=>x.status==='no_show');
-                const hasLate = rec.some(x=>x.status==='late');
-                const hasSub = rec.some(x=>x.is_replacement);
-                const hasDone = rec.some(x=>x.status==='completed');
+              const hasCompleted =
+                rec.some(x=>x.status==='completed');
 
-                if(hasNo) cls='no';
-                else if(hasLate) cls='late';
-                else if(hasSub) cls='sub';
-                else if(hasDone) cls='ok';
+              const hasFuture =
+                rec.some(x=>
+                  x.status==='future_assign' ||
+                  x.status==='future_signup'
+                );
 
-              }else{
-
-                const hasSub = rec.some(x=>x.is_replacement);
-
-                if(hasSub){
-                  cls = 'future-sub';
-                }else{
-                  cls = 'future';
-                }
-
+              if(hasSupport){
+                cls='sub';
+              }
+              else if(hasNoShow){
+                cls='no';
+              }
+              else if(hasLate){
+                cls='late';
+              }
+              else if(hasCompleted){
+                cls='ok';
+              }
+              else if(hasFuture){
+                cls='future';
               }
 
-            }else{
-              cls = 'empty'; // ✅ 沒資料 → 不顯示
-            }
-
-            /******** ✅ tooltip ********/
-
-            if(rec && rec.length){
-
-              const roleMap = {
-                PU:'主審',
-                U1:'一壘審',
-                U2:'二壘審',
-                U3:'三壘審',
-                REC_MAIN:'紀錄員',
-                REC_VIDEO:'影像紀錄員',
-                REC_TRAINEE:'見習紀錄員'
-              };
-
-              const statusMap = {
-                completed:'✅ 完成',
-                late:'⏰ 遲到',
-                no_show:'❌ 缺席'
-              };
-
-              tooltip = rec.map(x=>{
-
-                if(isFuture){
-                  return x.is_replacement
-                    ? `${roleMap[x.role] || x.role}：🔵 已排（替補）`
-                    : `${roleMap[x.role] || x.role}：🟢 已排班`;
-                }else{
-                  return `${roleMap[x.role] || x.role}：${statusMap[x.status] || x.status}`;
-                }
-
-              }).join('\n');
             }
 
             html += `
-              <span class="day ${cls}" 
-                onclick='showDayDetail(${JSON.stringify(rec || [])}, "${m}/${d}", "${currentYear}-${m}-${d}")'
-                title="${tooltip}">
+              <span
+                class="day ${cls}"
+                onclick='showDayDetail(
+                  ${JSON.stringify(rec)},
+                  "${fullDate}"
+                )'
+              >
                 ${Number(d)}
               </span>
             `;
 
           });
 
-        html += `</div></div>`;
+        html += `
+            </div>
+          </div>
+        `;
+
       });
 
-    html += `</div></div>`;
+    html += `
+        </div>
+      </div>
+    `;
+
   });
 
-  document.getElementById('reportArea').innerHTML = html;
+  document.getElementById('reportArea').innerHTML =
+    html;
+
 }
 
 
@@ -688,121 +719,112 @@ function render(data, gameDays){
 ✅ 不影響桌機
 ✅ 不改資料結構
 */
-function showDayDetail(list, date, fullDate){
+function showDayDetail(list, fullDate){
 
-  const modal = document.getElementById('dayDetailModal');
-  const content = document.getElementById('dayDetailContent');
+  const modal =
+    document.getElementById(
+      'dayDetailModal'
+    );
 
-  const today = new Date();
-  today.setHours(0,0,0,0);
-
-  const gameDate = new Date(fullDate);
-  gameDate.setHours(0,0,0,0);
-
-  const isFuture = gameDate > today;
+  const content =
+    document.getElementById(
+      'dayDetailContent'
+    );
 
   if(!list || !list.length){
-    content.innerHTML = `<div>📌 ${date}<br>無出勤紀錄</div>`;
-  }else{
 
-    const roleMap = {
-      PU:'主審',
-      U1:'一壘審',
-      U2:'二壘審',
-      U3:'三壘審',
-      REC_MAIN:'紀錄員',
-      REC_VIDEO:'影像紀錄員',
-      REC_TRAINEE:'見習紀錄員'
-    };
+    content.innerHTML =
+      `<div>${fullDate}<br>無資料</div>`;
 
-    const statusMap = {
-      completed:'✅ 完成',
-      late:'⏰ 遲到',
-      no_show:'❌ 缺席'
-    };
+    modal.style.display='flex';
 
-    const uniqueList = [];
-    const seen = new Set();
+    return;
+  }
 
-    list.forEach(x=>{
-      const key = (x.game_code || x.game_id) + '_' + x.role;
-      if(!seen.has(key)){
-        seen.add(key);
-        uniqueList.push(x);
-      }
-    });
+  let html =
+    `<h3>${fullDate}</h3>`;
 
-    const gameMap = {};
+  list.forEach(x=>{
 
-    uniqueList.forEach(x=>{
+    let statusText='';
 
-      // ✅ ✅ ✅ 核心修正：強制用 game_code
-      const gid = (x.game_code && x.game_code.trim())
-        ? x.game_code
-        : (x.game_id || '未指定場次');
+    if(x.is_replacement){
 
-      if(!gameMap[gid]) gameMap[gid] = [];
-      gameMap[gid].push(x);
-    });
+      statusText='🔵 支援';
 
-    let html = `
-      <div style="font-weight:800;font-size:16px;margin-bottom:10px;">
-        📌 ${date}
+    }
+    else if(x.status==='completed'){
+
+      statusText='✅ 完成';
+
+    }
+    else if(x.status==='late'){
+
+      statusText='🟡 遲到';
+
+    }
+    else if(x.status==='no_show'){
+
+      statusText='🔴 缺席';
+
+    }
+    else if(x.status==='future_assign'){
+
+      statusText='🟢 已指派';
+
+    }
+    else if(x.status==='future_signup'){
+
+      statusText='🟢 已報名';
+
+    }
+
+    html += `
+      <div style="
+        margin-bottom:8px;
+        padding:8px;
+        border:1px solid #eee;
+        border-radius:6px;
+      ">
+
+        <div>
+          ⚾ ${x.game_code || x.game_id}
+        </div>
+
+        <div>
+          ${mapRole(x.role)}
+        </div>
+
+        <div>
+          ${statusText}
+        </div>
+
       </div>
     `;
 
-    Object.keys(gameMap).forEach(gid => {
+  });
 
-      html += `
-        <div style="
-          margin-bottom:10px;
-          padding:8px;
-          border:1px solid #eee;
-          border-radius:8px;
-          background:#fafafa;
-        ">
+  content.innerHTML = html;
 
-          <div style="
-            font-weight:700;
-            margin-bottom:6px;
-            color:#1a237e;
-          ">
-            ⚾ ${gid}
-          </div>
-      `;
+  modal.style.display='flex';
 
-      gameMap[gid].forEach(x=>{
+}
 
-        let statusText = '';
+//
+function mapRole(role){
 
-        if(isFuture){
+  const map = {
+    PU:'主審',
+    U1:'一壘審',
+    U2:'二壘審',
+    U3:'三壘審',
+    REC_MAIN:'紀錄員',
+    REC_VIDEO:'影像紀錄員',
+    REC_TRAINEE:'見習紀錄員'
+  };
 
-          statusText = x.is_replacement
-            ? '🔵 已排（替補）'
-            : '🟢 已排班';
+  return map[role] || role;
 
-        }else{
-
-          statusText = x.is_replacement
-            ? '🔵 替補'
-            : (statusMap[x.status] || x.status);
-
-        }
-
-        html += `
-          <div style="margin-bottom:4px;">
-            ${roleMap[x.role] || x.role}：${statusText}
-          </div>
-        `;
-      });
-
-      html += `</div>`;
-    });
-
-    content.innerHTML = html;
-  }
-
-  modal.style.display = 'flex';
 }
 
 // 關閉Detail視窗
@@ -825,15 +847,17 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 function formatRole(roleStr){
 
+  if(!roleStr) return '';
+
   const map = {
-    admin: '系統管理員',
-    chief_judge: '裁判長',
-    judge: '裁判員',
-    record_chief: '紀錄長',
-    record: '紀錄員'
+    admin:'系統管理員',
+    chief_judge:'裁判長',
+    judge:'裁判員',
+    record_chief:'紀錄長',
+    record:'紀錄員'
   };
 
-  return roleStr
+  return String(roleStr)
     .split(',')
     .map(r => map[r.trim()] || r)
     .join(' / ');
