@@ -504,15 +504,6 @@
     <!-- ✅ 第一排 -->
     <div class="header-row">
       <div class="title">📊 出勤報表</div>
-            <div class="legend">
-              <span class="day ok">完成</span>
-              <span class="day late">遲</span>
-              <span class="day no">缺</span>
-              <span class="day sub">援</span>
-              <div class="btn-group">
-                <button　class="btn back" onclick="goBack()">返回前頁</button>
-              </div>
-            </div>
     </div>
     
     <!-- ✅ 第二排（左右） -->
@@ -532,33 +523,18 @@
       
           <div class="view-tabs">
       
-            <button
-              class="view-tab active"
-              id="btnSummary"
-              onclick="switchView('summary')">
-              📊 年度總表
-            </button>
+            <button class="view-tab active" id="btnSummary" onclick="switchView('summary')">📊 年度總表</button>
+            <button class="view-tab" id="btnCalendar" onclick="switchView('calendar')">📅 日曆模式</button>
       
-            <button
-              class="view-tab"
-              id="btnCalendar"
-              onclick="switchView('calendar')">
-              📅 日曆模式
-            </button>
-      
-            <div class="btn-group">
-              <button
-                class="btn back"
-                onclick="goBack()">
-                返回
-              </button>
+            <div class="legend">
+              <span class="day ok">完成</span>
+              <span class="day late">遲</span>
+              <span class="day no">缺</span>
+              <span class="day sub">援</span>
+            </div>
             
-              <div class="legend">
-                <span class="day ok">完成</span>
-                <span class="day late">遲</span>
-                <span class="day no">缺</span>
-                <span class="day sub">援</span>
-              </div>
+            <div class="btn-group">
+              <button class="btn back" onclick="goBack()">返回前頁</button>
             </div>
             
           </div>
