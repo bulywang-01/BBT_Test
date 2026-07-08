@@ -1051,7 +1051,8 @@ function formatRole(roleStr){
         （共 ${users.length} 人）
       </div>
     `;
-  
+    
+    <table class="summary-table">
         <thead>
           <tr>
             <th>姓名</th>
@@ -1085,14 +1086,16 @@ function formatRole(roleStr){
           )
         : 0;
   
-      const roleHtml =
-        Object.keys(u.roleStats || {})
-          .sort((a,b)=>
-            (u.roleStats[b] || 0)
-            -
-            (u.roleStats[a] || 0)
-          )
-          .slice(0,3)
+        const roleHtml =
+          Object.keys(u.roleStats || {})
+            .filter(r =>
+              Number(u.roleStats[r] || 0) > 0
+            )
+            .sort((a,b)=>
+              (u.roleStats[b] || 0)
+              -
+              (u.roleStats[a] || 0)
+            )
           .map(r=>
             `<span class="role-badge">
                ${mapRole(r)}
@@ -1129,7 +1132,7 @@ function formatRole(roleStr){
           </td>
   
           <td style="text-align:left">
-            ${roleHtml}
+            ${roleHtml || '—'}
           </td>
   
         </tr>
