@@ -447,6 +447,64 @@
     .role-tabs{
       margin-left:auto;
     }
+
+    .report-toolbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:12px;
+      flex-wrap:wrap;
+    }
+    
+    .role-tabs{
+      display:flex;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    
+    .report-note{
+      margin-bottom:12px;
+    }
+
+    .report-toolbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:12px;
+      gap:12px;
+    }
+    
+    .left-tools{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    
+    .view-tabs{
+      display:flex;
+      gap:8px;
+    }
+    
+    .role-tabs{
+      display:flex;
+      gap:8px;
+      margin:0;
+    }
+    
+    @media (max-width:900px){
+    
+      .report-toolbar{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+    
+      .left-tools{
+        width:100%;
+        flex-wrap:wrap;
+      }
+    
+    }
   </style>
 </head>
 
@@ -482,61 +540,64 @@
         <button class="btn primary" onclick="selectMonth('ALL')">今年度</button>
       </div>
       -->
-      <div class="tab-bar">
+      <div class="report-toolbar">
       
-        <div class="view-tabs">
+        <div class="left-tools">
       
-          <button
-            class="view-tab active"
-            id="btnSummary"
-            onclick="switchView('summary')">
-            📊 年度總表
-          </button>
+          <div class="view-tabs">
       
-          <button
-            class="view-tab"
-            id="btnCalendar"
-            onclick="switchView('calendar')">
-            📅 日曆模式
-          </button>
+            <button
+              class="view-tab active"
+              id="btnSummary"
+              onclick="switchView('summary')">
+              📊 年度總表
+            </button>
+      
+            <button
+              class="view-tab"
+              id="btnCalendar"
+              onclick="switchView('calendar')">
+              📅 日曆模式
+            </button>
+      
+          </div>
+      
+          <div class="role-tabs">
+      
+            <button
+              id="roleAll"
+              class="role-tab all active"
+              onclick="switchRoleTab('all')">
+              全部
+            </button>
+      
+            <button
+              id="roleJudge"
+              class="role-tab judge"
+              onclick="switchRoleTab('judge')">
+              ⚾ 裁判
+            </button>
+      
+            <button
+              id="roleRecord"
+              class="role-tab record"
+              onclick="switchRoleTab('record')">
+              📝 紀錄
+            </button>
+      
+          </div>
       
         </div>
       
-        <div class="role-tabs">
-      
+        <div class="btn-group">
           <button
-            id="roleAll"
-            class="role-tab all active"
-            onclick="switchRoleTab('all')">
-            全部
+            class="btn back"
+            onclick="goBack()">
+            返回
           </button>
-          
-          <button
-            id="roleJudge"
-            class="role-tab judge"
-            onclick="switchRoleTab('judge')">
-            ⚾ 裁判
-          </button>
-          
-          <button
-            id="roleRecord"
-            class="role-tab record"
-            onclick="switchRoleTab('record')">
-            📝 紀錄
-          </button>
-      
         </div>
       
-      </div>
-      
-      <!-- 右 -->
-      <div class="btn-group">
-        <!-- <button class="btn" onclick="setSort('score')">出勤排序</button> -->
-        <!-- <button class="btn" onclick="setSort('quality')">品質排序</button> -->
-        <!-- <button class="btn" onclick="setSort('name')">姓名排序</button> -->
-        <button class="btn back" onclick="goBack()">返回</button>
-      </div>
-    
+      </div> 
     </div>
   
   <div id="reportArea"></div>
