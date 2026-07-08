@@ -1086,23 +1086,65 @@ function formatRole(roleStr){
           )
         : 0;
   
-        const roleHtml =
-          Object.keys(u.roleStats || {})
-            .filter(r =>
-              Number(u.roleStats[r] || 0) > 0
-            )
-            .sort((a,b)=>
-              (u.roleStats[b] || 0)
-              -
-              (u.roleStats[a] || 0)
-            )
-          .map(r=>
-            `<span class="role-badge">
-               ${mapRole(r)}
-               (${u.roleStats[r]})
-             </span>`
+      const judgeRoles =
+        Object.keys(u.roleStats || {})
+          .filter(r =>
+            ['PU','U1','U2','U3'].includes(r) &&
+            Number(u.roleStats[r] || 0) > 0
           )
-          .join('');
+          .sort((a,b)=>
+            (u.roleStats[b] || 0)
+            -
+            (u.roleStats[a] || 0)
+          );
+      
+      const recordRoles =
+        Object.keys(u.roleStats || {})
+          .filter(r =>
+            ['REC_MAIN','REC_VIDEO','REC_TRAINEE'].includes(r) &&
+            Number(u.roleStats[r] || 0) > 0
+          )
+          .sort((a,b)=>
+            (u.roleStats[b] || 0)
+            -
+            (u.roleStats[a] || 0)
+          );
+      
+      let roleHtml = '';
+      
+      if(judgeRoles.length){
+      
+        roleHtml += `
+          <div style="margin-bottom:4px;">
+            ⚾ 裁判：
+            ${
+              judgeRoles.map(r=>
+                `<span class="role-badge">
+                   ${mapRole(r)}
+                   (${u.roleStats[r]})
+                 </span>`
+              ).join('')
+            }
+          </div>
+        `;
+      }
+      
+      if(recordRoles.length){
+      
+        roleHtml += `
+          <div>
+            📝 紀錄：
+            ${
+              recordRoles.map(r=>
+                `<span class="role-badge">
+                   ${mapRole(r)}
+                   (${u.roleStats[r]})
+                 </span>`
+              ).join('')
+            }
+          </div>
+        `;
+      }
   
       html += `
         <tr>
