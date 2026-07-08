@@ -384,6 +384,16 @@
       color:#2563eb;
       font-size:12px;
     }
+
+    .report-note{
+      margin-bottom:10px;
+      padding:8px 12px;
+      background:#eff6ff;
+      border-left:4px solid #2563eb;
+      color:#1e40af;
+      border-radius:6px;
+      font-size:13px;
+    }
   </style>
 </head>
 
@@ -1027,10 +1037,20 @@ function formatRole(roleStr){
   function renderSummary(data){
   
     const users =
-      sortUsers(Object.values(data));
+      sortUsers(
+        Object.values(data)
+          .filter(u =>
+            (u.summary?.careerAttendance || 0) > 0
+          )
+      );
   
     let html = `
-      <table class="summary-table">
+    
+      <div class="report-note">
+        📌 本表僅顯示曾有出勤紀錄之裁判員、裁判長、紀錄員及紀錄長
+        （共 ${users.length} 人）
+      </div>
+    `;
   
         <thead>
           <tr>
