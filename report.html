@@ -343,10 +343,10 @@
       <div class="title">📊 出勤報表</div>
     
       <div class="legend">
-        <span class="day ok">出</span>
+        <span class="day ok">完成</span>
         <span class="day late">遲</span>
         <span class="day no">缺</span>
-        <span class="day sub">補</span>
+        <span class="day sub">援</span>
       </div>
     </div>
     
@@ -620,31 +620,31 @@ function render(data, gameDays){
         <div class="user-kpi-text">
         
           <span class="year">
-            年度出席：${summary.yearAttendance || 0}
-          </span>
-        
-          ｜
-        
-          <span class="career">
             生涯出席：${summary.careerAttendance || 0}
           </span>
         
           ｜
         
+          <span class="career">
+            年度出席：${summary.yearAttendance || 0}
+          </span>
+        
+          ｜
+        
           <span class="late">
-            遲到：${summary.late || 0}
+            遲：${summary.late || 0}
           </span>
         
           ｜
         
           <span class="no-show">
-            缺席：${summary.no_show || 0}
+            缺：${summary.no_show || 0}
           </span>
         
           ｜
         
           <span class="support">
-            支援：${summary.support || 0}
+            援：${summary.support || 0}
           </span>
         
         </div>
