@@ -394,6 +394,26 @@
       border-radius:6px;
       font-size:13px;
     }
+
+    .role-tabs{
+      display:flex;
+      gap:6px;
+      margin-bottom:12px;
+    }
+    
+    .role-tab{
+      border:none;
+      padding:6px 12px;
+      border-radius:999px;
+      cursor:pointer;
+      background:#e5e7eb;
+      font-size:13px;
+    }
+    
+    .role-tab.active{
+      background:#16a34a;
+      color:#fff;
+    }
   </style>
 </head>
 
@@ -443,7 +463,31 @@
           📅 日曆模式
         </button>
       </div>
-    
+      
+      <div class="role-tabs">
+      
+        <button
+          id="roleAll"
+          class="role-tab active"
+          onclick="switchRoleTab('all')">
+          全部
+        </button>
+      
+        <button
+          id="roleJudge"
+          class="role-tab"
+          onclick="switchRoleTab('judge')">
+          ⚾ 裁判
+        </button>
+      
+        <button
+          id="roleRecord"
+          class="role-tab"
+          onclick="switchRoleTab('record')">
+          📝 紀錄
+        </button>
+      
+      </div>
       <!-- 右 -->
       <div class="btn-group">
         <!-- <button class="btn" onclick="setSort('score')">出勤排序</button> -->
@@ -1036,8 +1080,38 @@ function formatRole(roleStr){
 
   // 切換子tab
   function switchRoleTab(tab){
-
+  
     currentRoleTab = tab;
+  
+    document
+      .getElementById('roleAll')
+      .classList.remove('active');
+  
+    document
+      .getElementById('roleJudge')
+      .classList.remove('active');
+  
+    document
+      .getElementById('roleRecord')
+      .classList.remove('active');
+  
+    if(tab === 'all'){
+      document
+        .getElementById('roleAll')
+        .classList.add('active');
+    }
+  
+    if(tab === 'judge'){
+      document
+        .getElementById('roleJudge')
+        .classList.add('active');
+    }
+  
+    if(tab === 'record'){
+      document
+        .getElementById('roleRecord')
+        .classList.add('active');
+    }
   
     render(
       lastData,
@@ -1057,17 +1131,33 @@ function formatRole(roleStr){
     
     if(currentRoleTab === 'judge'){
     
-      users = users.filter(u =>
-        String(u.roles || '').includes('judge')
-      );
+      users = users.filter(u => {
+    
+        const roles =
+          String(u.roles || '');
+    
+        return (
+          roles.includes('judge') ||
+          roles.includes('chief_judge')
+        );
+    
+      });
     
     }
     
     if(currentRoleTab === 'record'){
     
-      users = users.filter(u =>
-        String(u.roles || '').includes('record')
-      );
+      users = users.filter(u => {
+    
+        const roles =
+          String(u.roles || '');
+    
+        return (
+          roles.includes('record') ||
+          roles.includes('record_chief')
+        );
+    
+      });
     
     }
     
