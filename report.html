@@ -395,20 +395,6 @@
       font-size:13px;
     }
     
-    .role-tab{
-      border:none;
-      padding:6px 12px;
-      border-radius:999px;
-      cursor:pointer;
-      background:#e5e7eb;
-      font-size:13px;
-    }
-    
-    .role-tab.active{
-      background:#16a34a;
-      color:#fff;
-    }
-
     /* =========================
        Role Tabs
     ========================= */
@@ -421,16 +407,14 @@
     
     .role-tab{
       border:none;
-      padding:8px 14px;
+      padding:8px 16px;
       border-radius:999px;
       cursor:pointer;
       background:#f3f4f6;
       color:#374151;
       font-size:13px;
-    }
-    
-    .role-tab:hover{
-      background:#e5e7eb;
+      font-weight:600;
+      transition:.2s;
     }
     
     .role-tab.active{
@@ -447,6 +431,10 @@
     
     .role-tab.record.active{
       background:#f59e0b;
+    }
+    
+    .role-tab:hover{
+      background:#e5e7eb;
     }
 
     .tab-bar{
@@ -522,14 +510,14 @@
             onclick="switchRoleTab('all')">
             全部
           </button>
-      
+          
           <button
             id="roleJudge"
             class="role-tab judge"
             onclick="switchRoleTab('judge')">
             ⚾ 裁判
           </button>
-      
+          
           <button
             id="roleRecord"
             class="role-tab record"
