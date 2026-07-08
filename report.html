@@ -693,6 +693,8 @@ function loadReport(){
     lastData = res.data;
     lastGameDays = res.gameDays;
     
+    updateRoleTabCount(res.data);
+    
     render(res.data, res.gameDays);
   });
 }
@@ -766,9 +768,39 @@ function render(data, gameDays){
 
   let html = '';
 
-  const users = sortUsers(
-    Object.values(data)
-  );
+  let users = Object.values(data);
+  
+  if(currentRoleTab === 'judge'){
+  
+    users = users.filter(u => {
+  
+      const roles = String(u.roles || '');
+  
+      return (
+        roles.includes('judge') ||
+        roles.includes('chief_judge')
+      );
+  
+    });
+  
+  }
+  
+  if(currentRoleTab === 'record'){
+  
+    users = users.filter(u => {
+  
+      const roles = String(u.roles || '');
+  
+      return (
+        roles.includes('record') ||
+        roles.includes('record_chief')
+      );
+  
+    });
+  
+  }
+  
+  users = sortUsers(users);
 
   users.forEach(u=>{
 
@@ -1344,6 +1376,52 @@ function formatRole(roleStr){
     document.getElementById('reportArea')
       .innerHTML = html;
   }
+
+  // 計算人數用
+  function updateRoleTabCount(data){
+
+  const allUsers =
+    Object.values(data)
+      .filter(u =>
+        (u.summary?.careerAttendance || 0) > 0
+      );
+
+  const judgeUsers =
+    allUsers.filter(u => {
+
+      const roles =
+        String(u.roles || '');
+
+      return (
+        roles.includes('judge') ||
+        roles.includes('chief_judge')
+      );
+
+    });
+
+  const recordUsers =
+    allUsers.filter(u => {
+
+      const roles =
+        String(u.roles || '');
+
+      return (
+        roles.includes('record') ||
+        roles.includes('record_chief')
+      );
+
+    });
+
+  document.getElementById('roleAll').innerHTML =
+    `全部 (${allUsers.length})`;
+
+  document.getElementById('roleJudge').innerHTML =
+    `⚾ 裁判 (${judgeUsers.length})`;
+
+  document.getElementById('roleRecord').innerHTML =
+    `📝 紀錄 (${recordUsers.length})`;
+
+}
   </script>
 
 </body>
