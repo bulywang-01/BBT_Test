@@ -324,6 +324,129 @@
       color:#1976d2;
       font-weight:700;
     }
+
+  /* =========================
+       View Tabs
+    ========================= */
+    
+    .view-tabs{
+      display:flex;
+      gap:8px;
+      margin-bottom:12px;
+    }
+    
+    .view-tab{
+      border:none;
+      padding:8px 14px;
+      border-radius:8px;
+      cursor:pointer;
+      background:#e5e7eb;
+    }
+    
+    .view-tab.active{
+      background:#2563eb;
+      color:#fff;
+    }
+    
+    /* =========================
+       Summary Table
+    ========================= */
+    
+    .summary-table{
+      width:100%;
+      border-collapse:collapse;
+      background:#fff;
+    }
+    
+    .summary-table th{
+      background:#f3f4f6;
+      padding:10px;
+      text-align:center;
+    }
+    
+    .summary-table td{
+      padding:10px;
+      text-align:center;
+      border-bottom:1px solid #eee;
+    }
+    
+    .summary-name{
+      font-weight:700;
+      text-align:left !important;
+    }
+    
+    .role-badge{
+      display:inline-block;
+      margin:2px;
+      padding:2px 8px;
+      border-radius:12px;
+      background:#eef2ff;
+      color:#2563eb;
+      font-size:12px;
+    }
+
+    .report-note{
+      margin-bottom:10px;
+      padding:8px 12px;
+      background:#eff6ff;
+      border-left:4px solid #2563eb;
+      color:#1e40af;
+      border-radius:6px;
+      font-size:13px;
+    }
+    
+    /* =========================
+       Role Tabs
+    ========================= */
+    
+    .role-tabs{
+      display:flex;
+      gap:8px;
+      margin-bottom:12px;
+    }
+    
+    .role-tab{
+      border:none;
+      padding:8px 16px;
+      border-radius:999px;
+      cursor:pointer;
+      background:#f3f4f6;
+      color:#374151;
+      font-size:13px;
+      font-weight:600;
+      transition:.2s;
+    }
+    
+    .role-tab.active{
+      color:#fff;
+    }
+    
+    .role-tab.all.active{
+      background:#6b7280;
+    }
+    
+    .role-tab.judge.active{
+      background:#16a34a;
+    }
+    
+    .role-tab.record.active{
+      background:#f59e0b;
+    }
+    
+    .role-tab:hover{
+      background:#e5e7eb;
+    }
+
+    .tab-bar{
+      display:flex;
+      align-items:center;
+      gap:24px;
+      margin-bottom:12px;
+    }
+    
+    .role-tabs{
+      margin-left:auto;
+    }
   </style>
 </head>
 
@@ -354,15 +477,63 @@
     <div class="toolbar-row main-bar">
     
       <!-- 左 -->
+      <!--
       <div>
         <button class="btn primary" onclick="selectMonth('ALL')">今年度</button>
       </div>
-    
+      -->
+      <div class="tab-bar">
+      
+        <div class="view-tabs">
+      
+          <button
+            class="view-tab active"
+            id="btnSummary"
+            onclick="switchView('summary')">
+            📊 年度總表
+          </button>
+      
+          <button
+            class="view-tab"
+            id="btnCalendar"
+            onclick="switchView('calendar')">
+            📅 日曆模式
+          </button>
+      
+        </div>
+      
+        <div class="role-tabs">
+      
+          <button
+            id="roleAll"
+            class="role-tab all active"
+            onclick="switchRoleTab('all')">
+            全部
+          </button>
+          
+          <button
+            id="roleJudge"
+            class="role-tab judge"
+            onclick="switchRoleTab('judge')">
+            ⚾ 裁判
+          </button>
+          
+          <button
+            id="roleRecord"
+            class="role-tab record"
+            onclick="switchRoleTab('record')">
+            📝 紀錄
+          </button>
+      
+        </div>
+      
+      </div>
+      
       <!-- 右 -->
       <div class="btn-group">
-        <button class="btn" onclick="setSort('score')">出勤排序</button>
+        <!-- <button class="btn" onclick="setSort('score')">出勤排序</button> -->
         <!-- <button class="btn" onclick="setSort('quality')">品質排序</button> -->
-        <button class="btn" onclick="setSort('name')">姓名排序</button>
+        <!-- <button class="btn" onclick="setSort('name')">姓名排序</button> -->
         <button class="btn back" onclick="goBack()">返回</button>
       </div>
     
@@ -518,7 +689,12 @@ function loadReport(){
 
     // ✅ render 按鈕（第一次）
     renderMonthButtons(res.gameDays);
-
+    
+    lastData = res.data;
+    lastGameDays = res.gameDays;
+    
+    updateRoleTabCount(res.data);
+    
     render(res.data, res.gameDays);
   });
 }
@@ -560,6 +736,11 @@ function setSort(mode){
 /* ✅ render（用真實日期） */
 function render(data, gameDays){
 
+  if(currentView === 'summary'){
+    renderSummary(data);
+    return;
+  }
+
   if(!gameDays || gameDays.length === 0){
 
     document.getElementById('reportArea').innerHTML =
@@ -587,9 +768,39 @@ function render(data, gameDays){
 
   let html = '';
 
-  const users = sortUsers(
-    Object.values(data)
-  );
+  let users = Object.values(data);
+  
+  if(currentRoleTab === 'judge'){
+  
+    users = users.filter(u => {
+  
+      const roles = String(u.roles || '');
+  
+      return (
+        roles.includes('judge') ||
+        roles.includes('chief_judge')
+      );
+  
+    });
+  
+  }
+  
+  if(currentRoleTab === 'record'){
+  
+    users = users.filter(u => {
+  
+      const roles = String(u.roles || '');
+  
+      return (
+        roles.includes('record') ||
+        roles.includes('record_chief')
+      );
+  
+    });
+  
+  }
+  
+  users = sortUsers(users);
 
   users.forEach(u=>{
 
@@ -906,7 +1117,311 @@ function formatRole(roleStr){
     .map(r => map[r.trim()] || r)
     .join(' / ');
 }
+
+// 新增總表格式程式
+  let currentView = 'summary';
+  let lastData = null;
+  let lastGameDays = null;
+  let currentRoleTab = 'all';
+  
+  // 切換tab
+  function switchView(view){
+  
+    currentView = view;
+  
+    document
+      .getElementById('btnSummary')
+      .classList.remove('active');
+  
+    document
+      .getElementById('btnCalendar')
+      .classList.remove('active');
+  
+    if(view === 'summary'){
+      document
+        .getElementById('btnSummary')
+        .classList.add('active');
+    }else{
+      document
+        .getElementById('btnCalendar')
+        .classList.add('active');
+    }
+  
+    render(lastData, lastGameDays);
+  
+  }
+
+  // 切換子tab
+  function switchRoleTab(tab){
+  
+    currentRoleTab = tab;
+  
+    document
+      .querySelectorAll('.role-tab')
+      .forEach(btn=>{
+        btn.classList.remove('active');
+      });
+  
+    if(tab === 'all'){
+      document
+        .getElementById('roleAll')
+        .classList.add('active');
+    }
+  
+    if(tab === 'judge'){
+      document
+        .getElementById('roleJudge')
+        .classList.add('active');
+    }
+  
+    if(tab === 'record'){
+      document
+        .getElementById('roleRecord')
+        .classList.add('active');
+    }
+  
+    render(
+      lastData,
+      lastGameDays
+    );
+  
+  }
     
+  // 年度總表表格
+  function renderSummary(data){
+  
+    let users =
+      Object.values(data)
+        .filter(u =>
+          (u.summary?.careerAttendance || 0) > 0
+        );
+    
+    if(currentRoleTab === 'judge'){
+    
+      users = users.filter(u => {
+    
+        const roles =
+          String(u.roles || '');
+    
+        return (
+          roles.includes('judge') ||
+          roles.includes('chief_judge')
+        );
+    
+      });
+    
+    }
+    
+    if(currentRoleTab === 'record'){
+    
+      users = users.filter(u => {
+    
+        const roles =
+          String(u.roles || '');
+    
+        return (
+          roles.includes('record') ||
+          roles.includes('record_chief')
+        );
+    
+      });
+    
+    }
+    
+    users = sortUsers(users);
+
+  
+    let html = `
+    
+      <div class="report-note">
+        📌 本表僅顯示曾有出勤紀錄之裁判員、裁判長、紀錄員及紀錄長
+        （共 ${users.length} 人）
+      </div>
+    
+      <table class="summary-table">
+    
+        <thead>
+          <tr>
+            <th>姓名</th>
+            <th>年度</th>
+            <th>生涯</th>
+            <th>遲到</th>
+            <th>缺席</th>
+            <th>支援</th>
+            <th>出席率</th>
+            <th>主要位置</th>
+          </tr>
+        </thead>
+    
+        <tbody>
+    `;
+  
+    users.forEach(u=>{
+  
+      const s = u.summary || {};
+  
+      const total =
+        (s.yearAttendance || 0);
+  
+      const quality =
+        total
+        ? Math.round(
+            (
+              (total - (s.no_show || 0))
+              / total
+            ) * 100
+          )
+        : 0;
+  
+      const judgeRoles =
+        Object.keys(u.roleStats || {})
+          .filter(r =>
+            ['PU','U1','U2','U3'].includes(r) &&
+            Number(u.roleStats[r] || 0) > 0
+          )
+          .sort((a,b)=>
+            (u.roleStats[b] || 0)
+            -
+            (u.roleStats[a] || 0)
+          );
+      
+      const recordRoles =
+        Object.keys(u.roleStats || {})
+          .filter(r =>
+            ['REC_MAIN','REC_VIDEO','REC_TRAINEE'].includes(r) &&
+            Number(u.roleStats[r] || 0) > 0
+          )
+          .sort((a,b)=>
+            (u.roleStats[b] || 0)
+            -
+            (u.roleStats[a] || 0)
+          );
+      
+      let roleHtml = '';
+      
+      if(judgeRoles.length){
+      
+        roleHtml += `
+          <div style="margin-bottom:4px;">
+            ⚾ 裁判：
+            ${
+              judgeRoles.map(r=>
+                `<span class="role-badge">
+                   ${mapRole(r)}
+                   (${u.roleStats[r]})
+                 </span>`
+              ).join('')
+            }
+          </div>
+        `;
+      }
+      
+      if(recordRoles.length){
+      
+        roleHtml += `
+          <div>
+            📝 紀錄：
+            ${
+              recordRoles.map(r=>
+                `<span class="role-badge">
+                   ${mapRole(r)}
+                   (${u.roleStats[r]})
+                 </span>`
+              ).join('')
+            }
+          </div>
+        `;
+      }
+  
+      html += `
+        <tr>
+  
+          <td class="summary-name">
+            ${u.name}
+          </td>
+  
+          <td>${s.yearAttendance || 0}</td>
+  
+          <td>${s.careerAttendance || 0}</td>
+  
+          <td style="color:#f57c00;">
+            ${s.late || 0}
+          </td>
+  
+          <td style="color:#d32f2f;">
+            ${s.no_show || 0}
+          </td>
+  
+          <td style="color:#1976d2;">
+            ${s.support || 0}
+          </td>
+  
+          <td>
+            ${quality}%
+          </td>
+  
+          <td style="text-align:left">
+            ${roleHtml || '—'}
+          </td>
+  
+        </tr>
+      `;
+    });
+  
+    html += `
+        </tbody>
+      </table>
+    `;
+  
+    document.getElementById('reportArea')
+      .innerHTML = html;
+  }
+
+  // 計算人數用
+  function updateRoleTabCount(data){
+
+  const allUsers =
+    Object.values(data)
+      .filter(u =>
+        (u.summary?.careerAttendance || 0) > 0
+      );
+
+  const judgeUsers =
+    allUsers.filter(u => {
+
+      const roles =
+        String(u.roles || '');
+
+      return (
+        roles.includes('judge') ||
+        roles.includes('chief_judge')
+      );
+
+    });
+
+  const recordUsers =
+    allUsers.filter(u => {
+
+      const roles =
+        String(u.roles || '');
+
+      return (
+        roles.includes('record') ||
+        roles.includes('record_chief')
+      );
+
+    });
+
+  document.getElementById('roleAll').innerHTML =
+    `全部 (${allUsers.length})`;
+
+  document.getElementById('roleJudge').innerHTML =
+    `⚾ 裁判 (${judgeUsers.length})`;
+
+  document.getElementById('roleRecord').innerHTML =
+    `📝 紀錄 (${recordUsers.length})`;
+
+}
   </script>
 
 </body>
