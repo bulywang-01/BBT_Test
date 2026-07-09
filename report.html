@@ -163,8 +163,10 @@
         font-size: 12px;
         margin: 2px;
         text-align: center;
-        border-radius: 4px;
+        border-radius: 8px;  // 4-->8
+        padding:8px 14px;    // new
       }
+
       
       /* ✅ 手機 */
       @media (max-width:600px){
@@ -639,33 +641,6 @@
     // 生成按鈕
     function renderMonthButtons(gameDays){
       return;
-      /*
-      // ✅ 從 gameDays 推月份（靠 Games）
-      const monthsSet = new Set();
-    
-      gameDays.forEach(d=>{
-        // 先假設用當前選擇月（因為現在後端是 dd）
-        // 👉 所以這裡直接用目前 monthPicker 的值
-        const current = document.getElementById('currentMonth')?.value;
-        if(current){
-          monthsSet.add(current);
-        }
-      });
-    
-      // 👉 因為你現在後端是用 month filter
-      // 👉 所以這裡簡化：直接列固定月份（從資料來會再升級）
-    
-      const months = Array.from(monthsSet);
-    
-      let html = ``;
-    
-      months.forEach(m=>{
-        const mm = m.split('-')[1];
-        html += `<button onclick="selectMonth('${m}')">${Number(mm)}月</button>`;
-      });
-    
-      document.getElementById('monthButtons').innerHTML = html;
-      */
     }
 
 
