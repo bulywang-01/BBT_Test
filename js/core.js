@@ -1212,7 +1212,7 @@ function setGameCache(list){
 function isTimeConflict(targetGame){
 
   const tStart = new Date(targetGame.date + ' ' + getTime(targetGame)).getTime();
-  const tEnd   = tStart + (targetGame.duration || 120)*0;
+  const tEnd   = tStart + (targetGame.duration || 120)*60000;
 
   return __GAME_CACHE.some(g=>{
     if (!g.my_position) return false;
@@ -1221,7 +1221,7 @@ function isTimeConflict(targetGame){
     const gStart = new Date(g.date + ' ' + getTime(g)).getTime();
     const gEnd   = gStart + (g.duration || 120)*60000;
 
-    return (tStart < gEnd && tEnd > gStart);
+    // return (tStart < gEnd && tEnd > gStart);
   });
 }
 
