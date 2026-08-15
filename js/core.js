@@ -1657,8 +1657,8 @@ function isBeforeThisWeek(dateStr){
 ============================ */
 function checkConflictFront(game, allGames, session){
 
-  const BASE_BUFFER = 10;
-  const FIELD_BUFFER = 60;
+  const BASE_BUFFER = 0; // 10
+  const FIELD_BUFFER = 0; // 60
 
   // const tStart = new Date(game.date + ' ' + game.time).getTime();
   const tStart = new Date(game.date + ' ' + getTime(game)).getTime();
