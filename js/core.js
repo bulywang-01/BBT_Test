@@ -1212,7 +1212,7 @@ function setGameCache(list){
 function isTimeConflict(targetGame){
 
   const tStart = new Date(targetGame.date + ' ' + getTime(targetGame)).getTime();
-  const tEnd   = tStart + (targetGame.duration || 120)*60000;
+  const tEnd   = tStart + (targetGame.duration || 120)*0;
 
   return __GAME_CACHE.some(g=>{
     if (!g.my_position) return false;
@@ -1658,7 +1658,7 @@ function isBeforeThisWeek(dateStr){
 function checkConflictFront(game, allGames, session){
 
   const BASE_BUFFER = 10;
-  const FIELD_BUFFER = 0;
+  const FIELD_BUFFER = 60;
 
   // const tStart = new Date(game.date + ' ' + game.time).getTime();
   const tStart = new Date(game.date + ' ' + getTime(game)).getTime();
