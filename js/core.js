@@ -1221,7 +1221,7 @@ function isTimeConflict(targetGame){
     const gStart = new Date(g.date + ' ' + getTime(g)).getTime();
     const gEnd   = gStart + (g.duration || 120)*60000;
 
-    // return (tStart < gEnd && tEnd > gStart);
+    return (tStart < gEnd && tEnd > gStart);
   });
 }
 
