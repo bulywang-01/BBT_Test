@@ -924,6 +924,11 @@ function signupJudge(g, role){
 
   }, res => {
 
+   console.error(
+   'judgeSignupByGames回傳',
+   res
+);
+   
     if (el){
       el.classList.remove('loading');
     }
