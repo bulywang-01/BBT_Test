@@ -91,10 +91,20 @@ function renderGameCard(g, opt={}){
     ['REC_VIDEO','影像']
   ];
 
-
-  // const conflict = isTimeConflict(g);
   const conflictInfo = checkConflictFront(g, __GAME_CACHE, session);
   const conflict = conflictInfo.conflict;
+
+if (g.game_code === 'A032'
+ || g.game_code === 'B032'
+ || g.game_code === 'B033') {
+
+    console.log(
+      g.game_code,
+      'conflict=', conflict,
+      conflictInfo
+    );
+}
+ 
   const myRole = g.my_position;
   const teamConflict = isMyTeamConflict(g, session);  // 母隊衝突判斷定義
 
@@ -286,6 +296,14 @@ function renderGameCard(g, opt={}){
               const reason = getReason(role,false);
               const locked = isSameTimeOtherFieldLocked(g);
 
+           console.log(
+             g.game_code,
+             role,
+             'reason=',
+             reason,
+             'locked=',
+             locked
+          );
 
               if (name){
                 // const session = JSON.parse(localStorage.getItem('session_user')||'{}');
