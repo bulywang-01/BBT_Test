@@ -1661,6 +1661,13 @@ function isBeforeThisWeek(dateStr){
  ✅ 班表報名共用衝突檢查（前端版）
 ============================ */
 function checkConflictFront(game, allGames, session){
+
+console.log(
+  '檢查賽事',
+  game.game_code,
+  getTime(game),
+  game.field
+);
  
   const t1 = toMinutes(getTime(game));
 
@@ -1675,8 +1682,19 @@ function checkConflictFront(game, allGames, session){
     const diff = Math.abs(t1 - t2);
 
     // 同時間(5分鐘誤差內)
-    if (diff <= 5){
-
+    if (diff < 5){
+    
+      console.log(
+        '衝突',
+        game.game_code,
+        getTime(game),
+        'vs',
+        g.game_code,
+        getTime(g),
+        'diff=',
+        diff
+      );
+    
       return {
         conflict:true,
         ref:g,
