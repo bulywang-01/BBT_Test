@@ -717,7 +717,6 @@ function renderRecordSlots(g, isPast, session){
         }
 
       // ✅ ✅ ✅ 同場已有角色 或 時間衝突 → 待位
-      // const conflict = isTimeConflict(g);
       const conflictInfo = checkConflictFront(g, __GAME_CACHE, session);
       const conflict = conflictInfo.conflict;
       
@@ -872,7 +871,15 @@ function handleSlotClick(gid, role){
   }
 
   // ✅ ✅ ✅ 驗證是否可報名
-  const err = validateSignup(g, role);
+ const err = validateSignup(g, role);
+ 
+ console.error(
+   'validateSignup結果',
+   g.game_code,
+   role,
+   err
+ );
+
   if (err){
     showToast(err,'error');
     return;
@@ -1275,6 +1282,12 @@ function isMyTeamConflict(game, session){
  * ✅ 聯盟級報名規則引擎（唯一核心）
  *********************************************************/
 function validateSignup(targetGame, role){
+
+ console.log(
+  '驗證',
+  targetGame.game_code,
+  role
+);
  
   // ✅ ✅ ✅ 母隊限制（最高優先）
   if (isMyTeamConflict(targetGame, getSession())){
