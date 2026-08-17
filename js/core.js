@@ -117,7 +117,16 @@ if (g.game_code === 'A032'
 );
 
   function getReason(targetRole, isRecordSlot){
-  
+
+   console.log(
+    'getReason',
+    'game=', g.game_code,
+    'myRole=', myRole,
+    'target=', targetRole,
+    'isRecordSlot=', isRecordSlot,
+    'conflict=', conflict
+  );
+
     // ✅ ✅ ✅ 改用新的衝突判斷（含 buffer + 場地）
     if (conflict){
   
