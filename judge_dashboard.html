@@ -206,11 +206,9 @@ function loadGames() {
 function buildTournamentSelector(){
 
   const area =
-    document.getElementById(
-      'tournamentFilterArea'
-    );
+    document.getElementById('tournamentFilterArea');
 
-  if(!area) return;
+  if (!area) return;
 
   const tournaments = [
     ...new Set(
@@ -222,29 +220,42 @@ function buildTournamentSelector(){
     )
   ].sort();
 
-  // 只有一個賽事
-  if(tournaments.length <= 1){
+  // ✅ 只有一種賽事，不顯示選單
+  if (tournaments.length <= 1){
 
     currentTournament =
       tournaments[0] || '';
+
+    localStorage.setItem(
+      'currentTournament',
+      currentTournament
+    );
 
     area.innerHTML = '';
 
     return;
   }
 
-  currentTournament = '';
+  // ✅ 記住上次選擇
+  const savedTournament =
+    localStorage.getItem('currentTournament') || '';
+
+  currentTournament = savedTournament;
 
   area.innerHTML = `
     <select
       id="tournamentFilter"
-      onchange="
-        currentTournament=this.value;
-        render();
-      "
       style="
         padding:6px 10px;
         border-radius:8px;
+        border:1px solid #d1d5db;
+        min-width:240px;
+        font-size:14px;
+      "
+      onchange="
+        currentTournament=this.value;
+        localStorage.setItem('currentTournament', currentTournament);
+        render();
       "
     >
 
@@ -253,7 +264,10 @@ function buildTournamentSelector(){
       </option>
 
       ${tournaments.map(t => `
-        <option value="${t}">
+        <option
+          value="${t}"
+          ${t === savedTournament ? 'selected' : ''}
+        >
           ${t}
         </option>
       `).join('')}
