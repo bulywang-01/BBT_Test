@@ -112,11 +112,13 @@ body{
   display:grid;
 
   grid-template-columns:
-    repeat(auto-fit,minmax(220px,1fr));
+    repeat(auto-fill,minmax(280px,280px));
 
   gap:14px;
 
   margin-bottom:18px;
+
+  justify-content:flex-start;
 }
 
 
