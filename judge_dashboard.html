@@ -92,6 +92,8 @@ function loadHeader() {
 
     <!-- 月班表選擇 -->
     <div id="month-tabs" class="month-tabs"></div>
+    <div id="tournamentFilterArea" style="margin:8px 0 14px;"></div>
+
 
     <!-- 桌機表格 -->
     <div id="content"></div>
@@ -162,6 +164,8 @@ function loadGames() {
 
       allGames = (res.games || []).map(safeMerge);
       games = allGames;
+
+      buildTournamentSelector();
       
       // ✅ ✅ ✅ 補 my_position（一定要）
       const s = session;
@@ -201,20 +205,24 @@ function loadGames() {
 
 function buildTournamentSelector(){
 
-  const tournaments = [
-    ...new Set(
-      allGames
-        .map(g => String(g.tournament || '').trim())
-        .filter(Boolean)
-    )
-  ];
-
   const area =
-    document.getElementById('tournamentFilterArea');
+    document.getElementById(
+      'tournamentFilterArea'
+    );
 
   if(!area) return;
 
-  // 只有一種賽事
+  const tournaments = [
+    ...new Set(
+      allGames
+        .map(g =>
+          String(g.tournament || '').trim()
+        )
+        .filter(Boolean)
+    )
+  ].sort();
+
+  // 只有一個賽事
   if(tournaments.length <= 1){
 
     currentTournament =
@@ -234,19 +242,26 @@ function buildTournamentSelector(){
         currentTournament=this.value;
         render();
       "
+      style="
+        padding:6px 10px;
+        border-radius:8px;
+      "
     >
+
       <option value="">
         請選擇要報名的賽事
       </option>
 
-      ${tournaments.map(t =>
-        `<option value="${t}">
+      ${tournaments.map(t => `
+        <option value="${t}">
           ${t}
-        </option>`
-      ).join('')}
+        </option>
+      `).join('')}
+
     </select>
   `;
 }
+
 
 /* ===== 工具 ===== */
 function cancelSelected(gameId) {
@@ -341,14 +356,6 @@ function render(){
     root.innerHTML = '<div>沒有資料</div>';
     return;
   }
-
-  if(
-    currentTournament &&
-    String(g.tournament || '').trim()
-      !== currentTournament
-  ){
-    return;
-  }
   
   const dateMap = {};
 
@@ -357,6 +364,14 @@ function render(){
   ========================= */
   games.forEach(g => {
 
+    if(
+      currentTournament &&
+      String(g.tournament || '').trim()
+        !== currentTournament
+    ){
+      return;
+    }
+    
     const s = Number(g.status || 0);
 
     // ✅ 暫存不顯示
