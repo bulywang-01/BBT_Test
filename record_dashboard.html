@@ -150,34 +150,106 @@ let currentTournament = '';
 
 /* ===== API ===== */
 function loadGames() {
-  const s = JSON.parse(localStorage.getItem('session_user')||'{}');
- showToast('載入賽事資料中...');
+
+  const s = JSON.parse(
+    localStorage.getItem('session_user') || '{}'
+  );
+
+  showToast('載入賽事資料中...');
 
   callApi(
-    { action:'getRecordGames', user_id: s.user_id || '' },
+    {
+      action:'getRecordGames',
+      user_id:s.user_id || ''
+    },
     res => {
 
       if (!res || res.result !== 'ok') {
-        showToast(res?.message || '無法取得賽事資料');
+
+        showToast(
+          res?.message || '無法取得賽事資料'
+        );
+
         return;
       }
 
-    allGames = (res.games || []).map(safeMerge);
-    games = allGames;
-    
-    // ✅ 新增
-    buildTournamentSelector();
-      
-      if (typeof setGameCache === 'function'){
-        setGameCache(allGames);   // ✅ 關鍵
+      // ✅ 與裁判頁同步
+      allGames =
+        (res.games || []).map(safeMerge);
+
+      games = allGames;
+
+      // ✅ 載入賽事篩選
+      buildTournamentSelector();
+
+      // ✅ 補 my_position（裁判頁已有）
+      const sUser = session;
+
+      allGames.forEach(g => {
+
+        // 裁判
+        if (g.judges){
+
+          for (
+            let [role,val]
+            of Object.entries(g.judges)
+          ){
+
+            if (
+              typeof isMySlot === 'function' &&
+              isMySlot(val, sUser)
+            ){
+              g.my_position = role;
+            }
+
+          }
+
+        }
+
+        // 紀錄
+        if (g.records){
+
+          for (
+            let [role,val]
+            of Object.entries(g.records)
+          ){
+
+            if (
+              typeof isMySlot === 'function' &&
+              isMySlot(val, sUser)
+            ){
+              g.my_position = role;
+            }
+
+          }
+
+        }
+
+      });
+
+      // ✅ 快取
+      if (
+        typeof setGameCache === 'function'
+      ){
+        setGameCache(allGames);
       }
 
-      console.log(games.map(g => g.status));
+      console.log(
+        'Tournament List =',
+        [...new Set(
+          allGames.map(g => g.tournament)
+        )]
+      );
+
+      console.log(
+        games.map(g => g.status)
+      );
+
       render();
-      ;
 
     }
   );
+
 }
 
 /* ===== 工具 ===== */
