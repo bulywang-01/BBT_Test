@@ -182,6 +182,13 @@ function loadGames() {
       // ✅ 載入賽事篩選
       buildTournamentSelector();
 
+      console.log(
+        'Tournament List =',
+        [...new Set(
+          allGames.map(g => g.tournament)
+        )]
+      );
+      
       // ✅ 補 my_position（裁判頁已有）
       const sUser = session;
 
