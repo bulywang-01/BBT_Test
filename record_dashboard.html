@@ -77,9 +77,8 @@ body {
 ================================ */
 .card-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:14px;                 /* ✅ 原本太小 */
-  margin-bottom:18px;       /* ✅ 關鍵 */
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
 }
 
 /* ===============================
@@ -265,12 +264,9 @@ body {
 ================================ */
 @media (max-width:768px){
 
-.card-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-  gap:14px;
-  margin-bottom:18px;
-}
+  .card-grid{
+    grid-template-columns:1fr;
+  }
 
   .team{
     font-size:20px;
