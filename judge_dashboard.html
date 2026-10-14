@@ -220,7 +220,7 @@ function buildTournamentSelector(){
     )
   ].sort();
 
-  // ✅ 只有一種賽事，不顯示選單
+  // ✅ 只有一個賽事
   if (tournaments.length <= 1){
 
     currentTournament =
@@ -236,11 +236,19 @@ function buildTournamentSelector(){
     return;
   }
 
-  // ✅ 記住上次選擇
+  // ✅ 讀取上次選擇
   const savedTournament =
     localStorage.getItem('currentTournament') || '';
 
-  currentTournament = savedTournament;
+  // ✅ 如果上次有選而且還存在，就沿用
+  if (
+    savedTournament &&
+    tournaments.includes(savedTournament)
+  ){
+    currentTournament = savedTournament;
+  }else{
+    currentTournament = '';
+  }
 
   area.innerHTML = `
     <select
@@ -254,7 +262,10 @@ function buildTournamentSelector(){
       "
       onchange="
         currentTournament=this.value;
-        localStorage.setItem('currentTournament', currentTournament);
+        localStorage.setItem(
+          'currentTournament',
+          currentTournament
+        );
         render();
       "
     >
@@ -266,7 +277,7 @@ function buildTournamentSelector(){
       ${tournaments.map(t => `
         <option
           value="${t}"
-          ${t === savedTournament ? 'selected' : ''}
+          ${t === currentTournament ? 'selected' : ''}
         >
           ${t}
         </option>
