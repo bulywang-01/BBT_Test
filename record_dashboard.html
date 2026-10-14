@@ -7,153 +7,220 @@
 
 <style>
 /* ===============================
- ✅ 基本
-================================ */
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system;
-  background: #f5f6f8;
-  font-size: 15px;
+✅ 基本
+=============================== */
+body{
+  margin:0;
+  padding:12px;
+  background:#f5f6f8;
+  font-family:system-ui,-apple-system;
+  font-size:15px;
 }
 
-.main {
-  padding: 16px;
+.main{
+  padding:16px;
 }
 
 /* ===============================
- ✅ Header
-================================ */
+✅ Header
+=============================== */
+
 #header .nav,
 #header .header,
-#header .header-right {
-  display: flex;
-  align-items: center;
+#header .header-right{
+  display:flex;
+  align-items:center;
 }
 
-#header #u_name {
-  font-weight: 600;
-  margin-left: 8px;
-}
-
-/* ===============================
- ✅ 月份
-================================ */
-.month-tabs {
-  display: flex;
-  gap: 8px;
-  margin: 10px 0 14px;
-  flex-wrap: wrap;
-}
-
-.month-tab {
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: #f1f5f9;
-  color: #444;
-}
-
-.month-tab.active {
-  background: #1976d2;
-  color: #fff;
+#header #u_name{
+  font-weight:600;
+  margin-left:8px;
 }
 
 /* ===============================
- ✅ 日期標題
-================================ */
+✅ 月份切換
+=============================== */
+
+.month-tabs{
+  display:flex;
+  gap:8px;
+  margin:10px 0 14px;
+  flex-wrap:wrap;
+}
+
+.month-tab{
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  padding:5px 10px;
+  border-radius:999px;
+  background:#f1f5f9;
+  color:#444;
+}
+
+.month-tab.active{
+  background:#1976d2;
+  color:#fff;
+}
+
+/* ===============================
+✅ 日期標題
+=============================== */
+
 .date-header{
   font-size:16px;
   font-weight:800;
   color:#1d4ed8;
-  margin:22px 10px 10px;
+  margin:14px 10px 8px;
   padding-left:6px;
   border-left:4px solid #1d4ed8;
 }
 
+.category-title{
+  font-size:14px;
+  font-weight:700;
+  color:#1976d2;
+  margin:8px 10px 4px;
+}
+
 /* ===============================
- ✅ 卡片 Grid（核心修正）
-================================ */
-.game-card {
+✅ 卡片區域
+=============================== */
+
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:14px;
+}
+
+/* ===============================
+✅ 卡片
+=============================== */
+
+.game-card{
   background:#fff;
   border-radius:12px;
+
+  /* 高度縮減 */
   padding:8px 10px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+
+  border:2px solid #e5e7eb;
+
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
   transition:.15s;
   font-size:14px;
 }
 
-/* ===============================
- ✅ 卡片
-================================ */
-.game-card {
-  background:#fff;
-  border-radius:12px;
-  padding:14px;
-
-  min-height:180px;
-  display:flex;
-  flex-direction:column;
-
-  box-shadow:0 4px 12px rgba(0,0,0,0.08);
-  transition:.15s;
-  font-size:14px;
-}
- 
 .game-card:hover{
   transform:translateY(-2px);
-  box-shadow:0 6px 18px rgba(0,0,0,0.12);
+  box-shadow:0 6px 18px rgba(0,0,0,.12);
+}
+
+.game-card.loading{
+  opacity:.5;
+  pointer-events:none;
 }
 
 /* ===============================
- ✅ 第一列
-================================ */
+✅ 組別顏色
+=============================== */
+
+.card-mlb{
+  border:2px solid #2563eb;
+  box-shadow:0 0 0 2px rgba(37,99,235,.08);
+}
+
+.card-minor{
+  border:2px solid #16a34a;
+  box-shadow:0 0 0 2px rgba(22,163,74,.08);
+}
+
+.card-training{
+  border:2px solid #9333ea;
+  box-shadow:0 0 0 2px rgba(147,51,234,.08);
+}
+
+.card-extra-1{
+  border:2px solid #d97706;
+}
+
+.card-extra-2{
+  border:2px solid #dc2626;
+}
+
+/* ===============================
+✅ 狀態卡片
+=============================== */
+
+.game-card.postponed{
+  border:2px solid #f59e0b;
+  background:#fffbeb;
+}
+
+.game-card.stopped{
+  border:2px solid #dc2626;
+  background:#fef2f2;
+}
+
+.game-card.locked{
+  border:2px solid #6b7280;
+  background:#f3f4f6;
+  opacity:.7;
+}
+
+/* ===============================
+✅ 第一列
+=============================== */
+
 .row-top{
-  justify-content:space-between;
-  font-weight:700;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+
   font-size:13px;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
+  font-weight:700;
 }
 
-.row-top .left{ color:#2563eb;}
- 
-.row-top .center{ 
- flex:1;
- text-align:center;
- font-weight: 600;
+.row-top .left{
+  color:#2563eb;
 }
- 
-.row-top .right{ 
- justify-self: end;
- background: #6b7280;  /* 灰底 */
- color: #fff;
- padding: 3px 8px;
- border-radius: 999px;  /* 圓滑 */
- font-size: 12px;
- font-weight: 500;
+
+.row-top .center{
+  text-align:center;
+  font-weight:600;
+}
+
+.row-top .right{
+  justify-self:end;
+  background:#6b7280;
+  color:#fff;
+  padding:3px 8px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:500;
 }
 
 /* ===============================
- ✅ 第二列
-================================ */
+✅ 第二列
+=============================== */
+
 .row-mid{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  margin:0;
+
+  margin:2px 0;
 }
 
 .team{
   flex:1;
   text-align:center;
+
   font-size:20px;
   font-weight:800;
 }
 
-/* 中央 */
 .center-box{
   flex:1;
   text-align:center;
@@ -161,8 +228,8 @@ body {
 
 .game-code{
   color:#2563eb;
-  font-weight:700;
   font-size:13px;
+  font-weight:700;
 }
 
 .time{
@@ -172,28 +239,31 @@ body {
 }
 
 /* ===============================
- ✅ 第三列（裁判/紀錄）
-================================ */
+✅ 第三列（裁判/紀錄）
+=============================== */
+
 .row-bottom{
   display:grid;
   grid-template-columns:repeat(7,1fr);
+
   gap:4px;
-  border-top:1px dashed #ddd;
-  padding-top:2px;
   margin-top:2px;
+  padding-top:4px;
+
+  border-top:1px dashed #ddd;
 }
 
 .slot{
   text-align:center;
   display:flex;
   flex-direction:column;
-  align-items:center;   /* ✅ 核心 */
+  align-items:center;
 }
 
-.slot.waiting {
-  background:#f3f4f6;     /* 淡灰底 */
+.slot.waiting{
+  background:#f3f4f6;
+  color:#9ca3af;
   border-radius:6px;
-  color:#9ca3af;          /* 灰字 */
   font-weight:600;
 }
 
@@ -201,17 +271,15 @@ body {
   color:#9ca3af;
 }
 
-/* label */
 .label{
   font-size:11px;
   color:#888;
 }
 
-/* 名字 */
 .name{
   font-size:16px;
-  font-weight:700;    /* ✅ 加粗 */
-  white-space:nowrap;   /* ✅ 防止斷行炸版 */
+  font-weight:700;
+  white-space:nowrap;
 }
 
 .name.me{
@@ -223,29 +291,30 @@ body {
   border-radius:6px;
 }
 
-/* 按鈕 */
+/* ===============================
+✅ 按鈕
+=============================== */
+
 .btn{
   background:#2563eb;
   color:#fff;
+  border:none;
   border-radius:4px;
   font-size:11px;
   padding:1px 0;
-  margin-top:2px;
 }
 
-/* 取消 */
 .cancel{
   color:#dc2626;
   cursor:pointer;
-  margin-top: 4px;
-  font-size: 12px;
-  display: inline-block;
-  padding: 2px 6px;
-  border-radius: 6px;
-  background: #fef2f2;
+  margin-top:4px;
+  font-size:12px;
+  display:inline-block;
+  padding:2px 6px;
+  border-radius:6px;
+  background:#fef2f2;
 }
 
-/* 無需裁判 */
 .no-judge{
   grid-column:1/-1;
   text-align:center;
@@ -253,72 +322,8 @@ body {
 }
 
 /* ===============================
- ✅ 過期
-================================ */
-.expired-card{
-  background:#e5e7eb;
-  opacity:0.6;
-  border:1px solid #d1d5db;
-}
-
-/* ===============================
- ✅ RWD（真正版本）
-================================ */
-@media (max-width:768px){
-
-  .card-grid{
-    grid-template-columns:1fr;
-  }
-
-  .team{
-    font-size:20px;
-    font-weight:800;
-    letter-spacing:0.5px;
-  }
-
-  .time{
-    color:#dc2626;
-    font-size:17px;
-    font-weight:900;
-  }
-
-  .row-bottom{
-    grid-template-columns:repeat(4,1fr); /* ✅ 不要太擠 */
-  }
-}
-
-#overlay{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,0.35);
-  z-index:9999;
-}
-
-#overlay-box{
-  position:relative;
-  background:#fff;
-  padding:18px 22px;
-  border-radius:10px;
-  text-align:center;
-  font-size:15px;
-  box-shadow:0 8px 24px rgba(0,0,0,0.25);
-  min-width:220px;
-}
-
-.category-title{
-  font-size:14px;
-  font-weight:700;
-  color:#1976d2;
-  margin:14px 10px 6px;
-}
-
-.game-card.loading{
-  opacity:0.5;
-  pointer-events:none;
-}
+✅ 提示
+=============================== */
 
 .row-warning{
   background:#fff7ed;
@@ -338,67 +343,53 @@ body {
   margin-top:2px;
 }
 
-/* ✅ 鎖定整張卡片 */
-.game-card.locked{
-  background:#f3f4f6;
-  opacity:0.7;
+/* ===============================
+✅ Overlay
+=============================== */
+
+#overlay{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.35);
+  z-index:9999;
 }
 
-/* ✅ slot 鎖定 */
-.slot.locked{
-  background:#e5e7eb;
-  color:#666;
-  cursor:not-allowed;
+#overlay-box{
+  background:#fff;
+  padding:18px 22px;
+  border-radius:10px;
+  text-align:center;
+  font-size:15px;
+  min-width:220px;
+  box-shadow:0 8px 24px rgba(0,0,0,.25);
 }
 
-/* ✅ 基本框（非常重要） */
-.game-card{
-  border:2px solid #e5e7eb;
-}
+/* ===============================
+✅ 手機版
+=============================== */
 
-/* ✅ 延賽 */
-.game-card.postponed{
-  border:2px solid #f59e0b;
-  background: #fffbeb;
-}
+@media (max-width:768px){
 
-/* ✅ 停賽 */
-.game-card.stopped{
-  border:2px solid #dc2626;
-  background: #fef2f2;
-}
+  .card-grid{
+    grid-template-columns:1fr;
+  }
 
-/* ✅ 鎖定 */
-.game-card.locked{
-  border:2px solid #6b7280;
-  background: #f3f4f6;
-}
+  .row-bottom{
+    grid-template-columns:repeat(4,1fr);
+  }
 
-/* ✅ 大聯盟 */
-.card-mlb{
-  border:2px solid #2563eb;
-  box-shadow:0 0 0 2px rgba(37,99,235,0.08);
-}
+  .team{
+    font-size:20px;
+    font-weight:800;
+    letter-spacing:.5px;
+  }
 
-/* ✅ 小聯盟 */
-.card-minor{
-  border:2px solid #16a34a;
-  box-shadow:0 0 0 2px rgba(22,163,74,0.08);
-}
-
-/* ✅ 週六育成 */
-.card-training{
-  border:2px solid #9333ea;
-  box-shadow:0 0 0 2px rgba(147,51,234,0.08);
-}
-
-/* ✅ 備用 */
-.card-extra-1{
-  border:2px solid #d97706;
-}
-
-.card-extra-2{
-  border:2px solid #dc2626;
+  .time{
+    font-size:17px;
+  }
 }
 
 </style>
