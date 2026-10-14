@@ -673,69 +673,105 @@ function buildTournamentSelector(){
     )
   ].sort();
 
-  // 只有一個賽事
-  if(tournaments.length <= 1){
+  // ✅ 取得上次選擇
+  const savedTournament =
+    localStorage.getItem('currentTournament') || '';
 
-    currentTournament =
-      tournaments[0] || '';
+  // ✅ 只有一個賽事
+  if (tournaments.length === 1){
+
+    currentTournament = tournaments[0];
 
     localStorage.setItem(
       'currentTournament',
       currentTournament
     );
 
-    area.innerHTML = '';
+    area.innerHTML = `
+      <div style="
+        display:flex;
+        align-items:center;
+        gap:8px;
+        margin:6px 0;
+      ">
+        <span style="font-weight:700;">
+          賽事：
+        </span>
+
+        <span style="
+          background:#dbeafe;
+          color:#1d4ed8;
+          padding:4px 10px;
+          border-radius:999px;
+          font-size:13px;
+          font-weight:700;
+        ">
+          ${currentTournament}
+        </span>
+      </div>
+    `;
 
     return;
   }
 
-  const savedTournament =
-    localStorage.getItem('currentTournament') || '';
-
+  // ✅ 多賽事
   if (
     savedTournament &&
     tournaments.includes(savedTournament)
   ){
     currentTournament = savedTournament;
-  }else{
+  }
+  else{
     currentTournament = '';
   }
 
   area.innerHTML = `
-    <select
-      id="tournamentFilter"
-      style="
-        padding:6px 10px;
-        border-radius:8px;
-        border:1px solid #d1d5db;
-        min-width:240px;
-      "
-      onchange="
-        currentTournament=this.value;
-        localStorage.setItem(
-          'currentTournament',
-          currentTournament
-        );
-        render();
-      "
-    >
+    <div style="
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin:6px 0;
+    ">
 
-      <option value="">
-        請選擇要報名的賽事
-      </option>
+      <span style="font-weight:700;">
+        賽事：
+      </span>
 
-      ${
-        tournaments.map(t => `
+      <select
+        id="tournamentFilter"
+        style="
+          min-width:260px;
+          padding:6px 10px;
+          border:1px solid #d1d5db;
+          border-radius:8px;
+          font-size:14px;
+        "
+        onchange="
+          currentTournament=this.value;
+          localStorage.setItem(
+            'currentTournament',
+            currentTournament
+          );
+          render();
+        "
+      >
+
+        <option value="">
+          請選擇要報名的賽事
+        </option>
+
+        ${tournaments.map(t=>`
           <option
             value="${t}"
             ${t === currentTournament ? 'selected' : ''}
           >
             ${t}
           </option>
-        `).join('')
-      }
+        `).join('')}
 
-    </select>
+      </select>
+
+    </div>
   `;
 }
 
