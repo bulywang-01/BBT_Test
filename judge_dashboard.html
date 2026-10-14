@@ -446,62 +446,59 @@ function render(){
       const dayGames = dateMap[date];
 
       /* =====================================
-         賽事名稱 + 組別 分組
-         例如：
-         BBT聯盟｜大聯盟組
-         BBT聯盟｜小聯盟組
-         新北市議長盃｜預賽
+         場地分組（恢復原本邏輯）
+         同場地不同組別 → 混合組
+         顯示：賽事名稱｜組別
       ===================================== */
-
-      const groupMap = {};
-
+      
+      const fieldMap = {};
+      
       dayGames.forEach(g => {
-
+      
+        const field = g.field || '未分類場地';
+      
+        if (!fieldMap[field]){
+          fieldMap[field] = [];
+        }
+      
+        fieldMap[field].push(g);
+      
+      });
+      
+      Object.keys(fieldMap).forEach(field => {
+      
+        const gamesInField = fieldMap[field];
+      
         const tournament =
           String(
-            g.tournament ||
-            g.tournament_type ||
+            gamesInField[0]?.tournament ||
+            gamesInField[0]?.tournament_type ||
             '未分類賽事'
           ).trim();
-
-        const category =
-          String(
-            g.category ||
-            '未分類'
-          ).trim();
-
-        const key =
-          `${tournament}｜${category}`;
-
-        if (!groupMap[key]){
-          groupMap[key] = [];
-        }
-
-        groupMap[key].push(g);
-
-      });
-
-      Object.keys(groupMap)
-        .sort()
-        .forEach(groupKey => {
-
-          const sortedGames =
-            groupMap[groupKey]
-              .sort((a,b)=>
-                timeToMinutes(getTime(a))
-                -
-                timeToMinutes(getTime(b))
-              );
-
+      
+        const hasMultiCategory =
+          new Set(
+            gamesInField.map(x => x.category)
+          ).size > 1;
+      
+        if (hasMultiCategory){
+      
+          const sorted =
+            gamesInField.sort((a,b)=>
+              timeToMinutes(getTime(a))
+              -
+              timeToMinutes(getTime(b))
+            );
+      
           root.innerHTML += `
             <div class="category-title">
-              ${groupKey}
+              ${tournament}｜混合組｜${field}
             </div>
-
+      
             <div class="card-grid">
-
+      
               ${
-                sortedGames
+                sorted
                   .map(g =>
                     renderGameCard(
                       g,
@@ -513,11 +510,67 @@ function render(){
                   )
                   .join('')
               }
-
+      
             </div>
           `;
-
-        });
+      
+        }
+        else{
+      
+          const categoryMap = {};
+      
+          gamesInField.forEach(g => {
+      
+            const cat =
+              g.category || '未分類';
+      
+            if (!categoryMap[cat]){
+              categoryMap[cat] = [];
+            }
+      
+            categoryMap[cat].push(g);
+      
+          });
+      
+          Object.keys(categoryMap).forEach(cat => {
+      
+            const sorted =
+              categoryMap[cat]
+                .sort((a,b)=>
+                  timeToMinutes(getTime(a))
+                  -
+                  timeToMinutes(getTime(b))
+                );
+      
+            root.innerHTML += `
+              <div class="category-title">
+                ${tournament}｜${cat}
+              </div>
+      
+              <div class="card-grid">
+      
+                ${
+                  sorted
+                    .map(g =>
+                      renderGameCard(
+                        g,
+                        {
+                          session,
+                          type:'judge'
+                        }
+                      )
+                    )
+                    .join('')
+                }
+      
+              </div>
+            `;
+      
+          });
+      
+        }
+      
+      });
 
     });
 
