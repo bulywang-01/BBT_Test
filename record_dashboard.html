@@ -93,6 +93,8 @@ function loadHeader() {
     <!-- 月班表選擇 -->
     <div id="month-tabs" class="month-tabs"></div>
 
+    <div id="tournamentFilterArea" style="margin:8px 0 14px;"></div>
+
     <!-- 桌機表格 -->
     <div id="content"></div>
   
@@ -144,6 +146,7 @@ function hideLoading() {
 let allGames = [];
 let selectedPositions = {}; // game_id -> role
 let games = [];
+let currentTournament = '';
 
 /* ===== API ===== */
 function loadGames() {
@@ -159,8 +162,11 @@ function loadGames() {
         return;
       }
 
-      allGames = res.games || [];
-      games = allGames;
+    allGames = (res.games || []).map(safeMerge);
+    games = allGames;
+    
+    // ✅ 新增
+    buildTournamentSelector();
       
       if (typeof setGameCache === 'function'){
         setGameCache(allGames);   // ✅ 關鍵
@@ -247,7 +253,23 @@ function timeToMinutesSafe(t){
 function render(){
 
   const root = document.getElementById('content');
+  
+  if(
+    document.getElementById('tournamentFilter') &&
+    !currentTournament
+  ){
+  
+    root.innerHTML = `
+      <div class="row-warning">
+        請先選擇要報名的賽事
+      </div>
+    `;
+  
+    return;
+  }
+  
   root.innerHTML = '';
+
 
   if (!games || !games.length){
     root.innerHTML = '<div>沒有資料</div>';
@@ -258,6 +280,14 @@ function render(){
 
   // ✅ 分日期
   games.forEach(g => {
+  
+    if(
+      currentTournament &&
+      String(g.tournament || '').trim()
+        !== currentTournament
+    ){
+      return;
+    }
   
     const s = Number(g.status || 0);
   
@@ -624,6 +654,89 @@ function safeMerge(g){
 
   g.status = Number(g.status || 0);
   return g;
+}
+
+function buildTournamentSelector(){
+
+  const area =
+    document.getElementById('tournamentFilterArea');
+
+  if (!area) return;
+
+  const tournaments = [
+    ...new Set(
+      allGames
+        .map(g =>
+          String(g.tournament || '').trim()
+        )
+        .filter(Boolean)
+    )
+  ].sort();
+
+  // 只有一個賽事
+  if(tournaments.length <= 1){
+
+    currentTournament =
+      tournaments[0] || '';
+
+    localStorage.setItem(
+      'currentTournament',
+      currentTournament
+    );
+
+    area.innerHTML = '';
+
+    return;
+  }
+
+  const savedTournament =
+    localStorage.getItem('currentTournament') || '';
+
+  if (
+    savedTournament &&
+    tournaments.includes(savedTournament)
+  ){
+    currentTournament = savedTournament;
+  }else{
+    currentTournament = '';
+  }
+
+  area.innerHTML = `
+    <select
+      id="tournamentFilter"
+      style="
+        padding:6px 10px;
+        border-radius:8px;
+        border:1px solid #d1d5db;
+        min-width:240px;
+      "
+      onchange="
+        currentTournament=this.value;
+        localStorage.setItem(
+          'currentTournament',
+          currentTournament
+        );
+        render();
+      "
+    >
+
+      <option value="">
+        請選擇要報名的賽事
+      </option>
+
+      ${
+        tournaments.map(t => `
+          <option
+            value="${t}"
+            ${t === currentTournament ? 'selected' : ''}
+          >
+            ${t}
+          </option>
+        `).join('')
+      }
+
+    </select>
+  `;
 }
 
 </script>
