@@ -144,6 +144,7 @@ function hideLoading() {
 let allGames = [];
 let selectedPositions = {}; // game_id -> role
 let games = [];
+let currentTournament = '';
 
 /* ===== API ===== */
 function loadGames() {
@@ -196,6 +197,55 @@ function loadGames() {
 
     }
   );
+}
+
+function buildTournamentSelector(){
+
+  const tournaments = [
+    ...new Set(
+      allGames
+        .map(g => String(g.tournament || '').trim())
+        .filter(Boolean)
+    )
+  ];
+
+  const area =
+    document.getElementById('tournamentFilterArea');
+
+  if(!area) return;
+
+  // 只有一種賽事
+  if(tournaments.length <= 1){
+
+    currentTournament =
+      tournaments[0] || '';
+
+    area.innerHTML = '';
+
+    return;
+  }
+
+  currentTournament = '';
+
+  area.innerHTML = `
+    <select
+      id="tournamentFilter"
+      onchange="
+        currentTournament=this.value;
+        render();
+      "
+    >
+      <option value="">
+        請選擇要報名的賽事
+      </option>
+
+      ${tournaments.map(t =>
+        `<option value="${t}">
+          ${t}
+        </option>`
+      ).join('')}
+    </select>
+  `;
 }
 
 /* ===== 工具 ===== */
@@ -271,6 +321,20 @@ function timeToMinutesSafe(t){
 function render(){
 
   const root = document.getElementById('content');
+  if(
+    document.getElementById('tournamentFilter') &&
+    !currentTournament
+  ){
+  
+    root.innerHTML = `
+      <div class="row-warning">
+        請先選擇要報名的賽事
+      </div>
+    `;
+  
+    return;
+  }
+  
   root.innerHTML = '';
 
   if (!games || !games.length){
@@ -278,6 +342,14 @@ function render(){
     return;
   }
 
+  if(
+    currentTournament &&
+    String(g.tournament || '').trim()
+      !== currentTournament
+  ){
+    return;
+  }
+  
   const dateMap = {};
 
   /* =========================
