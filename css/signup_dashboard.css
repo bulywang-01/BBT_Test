@@ -109,16 +109,9 @@ body{
 ===================================================== */
 
 .card-grid{
-  display:grid;
-
-  grid-template-columns:
-    repeat(auto-fill,minmax(280px,280px));
-
+  display:flex;
+  flex-wrap:wrap;
   gap:14px;
-
-  margin-bottom:18px;
-
-  justify-content:flex-start;
 }
 
 
@@ -127,17 +120,18 @@ body{
 ===================================================== */
 
 .game-card{
-
   background:#fff;
-
-  border:2px solid #e5e7eb;
-
   border-radius:12px;
 
   padding:14px;
 
-  box-shadow:
-    0 4px 12px rgba(0,0,0,.08);
+  width:280px;
+  min-width:280px;
+  max-width:280px;
+
+  box-sizing:border-box;
+
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
 
   transition:.15s;
 
@@ -526,11 +520,16 @@ body{
 /* =====================================================
    二十一、手機版
 ===================================================== */
-
 @media (max-width:768px){
 
   .card-grid{
     grid-template-columns:1fr;
+  }
+
+  .game-card{
+    width:100%;
+    min-width:100%;
+    max-width:100%;
   }
 
   .row-bottom{
@@ -540,11 +539,12 @@ body{
   .team{
     font-size:20px;
     font-weight:800;
-    letter-spacing:.5px;
+    letter-spacing:0.5px;
   }
 
   .time{
+    color:#dc2626;
     font-size:17px;
+    font-weight:900;
   }
-
 }
