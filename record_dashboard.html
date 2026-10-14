@@ -89,11 +89,15 @@ body {
   background:#fff;
   border-radius:12px;
   padding:14px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.08);  /* ✅ 換陰影 */
-  transition:.15s;
-  font-size: 14px;
-}
 
+  min-height:180px;
+  display:flex;
+  flex-direction:column;
+
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  transition:.15s;
+  font-size:14px;
+}
  
 .game-card:hover{
   transform:translateY(-2px);
@@ -174,8 +178,8 @@ body {
   gap:4px;
   border-top:1px dashed #ddd;
   padding-top:6px;
-  margin-top:6px;
-  text-align:center;
+
+  margin-top:auto;
 }
 
 .slot{
@@ -261,9 +265,12 @@ body {
 ================================ */
 @media (max-width:768px){
 
-  .card-grid{
-    grid-template-columns:1fr;   /* ✅ 手機永遠單欄 */
-  }
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:14px;
+  margin-bottom:18px;
+}
 
   .team{
     font-size:20px;
