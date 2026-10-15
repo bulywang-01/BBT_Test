@@ -151,9 +151,10 @@ let currentTournament = '';
 /* ===== API ===== */
 function loadGames() {
 
-  const s = JSON.parse(
-    localStorage.getItem('session_user') || '{}'
-  );
+  const s =
+    JSON.parse(
+      localStorage.getItem('session_user') || '{}'
+    );
 
   showToast('載入賽事資料中...');
 
@@ -183,37 +184,42 @@ function loadGames() {
       games = allGames;
 
       /* ========================
-         Tournament
+         Tournament 下拉
       ======================== */
 
       buildTournamentSelector();
 
       /* ========================
          建立 my_position
-         不依賴後端
+         紀錄頁專用
       ======================== */
 
       const loginUserId =
-        String(session.user_id);
+        String(
+          session?.user_id || ''
+        ).trim();
 
       allGames.forEach(g => {
 
         g.my_position = '';
 
-        [
-          'REC_MAIN',
-          'REC_TRAINEE',
-          'REC_VIDEO'
-        ].forEach(role => {
+        ['REC_MAIN','REC_TRAINEE','REC_VIDEO']
+        .forEach(role => {
 
           const slot =
             g.records?.[role];
 
-          if (
-            slot &&
-            String(slot.user_id) === loginUserId
-          ){
+          if (!slot) return;
+
+          const slotUserId =
+            String(
+              slot.user_id || ''
+            ).trim();
+
+          if (slotUserId === loginUserId){
+
             g.my_position = role;
+
           }
 
         });
@@ -225,31 +231,43 @@ function loadGames() {
       ======================== */
 
       if (
-        typeof setGameCache ===
-        'function'
+        typeof setGameCache === 'function'
       ){
         setGameCache(allGames);
       }
 
       /* ========================
-         Debug
+         Debug（先保留）
       ======================== */
 
       console.log(
+        'Record Games =',
+        allGames
+      );
+
+      console.log(
         allGames.map(g => ({
-          game:g.game_code,
-          my_position:g.my_position
+          game_code : g.game_code,
+          game_id   : g.game_id,
+          records   : g.records,
+          my_position : g.my_position
         }))
       );
 
       console.log(
         'Tournament List =',
-        [...new Set(
-          allGames.map(
-            g => g.tournament
+        [
+          ...new Set(
+            allGames.map(
+              g => g.tournament
+            )
           )
-        )]
+        ]
       );
+
+      /* ========================
+         Render
+      ======================== */
 
       render();
 
