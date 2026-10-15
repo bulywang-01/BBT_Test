@@ -93,39 +93,10 @@ function renderGameCard(g, opt={}){
 
   const conflictInfo = checkConflictFront(g, __GAME_CACHE, session);
   const conflict = conflictInfo.conflict;
-
-if (g.game_code === 'A032'
- || g.game_code === 'B032'
- || g.game_code === 'B033') {
-
-    console.log(
-      g.game_code,
-      'conflict=', conflict,
-      conflictInfo
-    );
-}
- 
   const myRole = g.my_position;
   const teamConflict = isMyTeamConflict(g, session);  // 母隊衝突判斷定義
 
-  console.log(
-  'TEAM CHECK →',
-  'userTeam=', session?.team,
-  'home=', g.home_team,
-  'away=', g.away_team,
-  'result=', teamConflict
-);
-
   function getReason(targetRole, isRecordSlot){
-
-   console.log(
-    'getReason',
-    'game=', g.game_code,
-    'myRole=', myRole,
-    'target=', targetRole,
-    'isRecordSlot=', isRecordSlot,
-    'conflict=', conflict
-  );
 
     // ✅ ✅ ✅ 改用新的衝突判斷（含 buffer + 場地）
     if (conflict){
@@ -308,15 +279,6 @@ if (g.game_code === 'A032'
 
               const reason = getReason(role,false);
               const locked = isSameTimeOtherFieldLocked(g);
-
-           console.log(
-             g.game_code,
-             role,
-             'reason=',
-             reason,
-             'locked=',
-             locked
-          );
 
               if (name){
                 // const session = JSON.parse(localStorage.getItem('session_user')||'{}');
@@ -853,20 +815,14 @@ function highlight(name, session){
  * ✅ 報名系統完整版本 - slot 點擊判斷（核心）
 *********************************************************/
 function handleSlotClick(gid, role){
-
-  console.log('CLICK OK', gid, role);
  
   const gidNum = Number(gid);
   const g = __GAME_CACHE.find(x => Number(x.game_id) === gidNum);
-
-  console.log('my_position=', g.my_position);
 
   if (!g) return;
 
   const s = getSession ? getSession() : JSON.parse(localStorage.getItem('session_user')||'{}');
   if (!s || !s.user_id) return;
- 
-  console.log('session=', s);
 
   const isRecord = role.startsWith('REC');
 
@@ -876,10 +832,6 @@ function handleSlotClick(gid, role){
     : g.judges?.[role];
 
   const isMe = isMySlot(slot, s);
- 
-  console.log('isMe=', isMe);
-  console.log('slot=', slot);
-
 
   // ✅ ✅ ✅ 如果是自己 → 取消
   if (isMe){
@@ -894,13 +846,6 @@ function handleSlotClick(gid, role){
   // ✅ ✅ ✅ 驗證是否可報名
  const err = validateSignup(g, role);
  
- console.error(
-   'validateSignup結果',
-   g.game_code,
-   role,
-   err
- );
-
   if (err){
     showToast(err,'error');
     return;
@@ -944,11 +889,6 @@ function signupJudge(g, role){
     games_with_position:`${g.game_id}:${role}`
 
   }, res => {
-
-   console.error(
-   'judgeSignupByGames回傳',
-   res
-);
    
     if (el){
       el.classList.remove('loading');
@@ -1722,54 +1662,71 @@ function isBeforeThisWeek(dateStr){
   return d < monday; // 在本週以前
 }
 
-
 /* ============================
- ✅ 班表報名共用衝突檢查（前端版）
+ ✅ 班表報名共用衝突檢查（裁判/紀錄共用）
 ============================ */
 function checkConflictFront(game, allGames, session){
 
-console.log(
-  '檢查賽事',
-  game.game_code,
-  getTime(game),
-  game.field
-);
- 
+  if (!game || !allGames || !session){
+    return {
+      conflict:false
+    };
+  }
+
   const t1 = toMinutes(getTime(game));
 
-  for(let g of allGames){
+  for (let g of allGames){
 
-    if (!g.my_position) continue;
     if (g.game_id === game.game_id) continue;
+
     if (g.date !== game.date) continue;
+
+    let hasMyDuty = false;
+
+    // ✅ 裁判
+    Object.values(g.judges || {}).forEach(j => {
+
+      if (isMySlot(j, session)){
+        hasMyDuty = true;
+      }
+
+    });
+
+    // ✅ 紀錄
+    Object.values(g.records || {}).forEach(r => {
+
+      if (isMySlot(r, session)){
+        hasMyDuty = true;
+      }
+
+    });
+
+    if (!hasMyDuty) continue;
 
     const t2 = toMinutes(getTime(g));
 
     const diff = Math.abs(t1 - t2);
 
-    // 同時間(5分鐘誤差內)
+    // ✅ 同時間（允許 5 分鐘誤差）
     if (diff < 5){
-    
-      console.log(
-        '衝突',
-        game.game_code,
-        getTime(game),
-        'vs',
-        g.game_code,
-        getTime(g),
-        'diff=',
-        diff
-      );
-    
+
       return {
+
         conflict:true,
+
         ref:g,
-        isSameField:(g.field === game.field)
+
+        isSameField:
+          (g.field === game.field)
+
       };
+
     }
+
   }
 
   return {
     conflict:false
   };
+
 }
