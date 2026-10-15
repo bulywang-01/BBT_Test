@@ -96,6 +96,19 @@ function renderGameCard(g, opt={}){
   const myRole = g.my_position;
   const teamConflict = isMyTeamConflict(g, session);  // 母隊衝突判斷定義
 
+if(type === 'record'){
+
+  console.log(
+    'RECORD CHECK',
+    g.game_code,
+    'my_position=', g.my_position,
+    'conflict=', conflict,
+    conflictInfo
+  );
+
+}
+
+ 
   function getReason(targetRole, isRecordSlot){
 
     // ✅ ✅ ✅ 改用新的衝突判斷（含 buffer + 場地）
