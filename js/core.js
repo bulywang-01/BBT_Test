@@ -174,83 +174,48 @@ function renderGameCard(g, opt={}){
     ${teamConflict ? `<div class="row-warning">⚠️ 不可報名自己母隊的比賽</div>` : ''}
 
     <!-- 警告同場訊息　renderGameCard WARNING -->
-        ${(() => {
-        
-          // ✅ ✅ ✅ 掃本場你擔任的角色（關鍵🔥）
-
-          let myRoleHere = null;
-          
-          /* ✅ 裁判 */
-          for (let [r,j] of Object.entries(g.judges || {})){
-          
-            if (isMySlot(j, session)){
-              myRoleHere = r;
-              break;
-            }
-          
-          }
-          
-          /* ✅ 紀錄 */
-          if (!myRoleHere){
-          
-            for (let [r,v] of Object.entries(g.records || {})){
-          
-              if (isMySlot(v, session)){
-                myRoleHere = r;
-                break;
-              }
-          
-            }
-          
-          }
-        
-          // ✅ ✅ ✅ 本場有角色 → 判斷是否要顯示
-          if (myRoleHere){
-        
-            const isMyRecord = myRoleHere.startsWith('REC');
-        
-            // ✅ 紀錄頁 + 你是裁判 → 顯示（你現在這個case🔥）
-            if (isRecordPage && !isMyRecord){
-              return `
-                <div class="row-warning">
-                  ⚠️ 本場已擔任${roleTextMap(myRoleHere)}
-                </div>
-              `;
-            }
-        
-            // ✅ 裁判頁 + 你是紀錄 → 顯示
-            if (!isRecordPage && isMyRecord){
-              return `
-                <div class="row-warning">
-                  ⚠️ 本場已擔任${roleTextMap(myRoleHere)}
-                </div>
-              `;
-            }
-          }
-        
-          // ✅ ✅ ✅ 再判斷「同時間其他場」
-          if (conflict && !isPast){
-          
-            const ref = conflictInfo.ref;
-          
-            return `
-              <div class="row-warning">
-                ⚠️ 時間衝突（本日已有其他場次）
-                <div class="sub">
-                  ${ref.game_code}
-                  ${getTime(ref)}
-                  ｜${ref.field}
-                  ${conflictInfo.isSameField
-                    ? '（同場地 +10mins）'
-                    : '（跨場地 +60mins）'}
-                </div>
-              </div>
-            `;
-          }
-        
-          return '';
-        
-        })()}
+    ${(() => {
+    
+      const otherGame =
+        getOtherGameSameDay(g);
+    
+      if (otherGame){
+    
+        return `
+          <div class="row-warning">
+            ⚠️ 本日已有其他勤務
+            <div class="sub">
+              ${otherGame.game.game_code}
+              ${getTime(otherGame.game)}
+              ｜${otherGame.game.field}
+              ｜${roleTextMap(otherGame.role)}
+            </div>
+          </div>
+        `;
+      }
+    
+      if (conflict && !isPast){
+    
+        const ref = conflictInfo.ref;
+    
+        return `
+          <div class="row-warning">
+            ⚠️ 時間衝突（本日已有其他場次）
+            <div class="sub">
+              ${ref.game_code}
+              ${getTime(ref)}
+              ｜${ref.field}
+              ${conflictInfo.isSameField
+                ? '（同場地 +10mins）'
+                : '（跨場地 +60mins）'}
+            </div>
+          </div>
+        `;
+      }
+    
+      return '';
+    
+    })()}
 
 
     <div class="row-mid">
