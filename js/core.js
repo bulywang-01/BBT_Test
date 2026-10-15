@@ -396,7 +396,7 @@ function renderGameCard(g, opt={}){
                    return `
                      <div class="slot locked">
                        <div class="label">${roleMap(role)}</div>
-                       <div class="name">未開放</div>
+                       <div class="name">指派</div>
                      </div>
                    `;
                  }
@@ -499,7 +499,7 @@ function renderGameCard(g, opt={}){
            return `
              <div class="slot locked">
                <div class="label">${label}</div>
-               <div class="name">未開放</div>
+               <div class="name">指派</div>
              </div>
            `;
          }
