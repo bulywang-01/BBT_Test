@@ -95,19 +95,6 @@ function renderGameCard(g, opt={}){
   const conflict = conflictInfo.conflict;
   const myRole = g.my_position;
   const teamConflict = isMyTeamConflict(g, session);  // 母隊衝突判斷定義
-
-if(type === 'record'){
-
-  console.log(
-    'RECORD CHECK',
-    g.game_code,
-    'my_position=', g.my_position,
-    'conflict=', conflict,
-    conflictInfo
-  );
-
-}
-
  
   function getReason(targetRole, isRecordSlot){
 
@@ -190,24 +177,31 @@ if(type === 'record'){
         ${(() => {
         
           // ✅ ✅ ✅ 掃本場你擔任的角色（關鍵🔥）
+
           let myRoleHere = null;
-        
-          // 👉 裁判
+          
+          /* ✅ 裁判 */
           for (let [r,j] of Object.entries(g.judges || {})){
+          
             if (isMySlot(j, session)){
               myRoleHere = r;
               break;
             }
+          
           }
-        
-          // 👉 紀錄
+          
+          /* ✅ 紀錄 */
           if (!myRoleHere){
+          
             for (let [r,v] of Object.entries(g.records || {})){
+          
               if (isMySlot(v, session)){
                 myRoleHere = r;
                 break;
               }
+          
             }
+          
           }
         
           // ✅ ✅ ✅ 本場有角色 → 判斷是否要顯示
@@ -1103,8 +1097,6 @@ function cancelJudge(g, role){
 
   const s = JSON.parse(localStorage.getItem('session_user') || '{}');
 
-  console.log('CANCEL by game:', g.game_id, role);
-
   const el = document.getElementById(`game-${g.game_id}`);
   if (el) el.classList.add('loading');
 
@@ -1271,12 +1263,6 @@ function isMyTeamConflict(game, session){
  * ✅ 聯盟級報名規則引擎（唯一核心）
  *********************************************************/
 function validateSignup(targetGame, role){
-
- console.log(
-  '驗證',
-  targetGame.game_code,
-  role
-);
  
   // ✅ ✅ ✅ 母隊限制（最高優先）
   if (isMyTeamConflict(targetGame, getSession())){
@@ -1499,8 +1485,6 @@ function reloadCurrentView(){
 
   const now = new Date();
 
-  console.log('🔄 reloadCurrentView', window.currentMonth);
-
   // 👉 記得用 window（避免 scope 問題）
   if (window.currentMonth !== null){
 
@@ -1689,6 +1673,7 @@ function isBeforeThisWeek(dateStr){
  ✅ 班表報名共用衝突檢查（裁判/紀錄共用）
  ✅ 同場地 +10 分鐘
  ✅ 跨場地 +60 分鐘
+ ✅ 裁判 / 紀錄 共用
 ============================ */
 function checkConflictFront(game, allGames, session){
 
@@ -1700,7 +1685,7 @@ function checkConflictFront(game, allGames, session){
 
   const t1 = toMinutes(getTime(game));
 
-  for (let g of allGames){
+  for (const g of allGames){
 
     if (g.game_id === game.game_id) continue;
 
@@ -1708,7 +1693,9 @@ function checkConflictFront(game, allGames, session){
 
     let hasMyDuty = false;
 
-    // ✅ 裁判
+    /* -------------------------
+       ✅ 裁判
+    ------------------------- */
     Object.values(g.judges || {}).forEach(j => {
 
       if (isMySlot(j, session)){
@@ -1717,7 +1704,9 @@ function checkConflictFront(game, allGames, session){
 
     });
 
-    // ✅ 紀錄
+    /* -------------------------
+       ✅ 紀錄
+    ------------------------- */
     Object.values(g.records || {}).forEach(r => {
 
       if (isMySlot(r, session)){
@@ -1726,43 +1715,32 @@ function checkConflictFront(game, allGames, session){
 
     });
 
-    if (!hasMyDuty) continue;
+    if (!hasMyDuty){
+      continue;
+    }
 
     const t2 = toMinutes(getTime(g));
 
     const diff = Math.abs(t1 - t2);
 
-    const isSameField =
+    const sameField =
       String(g.field || '') ===
       String(game.field || '');
 
-    // ✅ 同場地 +10 分鐘
-    if (isSameField){
+    const buffer =
+      sameField ? 10 : 60;
 
-      if (diff <= 10){
+    if (diff <= buffer){
 
-        return {
-          conflict:true,
-          ref:g,
-          isSameField:true
-        };
+      return {
 
-      }
+        conflict:true,
 
-    }
-    // ✅ 跨場地 +60 分鐘
-    else{
+        ref:g,
 
-      if (diff <= 60){
+        isSameField:sameField
 
-        return {
-          conflict:true,
-          ref:g,
-          isSameField:false
-        };
-
-      }
-
+      };
     }
 
   }
