@@ -49,18 +49,6 @@ function getCategoryClass(category){
 *********************************************************/
 function renderGameCard(g, opt={}){
 
-
-if(type === 'record'){
-
-  console.log(
-    'RECORD',
-    g.game_code,
-    'my_position=',
-    g.my_position
-  );
-
-}
-
   const s = Number(g.status || 0);
   
   // ✅ 暫存 → 不顯示
