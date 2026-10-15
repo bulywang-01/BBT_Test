@@ -723,16 +723,22 @@ function loadRecordGamesByMonth(year, month){
 
 function safeMerge(g){
 
-  // ✅ 如果後端已經整理好就直接用
-  if (g.judges && Object.keys(g.judges).some(v => g.judges[v])){
+  // ✅ 後端已整理好的裁判或紀錄資料直接使用
+  const hasJudges =
+    g.judges &&
+    Object.keys(g.judges).some(k => g.judges[k]);
+
+  const hasRecords =
+    g.records &&
+    Object.keys(g.records).some(k => g.records[k]);
+
+  if (hasJudges || hasRecords){
     return g;
   }
 
-  // ✅ 初始化
   g.judges = g.judges || {};
   g.records = g.records || {};
 
-  // ✅ 裁判
   ['PU','U1','U2','U3'].forEach(r=>{
     g.judges[r] =
       g.assignment_judges?.[r] ||
@@ -740,7 +746,6 @@ function safeMerge(g){
       '';
   });
 
-  // ✅ 紀錄
   ['REC_MAIN','REC_TRAINEE','REC_VIDEO'].forEach(r=>{
     g.records[r] =
       g.assignment_records?.[r] ||
@@ -749,6 +754,7 @@ function safeMerge(g){
   });
 
   g.status = Number(g.status || 0);
+
   return g;
 }
 
