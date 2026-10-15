@@ -259,8 +259,12 @@ if (g.game_code === 'A032'
               <div class="row-warning">
                 ⚠️ 時間衝突（本日已有其他場次）
                 <div class="sub">
-                  ${ref.game_code} ${getTime(ref)}｜${ref.field}
-                  ${conflictInfo.isSameField ? '（同場地 +10mins）' : '（跨場地 +60mins）'}
+                  ${ref.game_code}
+                  ${getTime(ref)}
+                  ｜${ref.field}
+                  ${conflictInfo.isSameField
+                    ? '（同場地 +10mins）'
+                    : '（跨場地 +60mins）'}
                 </div>
               </div>
             `;
@@ -716,19 +720,36 @@ function renderRecordSlots(g, isPast, session){
           `;
         }
 
-      // ✅ ✅ ✅ 同場已有角色 或 時間衝突 → 待位
-      const conflictInfo = checkConflictFront(g, __GAME_CACHE, session);
-      const conflict = conflictInfo.conflict;
-      
+      // ✅ ✅ ✅ 同場已有角色 / 時間衝突 / 母隊衝突
       if (
         teamConflict ||
-        (g.my_position && g.my_position !== role)
-        || conflict
+        (g.my_position && g.my_position !== role) ||
+        conflict
       ){
+      
+        let msg = '待位';
+      
+        // 母隊
+        if (teamConflict){
+          msg = '不可報名';
+        }
+      
+        // 同場已有其它職務
+        else if (g.my_position && g.my_position !== role){
+          msg = roleTextMap(g.my_position);
+        }
+      
+        // 時間衝突
+        else if (conflict){
+          msg = conflictInfo.isSameField
+            ? '⏱️'
+            : '🚗';
+        }
+      
         return `
           <div class="record-role other waiting">
             ${label}<br>
-            ${teamConflict ? '不可報名' : '待位'}
+            ${msg}
           </div>
         `;
       }
