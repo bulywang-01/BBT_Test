@@ -1908,7 +1908,7 @@ function buildTournamentSelector(){
           color:#1d4ed8;
           padding:4px 10px;
           border-radius:999px;
-          font-size:13px;
+          font-size:16px;
           font-weight:700;
         ">
           ${currentTournament}
