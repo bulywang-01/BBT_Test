@@ -173,83 +173,82 @@ function loadGames() {
         return;
       }
 
-      // ✅ 與裁判頁同步
+      /* ========================
+         資料
+      ======================== */
+
       allGames =
         (res.games || []).map(safeMerge);
 
       games = allGames;
 
-      // ✅ 載入賽事篩選
+      /* ========================
+         Tournament
+      ======================== */
+
       buildTournamentSelector();
 
-      console.log(
-        'Tournament List =',
-        [...new Set(
-          allGames.map(g => g.tournament)
-        )]
-      );
-      
-      // ✅ 補 my_position（裁判頁已有）
-      const sUser = session;
+      /* ========================
+         建立 my_position
+         不依賴後端
+      ======================== */
+
+      const loginUserId =
+        String(session.user_id);
 
       allGames.forEach(g => {
 
-        // 裁判
-        if (g.judges){
+        g.my_position = '';
 
-          for (
-            let [role,val]
-            of Object.entries(g.judges)
+        [
+          'REC_MAIN',
+          'REC_TRAINEE',
+          'REC_VIDEO'
+        ].forEach(role => {
+
+          const slot =
+            g.records?.[role];
+
+          if (
+            slot &&
+            String(slot.user_id) === loginUserId
           ){
-
-            if (
-              typeof isMySlot === 'function' &&
-              isMySlot(val, sUser)
-            ){
-              g.my_position = role;
-            }
-
+            g.my_position = role;
           }
 
-        }
-
-        // 紀錄
-        if (g.records){
-
-          for (
-            let [role,val]
-            of Object.entries(g.records)
-          ){
-
-            if (
-              typeof isMySlot === 'function' &&
-              isMySlot(val, sUser)
-            ){
-              g.my_position = role;
-            }
-
-          }
-
-        }
+        });
 
       });
 
-      // ✅ 快取
+      /* ========================
+         Cache
+      ======================== */
+
       if (
-        typeof setGameCache === 'function'
+        typeof setGameCache ===
+        'function'
       ){
         setGameCache(allGames);
       }
 
+      /* ========================
+         Debug
+      ======================== */
+
       console.log(
-        'Tournament List =',
-        [...new Set(
-          allGames.map(g => g.tournament)
-        )]
+        allGames.map(g => ({
+          game:g.game_code,
+          my_position:g.my_position
+        }))
       );
 
       console.log(
-        games.map(g => g.status)
+        'Tournament List =',
+        [...new Set(
+          allGames.map(
+            g => g.tournament
+          )
+        )]
       );
 
       render();
