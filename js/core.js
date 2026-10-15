@@ -666,6 +666,16 @@ function renderRecordSlots(g, isPast, session){
     ['REC_TRAINEE','見習'],
     ['REC_VIDEO','影像']
   ];
+ 
+  const conflictInfo =
+    checkConflictFront(
+      g,
+      __GAME_CACHE,
+      session
+    );
+
+  const conflict =
+    conflictInfo.conflict;
 
   return `
     <div class="record-roles">
@@ -1676,6 +1686,8 @@ function isBeforeThisWeek(dateStr){
 
 /* ============================
  ✅ 班表報名共用衝突檢查（裁判/紀錄共用）
+ ✅ 同場地 +10 分鐘
+ ✅ 跨場地 +60 分鐘
 ============================ */
 function checkConflictFront(game, allGames, session){
 
@@ -1719,19 +1731,36 @@ function checkConflictFront(game, allGames, session){
 
     const diff = Math.abs(t1 - t2);
 
-    // ✅ 同時間（允許 5 分鐘誤差）
-    if (diff < 5){
+    const isSameField =
+      String(g.field || '') ===
+      String(game.field || '');
 
-      return {
+    // ✅ 同場地 +10 分鐘
+    if (isSameField){
 
-        conflict:true,
+      if (diff <= 10){
 
-        ref:g,
+        return {
+          conflict:true,
+          ref:g,
+          isSameField:true
+        };
 
-        isSameField:
-          (g.field === game.field)
+      }
 
-      };
+    }
+    // ✅ 跨場地 +60 分鐘
+    else{
+
+      if (diff <= 60){
+
+        return {
+          conflict:true,
+          ref:g,
+          isSameField:false
+        };
+
+      }
 
     }
 
