@@ -599,12 +599,6 @@ body{
   margin-bottom:4px;
 }
 
-.card-duty-list{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-}
-
 .duty-item{
   display:flex;
   justify-content:space-between;
@@ -652,9 +646,8 @@ body{
 
 .card-match{
     display:grid;
-    grid-template-columns: 1fr 100px 1fr;
+    grid-template-columns: 1fr 120px 1fr;
     align-items:center;
-    gap:12px;
 }
 
 .match-team{
@@ -737,4 +730,33 @@ body{
 
 .game-card{
     padding:10px;
+}
+
+.card-duty-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:6px;
+}
+
+.duty-badge{
+    display:inline-flex;
+    align-items:center;
+
+    padding:5px 10px;
+
+    border-radius:16px;
+
+    background:#eef4ff;
+    border:1px solid #d7e3ff;
+
+    color:#334155;
+
+    font-size:12px;
+    font-weight:600;
+}
+
+.duty-empty{
+    color:#999;
+    font-size:12px;
 }
