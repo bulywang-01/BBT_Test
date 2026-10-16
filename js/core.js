@@ -497,6 +497,33 @@ function renderGameCard(g, opt={}){
       ${cardStatus.text}
     </div>
 
+/* =====================================================
+   統一賽程資訊，取代裁判／紀錄頁的 render 內程式
+===================================================== */
+
+    const headerHtml = `
+    <div class="game-header">
+    
+      <div class="game-tags">
+    
+        <span class="tag-tournament">
+          ${g.tournament || ''}
+        </span>
+    
+        <span class="tag-category">
+          ${g.category || ''}
+        </span>
+    
+      </div>
+    
+      <div class="game-location">
+        📍 ${g.field || ''}
+      </div>
+    
+    </div>
+    `;
+
+
     <div class="row-bottom">
 
       <!-- ✅ 裁判 -->
