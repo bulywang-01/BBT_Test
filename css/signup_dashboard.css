@@ -355,8 +355,10 @@ body{
 
 .row-bottom{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(160px,160px));
+    grid-template-columns:
+        repeat(auto-fit,minmax(160px,160px));
     gap:8px;
+    margin-top:10px;
 }
 
 .signup-slot{
