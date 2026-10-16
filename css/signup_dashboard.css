@@ -319,7 +319,8 @@ body{
   display:flex;
   flex-direction:column;
   align-items:center;
-
+   min-height:32px;
+   padding:4px 6px;
   text-align:center;
 }
 
@@ -520,8 +521,8 @@ body{
 
   .game-card{
     width:100%;
-    min-width:100%;
     max-width:100%;
+    min-width:unset;
   }
 
   .row-bottom{
@@ -538,6 +539,18 @@ body{
     color:#dc2626;
     font-size:17px;
     font-weight:900;
+  }
+
+  .match-team{
+      font-size:18px;
+  }
+
+  .match-time{
+      font-size:18px;
+  }
+
+  .match-code{
+      font-size:12px;
   }
 }
 
@@ -578,7 +591,7 @@ body{
   font-size:13px;
   color:#64748b;
   font-weight:700;
-  margin-bottom:8px;
+  margin-bottom:4px;
 }
 
 .card-duty-list{
@@ -643,9 +656,10 @@ body{
 }
 
 .match-team{
-  font-size:28px;
-  font-weight:800;
-  text-align:center;
+    font-size:24px;
+    font-weight:700;
+    line-height:1.2;
+    word-break:break-word;
 }
 
 .match-center{
@@ -653,8 +667,8 @@ body{
 }
 
 .match-time{
-  font-size:28px;
-  font-weight:900;
+  font-size:20px;
+  font-weight:700;
   color:#0f172a;
 }
 
@@ -701,4 +715,16 @@ body{
   margin-top:6px;
   color:#64748b;
   font-size:12px;
+}
+
+.card-match{
+    padding:8px 0;
+}
+
+.card-duty-section{
+    padding-top:6px;
+}
+
+.game-card{
+    padding:10px;
 }
