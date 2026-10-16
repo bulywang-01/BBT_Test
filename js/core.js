@@ -11,7 +11,8 @@
 const JUDGE_TOURNAMENT_CONFIG = {
   mode:'LIMIT',
   tournaments:[
-    '2026-BBT聯盟'
+    '2026-BBT聯盟',
+    '2026-BBT聯盟-育成組'
   ]
 };
 
@@ -33,7 +34,8 @@ const JUDGE_SIGNUP_CONFIG = {
 
   tournaments: [
     //'新北市議長盃',
-    '2026-BBT聯盟'
+    '2026-BBT聯盟',
+    '2026-BBT聯盟-育成組'
   ]
 };
 
@@ -1896,11 +1898,7 @@ function buildTournamentSelector(){
           font-size:16px;
           color:#1e3a8a;
         ">
-          ${pageTitle}
-        </span>
-
-        <span style="font-weight:700;">
-          ／請選擇報名賽事：
+          ${pageTitle}／賽事：
         </span>
 
         <span style="
@@ -1949,7 +1947,7 @@ function buildTournamentSelector(){
       </span>
 
       <span style="font-weight:700;">
-        ／請選擇報名賽事：
+        ／請選擇賽事：
       </span>
 
       <select
