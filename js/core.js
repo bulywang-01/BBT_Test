@@ -450,24 +450,28 @@ function renderGameCard(g, opt={}){
 
     <div class="card-match">
     
-      <div class="card-away">
-        ${g.away_team || ''}
+      <div class="match-team away">
+        ${g.away_team}
       </div>
     
-      <div class="card-center">
+      <div class="match-center">
     
-        <div class="card-game-code">
-          ${g.game_code || ''}
-        </div>
-    
-        <div class="card-time">
+        <div class="match-time">
           ${getTime(g)}
         </div>
     
+        <div class="match-vs">
+          VS
+        </div>
+    
+        <div class="match-code">
+          ${g.game_code}
+        </div>
+    
       </div>
     
-      <div class="card-home">
-        ${g.home_team || ''}
+      <div class="match-team home">
+        ${g.home_team}
       </div>
     
     </div>
