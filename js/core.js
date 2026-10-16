@@ -519,83 +519,293 @@ function renderGameCard(g, opt={}){
     
     </div>
 
-
+    <div class="row-bottom">
+    
     ${
-    (() => {
+    !isRecordPage
     
-      let msg = '';
-      let cls = '';
+    ? (() => {
     
-      // --------------------------------------------------
-      // 是否已在名單內
-      // --------------------------------------------------
-    
-      const myRole = g.my_position || '';
-    
-      const assignedJudge = Object.entries(g.judges || {})
-        .some(([role, slot]) => isMySlot(slot, session));
-    
-      const assignedRecord = Object.entries(g.records || {})
-        .some(([role, slot]) => isMySlot(slot, session));
-    
-      const isAssigned = assignedJudge || assignedRecord;
-    
-      // --------------------------------------------------
-      // 狀態優先順序
-      // --------------------------------------------------
-    
-      if (teamConflict){
-    
-        msg = '❌ 不可報名自己母隊';
-        cls = 'danger';
-    
-      } else if (conflict){
-    
-        msg = '❌ 需請假辭任';
-        cls = 'danger';
-    
-      } else if (isAssigned){
-    
-        msg = '✅ 已報名';
-        cls = 'success';
-    
-      } else {
-    
+        const slots = [];
         let remain = 0;
     
-        if (isRecordPage){
+        judgeRoles.forEach(role => {
     
-          remain = recordRoles.filter(([role]) =>
-            !g.records?.[role]
-          ).length;
+          const slot = g.judges?.[role];
+          const name = safeName(slot);
     
-        } else {
+          // 已有人
+          if (name){
     
-          remain = judgeRoles.filter(role =>
-            !safeName(g.judges?.[role])
-          ).length;
-        }
+            const isMe = isMySlot(slot, session);
     
-        if (remain === 0){
+            slots.push(`
+              <div class="slot assigned">
+                <div class="label">${roleMap(role)}</div>
+                <div class="name ${isMe?'me':''}">
+                  ${name}
+                </div>
     
-          msg = '✅ 人員已補齊';
-          cls = 'success';
+                ${
+                  isMe && !isPast && !isViewMode && ![1,2,4].includes(s)
+                  ? `
+                  <div class="cancel"
+                      onclick="event.stopPropagation();handleSlotClick('${g.game_id}','${role}')">
+                    取消
+                  </div>
+                  `
+                  : ''
+                }
     
-        } else {
+              </div>
+            `);
     
-          msg = `🟢 尚有 ${remain} 個名額`;
-          cls = 'open';
-        }
-      }
+            return;
+          }
     
-      return `
-        <div class="card-result ${cls}">
-          ${msg}
-        </div>
-      `;
+          remain++;
+    
+          // 過期
+          if (isPast){
+            return;
+          }
+    
+          // 母隊衝突
+          if (teamConflict){
+    
+            slots.push(`
+              <div class="slot waiting">
+                <div class="label">${roleMap(role)}</div>
+                <div class="name">不可報名</div>
+              </div>
+            `);
+    
+            return;
+          }
+    
+          // 衝突
+          const reason = getReason(role,false);
+          const locked = isSameTimeOtherFieldLocked(g);
+    
+          if (reason || locked){
+    
+            slots.push(`
+              <div class="slot waiting">
+                <div class="label">${roleMap(role)}</div>
+                <div class="name">
+                  ${locked ? '待位' : reason}
+                </div>
+              </div>
+            `);
+    
+            return;
+          }
+    
+          // 停賽延賽鎖定
+          if ([1,2,4].includes(s)){
+    
+            slots.push(`
+              <div class="slot locked">
+                <div class="label">${roleMap(role)}</div>
+                <div class="name">
+                  ${s===1?'延賽':s===2?'停賽':'鎖定'}
+                </div>
+              </div>
+            `);
+    
+            return;
+          }
+    
+          // 不開放報名
+          if (!allowJudgeSignup){
+    
+            slots.push(`
+              <div class="slot locked">
+                <div class="label">${roleMap(role)}</div>
+                <div class="name">指派</div>
+              </div>
+            `);
+    
+            return;
+          }
+    
+          // 可報名
+          slots.push(`
+            <div class="slot action"
+                 onclick="handleSlotClick('${g.game_id}','${role}')">
+    
+              <div class="label">${roleMap(role)}</div>
+    
+              <div class="btn">
+                報名
+              </div>
+    
+            </div>
+          `);
+    
+        });
+    
+        return `
+          ${slots.join('')}
+    
+          <div class="slot-status">
+    
+            ${
+              conflict
+              ? '⚠️ 需請假辭任'
+              : teamConflict
+                ? '⚠️ 不可報名自己母隊'
+                : g.my_position
+                  ? '✅ 已報名'
+                  : remain === 0
+                    ? '✅ 人員已補齊'
+                    : `🟢 尚有 ${remain} 個名額`
+            }
+    
+          </div>
+        `;
+    
+    })()
+    
+    : (() => {
+    
+        const slots = [];
+        let remain = 0;
+    
+        recordRoles.forEach(([role,label]) => {
+    
+          const slot = g.records?.[role];
+    
+          if (slot){
+    
+            const isMe = isMySlot(slot, session);
+    
+            slots.push(`
+              <div class="slot assigned">
+    
+                <div class="label">${label}</div>
+    
+                <div class="name ${isMe ? 'me' : ''}">
+                  ${slot.name}
+                </div>
+    
+                ${
+                  isMe && !isPast && !isViewMode && ![1,2,4].includes(s)
+                  ? `
+                    <div class="cancel"
+                         onclick="event.stopPropagation();handleSlotClick('${g.game_id}','${role}')">
+                      取消
+                    </div>
+                  `
+                  : ''
+                }
+    
+              </div>
+            `);
+    
+            return;
+          }
+    
+          remain++;
+    
+          if (isPast){
+            return;
+          }
+    
+          if (teamConflict){
+    
+            slots.push(`
+              <div class="slot waiting">
+                <div class="label">${label}</div>
+                <div class="name">不可報名</div>
+              </div>
+            `);
+    
+            return;
+          }
+    
+          const reason = getReason(role,true);
+          const locked = isSameTimeOtherFieldLocked(g);
+    
+          if (reason || locked){
+    
+            slots.push(`
+              <div class="slot waiting">
+                <div class="label">${label}</div>
+                <div class="name">
+                  ${locked ? '待位' : reason}
+                </div>
+              </div>
+            `);
+    
+            return;
+          }
+    
+          if ([1,2,4].includes(s)){
+    
+            slots.push(`
+              <div class="slot locked">
+                <div class="label">${label}</div>
+                <div class="name">
+                  ${s===1?'延賽':s===2?'停賽':'鎖定'}
+                </div>
+              </div>
+            `);
+    
+            return;
+          }
+    
+          if (!allowRecordSignup){
+    
+            slots.push(`
+              <div class="slot locked">
+                <div class="label">${label}</div>
+                <div class="name">指派</div>
+              </div>
+            `);
+    
+            return;
+          }
+    
+          slots.push(`
+            <div class="slot action"
+                 onclick="handleSlotClick('${g.game_id}','${role}')">
+    
+              <div class="label">${label}</div>
+    
+              <div class="btn">
+                報名
+              </div>
+    
+            </div>
+          `);
+    
+        });
+    
+        return `
+          ${slots.join('')}
+    
+          <div class="slot-status">
+    
+            ${
+              conflict
+              ? '⚠️ 需請假辭任'
+              : teamConflict
+                ? '⚠️ 不可報名自己母隊'
+                : g.my_position
+                  ? '✅ 已報名'
+                  : remain === 0
+                    ? '✅ 人員已補齊'
+                    : `🟢 尚有 ${remain} 個名額`
+            }
+    
+          </div>
+        `;
     
     })()
     }
+    
+    </div>
 
 
   </div>
