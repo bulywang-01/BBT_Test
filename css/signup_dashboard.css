@@ -354,26 +354,20 @@ body{
 ===================================================== */
 
 .row-bottom{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-top:10px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,160px));
+    gap:8px;
 }
 
 .signup-slot{
-  flex:1;
-  min-width:120px;
-
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-
-  padding:10px 12px;
-
-  border-radius:12px;
-
-  font-size:13px;
-  font-weight:700;
+    width:160px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 12px;
+    border-radius:12px;
+    font-size:13px;
+    font-weight:700;
 }
 
 .signup-slot.action{
