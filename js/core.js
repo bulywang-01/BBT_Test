@@ -481,7 +481,7 @@ function renderGameCard(g, opt={}){
               ${g.category || ''}
             </span>
       
-            <span class="game-location-inline">
+            <span class="tag-location">
               📍 ${g.field || ''}
             </span>
       
@@ -494,6 +494,7 @@ function renderGameCard(g, opt={}){
         </div>
       
       </div>
+
     `;
  
     let statusBanner = '';
