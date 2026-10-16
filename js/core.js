@@ -534,32 +534,8 @@ function renderGameCard(g, opt={}){
           const slot = g.judges?.[role];
           const name = safeName(slot);
     
-          // 已有人
+          // buildDutyList() 負責
           if (name){
-    
-            const isMe = isMySlot(slot, session);
-    
-            slots.push(`
-              <div class="slot assigned">
-                <div class="label">${roleMap(role)}</div>
-                <div class="name ${isMe?'me':''}">
-                  ${name}
-                </div>
-    
-                ${
-                  isMe && !isPast && !isViewMode && ![1,2,4].includes(s)
-                  ? `
-                  <div class="cancel"
-                      onclick="event.stopPropagation();handleSlotClick('${g.game_id}','${role}')">
-                    取消
-                  </div>
-                  `
-                  : ''
-                }
-    
-              </div>
-            `);
-    
             return;
           }
     
@@ -646,10 +622,7 @@ function renderGameCard(g, opt={}){
         });
     
         return `
-          ${slots.join('')}
-    
           <div class="slot-status">
-    
             ${
               conflict
               ? '⚠️ 需請假辭任'
@@ -661,8 +634,9 @@ function renderGameCard(g, opt={}){
                     ? '✅ 人員已補齊'
                     : `🟢 尚有 ${remain} 個名額`
             }
-    
           </div>
+        
+          ${slots.join('')}
         `;
     
     })()
@@ -783,10 +757,7 @@ function renderGameCard(g, opt={}){
         });
     
         return `
-          ${slots.join('')}
-    
           <div class="slot-status">
-    
             ${
               conflict
               ? '⚠️ 需請假辭任'
@@ -798,8 +769,9 @@ function renderGameCard(g, opt={}){
                     ? '✅ 人員已補齊'
                     : `🟢 尚有 ${remain} 個名額`
             }
-    
           </div>
+        
+          ${slots.join('')}
         `;
     
     })()
