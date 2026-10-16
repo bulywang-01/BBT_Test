@@ -231,11 +231,7 @@ function buildDutyList(g, type){
       `;
     });
 
-    return html || `
-      <span class="duty-empty">
-        尚未安排紀錄組
-      </span>
-    `;
+    return html;
   }
 
   const roles = getJudgeRoles(g);
@@ -254,11 +250,7 @@ function buildDutyList(g, type){
     `;
   });
 
-  return html || `
-    <span class="duty-empty">
-      尚未安排裁判
-    </span>
-  `;
+  return html;
 }
 
 /*********************************************************
@@ -380,31 +372,35 @@ function renderGameCard(g, opt={}){
       統一賽程資訊，取代裁判／紀錄頁的 render 內程式
     ===================================================== */
     
-        const headerHtml = `
-        <div class="game-header">
-        
-          <div class="game-tags">
-        
-            <span class="tag-tournament">
-              ${g.tournament || ''}
-            </span>
-        
-            <span class="tag-category">
-              ${g.category || ''}
-            </span>
-        
-          </div>
-          
-          <div class="game-code">
-              場次 ${g.game_code}
-          </div>
-        
-          <div class="game-location">
-            📍 ${g.field || ''}
-          </div>
-        
+    const headerHtml = `
+    <div class="game-header">
+    
+      <div class="game-header-top">
+    
+        <div class="game-tags">
+    
+          <span class="tag-tournament">
+            ${g.tournament || ''}
+          </span>
+    
+          <span class="tag-category">
+            ${g.category || ''}
+          </span>
+    
         </div>
-        `;
+    
+        <div class="game-code-badge">
+          場次 ${g.game_code}
+        </div>
+    
+      </div>
+    
+      <div class="game-location">
+        📍 ${g.field || ''}
+      </div>
+    
+    </div>
+    `;
  
     let statusBanner = '';
     
@@ -529,211 +525,150 @@ function renderGameCard(g, opt={}){
     </div>
 
     <div class="row-bottom">
-
-      <!-- ✅ 裁判 -->
+    
       ${
         !isRecordPage
         ? (
           judgeRoles.length === 0
-          ? `<div class="no-judge">無需裁判</div>`
+          ? ''
           : judgeRoles.map(role=>{
-
-
-              //const name = g.judges?.[role];
-           
+    
               const slot = g.judges?.[role];
-              const name = safeName(slot);
-
               const reason = getReason(role,false);
               const locked = isSameTimeOtherFieldLocked(g);
-
-              if (name){
-                // const session = JSON.parse(localStorage.getItem('session_user')||'{}');
-                const isMe = isMySlot(slot, session);
-
-
-                return `
-                <div class="slot" data-gid="${g.game_id}" data-role="${role}">
-                  <div class="label">${roleMap(role)}</div>
-                  <div class="name ${isMe?'me':''} ${String(slot.name || slot).length > 10 ? 'long' : ''}">${typeof slot === 'object' ? slot.name : slot}</div>
-                  ${
-                    // isMe && !isPast
-                   isMe && !isPast && !isViewMode && ![1,2,4].includes(s)
-                    ? `
-                    <div class="cancel" onclick="event.stopPropagation(); handleSlotClick('${g.game_id}','${role}')">取消</div>
-                       `
-                    : ''
-                  }
-                </div>`;
+    
+              // 已有人
+              if (safeName(slot)){
+                return '';
               }
-
-
+    
+              // 過期
               if (isPast){
-                return `<div class="slot" data-gid="${g.game_id}" data-role="${role}"><div class="label">${roleMap(role)}</div><div class="name">—</div></div>`;
+                return '';
               }
-
-
-              if (teamConflict || reason || locked){
+    
+              // 母隊衝突
+              if (teamConflict){
                 return `
-                  <div class="slot waiting">
-                    <div class="label">${roleMap(role)}</div>
-                    <div class="name">
-                      ${teamConflict ? '不可報名' : (locked ? '待位' : reason)}
-                    </div>
-                  </div>`;
-
-
+                  <div class="signup-slot disabled">
+                    <span>${roleMap(role)}</span>
+                    <span>不可報名</span>
+                  </div>
+                `;
               }
-
-             if (isViewMode){
-               return `
-                 <div class="slot waiting">
-                   <div class="label">${roleMap(role)}</div>
-                   <div class="name">待位中</div>
-                 </div>
-               `;
-             }
-             
-                  // const s = Number(g.status || 0);
-                  // const isDisabled = [1,2,4].includes(s);
-                  
-                  if ([1,2,4].includes(s)){
-                    return `
-                      <div class="slot locked">
-                        <div class="label">${roleMap(role)}</div>
-                        <div class="name">
-                          ${s === 1 ? '延賽' : s === 2 ? '停賽' : '🔒 鎖定'}
-                        </div>
-                      </div>
-                    `;
-                  }
-            
-                 if (!allowJudgeSignup){
-                 
-                   return `
-                     <div class="slot locked">
-                       <div class="label">${roleMap(role)}</div>
-                       <div class="name">指派</div>
-                     </div>
-                   `;
-                 }
-                 
-                 return `
-                   <div class="slot action"
-                        onclick="handleSlotClick('${g.game_id}','${role}')">
-                     <div class="label">${roleMap(role)}</div>
-                     <div class="btn">報名</div>
-                   </div>
-                 `;
-
+    
+              // 衝突
+              if (reason || locked){
+                return `
+                  <div class="signup-slot disabled">
+                    <span>${roleMap(role)}</span>
+                    <span>${locked ? '待位' : reason}</span>
+                  </div>
+                `;
+              }
+    
+              // 狀態鎖
+              if ([1,2,4].includes(s)){
+                return `
+                  <div class="signup-slot disabled">
+                    <span>${roleMap(role)}</span>
+                    <span>
+                      ${s===1?'延賽':s===2?'停賽':'鎖定'}
+                    </span>
+                  </div>
+                `;
+              }
+    
+              // 指派制
+              if (!allowJudgeSignup){
+                return `
+                  <div class="signup-slot disabled">
+                    <span>${roleMap(role)}</span>
+                    <span>指派</span>
+                  </div>
+                `;
+              }
+    
+              // 可報名
+              return `
+                <div class="signup-slot action"
+                     onclick="handleSlotClick('${g.game_id}','${role}')">
+                  <span>${roleMap(role)}席</span>
+                  <span>＋</span>
+                </div>
+              `;
+    
           }).join('')
-        ) : ''
+        )
+        : ''
       }
-
-      <!-- ✅ 紀錄 -->
+    
       ${
         isRecordPage
         ? recordRoles.map(([role,label])=>{
-      
-          const slot = g.records?.[role];
-          const reason = getReason(role,true);
-          const locked = isSameTimeOtherFieldLocked(g);
-      
-          // ✅ ✅ ✅ 🔥 1. 母隊鎖（最高優先）
-          if (teamConflict){
+    
+            const slot = g.records?.[role];
+            const reason = getReason(role,true);
+            const locked = isSameTimeOtherFieldLocked(g);
+    
+            if (slot){
+              return '';
+            }
+    
+            if (isPast){
+              return '';
+            }
+    
+            if (teamConflict){
+              return `
+                <div class="signup-slot disabled">
+                  <span>${label}</span>
+                  <span>不可報名</span>
+                </div>
+              `;
+            }
+    
+            if (reason || locked){
+              return `
+                <div class="signup-slot disabled">
+                  <span>${label}</span>
+                  <span>${locked ? '待位' : reason}</span>
+                </div>
+              `;
+            }
+    
+            if ([1,2,4].includes(s)){
+              return `
+                <div class="signup-slot disabled">
+                  <span>${label}</span>
+                  <span>
+                    ${s===1?'延賽':s===2?'停賽':'鎖定'}
+                  </span>
+                </div>
+              `;
+            }
+    
+            if (!allowRecordSignup){
+              return `
+                <div class="signup-slot disabled">
+                  <span>${label}</span>
+                  <span>指派</span>
+                </div>
+              `;
+            }
+    
             return `
-              <div class="slot locked">
-                <div class="label">${label}</div>
-                <div class="name">不可報名</div>
+              <div class="signup-slot action"
+                  onclick="handleSlotClick('${g.game_id}','${role}')">
+                <span>${label}</span>
+                <span>＋</span>
               </div>
             `;
-          }
-      
-          // ✅ 有人
-          if (slot){
-      
-            const isMe = isMySlot(slot, session);
-      
-            return `
-            <div class="slot" data-gid="${g.game_id}" data-role="${role}">
-              <div class="label">${label}</div>
-              <div class="name ${isMe?'me':''}">
-                ${slot.name}
-              </div>
-              ${
-                isMe && !isPast && !isViewMode && ![1,2,4].includes(s)
-                ? `
-                <div class="cancel" onclick="event.stopPropagation(); handleSlotClick('${g.game_id}','${role}')">取消</div>
-                `
-                : ''
-              }
-            </div>`;
-          }
-      
-          // ✅ 過期
-          if (isPast){
-            return `
-              <div class="slot">
-                <div class="label">${label}</div>
-                <div class="name">—</div>
-              </div>`;
-          }
-      
-          // ✅ 待位 / 衝突
-          if (reason || locked){
-            return `
-              <div class="slot waiting">
-                <div class="label">${label}</div>
-                <div class="name">
-                  ${locked ? '待位' : reason}
-                </div>
-              </div>`;
-          }
-      
-          // ✅ view 模式
-          if (isViewMode){
-            return `
-              <div class="slot waiting">
-                <div class="label">${label}</div>
-                <div class="name">待位中</div>
-              </div>`;
-          }
-      
-          // ✅ status 控制
-          if ([1,2,4].includes(s)){
-            return `
-              <div class="slot locked">
-                <div class="label">${label}</div>
-                <div class="name">
-                  ${s === 1 ? '延賽' : s === 2 ? '停賽' : '🔒 鎖定'}
-                </div>
-              </div>
-            `;
-          }
-      
-         if (!allowRecordSignup){
-         
-           return `
-             <div class="slot locked">
-               <div class="label">${label}</div>
-               <div class="name">指派</div>
-             </div>
-           `;
-         }
-         
-         // ✅ ✅ ✅ 正常報名
-         return `
-           <div class="slot action"
-             onclick="handleSlotClick('${g.game_id}','${role}')">
-             <div class="label">${label}</div>
-             <div class="btn">報名</div>
-           </div>
-         `;
-      
-        }).join('')
+    
+          }).join('')
         : ''
       }
-
+    
     </div>
   </div>
   `;
