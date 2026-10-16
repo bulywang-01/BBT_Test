@@ -204,10 +204,6 @@ body{
   margin-top:0;
 }
 
-.game-code-badge{
-  margin-left:auto;
-}
-
 .game-tags{
   display:flex;
   gap:6px;
@@ -275,13 +271,13 @@ body{
 }
 
 .match-code{
-  font-size:12px;
+  font-size:16px;
   color:#64748b;
 }
 
 .match-vs{
   margin:4px 0;
-  font-size:16px;
+  font-size:12px;
   color:#94a3b8;
 }
 
@@ -323,7 +319,7 @@ body{
   margin-bottom:4px;
   font-size:12px;
   color:#94a3b8;
-  font-weight:700;
+  font-weight:600;
 }
 
 .card-duty-list{
@@ -572,4 +568,14 @@ body{
 
 .duty-signup{
     font-weight:700;
+}
+
+.game-location{
+    display:none;
+}
+
+.game-location-inline{
+    font-size:12px;
+    color:#64748b;
+    font-weight:500;
 }
