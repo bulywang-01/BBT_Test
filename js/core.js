@@ -426,7 +426,6 @@ function renderGameCard(g, opt={}){
        id="game-${g.game_id}"
        data-type="${type}">
 
-    ${statusBanner}
     ${teamConflict ? `<div class="row-warning">⚠️ 不可報名自己母隊的比賽</div>` : ''}
 
     <!-- 警告同場訊息　renderGameCard WARNING -->
@@ -502,6 +501,8 @@ function renderGameCard(g, opt={}){
       </div>
     
     </div>
+
+    ${statusBanner}
 
     <div class="card-duty-section">
     
