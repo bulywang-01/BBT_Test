@@ -542,7 +542,7 @@ body{
   }
 
   .match-team{
-      font-size:18px;
+      font-size:16px;
   }
 
   .match-time{
@@ -552,6 +552,11 @@ body{
   .match-code{
       font-size:12px;
   }
+   
+   .card-match{
+       grid-template-columns:1fr 90px 1fr;
+   }
+
 }
 
 /* =====================================================
@@ -647,19 +652,26 @@ body{
 
 .card-match{
   display:grid;
-  grid-template-columns:1fr auto 1fr;
   align-items:center;
-  gap:12px;
-
+  gap:10px;
+  padding:8px 0;
   margin-top:12px;
   margin-bottom:14px;
+  grid-template-columns: 1fr 120px 1fr;
 }
 
 .match-team{
     font-size:24px;
     font-weight:700;
     line-height:1.2;
-    word-break:break-word;
+}
+
+.match-team.away{
+    text-align:left;
+}
+
+.match-team.home{
+    text-align:right;
 }
 
 .match-center{
@@ -667,9 +679,9 @@ body{
 }
 
 .match-time{
-  font-size:20px;
-  font-weight:700;
-  color:#0f172a;
+    font-size:20px;
+    font-weight:800;
+    color:#e53935;
 }
 
 .match-vs{
@@ -717,9 +729,6 @@ body{
   font-size:12px;
 }
 
-.card-match{
-    padding:8px 0;
-}
 
 .card-duty-section{
     padding-top:6px;
