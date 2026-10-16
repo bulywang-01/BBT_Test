@@ -109,6 +109,100 @@ function getCategoryClass(category){
 }
 
 /*********************************************************
+ ✅ 共用資訊
+*********************************************************/
+function buildCardMeta(g){
+
+  const judgeRoles = getJudgeRoles(g);
+
+  const assigned =
+    judgeRoles.filter(r => g.judges?.[r]).length;
+
+  const required =
+    judgeRoles.length;
+
+  const missing =
+    judgeRoles.filter(r => !g.judges?.[r]);
+
+  return {
+    assigned,
+    required,
+    missingCount: missing.length,
+    missingRoles: missing
+  };
+
+}
+
+/*********************************************************
+ ✅ 狀態引擎
+*********************************************************/
+function buildCardStatus(g){
+
+  const session =
+    getSession
+      ? getSession()
+      : JSON.parse(
+          localStorage.getItem('session_user')||'{}'
+        );
+
+  const conflictInfo =
+    checkConflictFront(
+      g,
+      __GAME_CACHE,
+      session
+    );
+
+  const otherGame =
+    getOtherGameSameDay(g);
+
+  if (otherGame){
+    return {
+      type:'warning',
+      icon:'⚠️',
+      text:'本日已有其他勤務'
+    };
+  }
+
+  if (conflictInfo?.conflict){
+    return {
+      type:'danger',
+      icon:'⛔',
+      text:'時間衝突'
+    };
+  }
+
+  if (g.status === 1){
+    return {
+      type:'warning',
+      icon:'📆',
+      text:'延賽'
+    };
+  }
+
+  if (g.status === 2){
+    return {
+      type:'danger',
+      icon:'🛑',
+      text:'停賽'
+    };
+  }
+
+  if (g.status === 4){
+    return {
+      type:'lock',
+      icon:'🔒',
+      text:'已鎖定'
+    };
+  }
+
+  return {
+    type:'success',
+    icon:'✅',
+    text:'可報名'
+  };
+}
+
+/*********************************************************
  ✅ 班表主卡片（唯一UI）
 *********************************************************/
 function renderGameCard(g, opt={}){
