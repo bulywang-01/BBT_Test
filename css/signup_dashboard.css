@@ -602,7 +602,7 @@ body{
 .card-duty-list{
   display:flex;
   flex-direction:column;
-  gap:4px;
+  gap:2px;
 }
 
 .duty-item{
@@ -651,19 +651,16 @@ body{
 }
 
 .card-match{
-  display:grid;
-  align-items:center;
-  gap:10px;
-  padding:8px 0;
-  margin-top:12px;
-  margin-bottom:14px;
-  grid-template-columns: 1fr 120px 1fr;
+    display:grid;
+    grid-template-columns: 1fr 100px 1fr;
+    align-items:center;
+    gap:12px;
 }
 
 .match-team{
-    font-size:24px;
+    font-size:18px;
     font-weight:700;
-    line-height:1.2;
+    line-height:1.25;
 }
 
 .match-team.away{
@@ -691,12 +688,23 @@ body{
 }
 
 .match-code{
-  font-size:12px;
-  color:#64748b;
+    font-size:12px;
+    color:#777;
+    margin-bottom:2px;
 }
 
 .game-header{
-  margin-bottom:14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:nowrap;
+}
+
+.game-location{
+  margin-top:6px;
+  color:#64748b;
+  font-size:12px;
+  margin-left:auto;
 }
 
 .game-tags{
@@ -722,13 +730,6 @@ body{
   padding:4px 8px;
   border-radius:999px;
 }
-
-.game-location{
-  margin-top:6px;
-  color:#64748b;
-  font-size:12px;
-}
-
 
 .card-duty-section{
     padding-top:6px;
