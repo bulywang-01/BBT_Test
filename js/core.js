@@ -467,33 +467,33 @@ function renderGameCard(g, opt={}){
     ===================================================== */
     
     const headerHtml = `
-    <div class="game-header">
-    
-      <div class="game-header-top">
-    
-        <div class="game-tags">
-    
-          <span class="tag-tournament">
-            ${g.tournament || ''}
-          </span>
-    
-          <span class="tag-category">
-            ${g.category || ''}
-          </span>
-    
+      <div class="game-header">
+      
+        <div class="game-header-top">
+      
+          <div class="game-tags">
+      
+            <span class="tag-tournament">
+              ${g.tournament || ''}
+            </span>
+      
+            <span class="tag-category">
+              ${g.category || ''}
+            </span>
+      
+            <span class="game-location-inline">
+              📍 ${g.field || ''}
+            </span>
+      
+          </div>
+      
+          <div class="game-code-badge">
+            場次 ${g.game_code}
+          </div>
+      
         </div>
-    
-        <div class="game-code-badge">
-          場次 ${g.game_code}
-        </div>
-    
+      
       </div>
-    
-      <div class="game-location">
-        📍 ${g.field || ''}
-      </div>
-    
-    </div>
     `;
  
     let statusBanner = '';
