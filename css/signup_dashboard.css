@@ -833,3 +833,50 @@ body{
     font-size:12px;
     font-weight:600;
 }
+
+.row-bottom{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+    flex-wrap:wrap;
+}
+
+.signup-slot{
+
+    flex:1;
+
+    min-width:120px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:10px 12px;
+
+    border-radius:12px;
+
+    font-size:13px;
+    font-weight:700;
+}
+
+.signup-slot.action{
+
+    border:1px dashed #16a34a;
+    background:#f0fdf4;
+    color:#16a34a;
+
+    cursor:pointer;
+}
+
+.signup-slot.action:hover{
+
+    background:#dcfce7;
+}
+
+.signup-slot.disabled{
+
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+
+    color:#64748b;
+}
