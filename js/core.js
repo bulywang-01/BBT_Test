@@ -565,20 +565,6 @@ function renderGameCard(g, opt={}){
           const reason = getReason(role,false);
           const locked = isSameTimeOtherFieldLocked(g);
     
-          if (reason || locked){
-    
-            slots.push(`
-              <div class="slot waiting">
-                <div class="label">${roleMap(role)}</div>
-                <div class="name">
-                  ${locked ? '待位' : reason}
-                </div>
-              </div>
-            `);
-    
-            return;
-          }
-    
           // 停賽延賽鎖定
           if ([1,2,4].includes(s)){
     
@@ -704,20 +690,6 @@ function renderGameCard(g, opt={}){
     
           const reason = getReason(role,true);
           const locked = isSameTimeOtherFieldLocked(g);
-    
-          if (reason || locked){
-    
-            slots.push(`
-              <div class="slot waiting">
-                <div class="label">${label}</div>
-                <div class="name">
-                  ${locked ? '待位' : reason}
-                </div>
-              </div>
-            `);
-    
-            return;
-          }
     
           if ([1,2,4].includes(s)){
     
