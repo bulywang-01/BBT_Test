@@ -526,3 +526,9 @@ body{
     font-size:14px;
     font-weight:700;
 }
+
+.duty-badge.waiting{
+    background:#f8fafc;
+    border:1px dashed #cbd5e1;
+    color:#64748b;
+}
