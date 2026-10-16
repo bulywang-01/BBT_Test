@@ -429,6 +429,36 @@ function renderGameCard(g, opt={}){
 
     ${teamConflict ? `<div class="row-warning">⚠️ 不可報名自己母隊的比賽</div>` : ''}
 
+  ${headerHtml}
+  
+  <div class="card-match">
+    
+      <div class="match-team away">
+        ${g.away_team}
+      </div>
+    
+      <div class="match-center">
+    
+        <div class="match-code">
+          ${g.game_code}
+        </div>
+        
+        <div class="match-time">
+          ${getTime(g)}
+        </div>
+        
+        <div class="match-vs">
+          VS
+        </div>
+    
+      </div>
+    
+      <div class="match-team home">
+        ${g.home_team}
+      </div>
+    
+    </div>
+
     <!-- 警告同場訊息　renderGameCard WARNING -->
     ${(() => {
     
@@ -472,37 +502,7 @@ function renderGameCard(g, opt={}){
       return '';
     
     })()}
-
-  ${headerHtml}
-  
-  <div class="card-match">
     
-      <div class="match-team away">
-        ${g.away_team}
-      </div>
-    
-      <div class="match-center">
-    
-        <div class="match-code">
-          ${g.game_code}
-        </div>
-        
-        <div class="match-time">
-          ${getTime(g)}
-        </div>
-        
-        <div class="match-vs">
-          VS
-        </div>
-    
-      </div>
-    
-      <div class="match-team home">
-        ${g.home_team}
-      </div>
-    
-    </div>
-
     ${statusBanner}
 
     <div class="card-duty-section">
