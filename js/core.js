@@ -209,6 +209,14 @@ function buildDutyList(g, type){
 
   let html = '';
 
+  const session =
+    (typeof getSession === 'function')
+      ? getSession()
+      : JSON.parse(localStorage.getItem('session_user') || '{}');
+
+  const isPast = isPastGame(g.date);
+  const s = Number(g.status || 0);
+
   // =========================
   // 紀錄組
   // =========================
@@ -225,15 +233,52 @@ function buildDutyList(g, type){
       const slot = g.records?.[role];
       const name = safeName(slot);
 
+      // 已有人
+      if (name){
+
+        const isMe = isMySlot(slot, session);
+
+        html += `
+          <span class="duty-badge ${isMe ? 'me' : ''}">
+            ${label}：${name}
+
+            ${
+              isMe && !isPast && ![1,2,4].includes(s)
+                ? `
+                  <span class="duty-cancel"
+                        onclick="event.stopPropagation();handleSlotClick('${g.game_id}','${role}')">
+                    ✕
+                  </span>
+                `
+                : ''
+            }
+
+          </span>
+        `;
+
+        return;
+      }
+
+      // 已有其它職務
+      if (g.my_position){
+
+        html += `
+          <span class="duty-badge waiting">
+            ${label}：待位
+          </span>
+        `;
+
+        return;
+      }
+
+      // 可報名
       html += `
-        <span class="duty-badge ${name ? '' : 'signup'}"
-              ${!name ? `onclick="handleSlotClick('${g.game_id}','${role}')"` : ''}>
+        <span class="duty-badge signup"
+              onclick="handleSlotClick('${g.game_id}','${role}')">
           ${label}：
-          ${
-            name
-              ? name
-              : '<span class="duty-signup">＋報名</span>'
-          }
+          <span class="duty-signup">
+            ＋報名
+          </span>
         </span>
       `;
     });
@@ -251,22 +296,58 @@ function buildDutyList(g, type){
     const slot = g.judges?.[role];
     const name = safeName(slot);
 
+    // 已有人
+    if (name){
+
+      const isMe = isMySlot(slot, session);
+
+      html += `
+        <span class="duty-badge ${isMe ? 'me' : ''}">
+          ${roleMap(role)}：${name}
+
+          ${
+            isMe && !isPast && ![1,2,4].includes(s)
+              ? `
+                <span class="duty-cancel"
+                      onclick="event.stopPropagation();handleSlotClick('${g.game_id}','${role}')">
+                  ✕
+                </span>
+              `
+              : ''
+          }
+
+        </span>
+      `;
+
+      return;
+    }
+
+    // 已有其它職務
+    if (g.my_position){
+
+      html += `
+        <span class="duty-badge waiting">
+          ${roleMap(role)}：待位
+        </span>
+      `;
+
+      return;
+    }
+
+    // 可報名
     html += `
-      <span class="duty-badge ${name ? '' : 'signup'}"
-            ${!name ? `onclick="handleSlotClick('${g.game_id}','${role}')"` : ''}>
+      <span class="duty-badge signup"
+            onclick="handleSlotClick('${g.game_id}','${role}')">
         ${roleMap(role)}：
-        ${
-          name
-            ? name
-            : '<span class="duty-signup">＋報名</span>'
-        }
+        <span class="duty-signup">
+          ＋報名
+        </span>
       </span>
     `;
   });
 
   return html;
 }
-
 /*********************************************************
  ✅ 班表主卡片（唯一UI）
 *********************************************************/
