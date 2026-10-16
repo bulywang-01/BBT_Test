@@ -447,8 +447,9 @@ function renderGameCard(g, opt={}){
     
     })()}
 
-
-    <div class="card-match">
+  ${headerHtml}
+  
+  <div class="card-match">
     
       <div class="match-team away">
         ${g.away_team}
