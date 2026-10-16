@@ -519,172 +519,85 @@ function renderGameCard(g, opt={}){
     
     </div>
 
-    <div class="row-bottom">
-     ${
-     (() => {
-     
-       let slots = '';
-     
-       if (!isRecordPage){
-     
-         slots = judgeRoles.map(role => {
-     
-           const slot = g.judges?.[role];
-           const reason = getReason(role,false);
-           const locked = isSameTimeOtherFieldLocked(g);
-     
-           // 已有人
-           if (safeName(slot)){
-             return '';
-           }
-     
-           // 過期
-           if (isPast){
-             return '';
-           }
-     
-           // 母隊衝突
-           if (teamConflict){
-             return `
-               <div class="signup-slot disabled">
-                 <span>${roleMap(role)}</span>
-                 <span>不可報名</span>
-               </div>
-             `;
-           }
-     
-           // 時間衝突
-           if (reason || locked){
-             return `
-               <div class="signup-slot disabled">
-                 <span>${roleMap(role)}</span>
-                 <span>${locked ? '待位' : reason}</span>
-               </div>
-             `;
-           }
-     
-           // 延賽 / 停賽 / 鎖定
-           if ([1,2,4].includes(s)){
-             return `
-               <div class="signup-slot disabled">
-                 <span>${roleMap(role)}</span>
-                 <span>
-                   ${s===1?'延賽':s===2?'停賽':'鎖定'}
-                 </span>
-               </div>
-             `;
-           }
-     
-           // 不開放報名
-           if (!allowJudgeSignup){
-             return `
-               <div class="signup-slot disabled">
-                 <span>${roleMap(role)}</span>
-                 <span>指派</span>
-               </div>
-             `;
-           }
-     
-           // 可報名
-           return `
-             <div class="signup-slot action"
-                  onclick="handleSlotClick('${g.game_id}','${role}')">
-     
-               <span>${roleMap(role)}席</span>
-     
-               <span>＋</span>
-     
-             </div>
-           `;
-     
-         }).join('');
-     
-       } else {
-     
-         slots = recordRoles.map(([role,label]) => {
-     
-           const slot = g.records?.[role];
-           const reason = getReason(role,true);
-           const locked = isSameTimeOtherFieldLocked(g);
-     
-           if (slot){
-             return '';
-           }
-     
-           if (isPast){
-             return '';
-           }
-     
-           if (teamConflict){
-             return `
-               <div class="signup-slot disabled">
-                 <span>${label}</span>
-                 <span>不可報名</span>
-               </div>
-             `;
-           }
-     
-           if (reason || locked){
-             return `
-               <div class="signup-slot disabled">
-                 <span>${label}</span>
-                 <span>${locked ? '待位' : reason}</span>
-               </div>
-             `;
-           }
-     
-           if ([1,2,4].includes(s)){
-             return `
-               <div class="signup-slot disabled">
-                 <span>${label}</span>
-                 <span>
-                   ${s===1?'延賽':s===2?'停賽':'鎖定'}
-                 </span>
-               </div>
-             `;
-           }
-     
-           if (!allowRecordSignup){
-             return `
-               <div class="signup-slot disabled">
-                 <span>${label}</span>
-                 <span>指派</span>
-               </div>
-             `;
-           }
-     
-           return `
-             <div class="signup-slot action"
-                  onclick="handleSlotClick('${g.game_id}','${role}')">
-     
-               <span>${label}</span>
-     
-               <span>＋</span>
-     
-             </div>
-           `;
-     
-         }).join('');
-       }
-     
-       // ✅ 沒缺額 = 已額滿
-       if (!slots.trim()){
-         return `
-           <div class="slot-full">
-             已額滿
-           </div>
-         `;
-       }
-     
-       return `
-         <div class="row-bottom">
-           ${slots}
-         </div>
-       `;
-     
-     })()
-     }
-    </div>
+
+    ${
+    (() => {
+    
+      let msg = '';
+      let cls = '';
+    
+      // --------------------------------------------------
+      // 是否已在名單內
+      // --------------------------------------------------
+    
+      const myRole = g.my_position || '';
+    
+      const assignedJudge = Object.entries(g.judges || {})
+        .some(([role, slot]) => isMySlot(slot, session));
+    
+      const assignedRecord = Object.entries(g.records || {})
+        .some(([role, slot]) => isMySlot(slot, session));
+    
+      const isAssigned = assignedJudge || assignedRecord;
+    
+      // --------------------------------------------------
+      // 狀態優先順序
+      // --------------------------------------------------
+    
+      if (teamConflict){
+    
+        msg = '❌ 不可報名自己母隊';
+        cls = 'danger';
+    
+      } else if (conflict){
+    
+        msg = '❌ 需請假辭任';
+        cls = 'danger';
+    
+      } else if (isAssigned){
+    
+        msg = '✅ 已報名';
+        cls = 'success';
+    
+      } else {
+    
+        let remain = 0;
+    
+        if (isRecordPage){
+    
+          remain = recordRoles.filter(([role]) =>
+            !g.records?.[role]
+          ).length;
+    
+        } else {
+    
+          remain = judgeRoles.filter(role =>
+            !safeName(g.judges?.[role])
+          ).length;
+        }
+    
+        if (remain === 0){
+    
+          msg = '✅ 人員已補齊';
+          cls = 'success';
+    
+        } else {
+    
+          msg = `🟢 尚有 ${remain} 個名額`;
+          cls = 'open';
+        }
+      }
+    
+      return `
+        <div class="card-result ${cls}">
+          ${msg}
+        </div>
+      `;
+    
+    })()
+    }
+
+
   </div>
   `;
 }
