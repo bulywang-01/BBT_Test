@@ -209,6 +209,9 @@ function buildDutyList(g, type){
 
   let html = '';
 
+  // =========================
+  // 紀錄組
+  // =========================
   if (type === 'record'){
 
     const roles = [
@@ -222,11 +225,9 @@ function buildDutyList(g, type){
       const slot = g.records?.[role];
       const name = safeName(slot);
 
-      if (!name) return;
-
       html += `
-        <span class="duty-badge">
-          ${label}：${name}
+        <span class="duty-badge ${name ? '' : 'waiting'}">
+          ${label}：${name || '待位'}
         </span>
       `;
     });
@@ -234,6 +235,9 @@ function buildDutyList(g, type){
     return html;
   }
 
+  // =========================
+  // 裁判
+  // =========================
   const roles = getJudgeRoles(g);
 
   roles.forEach(role => {
@@ -241,11 +245,9 @@ function buildDutyList(g, type){
     const slot = g.judges?.[role];
     const name = safeName(slot);
 
-    if (!name) return;
-
     html += `
-      <span class="duty-badge">
-        ${roleMap(role)}：${name}
+      <span class="duty-badge ${name ? '' : 'waiting'}">
+        ${roleMap(role)}：${name || '待位'}
       </span>
     `;
   });
@@ -627,7 +629,7 @@ function renderGameCard(g, opt={}){
           <div class="slot-status">
             ${
               conflict
-              ? '⚠️ 需請假辭任'
+              ? '⚠️ 您已安排其它場次'
               : teamConflict
                 ? '⚠️ 不可報名自己母隊'
                 : g.my_position
@@ -764,7 +766,7 @@ function renderGameCard(g, opt={}){
           <div class="slot-status">
             ${
               conflict
-              ? '⚠️ 需請假辭任'
+              ? '⚠️ 您已安排其它場次'
               : teamConflict
                 ? '⚠️ 不可報名自己母隊'
                 : g.my_position
