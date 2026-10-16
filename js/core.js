@@ -1643,10 +1643,10 @@ function getJudgeRoles(g){
 
 function roleMap(r){
   return {
-    PU:'主',
-    U1:'一',
-    U2:'二',
-    U3:'三'
+    PU:'主審',
+    U1:'一壘',
+    U2:'二壘',
+    U3:'三壘'
   }[r] || r;
 }
 
