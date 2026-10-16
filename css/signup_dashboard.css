@@ -540,3 +540,30 @@ body{
     font-weight:900;
   }
 }
+
+/* =====================================================
+   二十二、新版報名系統CSS
+===================================================== */
+.date-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  margin:24px 0 12px;
+  padding:12px 16px;
+
+  background:#fff;
+
+  border-left:5px solid #2563eb;
+  border-radius:10px;
+}
+
+.date-title{
+  font-size:22px;
+  font-weight:700;
+}
+
+.date-sub{
+  color:#6b7280;
+  font-size:13px;
+}
