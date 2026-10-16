@@ -611,7 +611,7 @@ function renderGameCard(g, opt={}){
                   onclick="handleSlotClick('${g.game_id}','${role}')">
            
                <span>
-                 ${roleMap(role)}席
+                 ${roleMap(role)}
                </span>
            
                <span class="signup-plus">
