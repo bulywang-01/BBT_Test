@@ -473,10 +473,6 @@ function renderGameCard(g, opt={}){
       
           <div class="game-tags">
       
-            <span class="tag-tournament">
-              ${g.tournament || ''}
-            </span>
-      
             <span class="tag-category">
               ${g.category || ''}
             </span>
