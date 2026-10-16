@@ -606,18 +606,20 @@ function renderGameCard(g, opt={}){
           }
     
           // 可報名
-          slots.push(`
-            <div class="slot action"
-                 onclick="handleSlotClick('${g.game_id}','${role}')">
-    
-              <div class="label">${roleMap(role)}</div>
-    
-              <div class="btn">
-                報名
-              </div>
-    
-            </div>
-          `);
+           slots.push(`
+             <div class="signup-slot action"
+                  onclick="handleSlotClick('${g.game_id}','${role}')">
+           
+               <span>
+                 ${roleMap(role)}席
+               </span>
+           
+               <span class="signup-plus">
+                 ＋報名
+               </span>
+           
+             </div>
+           `);
     
         });
     
@@ -742,15 +744,17 @@ function renderGameCard(g, opt={}){
           }
     
           slots.push(`
-            <div class="slot action"
+            <div class="signup-slot action"
                  onclick="handleSlotClick('${g.game_id}','${role}')">
-    
-              <div class="label">${label}</div>
-    
-              <div class="btn">
-                報名
-              </div>
-    
+          
+              <span>
+                ${label}
+              </span>
+          
+              <span class="signup-plus">
+                ＋報名
+              </span>
+          
             </div>
           `);
     
