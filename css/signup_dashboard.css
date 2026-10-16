@@ -403,23 +403,33 @@ body{
   font-weight:700;
 }
 
+.duty-badge.signup{
+    background:#f0fdf4;
+    border:1px dashed #22c55e;
+    color:#15803d;
+    cursor:pointer;
+    font-weight:700;
+}
+
 /* =====================================================
    十四、取消報名
 ===================================================== */
 
 .cancel{
   margin-top:4px;
-
   padding:2px 6px;
-
   border-radius:6px;
-
   background:#fef2f2;
   color:#dc2626;
-
   font-size:12px;
-
   cursor:pointer;
+}
+
+.duty-cancel{
+    margin-left:6px;
+    color:#dc2626;
+    cursor:pointer;
+    font-weight:700;
 }
 
 /* =====================================================
