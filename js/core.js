@@ -220,18 +220,22 @@ function buildDutyList(g, type){
     roles.forEach(([role,label]) => {
 
       const slot = g.records?.[role];
+      const name = safeName(slot);
+
+      if (!name) return;
 
       html += `
-        <div class="duty-item">
-          <span class="duty-label">${label}</span>
-          <span class="duty-name">
-            ${safeName(slot) || '待補'}
-          </span>
-        </div>
+        <span class="duty-badge">
+          ${label}：${name}
+        </span>
       `;
     });
 
-    return html;
+    return html || `
+      <span class="duty-empty">
+        尚未安排紀錄組
+      </span>
+    `;
   }
 
   const roles = getJudgeRoles(g);
@@ -239,20 +243,22 @@ function buildDutyList(g, type){
   roles.forEach(role => {
 
     const slot = g.judges?.[role];
+    const name = safeName(slot);
+
+    if (!name) return;
 
     html += `
-      <div class="duty-item">
-        <span class="duty-label">
-          ${roleMap(role)}
-        </span>
-        <span class="duty-name">
-          ${safeName(slot) || '待補'}
-        </span>
-      </div>
+      <span class="duty-badge">
+        ${roleMap(role)}：${name}
+      </span>
     `;
   });
 
-  return html;
+  return html || `
+    <span class="duty-empty">
+      尚未安排裁判
+    </span>
+  `;
 }
 
 /*********************************************************
@@ -388,6 +394,10 @@ function renderGameCard(g, opt={}){
             </span>
         
           </div>
+          
+          <div class="game-code">
+              場次 ${g.game_code}
+          </div>
         
           <div class="game-location">
             📍 ${g.field || ''}
@@ -420,12 +430,6 @@ function renderGameCard(g, opt={}){
        id="game-${g.game_id}"
        data-type="${type}">
 
-     
-    <div class="row-top">
-      <div class="left">${g.tournament || ''}</div>
-      <div class="center">${g.category||''}</div>
-      <div class="right">${g.field||''}</div>
-    </div>    
     ${statusBanner}
     ${teamConflict ? `<div class="row-warning">⚠️ 不可報名自己母隊的比賽</div>` : ''}
 
