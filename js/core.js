@@ -422,7 +422,7 @@ function renderGameCard(g, opt={}){
 
      
     <div class="row-top">
-      <div class="left">${formatDateTW(g.date)}</div>
+      <div class="left">${g.tournament || ''}</div>
       <div class="center">${g.category||''}</div>
       <div class="right">${g.field||''}</div>
     </div>    
