@@ -203,6 +203,59 @@ function buildCardStatus(g){
 }
 
 /*********************************************************
+ ✅ 人員清單
+*********************************************************/
+function buildDutyList(g, type){
+
+  let html = '';
+
+  if (type === 'record'){
+
+    const roles = [
+      ['REC_MAIN','紀錄'],
+      ['REC_TRAINEE','見習'],
+      ['REC_VIDEO','影像']
+    ];
+
+    roles.forEach(([role,label]) => {
+
+      const slot = g.records?.[role];
+
+      html += `
+        <div class="duty-item">
+          <span class="duty-label">${label}</span>
+          <span class="duty-name">
+            ${safeName(slot) || '待補'}
+          </span>
+        </div>
+      `;
+    });
+
+    return html;
+  }
+
+  const roles = getJudgeRoles(g);
+
+  roles.forEach(role => {
+
+    const slot = g.judges?.[role];
+
+    html += `
+      <div class="duty-item">
+        <span class="duty-label">
+          ${roleMap(role)}
+        </span>
+        <span class="duty-name">
+          ${safeName(slot) || '待補'}
+        </span>
+      </div>
+    `;
+  });
+
+  return html;
+}
+
+/*********************************************************
  ✅ 班表主卡片（唯一UI）
 *********************************************************/
 function renderGameCard(g, opt={}){
@@ -313,6 +366,9 @@ function renderGameCard(g, opt={}){
   }
 
     const catClass = getCategoryClass(g.category);
+    const meta = buildCardMeta(g);
+    const cardStatus = buildCardStatus(g);
+    const dutyList = buildDutyList(g,type);
  
     let statusBanner = '';
     
@@ -392,22 +448,52 @@ function renderGameCard(g, opt={}){
     })()}
 
 
-    <div class="row-mid">
-      <div class="team">${g.away_team||''}</div>
-
-
-      <div class="center-box">
-        <div class="game-code">${g.game_code||''}</div>
-        <div class="time">${getTime(g)}</div>
+    <div class="card-match">
+    
+      <div class="card-away">
+        ${g.away_team || ''}
       </div>
-
-
-      <div class="team">${g.home_team||''}</div>
+    
+      <div class="card-center">
+    
+        <div class="card-game-code">
+          ${g.game_code || ''}
+        </div>
+    
+        <div class="card-time">
+          ${getTime(g)}
+        </div>
+    
+      </div>
+    
+      <div class="card-home">
+        ${g.home_team || ''}
+      </div>
+    
     </div>
 
+    <div class="card-duty-section">
+    
+      <div class="card-duty-title">
+        ${
+          type === 'record'
+            ? '目前紀錄組'
+            : '目前裁判'
+        }
+      </div>
+    
+      <div class="card-duty-list">
+        ${dutyList}
+      </div>
+    
+    </div>
+    
+    <div class="card-status-banner status-${cardStatus.type}">
+      ${cardStatus.icon}
+      ${cardStatus.text}
+    </div>
 
     <div class="row-bottom">
-
 
       <!-- ✅ 裁判 -->
       ${
