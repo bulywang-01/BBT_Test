@@ -365,7 +365,6 @@ function renderGameCard(g, opt={}){
 
     const catClass = getCategoryClass(g.category);
     const meta = buildCardMeta(g);
-    const cardStatus = buildCardStatus(g);
     const dutyList = buildDutyList(g,type);
 
     /* =====================================================
@@ -518,11 +517,6 @@ function renderGameCard(g, opt={}){
         ${dutyList}
       </div>
     
-    </div>
-    
-    <div class="card-status-banner status-${cardStatus.type}">
-      ${cardStatus.icon}
-      ${cardStatus.text}
     </div>
 
     <div class="row-bottom">
