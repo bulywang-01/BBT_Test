@@ -532,10 +532,6 @@ function renderGameCard(g, opt={}){
         <div class="match-time">
           ${getTime(g)}
         </div>
-        
-        <div class="match-vs">
-          vs
-        </div>
     
       </div>
     
