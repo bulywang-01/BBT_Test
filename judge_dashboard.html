@@ -378,11 +378,17 @@ function render(){
     )
     .forEach(date => {
 
-      root.innerHTML += `
-        <div class="date-header">
+    root.innerHTML += `
+      <div class="date-header">
+        <div class="date-title">
           📅 ${formatDateTW(date)}
         </div>
-      `;
+    
+        <div class="date-sub">
+          共 ${dateMap[date].length} 場賽事
+        </div>
+      </div>
+    `;
 
       const dayGames = dateMap[date];
 
