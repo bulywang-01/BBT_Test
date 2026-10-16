@@ -191,9 +191,10 @@ body{
 }
 
 .game-header-top{
-  display:flex;
-  align-items:center;
-  gap:8px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
 }
 
 .game-location{
@@ -205,35 +206,47 @@ body{
 }
 
 .game-tags{
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex-wrap:nowrap;
 }
 
 .tag-tournament{
-  background:#2563eb;
-  color:#fff;
-  font-size:11px;
-  font-weight:700;
-  padding:4px 8px;
-  border-radius:999px;
+    background:#2563eb;
+    color:#fff;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
 }
 
 .tag-category{
-  background:#f1f5f9;
-  color:#334155;
-  font-size:11px;
-  font-weight:600;
-  padding:4px 8px;
-  border-radius:999px;
+    background:#f1f5f9;
+    color:#334155;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
 }
 
 .game-code-badge{
-  font-size:13px;
-  font-weight:700;
-  color:#2563eb;
+    margin-left:auto;
+    color:#2563eb;
+    font-size:13px;
+    font-weight:800;
+    white-space:nowrap;
 }
 
+.tag-location{
+    background:#fdf2f8;
+    color:#be185d;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+}
 
 /* =====================================================
    十、隊伍資訊
