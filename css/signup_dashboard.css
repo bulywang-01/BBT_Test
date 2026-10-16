@@ -489,3 +489,31 @@ body{
     font-size:12px;
   }
 }
+
+
+/* =====================================================
+   報名結果區（仿 Sample）
+===================================================== */
+
+.card-result{
+
+  margin-top:14px;
+  padding-top:12px;
+
+  border-top:1px solid #e5e7eb;
+
+  font-size:14px;
+  font-weight:700;
+}
+
+.card-result.success{
+  color:#10b981;
+}
+
+.card-result.danger{
+  color:#ef4444;
+}
+
+.card-result.open{
+  color:#2563eb;
+}
