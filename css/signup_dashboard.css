@@ -333,15 +333,15 @@ body{
 }
 
 .duty-badge{
-  padding:4px 8px;
-  border-radius:8px;
-  background:#243249;
-  border:1px solid #384860;
-  display:inline-flex;
-  align-items:center;
-  color:#334155;
-  font-size:12px;
-  font-weight:600;
+    display:inline-flex;
+    align-items:center;
+    padding:4px 8px;
+    border-radius:8px;
+    background:#f8fafc;
+    border:1px solid #cbd5e1;
+    color:#334155;
+    font-size:12px;
+    font-weight:600;
 }
 
 .duty-empty{
