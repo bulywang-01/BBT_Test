@@ -716,3 +716,35 @@ body{
     top:60px;
     z-index:10;
 }
+
+/* =====================================================
+   我的班表
+===================================================== */
+.my-duty-row{
+    padding:10px 0;
+    border-bottom:1px solid #e5e7eb;
+}
+
+.my-duty-line1{
+    font-size:14px;
+    font-weight:700;
+    color:#111827;
+}
+
+.my-duty-line2{
+    margin-top:4px;
+    font-size:13px;
+    color:#2563eb;
+}
+
+.my-duty-line3{
+    margin-top:4px;
+    font-size:14px;
+    color:#374151;
+}
+
+#my-schedule-list{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
