@@ -582,8 +582,23 @@ function loadYearStats(){
 
 
 /*********************************************************
- * ✅ ✅ ✅ 我的班表（純顯示）
+ * ✅ 我的班表（簡潔版）
  *********************************************************/
+function getMyRoleText(role){
+
+  const map = {
+    PU:'主審',
+    U1:'一壘審',
+    U2:'二壘審',
+    U3:'三壘審',
+    REC_MAIN:'紀錄',
+    REC_TRAINEE:'見習',
+    REC_VIDEO:'影像'
+  };
+
+  return map[role] || role || '-';
+}
+
 function openMySchedule(){
 
   const overlay = document.getElementById('schedule-overlay');
@@ -604,50 +619,44 @@ function openMySchedule(){
       return;
     }
 
-    // ✅ ✅ ✅ 一定要 merge
     const games = (res.games || []).map(safeMerge);
-    
-    // ✅ ✅ ✅ 👉 插這裡（關鍵）
+
     const s = getSession ? getSession() : session;
-    
+
     games.forEach(g => {
-    
-      // ✅ 裁判
+
       if (g.judges){
-        for (let [role, val] of Object.entries(g.judges)){
-          if (isMySlot(val, s)){
+        for (let [role,val] of Object.entries(g.judges)){
+          if (isMySlot(val,s)){
             g.my_position = role;
           }
         }
       }
-    
-      // ✅ 紀錄（🔥 你現在缺的）
+
       if (g.records){
-        for (let [role, val] of Object.entries(g.records)){
-          if (isMySlot(val, s)){
+        for (let [role,val] of Object.entries(g.records)){
+          if (isMySlot(val,s)){
             g.my_position = role;
           }
         }
       }
-    
+
     });
-        
+
     const today = new Date();
     today.setHours(0,0,0,0);
 
-    // ✅ ✅ ✅ 正確 filter
-    const myGames = games.filter(g=>{
+    const myGames = games.filter(g => {
 
-      // ✅ 是否屬於我
       const isMine =
         g.my_position ||
-        Object.values(g.judges||{}).includes(session.name) ||
-        Object.values(g.records||{}).includes(session.name);
+        Object.values(g.judges || {}).includes(session.name) ||
+        Object.values(g.records || {}).includes(session.name);
 
       if (!isMine) return false;
 
-      // ✅ 只看今天之後（含今天）
       const d = parseDate(g.date);
+
       return d && d >= today;
 
     });
@@ -657,31 +666,58 @@ function openMySchedule(){
       return;
     }
 
-    // ✅ ✅ ✅ 排序（安全）
+    /**************************************************
+     * 日期 → 時間排序
+     **************************************************/
     myGames.sort((a,b)=>{
-      return new Date(a.date + ' ' + (a.time||'00:00'))
-           - new Date(b.date + ' ' + (b.time||'00:00'));
+
+      const da = new Date(
+        `${a.date} ${(a.time || '00:00')}`
+      );
+
+      const db = new Date(
+        `${b.date} ${(b.time || '00:00')}`
+      );
+
+      return da - db;
+
     });
 
-    // list.innerHTML = myGames.map(renderGameCard).join('');
+    /**************************************************
+     * Render
+     **************************************************/
+    list.innerHTML = myGames.map(g => `
 
-    list.innerHTML = myGames.map(g => {
-    
-      const type = g.my_position?.startsWith('REC')
-        ? 'record'
-        : 'judge';
-    
-      return renderGameCard(g,{
-        session,
-        type,
-        mode:'view'
-      });
-    
-    }).join('');
+      <div class="my-duty-row">
+
+        <div class="my-duty-line1">
+          ${formatDateTW(g.date)}
+          ｜${getTime(g)}
+          ｜${g.field || '-'}
+          ｜${getMyRoleText(g.my_position)}
+        </div>
+
+        <div class="my-duty-line2">
+          ${g.game_code || '-'}
+          ｜${g.tournament || '-'}
+        </div>
+
+        <div class="my-duty-line3">
+          ${g.away_team || ''}
+          <span class="vs">vs</span>
+          ${g.home_team || ''}
+        </div>
+
+      </div>
+
+    `).join('');
 
     setGameCache(myGames);
+
   });
+
 }
+
 
 /*********************************************************
  * ✅ ✅ ✅ 本週班表（純顯示）
