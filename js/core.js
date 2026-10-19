@@ -2127,7 +2127,7 @@ function initMonthTabsCommon(options = {}) {
   const allBtn = document.createElement('div');
 
   allBtn.className = 'month-tab active';
-  allBtn.textContent = '📊 全年班表';
+  allBtn.textContent = '📊 全年';
 
   allBtn.onclick = () => {
 
