@@ -630,3 +630,52 @@ body{
     font-size:11px;
     opacity:.9;
 }
+
+.month-tabs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin:12px 0 18px;
+}
+
+.month-tab{
+    min-width:72px;
+    padding:10px 14px;
+    border-radius:12px;
+    background:#f8fafc;
+    border:1px solid #dbe3ef;
+    text-align:center;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:700;
+    transition:.2s;
+}
+
+.month-tab:hover{
+    background:#eef4ff;
+}
+
+.month-tab.active{
+    background:#2563eb;
+    border-color:#2563eb;
+    color:#fff;
+    box-shadow:
+      0 4px 12px rgba(37,99,235,.25);
+}
+
+.toolbar-title{
+    margin-bottom:8px;
+    color:#475569;
+    font-size:13px;
+    font-weight:700;
+}
+
+#tournamentSelect{
+    min-width:280px;
+    height:40px;
+    border-radius:10px;
+    border:1px solid #cbd5e1;
+    padding:0 12px;
+    font-size:14px;
+    font-weight:600;
+}
