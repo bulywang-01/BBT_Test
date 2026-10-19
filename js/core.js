@@ -2108,8 +2108,7 @@ function initMonthTabsCommon(options = {}) {
 
   const {
     containerId = 'month-tabs',
-    games = [],
-    onMonthClick
+    games = []
   } = options;
 
   const container =
@@ -2119,7 +2118,9 @@ function initMonthTabsCommon(options = {}) {
 
   container.innerHTML = '';
 
-  // 全部
+  // =========================
+  // 全部按鈕
+  // =========================
   const allBtn = document.createElement('div');
 
   allBtn.className = 'month-tab active';
@@ -2130,16 +2131,19 @@ function initMonthTabsCommon(options = {}) {
     window.currentMonth = null;
     window.isFullYear = true;
 
+    // 還原全部資料
+    window.games = [...window.allGames];
+
     setActiveTab(allBtn);
 
-    if (typeof onMonthClick === 'function'){
-      onMonthClick(null);
-    }
+    render();
   };
 
   container.appendChild(allBtn);
 
+  // =========================
   // 有賽程月份
+  // =========================
   const months = [
 
     ...new Set(
@@ -2177,15 +2181,29 @@ function initMonthTabsCommon(options = {}) {
 
       setActiveTab(btn);
 
-      if (typeof onMonthClick === 'function'){
-        onMonthClick(month);
-      }
+      // 過濾月份
+      window.games =
+        window.allGames.filter(g => {
+
+          if (!g.date) return false;
+
+          const d =
+            new Date(
+              String(g.date).replace(/\//g,'-')
+            );
+
+          return (
+            d.getMonth() + 1
+          ) === month;
+
+        });
+
+      render();
     };
 
     container.appendChild(btn);
 
   });
-
 }
 
 /*********************************************************
