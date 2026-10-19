@@ -148,130 +148,12 @@ let games = [];
 let currentTournament = '';
 
 /* ===== API ===== */
-function loadGames() {
+function loadGames(){
 
-  const s =
-    JSON.parse(
-      localStorage.getItem('session_user') || '{}'
-    );
-
-  showToast('載入賽事資料中...');
-
-  callApi(
-    {
-      action:'getRecordGames',
-      user_id:s.user_id || ''
-    },
-    res => {
-
-      if (!res || res.result !== 'ok') {
-
-        showToast(
-          res?.message || '無法取得賽事資料'
-        );
-
-        return;
-      }
-
-      /* ========================
-         資料
-      ======================== */
-
-      allGames =
-        (res.games || []).map(safeMerge);
-
-      games = allGames;
-
-      /* ========================
-         Tournament 下拉
-      ======================== */
-
-      buildTournamentSelector();
-
-      /* ========================
-         建立 my_position
-         紀錄頁專用
-      ======================== */
-
-      const loginUserId =
-        String(
-          session?.user_id || ''
-        ).trim();
-
-      allGames.forEach(g => {
-
-        g.my_position = '';
-
-        ['REC_MAIN','REC_TRAINEE','REC_VIDEO']
-        .forEach(role => {
-
-          const slot =
-            g.records?.[role];
-
-          if (!slot) return;
-
-          const slotUserId =
-            String(
-              slot.user_id || ''
-            ).trim();
-
-          if (slotUserId === loginUserId){
-
-            g.my_position = role;
-
-          }
-
-        });
-
-      });
-
-      /* ========================
-         Cache
-      ======================== */
-
-      if (
-        typeof setGameCache === 'function'
-      ){
-        setGameCache(allGames);
-      }
-
-      /* ========================
-         Debug（先保留）
-      ======================== */
-
-      console.log(
-        'Record Games =',
-        allGames
-      );
-
-      console.log(
-        allGames.map(g => ({
-          game_code : g.game_code,
-          game_id   : g.game_id,
-          records   : g.records,
-          my_position : g.my_position
-        }))
-      );
-
-      console.log(
-        'Tournament List =',
-        [
-          ...new Set(
-            allGames.map(
-              g => g.tournament
-            )
-          )
-        ]
-      );
-
-      /* ========================
-         Render
-      ======================== */
-
-      render();
-
-    }
-  );
+  loadGamesCommon({
+    action:'getRecordGames',
+    isRecordPage:true
+  });
 
 }
 
@@ -647,22 +529,7 @@ window.currentMonth = null;
 window.isFullYear = false;
   
 initMonthTabsCommon({
-
-  games: allGames,
-
-  onMonthClick(month){
-
-    if (month == null){
-      loadGames();
-    }else{
-      loadRecordGamesByMonth(
-        new Date().getFullYear(),
-        month
-      );
-    }
-
-  }
-
+    games: allGames
 });
 
 function setActiveTab(el) {
