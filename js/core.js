@@ -2122,7 +2122,7 @@ function initMonthTabsCommon(options = {}) {
   container.innerHTML = '';
 
   // =========================
-  // 全部按鈕
+  // 全年班表
   // =========================
   const allBtn = document.createElement('div');
 
@@ -2133,9 +2133,6 @@ function initMonthTabsCommon(options = {}) {
 
     window.currentMonth = null;
     window.isFullYear = true;
-
-    // 還原全部資料
-    window.games = [...window.allGames];
 
     setActiveTab(allBtn);
 
@@ -2184,29 +2181,13 @@ function initMonthTabsCommon(options = {}) {
 
       setActiveTab(btn);
 
-      // 過濾月份
-      window.games =
-        window.allGames.filter(g => {
-
-          if (!g.date) return false;
-
-          const d =
-            new Date(
-              String(g.date).replace(/\//g,'-')
-            );
-
-          return (
-            d.getMonth() + 1
-          ) === month;
-
-        });
-
       render();
     };
 
     container.appendChild(btn);
 
   });
+
 }
 
 /*********************************************************
