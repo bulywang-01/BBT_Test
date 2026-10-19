@@ -348,6 +348,7 @@ function buildDutyList(g, type){
 
   return html;
 }
+
 /*********************************************************
  ✅ 班表主卡片（唯一UI）
 *********************************************************/
@@ -478,14 +479,11 @@ function renderGameCard(g, opt={}){
             </span>
       
             <span class="tag-location">
-              📍 ${g.field || ''}
+              📍 ${g.field || ''} ｜ ${g.game_code}
             </span>
       
           </div>
-      
-          <div class="game-code-badge">
-            場次 ${g.game_code}
-          </div>
+
       
         </div>
       
@@ -502,7 +500,7 @@ function renderGameCard(g, opt={}){
       statusBanner = '<div class="row-warning">停賽</div>';
     }
     if (s === 4){
-      statusBanner = '<div class="row-warning">已完賽</div>';
+      statusBanner = '<div class="status-badge completed">已完賽</div>';
     }
  
   return `
@@ -588,14 +586,6 @@ function renderGameCard(g, opt={}){
     ${statusBanner}
 
     <div class="card-duty-section">
-    
-      <div class="card-duty-title">
-        ${
-          type === 'record'
-            ? '目前紀錄組'
-            : '目前裁判'
-        }
-      </div>
     
       <div class="card-duty-list">
         ${dutyList}
