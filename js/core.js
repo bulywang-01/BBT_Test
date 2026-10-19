@@ -2187,3 +2187,108 @@ function initMonthTabsCommon(options = {}) {
   });
 
 }
+
+/*********************************************************
+ ✅ 共用載入賽事
+*********************************************************/
+function loadGamesCommon(options = {}) {
+
+  const {
+    action,
+    isRecordPage = false
+  } = options;
+
+  const s =
+    JSON.parse(
+      localStorage.getItem('session_user') || '{}'
+    );
+
+  showToast('載入賽事資料中...');
+
+  callApi(
+    {
+      action,
+      user_id: s.user_id || ''
+    },
+    res => {
+
+      if (!res || res.result !== 'ok') {
+
+        showToast(
+          res?.message || '無法取得賽事資料'
+        );
+
+        return;
+      }
+
+      allGames =
+        (res.games || []).map(safeMerge);
+
+      games = allGames;
+
+      buildTournamentSelector();
+
+      // -------------------------
+      // 建立 my_position
+      // -------------------------
+
+      allGames.forEach(g => {
+
+        g.my_position = '';
+
+        // 裁判
+        if (g.judges){
+
+          for (const [role, slot] of Object.entries(g.judges)){
+
+            if (isMySlot(slot, s)){
+
+              g.my_position = role;
+              return;
+            }
+          }
+        }
+
+        // 紀錄
+        if (g.records){
+
+          for (const [role, slot] of Object.entries(g.records)){
+
+            const slotUserId =
+              String(slot?.user_id || '').trim();
+
+            if (
+              slotUserId &&
+              slotUserId === String(s.user_id || '').trim()
+            ){
+
+              g.my_position = role;
+              return;
+            }
+
+            if (isMySlot(slot, s)){
+
+              g.my_position = role;
+              return;
+            }
+          }
+        }
+
+      });
+
+      if (typeof setGameCache === 'function'){
+        setGameCache(allGames);
+      }
+
+      // 月份
+      if (typeof initMonthTabsCommon === 'function'){
+        initMonthTabsCommon({
+          games: allGames
+        });
+      }
+
+      render();
+
+    }
+  );
+}
