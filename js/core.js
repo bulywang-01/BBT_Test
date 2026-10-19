@@ -610,8 +610,8 @@ function renderGameCard(g, opt={}){
               : g.my_position
                 ? '✅ 已報名'
                 : remain === 0
-                  ? '✅ 人員已補齊'
-                  : `🟢 尚有 ${remain} 個名額`
+                  ? '✅ 已額滿'
+                  : `🟢 還缺 ${remain} 人`
           }
         </div>
       `;
