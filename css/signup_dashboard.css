@@ -55,20 +55,17 @@ body{
 }
 
 .month-tab{
-    flex:0 0 auto;
-    min-width:72px;
-    height:40px;
+    width:56px;
+    height:56px;
     display:flex;
     align-items:center;
     justify-content:center;
-    padding:0 14px;
+    flex:0 0 auto;
+    padding:0;
     border-radius:12px;
-    background:#f8fafc;
-    border:1px solid #dbe3ef;
-    cursor:pointer;
     font-size:14px;
     font-weight:700;
-    transition:.2s;
+    cursor:pointer;
 }
 
 .month-tab:hover{
