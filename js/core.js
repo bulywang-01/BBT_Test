@@ -2104,6 +2104,9 @@ function buildTournamentSelector(){
 /*********************************************************
  ✅ 共用月份列
 *********************************************************/
+window.currentMonth = null;
+window.isFullYear = true;
+
 function initMonthTabsCommon(options = {}) {
 
   const {
