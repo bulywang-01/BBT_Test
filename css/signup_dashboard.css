@@ -748,3 +748,35 @@ body{
     flex-direction:column;
     gap:4px;
 }
+
+/* =====================================================
+   本週聯盟班表
+===================================================== */
+.weekly-duty{
+    margin-top:12px;
+    border-top:1px solid #e5e7eb;
+    padding-top:10px;
+}
+
+.duty-row{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:4px;
+    text-align:center;
+}
+
+.duty-row.header{
+    font-size:12px;
+    color:#64748b;
+    font-weight:700;
+    margin-bottom:6px;
+}
+
+.duty-row.value div{
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    border-radius:8px;
+    padding:6px 4px;
+    font-size:13px;
+    font-weight:600;
+}
