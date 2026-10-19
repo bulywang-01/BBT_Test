@@ -191,7 +191,7 @@ function buildCardStatus(g){
     return {
       type:'lock',
       icon:'🔒',
-      text:'已鎖定'
+      text:'已完賽'
     };
   }
 
@@ -360,7 +360,7 @@ function renderGameCard(g, opt={}){
     return '';
   }
 
-  // ✅ ✅ ✅ 鎖定
+  // ✅ ✅ ✅ 已完賽
  
   const session =
     opt.session
@@ -502,7 +502,7 @@ function renderGameCard(g, opt={}){
       statusBanner = '<div class="row-warning">⛔停賽</div>';
     }
     if (s === 4){
-      statusBanner = '<div class="row-warning">🔒鎖定</div>';
+      statusBanner = '<div class="row-warning">🔒已完賽</div>';
     }
  
   return `
@@ -760,7 +760,7 @@ function renderJudgeSlots(g, isPast, session){
           if ([1,2,4].includes(s)){
             return `
               <div class="mobile-pos">
-                <span>${s === 1 ? '延賽' : s === 2 ? '停賽' : '🔒鎖定'}</span>
+                <span>${s === 1 ? '延賽' : s === 2 ? '停賽' : '🔒已完賽'}</span>
               </div>
             `;
           }
@@ -804,7 +804,7 @@ function renderJudgeSlots(g, isPast, session){
            if ([1,2,4].includes(s)){
              return `
                <div class="mobile-pos">
-                 <span>${s === 1 ? '延賽' : s === 2 ? '停賽' : '🔒鎖定'}</span>
+                 <span>${s === 1 ? '延賽' : s === 2 ? '停賽' : '🔒已完賽'}</span>
                </div>
              `;
            }
@@ -919,7 +919,7 @@ function renderRecordSlots(g, isPast, session){
         return `
           <div class="record-role other">
             ${label}<br>
-            ${s === 1 ? '延賽' : s === 2 ? '停賽' : '🔒鎖定'}
+            ${s === 1 ? '延賽' : s === 2 ? '停賽' : '🔒已完賽'}
           </div>
         `;
       }
