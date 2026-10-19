@@ -2157,3 +2157,90 @@ function renderMonthTabs(games){
 
   `;
 }
+
+/*********************************************************
+ ✅ 共用月份列
+*********************************************************/
+function initMonthTabsCommon(options = {}) {
+
+  const {
+    containerId = 'month-tabs',
+    games = [],
+    onMonthClick
+  } = options;
+
+  const container =
+    document.getElementById(containerId);
+
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  // 全部
+  const allBtn = document.createElement('div');
+
+  allBtn.className = 'month-tab active';
+  allBtn.textContent = '📊 全年班表';
+
+  allBtn.onclick = () => {
+
+    window.currentMonth = null;
+    window.isFullYear = true;
+
+    setActiveTab(allBtn);
+
+    if (typeof onMonthClick === 'function'){
+      onMonthClick(null);
+    }
+  };
+
+  container.appendChild(allBtn);
+
+  // 有賽程月份
+  const months = [
+
+    ...new Set(
+
+      games
+        .filter(g => g.date)
+        .map(g => {
+
+          const d =
+            new Date(
+              String(g.date).replace(/\//g,'-')
+            );
+
+          return d.getMonth() + 1;
+
+        })
+
+    )
+
+  ].sort((a,b) => a - b);
+
+  months.forEach(month => {
+
+    const btn =
+      document.createElement('div');
+
+    btn.className = 'month-tab';
+
+    btn.textContent = `${month}月`;
+
+    btn.onclick = () => {
+
+      window.currentMonth = month;
+      window.isFullYear = false;
+
+      setActiveTab(btn);
+
+      if (typeof onMonthClick === 'function'){
+        onMonthClick(month);
+      }
+    };
+
+    container.appendChild(btn);
+
+  });
+
+}
