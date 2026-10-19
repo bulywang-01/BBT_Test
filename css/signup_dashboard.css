@@ -313,6 +313,21 @@ body{
     white-space:nowrap;
 }
 
+.status-badge{
+  display:inline-block;
+  margin:6px 0;
+  padding:4px 12px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:600;
+}
+
+.status-badge.completed{
+  background:#fff3e8;
+  color:#e67e22;
+  border:1px solid #f5b97a;
+}
+
 /* =====================================================
    十、隊伍資訊
 ===================================================== */
