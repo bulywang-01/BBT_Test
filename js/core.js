@@ -2099,64 +2099,7 @@ function buildTournamentSelector(){
 }
 
 
-let CURRENT_MONTH =
-  new Date().getMonth() + 1;
 
-function filterMonth(month){
-
-  CURRENT_MONTH = month;
-
-  renderGameList();
-  renderMonthTabs(__GAME_CACHE);
-}
-
-// 產生有賽程的月份
-function renderMonthTabs(games){
-
-  const container =
-    document.getElementById('monthTabs');
-
-  if (!container) return;
-
-  // 只取有賽程的月份
-  const months = [...new Set(
-
-    games
-      .filter(g => g.date)
-      .map(g => {
-
-        const d = new Date(g.date);
-        return d.getMonth() + 1;
-
-      })
-
-  )].sort((a,b)=>a-b);
-
-  const currentMonth =
-    CURRENT_MONTH || new Date().getMonth() + 1;
-
-  container.innerHTML = `
-
-    <button
-      class="month-btn ${CURRENT_MONTH === 'all' ? 'active' : ''}"
-      onclick="filterMonth('all')">
-      全部
-    </button>
-
-    ${months.map(month => `
-
-      <button
-        class="month-btn ${currentMonth === month ? 'active' : ''}"
-        onclick="filterMonth(${month})">
-
-        ${month}月
-
-      </button>
-
-    `).join('')}
-
-  `;
-}
 
 /*********************************************************
  ✅ 共用月份列
