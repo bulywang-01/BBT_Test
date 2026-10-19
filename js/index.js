@@ -621,24 +621,37 @@ function openMySchedule(){
 
     const games = (res.games || []).map(safeMerge);
 
-    const s = getSession ? getSession() : session;
+    const s =
+      getSession
+        ? getSession()
+        : session;
 
     games.forEach(g => {
 
+      g.my_position = '';
+
       if (g.judges){
-        for (let [role,val] of Object.entries(g.judges)){
+
+        for (const [role,val] of Object.entries(g.judges)){
+
           if (isMySlot(val,s)){
             g.my_position = role;
           }
+
         }
+
       }
 
       if (g.records){
-        for (let [role,val] of Object.entries(g.records)){
+
+        for (const [role,val] of Object.entries(g.records)){
+
           if (isMySlot(val,s)){
             g.my_position = role;
           }
+
         }
+
       }
 
     });
@@ -648,12 +661,9 @@ function openMySchedule(){
 
     const myGames = games.filter(g => {
 
-      const isMine =
-        g.my_position ||
-        Object.values(g.judges || {}).includes(session.name) ||
-        Object.values(g.records || {}).includes(session.name);
-
-      if (!isMine) return false;
+      if (!g.my_position){
+        return false;
+      }
 
       const d = parseDate(g.date);
 
@@ -662,50 +672,82 @@ function openMySchedule(){
     });
 
     if (!myGames.length){
-      list.innerHTML = '目前沒有未來班表';
+
+      list.innerHTML = `
+        <div class="row-warning">
+          目前沒有未來班表
+        </div>
+      `;
+
       return;
     }
 
-    /**************************************************
-     * 日期 → 時間排序
-     **************************************************/
     myGames.sort((a,b)=>{
 
-      const da = new Date(
-        `${a.date} ${(a.time || '00:00')}`
-      );
+      const da =
+        new Date(
+          `${a.date} ${getTime(a)}`
+        );
 
-      const db = new Date(
-        `${b.date} ${(b.time || '00:00')}`
-      );
+      const db =
+        new Date(
+          `${b.date} ${getTime(b)}`
+        );
 
       return da - db;
 
     });
 
-    /**************************************************
-     * Render
-     **************************************************/
     list.innerHTML = myGames.map(g => `
 
-      <div class="my-duty-row">
+      <div class="my-schedule-card">
 
-        <div class="my-duty-line1">
-          ${formatDateTW(g.date)}
-          ｜${getTime(g)}
-          ｜${g.field || '-'}
-          ｜${getMyRoleText(g.my_position)}
+        <div class="my-card-header">
+
+          <span class="badge-tournament">
+            ${g.tournament || '-'}
+          </span>
+
+          <span class="badge-code">
+            場次 ${g.game_code || '-'}
+          </span>
+
         </div>
 
-        <div class="my-duty-line2">
-          ${g.game_code || '-'}
-          ｜${g.tournament || '-'}
+        <div class="my-card-match">
+
+          <div class="team left">
+            ${g.away_team || ''}
+          </div>
+
+          <div class="center">
+
+            <div class="time">
+              ${getTime(g)}
+            </div>
+
+            <div class="date">
+              ${formatDateTW(g.date)}
+            </div>
+
+          </div>
+
+          <div class="team right">
+            ${g.home_team || ''}
+          </div>
+
         </div>
 
-        <div class="my-duty-line3">
-          ${g.away_team || ''}
-          <span class="vs">vs</span>
-          ${g.home_team || ''}
+        <div class="my-card-footer">
+
+          <span>
+            📍 ${g.field || '-'}
+          </span>
+
+          <span>
+            ${getMyRoleText(g.my_position)}
+          </span>
+
         </div>
 
       </div>
@@ -1096,49 +1138,62 @@ function renderWeeklyCard(g){
   return `
     <div class="weekly-card">
 
-      <!-- ✅ ✅ ✅ 上半部（改成我的班表風格） -->
-      <div class="row-top">
-        <div class="left">${formatDateTW(g.date)}</div>
-        <div class="center">${g.category||''}</div>
-        <div class="right">
-          <span class="field-tag">${g.field||''}</span>
-        </div>
-      </div>
+      <div class="weekly-top">
 
-      <div class="row-mid">
-        <div class="team">${g.away_team||''}</div>
-
-        <div class="center-box">
-          <div class="game-code">${g.game_code||''}</div>
-          <div class="time">${getTime(g)}</div>
+        <div class="weekly-category">
+          ${g.category || ''}
         </div>
 
-        <div class="team">${g.home_team||''}</div>
+        <div class="weekly-field">
+          📍 ${g.field || ''}
+        </div>
+
       </div>
 
-      <!-- ✅ ✅ ✅ 名單（維持你現在6欄） -->
-      <div class="row-all">
-        <div class="row-inner">
-        
-          <div class="row-line header">
-            <div class="col">主審</div>
-            <div class="col">一壘</div>
-            <div class="col">三壘</div>
-            <div class="col">紀錄</div>
-            <div class="col">見習</div>
-            <div class="col">影像</div>
+      <div class="weekly-match">
+
+        <div class="team">
+          ${g.away_team || ''}
+        </div>
+
+        <div class="center">
+
+          <div class="game-code">
+            ${g.game_code || ''}
           </div>
 
-          <div class="row-line values">
-            <div class="col">${safeName(g.judges?.PU)}</div>
-            <div class="col">${safeName(g.judges?.U1)}</div>
-            <div class="col">${safeName(g.judges?.U3)}</div>
-            <div class="col">${safeName(g.records?.REC_MAIN)}</div>
-            <div class="col">${safeName(g.records?.REC_TRAINEE)}</div>
-            <div class="col">${safeName(g.records?.REC_VIDEO)}</div>
+          <div class="time">
+            ${getTime(g)}
           </div>
 
         </div>
+
+        <div class="team">
+          ${g.home_team || ''}
+        </div>
+
+      </div>
+
+      <div class="weekly-duty">
+
+        <div class="duty-row header">
+          <div>主</div>
+          <div>一</div>
+          <div>三</div>
+          <div>紀</div>
+          <div>習</div>
+          <div>影</div>
+        </div>
+
+        <div class="duty-row value">
+          <div>${safeName(g.judges?.PU) || '－'}</div>
+          <div>${safeName(g.judges?.U1) || '－'}</div>
+          <div>${safeName(g.judges?.U3) || '－'}</div>
+          <div>${safeName(g.records?.REC_MAIN) || '－'}</div>
+          <div>${safeName(g.records?.REC_TRAINEE) || '－'}</div>
+          <div>${safeName(g.records?.REC_VIDEO) || '－'}</div>
+        </div>
+
       </div>
 
     </div>
