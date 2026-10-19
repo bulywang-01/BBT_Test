@@ -322,6 +322,23 @@ function render(){
 
   });
 
+  const dates = Object.keys(dateMap);
+  
+  if (!dates.length){
+  
+    root.innerHTML = `
+      <div class="row-warning">
+        📅 ${
+          window.currentMonth
+            ? `${window.currentMonth}月無賽事`
+            : '目前沒有符合條件的賽事'
+        }
+      </div>
+    `;
+  
+    return;
+  }
+  
   /* =========================
      日期排序
   ========================= */
