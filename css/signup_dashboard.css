@@ -40,29 +40,65 @@ body{
 /* =====================================================
    三、月份切換
 ===================================================== */
-
 .month-tabs{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin:10px 0 14px;
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    flex-wrap:nowrap;
+    padding-bottom:4px;
+    scrollbar-width:none;
+}
+
+.month-tabs::-webkit-scrollbar{
+    display:none;
 }
 
 .month-tab{
-  padding:5px 10px;
-  border-radius:999px;
-  background:#f1f5f9;
-  color:#444;
-  cursor:pointer;
-  font-size:13px;
-  font-weight:700;
+    flex:0 0 auto;
+    min-width:72px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 14px;
+    border-radius:12px;
+    background:#f8fafc;
+    border:1px solid #dbe3ef;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:700;
+    transition:.2s;
+}
+
+.month-tab:hover{
+    background:#eef4ff;
 }
 
 .month-tab.active{
-  background:#1976d2;
-  color:#fff;
+    background:#2563eb;
+    color:#fff;
+    border-color:#2563eb;
+    box-shadow:
+      0 4px 12px rgba(37,99,235,.25);
 }
 
+.toolbar-title{
+    margin-bottom:8px;
+    color:#475569;
+    font-size:13px;
+    font-weight:700;
+}
+
+#tournamentSelect{
+    min-width:280px;
+    height:40px;
+    border-radius:10px;
+    border:1px solid #cbd5e1;
+    padding:0 12px;
+    font-size:14px;
+    font-weight:600;
+}
 /* =====================================================
    四、日期區塊
 ===================================================== */
@@ -71,23 +107,22 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-
-  margin:24px 0 12px;
-  padding:12px 16px;
-
   background:#fff;
   border-left:5px solid #2563eb;
   border-radius:10px;
+  margin:12px 0 8px;
+  padding:10px 14px;
+  min-height:unset;
 }
 
 .date-title{
-  font-size:22px;
-  font-weight:700;
+  font-size:28px;
+  font-weight:800;
 }
 
 .date-sub{
-  color:#6b7280;
-  font-size:13px;
+    font-size:13px;
+    color:#64748b;
 }
 
 .category-title{
@@ -631,51 +666,4 @@ body{
     opacity:.9;
 }
 
-.month-tabs{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin:12px 0 18px;
-}
 
-.month-tab{
-    min-width:72px;
-    padding:10px 14px;
-    border-radius:12px;
-    background:#f8fafc;
-    border:1px solid #dbe3ef;
-    text-align:center;
-    cursor:pointer;
-    font-size:14px;
-    font-weight:700;
-    transition:.2s;
-}
-
-.month-tab:hover{
-    background:#eef4ff;
-}
-
-.month-tab.active{
-    background:#2563eb;
-    border-color:#2563eb;
-    color:#fff;
-    box-shadow:
-      0 4px 12px rgba(37,99,235,.25);
-}
-
-.toolbar-title{
-    margin-bottom:8px;
-    color:#475569;
-    font-size:13px;
-    font-weight:700;
-}
-
-#tournamentSelect{
-    min-width:280px;
-    height:40px;
-    border-radius:10px;
-    border:1px solid #cbd5e1;
-    padding:0 12px;
-    font-size:14px;
-    font-weight:600;
-}
