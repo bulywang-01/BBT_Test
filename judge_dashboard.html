@@ -148,58 +148,13 @@ let games = [];
 let currentTournament = '';
 
 /* ===== API ===== */
-function loadGames() {
-  const s = JSON.parse(localStorage.getItem('session_user')||'{}');
- showToast('載入賽事資料中...');
+function loadGames(){
 
-  callApi(
-    { action:'getSignableGames', user_id: s.user_id || '' },
-    res => {
+  loadGamesCommon({
+    action:'getSignableGames',
+    isRecordPage:false
+  });
 
-      if (!res || res.result !== 'ok') {
-        showToast(res?.message || '無法取得賽事資料');
-        return;
-      }
-
-      allGames = (res.games || []).map(safeMerge);
-      games = allGames;
-
-      buildTournamentSelector();
-      
-      // ✅ ✅ ✅ 補 my_position（一定要）
-      const s = session;
-      
-      allGames.forEach(g => {
-      
-        if (g.judges){
-          for (let [role, val] of Object.entries(g.judges)){
-            if (isMySlot(val, s)){
-              g.my_position = role;
-            }
-          }
-        }
-      
-        if (g.records){
-          for (let [role, val] of Object.entries(g.records)){
-            if (isMySlot(val, s)){
-              g.my_position = role;
-            }
-          }
-        }
-      
-      });
-      
-      if (typeof setGameCache === 'function'){
-        setGameCache(allGames);
-      }
-
-      console.log(games.map(g => g.status));
-      render();
-
-      ;
-
-    }
-  );
 }
 
 
@@ -656,22 +611,7 @@ window.currentMonth = null;
 window.isFullYear = false;
   
 initMonthTabsCommon({
-
-  games: allGames,
-
-  onMonthClick(month){
-
-    if (month == null){
-      loadGames();
-    }else{
-      loadJudgeGamesByMonth(
-        new Date().getFullYear(),
-        month
-      );
-    }
-
-  }
-
+    games: allGames
 });
 
 function setActiveTab(el) {
