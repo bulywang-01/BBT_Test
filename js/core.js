@@ -496,13 +496,13 @@ function renderGameCard(g, opt={}){
     let statusBanner = '';
     
     if (s === 1){
-      statusBanner = '<div class="row-warning">⚠️延賽</div>';
+      statusBanner = '<div class="row-warning">延賽</div>';
     }
     if (s === 2){
-      statusBanner = '<div class="row-warning">⛔停賽</div>';
+      statusBanner = '<div class="row-warning">停賽</div>';
     }
     if (s === 4){
-      statusBanner = '<div class="row-warning">🔒已完賽</div>';
+      statusBanner = '<div class="row-warning">已完賽</div>';
     }
  
   return `
@@ -760,7 +760,7 @@ function renderJudgeSlots(g, isPast, session){
           if ([1,2,4].includes(s)){
             return `
               <div class="mobile-pos">
-                <span>${s === 1 ? '延賽' : s === 2 ? '停賽' : '🔒已完賽'}</span>
+                <span>${s === 1 ? '延賽' : s === 2 ? '停賽' : '已完賽'}</span>
               </div>
             `;
           }
@@ -804,7 +804,7 @@ function renderJudgeSlots(g, isPast, session){
            if ([1,2,4].includes(s)){
              return `
                <div class="mobile-pos">
-                 <span>${s === 1 ? '延賽' : s === 2 ? '停賽' : '🔒已完賽'}</span>
+                 <span>${s === 1 ? '延賽' : s === 2 ? '停賽' : '已完賽'}</span>
                </div>
              `;
            }
@@ -919,7 +919,7 @@ function renderRecordSlots(g, isPast, session){
         return `
           <div class="record-role other">
             ${label}<br>
-            ${s === 1 ? '延賽' : s === 2 ? '停賽' : '🔒已完賽'}
+            ${s === 1 ? '延賽' : s === 2 ? '停賽' : '已完賽'}
           </div>
         `;
       }
@@ -1950,7 +1950,7 @@ function buildTournamentSelector(){
     )
   ].sort();
 
-  // ✅ 顯示賽事控制
+  // 顯示賽事控制
   if (
     cfg.mode === 'LIMIT' &&
     cfg.tournaments &&
@@ -1964,25 +1964,27 @@ function buildTournamentSelector(){
   const savedTournament =
     localStorage.getItem('currentTournament') || '';
 
-  // ✅ 沒有可顯示賽事
+  // 無開放賽事
   if (tournaments.length === 0){
 
     currentTournament = '';
 
     area.innerHTML = `
-      <div style="
-        color:#dc2626;
-        font-weight:700;
-        padding:8px 0;
-      ">
-        目前無開放賽事
+      <div class="toolbar-card">
+        <div class="toolbar-title">
+          ${pageTitle}
+        </div>
+
+        <div class="toolbar-empty">
+          目前無開放賽事
+        </div>
       </div>
     `;
 
     return;
   }
 
-  // ✅ 只有一個賽事
+  // 只有一個賽事
   if (tournaments.length === 1){
 
     currentTournament = tournaments[0];
@@ -1993,32 +1995,15 @@ function buildTournamentSelector(){
     );
 
     area.innerHTML = `
-      <div style="
-        display:flex;
-        align-items:center;
-        gap:8px;
-        margin:6px 0;
-        flex-wrap:wrap;
-      ">
+      <div class="toolbar-card">
 
-        <span style="
-          font-weight:700;
-          font-size:16px;
-          color:#1e3a8a;
-        ">
-          ${pageTitle}／賽事：
-        </span>
+        <div class="toolbar-title">
+          ${pageTitle}
+        </div>
 
-        <span style="
-          background:#dbeafe;
-          color:#1d4ed8;
-          padding:4px 10px;
-          border-radius:999px;
-          font-size:16px;
-          font-weight:700;
-        ">
-          ${currentTournament}
-        </span>
+        <div class="toolbar-single-tournament">
+          🏆 ${currentTournament}
+        </div>
 
       </div>
     `;
@@ -2026,47 +2011,26 @@ function buildTournamentSelector(){
     return;
   }
 
-  // ✅ 多賽事
+  // 多賽事
   if (
     savedTournament &&
     tournaments.includes(savedTournament)
   ){
     currentTournament = savedTournament;
-  }
-  else{
+  } else {
     currentTournament = '';
   }
 
   area.innerHTML = `
-    <div style="
-      display:flex;
-      align-items:center;
-      gap:8px;
-      margin:6px 0;
-      flex-wrap:wrap;
-    ">
+    <div class="toolbar-card">
 
-      <span style="
-        font-weight:700;
-        font-size:16px;
-        color:#1e3a8a;
-      ">
+      <div class="toolbar-title">
         ${pageTitle}
-      </span>
-
-      <span style="font-weight:700;">
-        ／請選擇賽事：
-      </span>
+      </div>
 
       <select
         id="tournamentFilter"
-        style="
-          min-width:260px;
-          padding:6px 10px;
-          border:1px solid #d1d5db;
-          border-radius:8px;
-          font-size:14px;
-        "
+        class="toolbar-select"
         onchange="
           currentTournament=this.value;
 
@@ -2080,7 +2044,7 @@ function buildTournamentSelector(){
       >
 
         <option value="">
-          請選擇要報名的賽事
+          請選擇賽事
         </option>
 
         ${tournaments.map(t => `
@@ -2097,8 +2061,6 @@ function buildTournamentSelector(){
     </div>
   `;
 }
-
-
 
 
 /*********************************************************
