@@ -681,62 +681,31 @@ function openMySchedule(){
 
     });
 
-    list.innerHTML = `
-
-      <table class="schedule-table">
-
-        <thead>
-          <tr>
-            <th>日期</th>
-            <th>時間</th>
-            <th>場地</th>
-            <th>職務</th>
-            <th>場次</th>
-            <th>對戰</th>
-          </tr>
-        </thead>
-
-        <tbody>
-
-          ${myGames.map(g=>`
-
-            <tr>
-
-              <td>
-                ${formatDateTW(g.date)}
-              </td>
-
-              <td>
-                ${getTime(g)}
-              </td>
-
-              <td>
-                ${g.field || '-'}
-              </td>
-
-              <td>
-                ${getMyRoleText(g.my_position)}
-              </td>
-
-              <td>
-                ${g.game_code || '-'}
-              </td>
-
-              <td>
-                ${g.away_team || ''}
-                VS
-                ${g.home_team || ''}
-              </td>
-
-            </tr>
-
-          `).join('')}
-
-        </tbody>
-
-      </table>
-
-    `;
+    list.innerHTML = myGames.map(g => `
+    
+      <div class="my-duty-row">
+    
+        <div class="my-duty-line1">
+          ${formatDateTW(g.date)}
+          ｜${getTime(g)}
+          ｜${g.field || '-'}
+          ｜${getMyRoleText(g.my_position)}
+        </div>
+    
+        <div class="my-duty-line2">
+          ${g.game_code || '-'}
+          ｜${g.tournament || '-'}
+        </div>
+    
+        <div class="my-duty-line3">
+          ${g.away_team || ''}
+          <span class="vs">VS</span>
+          ${g.home_team || ''}
+        </div>
+    
+      </div>
+    
+    `).join('');
 
     setGameCache(myGames);
 
@@ -867,6 +836,68 @@ function openWeeklySchedule(){
 
     setGameCache(weekGames);
   });
+}
+
+/* 新增的 本週班表 */
+function renderWeeklyTable(list){
+
+  return `
+  
+    <table class="weekly-table">
+
+      <thead>
+        <tr>
+          <th>時間</th>
+          <th>場次</th>
+          <th>對戰</th>
+          <th>主審</th>
+          <th>一壘</th>
+          <th>三壘</th>
+          <th>紀錄</th>
+          <th>見習</th>
+          <th>影像</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        ${list.map(g => `
+
+          <tr>
+
+            <td>${getTime(g)}</td>
+
+            <td>${g.game_code || ''}</td>
+
+            <td>
+              ${g.away_team}
+              <br>
+              VS
+              <br>
+              ${g.home_team}
+            </td>
+
+            <td>${safeName(g.judges?.PU) || '－'}</td>
+
+            <td>${safeName(g.judges?.U1) || '－'}</td>
+
+            <td>${safeName(g.judges?.U3) || '－'}</td>
+
+            <td>${safeName(g.records?.REC_MAIN) || '－'}</td>
+
+            <td>${safeName(g.records?.REC_TRAINEE) || '－'}</td>
+
+            <td>${safeName(g.records?.REC_VIDEO) || '－'}</td>
+
+          </tr>
+
+        `).join('')}
+
+      </tbody>
+
+    </table>
+
+  `;
 }
 
 /*********************************************************
@@ -1086,31 +1117,52 @@ function renderHomeCard(g){
       </div>
 
       <!-- ✅ ✅ ✅ 6欄（裁判3 + 紀錄3） -->
-      <div class="row-all">
-        <div class="row-inner">
 
-          <!-- ✅ 職稱 -->
-          <div class="row-line header">
-            <div class="col">主審</div>
-            <div class="col">一壘</div>
-            <div class="col">三壘</div>
-            <div class="col">紀錄</div>
-            <div class="col">見習</div>
-            <div class="col">影像</div>
+          <div class="weekly-duty-list">
+          
+            <div class="duty-item">
+              <span class="role">主審</span>
+              <span class="name">
+                ${safeName(g.judges?.PU) || '－'}
+              </span>
+            </div>
+          
+            <div class="duty-item">
+              <span class="role">一壘</span>
+              <span class="name">
+                ${safeName(g.judges?.U1) || '－'}
+              </span>
+            </div>
+          
+            <div class="duty-item">
+              <span class="role">三壘</span>
+              <span class="name">
+                ${safeName(g.judges?.U3) || '－'}
+              </span>
+            </div>
+          
+            <div class="duty-item">
+              <span class="role">紀錄</span>
+              <span class="name">
+                ${safeName(g.records?.REC_MAIN) || '－'}
+              </span>
+            </div>
+          
+            <div class="duty-item">
+              <span class="role">見習</span>
+              <span class="name">
+                ${safeName(g.records?.REC_TRAINEE) || '－'}
+              </span>
+            </div>
+          
+            <div class="duty-item">
+              <span class="role">影像</span>
+              <span class="name">
+                ${safeName(g.records?.REC_VIDEO) || '－'}
+              </span>
+            </div>
+          
           </div>
-
-          <!-- ✅ 名字 -->
-          <div class="row-line values">
-            <div class="col">${safeName(g.judges?.PU) || '—'}</div>
-            <div class="col">${safeName(g.judges?.U1) || '—'}</div>
-            <div class="col">${safeName(g.judges?.U3) || '—'}</div>
-            <div class="col">${safeName(g.records?.REC_MAIN) || '—'}</div>
-            <div class="col">${safeName(g.records?.REC_TRAINEE) || '—'}</div>
-            <div class="col">${safeName(g.records?.REC_VIDEO) || '—'}</div>
-          </div>
-
-        </div>
-      </div>
 
     </div>
   `;
