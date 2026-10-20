@@ -894,13 +894,8 @@ function openWeeklySchedule(){
 
             /************* 場地 *************/
             html += `
-              <div style="
-                margin:8px 0 4px;
-                font-weight:800;
-                font-size:15px;
-                color:#374151;
-              ">
-                📍 ${field}
+              <div class="league-field-header">
+                📍 ${field}（${list.length}場）
               </div>
             `;
 
