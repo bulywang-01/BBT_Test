@@ -698,26 +698,22 @@ function openMySchedule(){
         </div>
     
         <div class="my-duty-line2">
-    
-          <span class="game-code">
-            ${g.game_code || '-'}
-          </span>
-    
-          ｜
-    
+        
           <span class="tournament">
             ${g.tournament || '-'}
             ${g.category ? `-${g.category}` : ''}
           </span>
-    
-          ｜
-    
+        
+        </div>
+        
+        <div class="my-duty-line3">
+        
           <span class="matchup">
             ${g.away_team || ''}
             <span class="vs">VS</span>
             ${g.home_team || ''}
           </span>
-    
+        
         </div>
     
       </div>
