@@ -933,31 +933,31 @@ function renderWeeklyTable(list){
       <div class="league-duty">
 
         <div>
-          主：${safeName(g.judges?.PU) || '－'}
+          主：<span class="league-duty-name">${safeName(g.judges?.PU) || '－'}</span>
         </div>
 
         <div>
-          紀：${safeName(g.records?.REC_MAIN) || '－'}
+          紀：<span class="league-duty-name">${safeName(g.records?.REC_MAIN) || '－'}</span>
         </div>
 
         <div>
-          一：${safeName(g.judges?.U1) || '－'}
+          一：<span class="league-duty-name">${safeName(g.judges?.U1) || '－'}</span>
         </div>
 
         <div>
-          習：${safeName(g.records?.REC_TRAINEE) || '－'}
+          習：<span class="league-duty-name">${safeName(g.records?.REC_TRAINEE) || '－'}</span>
         </div>
 
         <div>
-          二：${safeName(g.judges?.U2) || '－'}
+          二：<span class="league-duty-name">${safeName(g.judges?.U2) || '－'}</span>
         </div>
 
         <div>
-          影：${safeName(g.records?.REC_VIDEO) || '－'}
+          影：<span class="league-duty-name">${safeName(g.records?.REC_VIDEO) || '－'}</span>
         </div>
 
         <div>
-          三：${safeName(g.judges?.U3) || '－'}
+          三：<span class="league-duty-name">${safeName(g.judges?.U3) || '－'}</span>
         </div>
 
       </div>
