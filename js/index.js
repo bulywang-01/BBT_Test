@@ -686,10 +686,15 @@ function openMySchedule(){
       <div class="my-duty-row">
     
         <div class="my-duty-line1">
+    
           ${formatDateTW(g.date)}
           ｜${getTime(g)}
           ｜${g.field || '-'}
-          ｜${getMyRoleText(g.my_position)}
+    
+          <span class="my-duty-role">
+            ${getMyRoleText(g.my_position)}
+          </span>
+    
         </div>
     
         <div class="my-duty-line2">
