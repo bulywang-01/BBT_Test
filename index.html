@@ -1205,11 +1205,16 @@ margin-top:8px;
 }
 
 .league-head{
-    display:flex;
+    display:grid;
+    grid-template-columns:
+        70px
+        60px
+        1fr;
     align-items:center;
-    gap:8px;
-    margin-bottom:4px;
+    gap:10px;
+    margin-bottom:8px;
 }
+
 
 .league-time{
     color:#dc2626;
@@ -1239,12 +1244,10 @@ margin-top:8px;
 .league-duty{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:4px 16px;
-    margin-top:8px;
-    font-size:13px;
-    line-height:1.6;
-    color:#475569;
-    font-weight:400;
+    gap:4px 20px;
+    font-size:15px;
+    line-height:1.7;
+    color:#374151;
 }
 
 .league-duty div{
@@ -1253,7 +1256,7 @@ margin-top:8px;
 
 .league-duty-name{
     color:#111827;
-    font-weight:600;
+    font-weight:700;
 }
     
   </style>
