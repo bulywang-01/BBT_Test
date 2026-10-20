@@ -1568,7 +1568,7 @@ window._yearRaw.allAssignments.forEach(g=>{
                   <div class="history-row">
     
                     <span class="history-date">
-                      ${x.date}
+                      ${x.date.substring(5)}
                     </span>
     
                     <span class="history-match">
