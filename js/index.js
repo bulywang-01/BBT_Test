@@ -818,9 +818,25 @@ function openWeeklySchedule(){
     sunday.setHours(23,59,59,999);
     
     // ✅ ✅ ✅ 關鍵修正
-    const weekGames = games.filter(g=>{
+    const weekGames = games.filter(g => {
+    
       const d = parseDate(g.date);
-      return d && d >= monday && d <= sunday;
+    
+      if (!(d && d >= monday && d <= sunday)){
+        return false;
+      }
+    
+      // 只顯示目前開放賽事
+      if (
+        typeof currentTournament !== 'undefined' &&
+        currentTournament &&
+        String(g.tournament || '').trim() !== currentTournament
+      ){
+        return false;
+      }
+    
+      return true;
+    
     });
 
     if (!weekGames.length){
@@ -902,66 +918,92 @@ function openWeeklySchedule(){
 }
 
 /* 本週聯盟班表 */
+/* 本週聯盟班表 */
 function renderWeeklyTable(list){
 
-  return list.map(g => `
+  return list.map(g => {
 
-    <div class="league-row">
+    const judgeRoles = getJudgeRoles(g);
 
-      <div class="league-head">
-      
-        <span class="league-time">
-          ${getTime(g)}
-        </span>
-      
-        <span class="league-code">
-          ${g.game_code || '-'}
-        </span>
-      
-        <span class="league-match">
-          ${g.away_team || ''}
-          <span class="vs">VS</span>
-          ${g.home_team || ''}
-        </span>
-      
+    const judgeHtml = judgeRoles.length
+      ? judgeRoles.map(role => `
+          <div>
+            ${roleMap(role)}：
+            <span class="league-duty-name">
+              ${safeName(g.judges?.[role]) || '－'}
+            </span>
+          </div>
+        `).join('')
+      : `
+          <div>無需裁判</div>
+        `;
+
+    return `
+
+      <div class="league-row">
+
+        <div class="league-head">
+
+          <div class="league-time-row">
+
+            <span class="league-time">
+              ${getTime(g)}
+            </span>
+
+            <span class="league-code">
+              ${g.game_code || '-'}
+            </span>
+
+          </div>
+
+          <div class="league-match">
+            ${g.away_team || ''}
+            <span class="vs">VS</span>
+            ${g.home_team || ''}
+          </div>
+
+        </div>
+
+        <div class="league-duty">
+
+          <div class="league-duty-left">
+
+            ${judgeHtml}
+
+          </div>
+
+          <div class="league-duty-right">
+
+            <div>
+              紀錄：
+              <span class="league-duty-name">
+                ${safeName(g.records?.REC_MAIN) || '－'}
+              </span>
+            </div>
+
+            <div>
+              見習：
+              <span class="league-duty-name">
+                ${safeName(g.records?.REC_TRAINEE) || '－'}
+              </span>
+            </div>
+
+            <div>
+              影像：
+              <span class="league-duty-name">
+                ${safeName(g.records?.REC_VIDEO) || '－'}
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
 
-      <div class="league-duty">
+    `;
 
-        <div>
-          主：<span class="league-duty-name">${safeName(g.judges?.PU) || '－'}</span>
-        </div>
-
-        <div>
-          紀：<span class="league-duty-name">${safeName(g.records?.REC_MAIN) || '－'}</span>
-        </div>
-
-        <div>
-          一：<span class="league-duty-name">${safeName(g.judges?.U1) || '－'}</span>
-        </div>
-
-        <div>
-          習：<span class="league-duty-name">${safeName(g.records?.REC_TRAINEE) || '－'}</span>
-        </div>
-
-        <div>
-          二：<span class="league-duty-name">${safeName(g.judges?.U2) || '－'}</span>
-        </div>
-
-        <div>
-          影：<span class="league-duty-name">${safeName(g.records?.REC_VIDEO) || '－'}</span>
-        </div>
-
-        <div>
-          三：<span class="league-duty-name">${safeName(g.judges?.U3) || '－'}</span>
-        </div>
-
-      </div>
-
-    </div>
-
-  `).join('');
-
+  }).join('');
 }
 
 /*********************************************************
