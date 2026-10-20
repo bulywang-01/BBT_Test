@@ -910,15 +910,10 @@ function renderWeeklyTable(list){
 
       <thead>
         <tr>
-          <th>時間</th>
-          <th>場次</th>
+          <th style="width:90px;">時間</th>
           <th>對戰</th>
-          <th>主審</th>
-          <th>一壘</th>
-          <th>三壘</th>
-          <th>紀錄</th>
-          <th>見習</th>
-          <th>影像</th>
+          <th style="width:220px;">裁判組</th>
+          <th style="width:220px;">紀錄組</th>
         </tr>
       </thead>
 
@@ -927,28 +922,111 @@ function renderWeeklyTable(list){
         ${list.map(g => `
 
           <tr>
-            <td>
-              ${getTime(g)}<br>
-              ${g.game_code || ''}
+
+            <td class="w-time">
+
+              <div style="font-weight:800;color:#dc2626;">
+                ${getTime(g)}
+              </div>
+
+              <div style="
+                margin-top:2px;
+                color:#2563eb;
+                font-weight:700;
+                font-size:12px;
+              ">
+                ${g.game_code || '-'}
+              </div>
+
             </td>
-            
-            <td>
-              ${g.away_team}
-              <span class="vs">VS</span>
-              ${g.home_team}
+
+            <td class="w-match">
+
+              <div style="font-weight:700;">
+                ${g.away_team || ''}
+              </div>
+
+              <div style="
+                color:#94a3b8;
+                font-size:11px;
+                margin:2px 0;
+              ">
+                VS
+              </div>
+
+              <div style="font-weight:700;">
+                ${g.home_team || ''}
+              </div>
+
             </td>
-            
-            <td>
-              主：${safeName(g.judges?.PU) || '－'}<br>
-              一：${safeName(g.judges?.U1) || '－'}<br>
-              三：${safeName(g.judges?.U3) || '－'}
+
+            <td class="w-duty">
+
+              ${
+                safeName(g.judges?.PU)
+                ? `主審：${safeName(g.judges?.PU)}<br>`
+                : ''
+              }
+
+              ${
+                safeName(g.judges?.U1)
+                ? `一壘：${safeName(g.judges?.U1)}<br>`
+                : ''
+              }
+
+              ${
+                safeName(g.judges?.U2)
+                ? `二壘：${safeName(g.judges?.U2)}<br>`
+                : ''
+              }
+
+              ${
+                safeName(g.judges?.U3)
+                ? `三壘：${safeName(g.judges?.U3)}`
+                : ''
+              }
+
+              ${
+                !safeName(g.judges?.PU) &&
+                !safeName(g.judges?.U1) &&
+                !safeName(g.judges?.U2) &&
+                !safeName(g.judges?.U3)
+                  ? '－'
+                  : ''
+              }
+
             </td>
-            
-            <td>
-              紀：${safeName(g.records?.REC_MAIN) || '－'}<br>
-              習：${safeName(g.records?.REC_TRAINEE) || '－'}<br>
-              影：${safeName(g.records?.REC_VIDEO) || '－'}
+
+            <td class="w-duty">
+
+              ${
+                safeName(g.records?.REC_MAIN)
+                ? `紀錄：${safeName(g.records?.REC_MAIN)}<br>`
+                : ''
+              }
+
+              ${
+                safeName(g.records?.REC_TRAINEE)
+                ? `見習：${safeName(g.records?.REC_TRAINEE)}<br>`
+                : ''
+              }
+
+              ${
+                safeName(g.records?.REC_VIDEO)
+                ? `影像：${safeName(g.records?.REC_VIDEO)}`
+                : ''
+              }
+
+              ${
+                !safeName(g.records?.REC_MAIN) &&
+                !safeName(g.records?.REC_TRAINEE) &&
+                !safeName(g.records?.REC_VIDEO)
+                  ? '－'
+                  : ''
+              }
+
             </td>
+
           </tr>
 
         `).join('')}
