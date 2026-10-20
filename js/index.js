@@ -1415,10 +1415,17 @@ window._yearRaw.allAssignments.forEach(g=>{
 
     // ✅ 個人歷史履歷
     historyRows.push({
+    
       date : g.date,
-      away : g.away_team || '',
-      home : g.home_team || '',
+    
+      match :
+          g.away_team &&
+          g.home_team
+            ? `${g.away_team} VS ${g.home_team}`
+            : (g.game_code || '-'),
+    
       role : mapRole(item.role)
+    
     });
     
     // ✅ 生涯出勤狀態（全部保留）
@@ -1514,50 +1521,75 @@ window._yearRaw.allAssignments.forEach(g=>{
     </div>
   
     <hr style="margin:14px 0;">
-  
-    <!-- 出勤履歷 -->
+    
     <div>
-  
+    
       <div style="
         font-weight:700;
         margin-bottom:8px;
       ">
         📋 出勤履歷
       </div>
-  
+    
       <div class="history-list">
-  
+    
         ${
-          historyRows
-            .sort((a,b)=>
-              new Date(b.date) - new Date(a.date)
-            )
-            .map(x => `
-  
-              <div class="history-row">
-  
-                <span class="history-date">
-                  ${x.date}
-                </span>
-  
-                <span class="history-match">
-                  ${x.away}
-                  VS
-                  ${x.home}
-                </span>
-  
-                <span class="history-role">
-                  ${x.role}
-                </span>
-  
-              </div>
-  
-            `)
-            .join('')
+          (()=>{
+    
+            const groups = {};
+    
+            historyRows
+              .sort((a,b)=>
+                new Date(b.date) - new Date(a.date)
+              )
+              .forEach(x=>{
+    
+                const year =
+                  String(x.date).substring(0,4);
+    
+                if (!groups[year]){
+                  groups[year] = [];
+                }
+    
+                groups[year].push(x);
+    
+              });
+    
+            return Object.keys(groups)
+              .sort((a,b)=>b-a)
+              .map(year => `
+    
+                <div class="history-year">
+                  ${year}年
+                </div>
+    
+                ${groups[year].map(x => `
+    
+                  <div class="history-row">
+    
+                    <span class="history-date">
+                      ${x.date}
+                    </span>
+    
+                    <span class="history-match">
+                      ${x.match}
+                    </span>
+    
+                    <span class="history-role">
+                      ${x.role}
+                    </span>
+    
+                  </div>
+    
+                `).join('')}
+    
+              `).join('');
+    
+          })()
         }
-  
+    
       </div>
-  
+    
     </div>
   
   </div>
