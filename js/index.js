@@ -631,27 +631,19 @@ function openMySchedule(){
       g.my_position = '';
 
       if (g.judges){
-
         for (const [role,val] of Object.entries(g.judges)){
-
           if (isMySlot(val,s)){
             g.my_position = role;
           }
-
         }
-
       }
 
       if (g.records){
-
         for (const [role,val] of Object.entries(g.records)){
-
           if (isMySlot(val,s)){
             g.my_position = role;
           }
-
         }
-
       }
 
     });
@@ -661,9 +653,7 @@ function openMySchedule(){
 
     const myGames = games.filter(g => {
 
-      if (!g.my_position){
-        return false;
-      }
+      if (!g.my_position) return false;
 
       const d = parseDate(g.date);
 
@@ -684,75 +674,69 @@ function openMySchedule(){
 
     myGames.sort((a,b)=>{
 
-      const da =
-        new Date(
-          `${a.date} ${getTime(a)}`
-        );
-
-      const db =
-        new Date(
-          `${b.date} ${getTime(b)}`
-        );
+      const da = new Date(`${a.date} ${getTime(a)}`);
+      const db = new Date(`${b.date} ${getTime(b)}`);
 
       return da - db;
 
     });
 
-    list.innerHTML = myGames.map(g => `
+    list.innerHTML = `
 
-      <div class="my-schedule-card">
+      <table class="schedule-table">
 
-        <div class="my-card-header">
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>時間</th>
+            <th>場地</th>
+            <th>職務</th>
+            <th>場次</th>
+            <th>對戰</th>
+          </tr>
+        </thead>
 
-          <span class="badge-tournament">
-            ${g.tournament || '-'}
-          </span>
+        <tbody>
 
-          <span class="badge-code">
-            場次 ${g.game_code || '-'}
-          </span>
+          ${myGames.map(g=>`
 
-        </div>
+            <tr>
 
-        <div class="my-card-match">
+              <td>
+                ${formatDateTW(g.date)}
+              </td>
 
-          <div class="team left">
-            ${g.away_team || ''}
-          </div>
+              <td>
+                ${getTime(g)}
+              </td>
 
-          <div class="center">
+              <td>
+                ${g.field || '-'}
+              </td>
 
-            <div class="time">
-              ${getTime(g)}
-            </div>
+              <td>
+                ${getMyRoleText(g.my_position)}
+              </td>
 
-            <div class="date">
-              ${formatDateTW(g.date)}
-            </div>
+              <td>
+                ${g.game_code || '-'}
+              </td>
 
-          </div>
+              <td>
+                ${g.away_team || ''}
+                VS
+                ${g.home_team || ''}
+              </td>
 
-          <div class="team right">
-            ${g.home_team || ''}
-          </div>
+            </tr>
 
-        </div>
+          `).join('')}
 
-        <div class="my-card-footer">
+        </tbody>
 
-          <span>
-            📍 ${g.field || '-'}
-          </span>
+      </table>
 
-          <span>
-            ${getMyRoleText(g.my_position)}
-          </span>
-
-        </div>
-
-      </div>
-
-    `).join('');
+    `;
 
     setGameCache(myGames);
 
