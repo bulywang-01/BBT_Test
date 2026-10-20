@@ -353,7 +353,7 @@ function buildDutyList(g, type){
     html += `
       <span class="duty-badge signup"
             onclick="handleSlotClick('${g.game_id}','${role}')">
-        ${roleMap(role)}　
+        ${roleMap(role)}
       </span>
     `;
   });
