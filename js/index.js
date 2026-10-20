@@ -674,51 +674,101 @@ function openMySchedule(){
 
     myGames.sort((a,b)=>{
 
-      const da = new Date(`${a.date} ${getTime(a)}`);
-      const db = new Date(`${b.date} ${getTime(b)}`);
+      const da =
+        new Date(
+          `${a.date} ${getTime(a)}`
+        );
+
+      const db =
+        new Date(
+          `${b.date} ${getTime(b)}`
+        );
 
       return da - db;
 
     });
 
-    list.innerHTML = myGames.map(g => `
-    
-      <div class="my-duty-row">
-    
-        <div class="my-duty-line1">
-    
-          ${formatDateTW(g.date)}
-          ｜${getTime(g)}
-          ｜${g.field || '-'}
-    
-          <span class="my-duty-role">
-            ${getMyRoleText(g.my_position)}
-          </span>
-    
+    const now = new Date();
+    now.setHours(0,0,0,0);
+
+    const day =
+      now.getDay() === 0
+        ? 7
+        : now.getDay();
+
+    const monday = new Date(now);
+
+    monday.setDate(
+      now.getDate() - (day - 1)
+    );
+
+    monday.setHours(0,0,0,0);
+
+    const sunday = new Date(monday);
+
+    sunday.setDate(
+      monday.getDate() + 6
+    );
+
+    sunday.setHours(23,59,59,999);
+
+    list.innerHTML = myGames.map(g => {
+
+      const d = parseDate(g.date);
+
+      const isThisWeek =
+        d &&
+        d >= monday &&
+        d <= sunday;
+
+      return `
+
+        <div class="my-duty-row ${isThisWeek ? 'this-week' : ''}">
+
+          <div class="my-duty-line1">
+
+            ${
+              isThisWeek
+              ? `
+                <span class="week-badge">
+                  本週
+                </span>
+              `
+              : ''
+            }
+
+            ${formatDateTW(g.date)}
+            ｜${getTime(g)}
+            ｜${g.field || '-'}
+
+            <span class="my-duty-role">
+              ${getMyRoleText(g.my_position)}
+            </span>
+
+          </div>
+
+          <div class="my-duty-line2">
+
+            <span class="tournament">
+              ${g.tournament || '-'}
+              ${g.category ? `-${g.category}` : ''}
+            </span>
+
+            ｜
+
+            <span class="matchup">
+              ${g.away_team || ''}
+              <span class="vs">VS</span>
+              ${g.home_team || ''}
+            </span>
+
+          </div>
+
         </div>
-    
-        <div class="my-duty-line2">
-        
-          <span class="tournament">
-            ${g.tournament || '-'}
-            ${g.category ? `-${g.category}` : ''}
-          </span>
-        
-        </div>
-        
-        <div class="my-duty-line3">
-        
-          <span class="matchup">
-            ${g.away_team || ''}
-            <span class="vs">VS</span>
-            ${g.home_team || ''}
-          </span>
-        
-        </div>
-    
-      </div>
-    
-    `).join('');
+
+      `;
+
+    }).join('');
 
     setGameCache(myGames);
 
