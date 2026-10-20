@@ -1205,21 +1205,17 @@ margin-top:8px;
 }
 
 .league-head{
-    display:grid;
-    grid-template-columns:
-        70px
-        60px
-        1fr;
+    display:flex;
     align-items:center;
-    gap:10px;
+    gap:12px;
     margin-bottom:8px;
 }
-
 
 .league-time{
     color:#dc2626;
     font-size:18px;
     font-weight:800;
+    flex:0 0 auto;
 }
 
 .league-time-row{
@@ -1230,14 +1226,17 @@ margin-top:8px;
 
 .league-code{
     color:#2563eb;
-    font-size:14px;
-    font-weight:700;
-}
-
-.league-match{
-    margin-top:4px;
     font-size:15px;
     font-weight:700;
+    flex:0 0 auto;
+}
+    
+.league-match{
+    flex:1;
+    min-width:0;
+    font-size:15px;
+    font-weight:700;
+    color:#111827;
 }
   
 .league-match .vs{
@@ -1249,10 +1248,11 @@ margin-top:8px;
 .league-duty{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:6px 24px;
+    gap:4px 24px;
     margin-top:8px;
-    font-size:15px;
-    line-height:1.6;
+    font-size:16px;
+    line-height:1.8;
+    color:#475569;
 }
 
 .league-duty div{
@@ -1260,8 +1260,9 @@ margin-top:8px;
 }
 
 .league-duty-name{
+    font-size:16px;
+    font-weight:500;
     color:#111827;
-    font-weight:700;
 }
 
 .league-duty-left,
