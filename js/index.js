@@ -927,45 +927,28 @@ function renderWeeklyTable(list){
         ${list.map(g => `
 
           <tr>
-
-            <td class="w-time">
-              ${getTime(g)}
+            <td>
+              ${getTime(g)}<br>
+              ${g.game_code || ''}
             </td>
-
-            <td class="w-code">
-              ${g.game_code || '-'}
-            </td>
-
-            <td class="w-match">
-              ${g.away_team || ''}
+            
+            <td>
+              ${g.away_team}
               <span class="vs">VS</span>
-              ${g.home_team || ''}
+              ${g.home_team}
             </td>
-
+            
             <td>
-              ${safeName(g.judges?.PU) || '－'}
+              主：${safeName(g.judges?.PU) || '－'}<br>
+              一：${safeName(g.judges?.U1) || '－'}<br>
+              三：${safeName(g.judges?.U3) || '－'}
             </td>
-
+            
             <td>
-              ${safeName(g.judges?.U1) || '－'}
+              紀：${safeName(g.records?.REC_MAIN) || '－'}<br>
+              習：${safeName(g.records?.REC_TRAINEE) || '－'}<br>
+              影：${safeName(g.records?.REC_VIDEO) || '－'}
             </td>
-
-            <td>
-              ${safeName(g.judges?.U3) || '－'}
-            </td>
-
-            <td>
-              ${safeName(g.records?.REC_MAIN) || '－'}
-            </td>
-
-            <td>
-              ${safeName(g.records?.REC_TRAINEE) || '－'}
-            </td>
-
-            <td>
-              ${safeName(g.records?.REC_VIDEO) || '－'}
-            </td>
-
           </tr>
 
         `).join('')}
