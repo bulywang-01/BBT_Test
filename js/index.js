@@ -1404,6 +1404,7 @@ let career_late = 0;
 let career_no_show = 0;
 
 const roleMap = {};
+const historyRows = [];
 
 // ✅ ✅ ✅ 修正：只算 completed 才進圓餅圖
 window._yearRaw.allAssignments.forEach(g=>{
@@ -1412,6 +1413,14 @@ window._yearRaw.allAssignments.forEach(g=>{
 
     if (String(item.user_id) !== String(userId)) return;
 
+    // ✅ 個人歷史履歷
+    historyRows.push({
+      date : g.date,
+      away : g.away_team || '',
+      home : g.home_team || '',
+      role : mapRole(item.role)
+    });
+    
     // ✅ 生涯出勤狀態（全部保留）
     if (item.status === 'completed') career_completed++;
     if (item.status === 'late') career_late++;
@@ -1434,71 +1443,125 @@ window._yearRaw.allAssignments.forEach(g=>{
   const stable =
     no_show === 0 && completed >= 10 ? '🔥 穩定' : '';
 
-document.getElementById('userContent').innerHTML = `
-<div style="padding:12px;">
-
-  <!-- ✅ 頭 -->
-  <div style="margin-bottom:10px;">
-    <div style="font-size:20px;font-weight:800;">
-      ${p.name}
+  document.getElementById('userContent').innerHTML = `
+  <div style="padding:12px;">
+  
+    <!-- 頭 -->
+    <div style="margin-bottom:10px;">
+      <div style="font-size:20px;font-weight:800;">
+        ${p.name}
+      </div>
+      <div style="color:#6b7280;font-size:13px;">
+        聯盟等級：${renderLevel(p.league_level)}
+      </div>
     </div>
-    <div style="color:#6b7280;font-size:13px;">
-      聯盟等級：${renderLevel(p.league_level)}
+  
+    <!-- KPI -->
+    <div class="grid-4">
+  
+      ${cardMini('經驗值', fmt(p.score_total))}
+      ${cardMini('參與度', total)}
+      ${cardMini('出勤品質', fmt(p.quality))}
+      ${cardMini('排位分數', fmt(p.final_score))}
+  
     </div>
-  </div>
-
-  <!-- ✅ KPI（2x2） -->
-  <div class="grid-4">
-
-    ${cardMini('經驗值', fmt(p.score_total))}
-    ${cardMini('參與度', total)}
-    ${cardMini('出勤品質', fmt(p.quality))}
-    ${cardMini('排位分數', fmt(p.final_score))}
-
-  </div>
-
-  <hr style="margin:14px 0;">
-
-  <!-- ✅ 出勤表 -->
-  <div>
-    <div style="font-weight:700;margin-bottom:6px;">
-      📊 出勤概況
+  
+    <hr style="margin:14px 0;">
+  
+    <!-- 出勤表 -->
+    <div>
+      <div style="font-weight:700;margin-bottom:6px;">
+        📊 出勤概況
+      </div>
+  
+      <table class="table-compact">
+        <tr>
+          <th></th>
+          <th>完成</th>
+          <th>遲到</th>
+          <th>缺席</th>
+        </tr>
+  
+        <tr>
+          <td>年度</td>
+          <td>${completed}</td>
+          <td>${late}</td>
+          <td>${no_show}</td>
+        </tr>
+  
+        <tr>
+          <td>生涯</td>
+          <td>${career_completed}</td>
+          <td>${career_late}</td>
+          <td>${career_no_show}</td>
+        </tr>
+      </table>
     </div>
-
-    <table class="table-compact">
-      <tr>
-        <th></th>
-        <th>完成</th>
-        <th>遲到</th>
-        <th>缺席</th>
-      </tr>
-      <tr>
-        <td>年度</td>
-        <td>${completed}</td>
-        <td>${late}</td>
-        <td>${no_show}</td>
-      </tr>
-      <tr>
-        <td>生涯</td>
-        <td>${career_completed}</td>
-        <td>${career_late}</td>
-        <td>${career_no_show}</td>
-      </tr>
-    </table>
-  </div>
-
-  <hr style="margin:14px 0;">
-
-  <!-- ✅ 圓餅圖 -->
-  <div>
-    <div style="font-weight:700;margin-bottom:6px;">
-      📊 角色分布
+  
+    <hr style="margin:14px 0;">
+  
+    <!-- 圓餅圖 -->
+    <div>
+      <div style="font-weight:700;margin-bottom:6px;">
+        📊 角色分布
+      </div>
+  
+      <canvas
+        id="roleChart"
+        width="320"
+        height="240">
+      </canvas>
     </div>
-    <canvas id="roleChart" width="320" height="240"></canvas>
+  
+    <hr style="margin:14px 0;">
+  
+    <!-- 出勤履歷 -->
+    <div>
+  
+      <div style="
+        font-weight:700;
+        margin-bottom:8px;
+      ">
+        📋 出勤履歷
+      </div>
+  
+      <div class="history-list">
+  
+        ${
+          historyRows
+            .sort((a,b)=>
+              new Date(b.date) - new Date(a.date)
+            )
+            .map(x => `
+  
+              <div class="history-row">
+  
+                <span class="history-date">
+                  ${x.date}
+                </span>
+  
+                <span class="history-match">
+                  ${x.away}
+                  VS
+                  ${x.home}
+                </span>
+  
+                <span class="history-role">
+                  ${x.role}
+                </span>
+  
+              </div>
+  
+            `)
+            .join('')
+        }
+  
+      </div>
+  
+    </div>
+  
   </div>
-
-</div>
-`;
+  `;
 
   drawRoleChart(roleMap);
 }
