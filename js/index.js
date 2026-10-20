@@ -914,13 +914,9 @@ function renderWeeklyTable(list){
           ${getTime(g)}
         </span>
       
-        ｜
-      
         <span class="league-code">
           ${g.game_code || '-'}
         </span>
-      
-        ｜
       
         <span class="league-match">
           ${g.away_team || ''}
