@@ -909,23 +909,25 @@ function renderWeeklyTable(list){
     <div class="league-row">
 
       <div class="league-head">
-
+      
         <span class="league-time">
           ${getTime(g)}
         </span>
-
+      
+        ｜
+      
         <span class="league-code">
           ${g.game_code || '-'}
         </span>
-
-      </div>
-
-      <div class="league-match">
-
-        ${g.away_team || ''}
-        <span class="vs">VS</span>
-        ${g.home_team || ''}
-
+      
+        ｜
+      
+        <span class="league-match">
+          ${g.away_team || ''}
+          <span class="vs">VS</span>
+          ${g.home_team || ''}
+        </span>
+      
       </div>
 
       <div class="league-duty">
