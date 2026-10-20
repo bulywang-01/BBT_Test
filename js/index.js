@@ -889,7 +889,7 @@ function openWeeklySchedule(){
             `;
 
             /************* ✅ ✅ ✅ 只顯示卡片（組別不再外顯） *************/
-            html += list.map(g => renderWeeklyCard(g)).join('');
+            html += renderWeeklyTable(list);
 
           });
 
@@ -901,11 +901,11 @@ function openWeeklySchedule(){
   });
 }
 
-/* 新增的 本週班表 */
+/* 本週聯盟班表 */
 function renderWeeklyTable(list){
 
   return `
-  
+
     <table class="weekly-table">
 
       <thead>
@@ -928,29 +928,43 @@ function renderWeeklyTable(list){
 
           <tr>
 
-            <td>${getTime(g)}</td>
-
-            <td>${g.game_code || ''}</td>
-
-            <td>
-              ${g.away_team}
-              <br>
-              VS
-              <br>
-              ${g.home_team}
+            <td class="w-time">
+              ${getTime(g)}
             </td>
 
-            <td>${safeName(g.judges?.PU) || '－'}</td>
+            <td class="w-code">
+              ${g.game_code || '-'}
+            </td>
 
-            <td>${safeName(g.judges?.U1) || '－'}</td>
+            <td class="w-match">
+              ${g.away_team || ''}
+              <span class="vs">VS</span>
+              ${g.home_team || ''}
+            </td>
 
-            <td>${safeName(g.judges?.U3) || '－'}</td>
+            <td>
+              ${safeName(g.judges?.PU) || '－'}
+            </td>
 
-            <td>${safeName(g.records?.REC_MAIN) || '－'}</td>
+            <td>
+              ${safeName(g.judges?.U1) || '－'}
+            </td>
 
-            <td>${safeName(g.records?.REC_TRAINEE) || '－'}</td>
+            <td>
+              ${safeName(g.judges?.U3) || '－'}
+            </td>
 
-            <td>${safeName(g.records?.REC_VIDEO) || '－'}</td>
+            <td>
+              ${safeName(g.records?.REC_MAIN) || '－'}
+            </td>
+
+            <td>
+              ${safeName(g.records?.REC_TRAINEE) || '－'}
+            </td>
+
+            <td>
+              ${safeName(g.records?.REC_VIDEO) || '－'}
+            </td>
 
           </tr>
 
@@ -1219,73 +1233,6 @@ function renderHomeCard(g){
   `;
 }
 
-
-function renderWeeklyCard(g){
-
-  return `
-    <div class="weekly-card">
-
-      <div class="weekly-top">
-
-        <div class="weekly-category">
-          ${g.category || ''}
-        </div>
-
-        <div class="weekly-field">
-          📍 ${g.field || ''}
-        </div>
-
-      </div>
-
-      <div class="weekly-match">
-
-        <div class="team">
-          ${g.away_team || ''}
-        </div>
-
-        <div class="center">
-
-          <div class="game-code">
-            ${g.game_code || ''}
-          </div>
-
-          <div class="time">
-            ${getTime(g)}
-          </div>
-
-        </div>
-
-        <div class="team">
-          ${g.home_team || ''}
-        </div>
-
-      </div>
-
-      <div class="weekly-duty">
-
-        <div class="duty-row header">
-          <div>主</div>
-          <div>一</div>
-          <div>三</div>
-          <div>紀</div>
-          <div>習</div>
-          <div>影</div>
-        </div>
-
-        <div class="duty-row value">
-          <div>${safeName(g.judges?.PU) || '－'}</div>
-          <div>${safeName(g.judges?.U1) || '－'}</div>
-          <div>${safeName(g.judges?.U3) || '－'}</div>
-          <div>${safeName(g.records?.REC_MAIN) || '－'}</div>
-          <div>${safeName(g.records?.REC_TRAINEE) || '－'}</div>
-          <div>${safeName(g.records?.REC_VIDEO) || '－'}</div>
-        </div>
-
-      </div>
-
-    </div>
-  `;
-}
 
 // 個人數據分析
 function loadHomeUserAnalysis(){
