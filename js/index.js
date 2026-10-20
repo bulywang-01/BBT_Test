@@ -904,125 +904,66 @@ function openWeeklySchedule(){
 /* 本週聯盟班表 */
 function renderWeeklyTable(list){
 
-  return `
+  return list.map(g => `
 
-    <table class="weekly-table">
+    <div class="league-row">
 
-      <thead>
-        <tr>
-          <th style="width:90px;">時間</th>
-          <th>對戰</th>
-          <th style="width:220px;">裁判組</th>
-          <th style="width:220px;">紀錄組</th>
-        </tr>
-      </thead>
+      <div class="league-head">
 
-      <tbody>
+        <span class="league-time">
+          ${getTime(g)}
+        </span>
 
-        ${list.map(g => `
+        <span class="league-code">
+          ${g.game_code || '-'}
+        </span>
 
-          <tr>
+      </div>
 
-            <td class="w-time">
+      <div class="league-match">
 
-              <div style="
-                font-weight:800;
-                color:#dc2626;
-                line-height:1.1;
-              ">
-                ${getTime(g)}
-              </div>
-              
-              <div style="
-                color:#2563eb;
-                font-weight:700;
-                font-size:12px;
-                line-height:1.1;
-              ">
-                ${g.game_code || '-'}
-              </div>
+        ${g.away_team || ''}
+        <span class="vs">VS</span>
+        ${g.home_team || ''}
 
-            </td>
+      </div>
 
-            <td class="w-match">
+      <div class="league-duty">
 
-              <div style="font-weight:700;">
-                ${g.away_team || ''}
-              </div>
+        <div>
+          主：${safeName(g.judges?.PU) || '－'}
+        </div>
 
-              <div style="
-                color:#94a3b8;
-                font-size:11px;
-                margin:2px 0;
-              ">
-                VS
-              </div>
+        <div>
+          紀：${safeName(g.records?.REC_MAIN) || '－'}
+        </div>
 
-              <div style="font-weight:700;">
-                ${g.home_team || ''}
-              </div>
+        <div>
+          一：${safeName(g.judges?.U1) || '－'}
+        </div>
 
-            </td>
+        <div>
+          習：${safeName(g.records?.REC_TRAINEE) || '－'}
+        </div>
 
-            <td class="w-duty">
-            
-              ${
-                safeName(g.judges?.PU)
-                ? `主：${safeName(g.judges?.PU)}<br>`
-                : ''
-              }
-            
-              ${
-                safeName(g.judges?.U1)
-                ? `一：${safeName(g.judges?.U1)}<br>`
-                : ''
-              }
-            
-              ${
-                safeName(g.judges?.U2)
-                ? `二：${safeName(g.judges?.U2)}<br>`
-                : ''
-              }
-            
-              ${
-                safeName(g.judges?.U3)
-                ? `三：${safeName(g.judges?.U3)}`
-                : ''
-              }
-            
-            </td>
+        <div>
+          二：${safeName(g.judges?.U2) || '－'}
+        </div>
 
-            <td class="w-duty">
-            
-              ${
-                safeName(g.records?.REC_MAIN)
-                ? `紀：${safeName(g.records?.REC_MAIN)}<br>`
-                : ''
-              }
-            
-              ${
-                safeName(g.records?.REC_TRAINEE)
-                ? `習：${safeName(g.records?.REC_TRAINEE)}<br>`
-                : ''
-              }
-            
-              ${
-                safeName(g.records?.REC_VIDEO)
-                ? `影：${safeName(g.records?.REC_VIDEO)}`
-                : ''
-              }
-            
-            </td>
+        <div>
+          影：${safeName(g.records?.REC_VIDEO) || '－'}
+        </div>
 
-          </tr>
+        <div>
+          三：${safeName(g.judges?.U3) || '－'}
+        </div>
 
-        `).join('')}
+      </div>
 
-      </tbody>
+    </div>
 
-    </table>
+  `).join('');
 
-  `;
 }
 
 /*********************************************************
