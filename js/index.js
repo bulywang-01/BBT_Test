@@ -1130,51 +1130,39 @@ function renderHomeCard(g){
 
       <!-- ✅ ✅ ✅ 6欄（裁判3 + 紀錄3） -->
 
-          <div class="weekly-duty-list">
-          
-            <div class="duty-item">
-              <span class="role">主審</span>
-              <span class="name">
-                ${safeName(g.judges?.PU) || '－'}
-              </span>
-            </div>
-          
-            <div class="duty-item">
-              <span class="role">一壘</span>
-              <span class="name">
-                ${safeName(g.judges?.U1) || '－'}
-              </span>
-            </div>
-          
-            <div class="duty-item">
-              <span class="role">三壘</span>
-              <span class="name">
-                ${safeName(g.judges?.U3) || '－'}
-              </span>
-            </div>
-          
-            <div class="duty-item">
-              <span class="role">紀錄</span>
-              <span class="name">
-                ${safeName(g.records?.REC_MAIN) || '－'}
-              </span>
-            </div>
-          
-            <div class="duty-item">
-              <span class="role">見習</span>
-              <span class="name">
-                ${safeName(g.records?.REC_TRAINEE) || '－'}
-              </span>
-            </div>
-          
-            <div class="duty-item">
-              <span class="role">影像</span>
-              <span class="name">
-                ${safeName(g.records?.REC_VIDEO) || '－'}
-              </span>
-            </div>
-          
-          </div>
+      <div class="weekly-duty-grid">
+      
+        <div>
+          <strong>主審</strong>
+          ${safeName(g.judges?.PU) || '－'}
+        </div>
+      
+        <div>
+          <strong>紀錄</strong>
+          ${safeName(g.records?.REC_MAIN) || '－'}
+        </div>
+      
+        <div>
+          <strong>一壘</strong>
+          ${safeName(g.judges?.U1) || '－'}
+        </div>
+      
+        <div>
+          <strong>見習</strong>
+          ${safeName(g.records?.REC_TRAINEE) || '－'}
+        </div>
+      
+        <div>
+          <strong>三壘</strong>
+          ${safeName(g.judges?.U3) || '－'}
+        </div>
+      
+        <div>
+          <strong>影像</strong>
+          ${safeName(g.records?.REC_VIDEO) || '－'}
+        </div>
+      
+      </div>
 
     </div>
   `;
