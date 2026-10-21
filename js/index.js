@@ -1596,34 +1596,36 @@ window._yearRaw.allAssignments.forEach(g=>{
       
                 ${Object.keys(yearGroups[year][tournament])
                   .sort((a,b)=>b.localeCompare(a))
-                  .map(day => `
-      
-                    <div class="history-day">
-                      ${day}
-                    </div>
-      
-                    ${yearGroups[year][tournament][day]
-                      .map(x => `
-      
-                        <div class="history-row">
-      
-                          <span class="history-time">
-                            ${x.time || ''}
-                          </span>
-      
-                          <span class="history-match">
-                            ${x.match}
-                          </span>
-      
-                          <span class="history-role">
-                            ${x.role}
-                          </span>
-      
-                        </div>
-      
-                      `).join('')}
-      
-                  `).join('')}
+                  .map(day => {
+                
+                    const rows =
+                      yearGroups[year][tournament][day];
+                
+                    return rows.map((x,index) => `
+                
+                      <div class="history-row">
+                
+                        <span class="history-date">
+                          ${index === 0 ? day : ''}
+                        </span>
+                
+                        <span class="history-time">
+                          ${x.time || ''}
+                        </span>
+                
+                        <span class="history-match">
+                          ${x.match}
+                        </span>
+                
+                        <span class="history-role">
+                          ${x.role}
+                        </span>
+                
+                      </div>
+                
+                    `).join('');
+                
+                  }).join('')}
       
               `).join('')}
       
