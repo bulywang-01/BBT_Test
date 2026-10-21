@@ -108,6 +108,43 @@
     gap:12px;
 }
 
+.vacancy-line1{
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    margin-bottom:2px;
+}
+
+.vacancy-date{
+    color:#2563eb;
+    font-size:14px;
+    font-weight:700;
+}
+
+.vacancy-time{
+    color:#dc2626;
+    font-size:14px;
+    font-weight:700;
+}
+
+.vacancy-code{
+    color:#64748b;
+    font-size:12px;
+}
+
+.vacancy-line2{
+    font-size:14px;
+    color:#111827;
+}
+
+.vacancy-line3{
+    margin-top:2px;
+    color:#dc2626;
+    font-size:14px;
+    font-weight:700;
+}
+
 /* =====================================
    Mobile
 ===================================== */
