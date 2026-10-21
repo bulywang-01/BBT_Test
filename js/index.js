@@ -1427,16 +1427,12 @@ window._yearRaw.allAssignments.forEach(g=>{
     
       date : g.date,
     
-      time : (() => {
-        const dt = new Date(g.date);
-        return isNaN(dt)
-          ? ''
-          : Utilities.formatDate(
-              dt,
-              'Asia/Taipei',
-              'HH:mm'
-            );
-      })(),
+      time :
+        String(g.date).includes(' ')
+          ? String(g.date)
+              .split(' ')[1]
+              .substring(0,5)
+          : '',
     
       tournament :
         `${g.tournament || ''}${
