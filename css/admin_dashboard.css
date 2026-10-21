@@ -76,23 +76,10 @@
     border-bottom:none;
 }
 
-.vacancy-date{
-    font-size:14px;
-    font-weight:700;
-    color:#2563eb;
-}
-
 .vacancy-game{
     margin-top:2px;
     font-size:15px;
     color:#111827;
-}
-
-.vacancy-role{
-    margin-top:2px;
-    font-size:14px;
-    color:#dc2626;
-    font-weight:700;
 }
 
 .quick-actions{
@@ -108,29 +95,51 @@
     gap:12px;
 }
 
+.vacancy-row{
+    display:grid;
+    grid-template-columns:60px 60px 1fr auto;
+    gap:10px;
+    align-items:center;
+
+    padding:6px 0;
+
+    border-bottom:1px solid #eef2f7;
+
+    font-size:14px;
+}
+
+.vacancy-date{
+    font-size:14px;
+    font-weight:700;
+    color:#2563eb;
+}
+
+.vacancy-time{
+    color:#dc2626;
+    font-weight:700;
+}
+
+.vacancy-match{
+    color:#111827;
+}
+
+.vacancy-role{
+    color:#dc2626;
+    font-weight:700;
+    white-space:nowrap;
+}
+
+.vacancy-code{
+    color:#64748b;
+    font-size:12px;
+}
+
 .vacancy-line1{
     display:flex;
     align-items:center;
     gap:10px;
 
     margin-bottom:2px;
-}
-
-.vacancy-date{
-    color:#2563eb;
-    font-size:14px;
-    font-weight:700;
-}
-
-.vacancy-time{
-    color:#dc2626;
-    font-size:14px;
-    font-weight:700;
-}
-
-.vacancy-code{
-    color:#64748b;
-    font-size:12px;
 }
 
 .vacancy-line2{
