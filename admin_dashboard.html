@@ -758,7 +758,7 @@ function renderRoleStats(p){
 function loadAdminDashboard(){
 
   callApi({
-    action:'getAdminDashboardData'
+    action:'getAdminDashboardSummary'
   }, res => {
 
     console.log('dashboard=',res);
@@ -801,7 +801,7 @@ document.addEventListener('DOMContentLoaded',() => {
 function loadVacancyCenter(){
 
   callApi({
-    action:'getAdminDashboardData'
+    action:'getAdminVacancyList'
   }, res => {
 
     console.log('dashboard=', res);
