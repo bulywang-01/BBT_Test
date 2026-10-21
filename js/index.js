@@ -1405,6 +1405,7 @@ let career_no_show = 0;
 
 const roleMap = {};
 const historyRows = [];
+const yearlyMap = {};
 
 // ✅ ✅ ✅ 修正：只算 completed 才進圓餅圖
 window._yearRaw.allAssignments.forEach(g=>{
@@ -1412,6 +1413,29 @@ window._yearRaw.allAssignments.forEach(g=>{
   (g.list || []).forEach(item=>{
 
     if (String(item.user_id) !== String(userId)) return;
+
+    const year =
+      String(g.date).substring(0,4);
+    
+    if (!yearlyMap[year]){
+      yearlyMap[year] = {
+        completed:0,
+        late:0,
+        no_show:0
+      };
+    }
+    
+    if (item.status === 'completed'){
+      yearlyMap[year].completed++;
+    }
+    
+    if (item.status === 'late'){
+      yearlyMap[year].late++;
+    }
+    
+    if (item.status === 'no_show'){
+      yearlyMap[year].no_show++;
+    }
     
     // ✅ 生涯出勤狀態（全部保留）
     if (item.status === 'completed') career_completed++;
@@ -1487,34 +1511,60 @@ window._yearRaw.allAssignments.forEach(g=>{
   
     <hr style="margin:14px 0;">
   
-    <!-- 出勤表 -->
+    <!-- ✅ 出勤表 -->
     <div>
+    
       <div style="font-weight:700;margin-bottom:6px;">
         📊 出勤概況
       </div>
-  
+    
       <table class="table-compact">
+    
         <tr>
-          <th></th>
+          <th>年度</th>
           <th>完成</th>
           <th>遲到</th>
           <th>缺席</th>
         </tr>
-  
-        <tr>
-          <td>年度</td>
-          <td>${completed}</td>
-          <td>${late}</td>
-          <td>${no_show}</td>
-        </tr>
-  
-        <tr>
+    
+        ${Object.keys(yearlyMap)
+          .sort((a,b)=>b-a)
+          .map(year => `
+    
+            <tr>
+    
+              <td>${year}</td>
+    
+              <td>
+                ${yearlyMap[year].completed}
+              </td>
+    
+              <td>
+                ${yearlyMap[year].late}
+              </td>
+    
+              <td>
+                ${yearlyMap[year].no_show}
+              </td>
+    
+            </tr>
+    
+          `).join('')}
+    
+        <tr style="font-weight:700;">
+    
           <td>生涯</td>
+    
           <td>${career_completed}</td>
+    
           <td>${career_late}</td>
+    
           <td>${career_no_show}</td>
+    
         </tr>
+    
       </table>
+    
     </div>
   
     <hr style="margin:14px 0;">
