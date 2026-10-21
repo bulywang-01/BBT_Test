@@ -10,316 +10,7 @@
   <script src="js/auth.js"></script>
   <script src="js/config.js"></script>
 
-  <style>
-/* =====================================================
-   🌐 基本頁面
-   ===================================================== */
-body{
-  margin:0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background:#f5f6f8;
-  font-size:16px;
-  line-height:1.6;
-  color:#1f2937;
-}
-
-.main{
-  max-width:1100px;
-  margin:0 auto;
-  padding:20px;
-}
-
-h2{
-  margin:0 0 10px;
-  font-size:24px;
-  font-weight:800;
-}
-
-/* =====================================================
-   🧩 標題
-   ===================================================== */
-.section-title{
-  margin:28px 0 12px;
-  font-size:20px;
-  font-weight:700;
-}
-
-.group-title{
-  margin:18px 0 8px;
-  font-size:18px;
-  font-weight:800;
-  color:#4b5563;
-}
-
-/* =====================================================
-   🧱 卡片布局
-   ===================================================== */
-.cards{
-  display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(240px,1fr));
-  gap:12px;
-}
-
-.group-grid{
-  display:grid;
-  gap:10px;
-}
-
-/* =====================================================
-   🎯 卡片（✅ 已統一，移除衝突）
-   ===================================================== */
-.card{
-  height:64px;
-  padding:0 16px;
-
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-
-  font-size:18px;
-  font-weight:700;
-
-  border-radius:12px;
-  border:1px solid #e5e7eb;
-  background:#ffffff;
-
-  cursor:pointer;
-  user-select:none;
-  transition:all .15s ease;
-}
-
-.card:hover{
-  background:#f8fafc;
-  border-color:#c7d2fe;
-  transform:translateY(-1px);
-}
-
-.card .icon{
-  width:26px;
-  font-size:18px;
-  margin-right:10px;
-  text-align:center;
-}
-
-/* =====================================================
-   🎨 類別色（左側條）
-   ===================================================== */
-.card-schedule{ border-left:4px solid #22c55e; }
-.card-execution{ border-left:4px solid #16a34a; }
-.card-admin{ border-left:4px solid #a855f7; }
-.card-report{ 
-  border-left:4px solid #3b82f6;
-  margin-bottom:14px;
-}
-
-/* =====================================================
-   🪟 Modal
-   ===================================================== */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.45);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:999;
-}
-
-.modal.hidden{ display:none; }
-
-.modal-content{
-  background:#fff;
-  width:90%;
-  max-width:1000px;
-  max-height:90vh;
-  overflow-y:auto;
-  border-radius:18px;
-}
-
-.modal-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-
-  padding:14px 16px;
-  border-bottom:1px solid #e5e7eb;
-
-  position:sticky;
-  top:0;
-  background:#fff;
-}
-
-.modal-body{
-  padding:16px;
-}
-
-.modal-tools{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-/* =====================================================
-   📊 年度報表
-   ===================================================== */
-.annual-layout{
-  display:flex;
-  gap:20px;
-  align-items:flex-start;
-}
-
-.annual-left{
-  flex:1;
-  min-width:0;
-}
-
-.annual-right{
-  flex:0 0 260px;
-  max-width:280px;
-
-  background:#fafafa;
-  padding:14px;
-  border-radius:12px;
-
-  font-size:14px;
-  line-height:1.6;
-
-  position:sticky;
-  top:80px;
-
-  white-space:normal;
-  overflow-wrap:break-word;
-}
-
-/* =====================================================
-   📋 表格
-   ===================================================== */
-.annual-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:15px;
-}
-
-.annual-table th{
-  background:#f3f4f6;
-  padding:12px;
-  text-align:left;
-  font-weight:700;
-}
-
-.annual-table td{
-  padding:12px;
-  border-bottom:1px solid #e5e7eb;
-}
-
-.annual-table td.num{
-  text-align:right;
-  font-variant-numeric:tabular-nums;
-}
-
-.score{
-  font-weight:700;
-  color:#2563eb;
-}
-
-/* 防止亂斷字 */
-th, td{ white-space:nowrap; }
-
-/* 右側說明允許換行 */
-.annual-right, .annual-right *{
-  white-space:normal !important;
-}
-
-/* =====================================================
-   👤 個人資料卡
-   ===================================================== */
-.person-row{
-  background:#fff;
-  border-radius:14px;
-  padding:14px;
-  margin-bottom:12px;
-  box-shadow:0 4px 10px rgba(0,0,0,.06);
-}
-
-.person-name{
-  font-size:18px;
-  font-weight:800;
-  margin-bottom:6px;
-}
-
-.person-stats{
-  font-size:14px;
-  margin-bottom:8px;
-}
-
-.stat-box{
-  background:#f3f4f6;
-  padding:10px;
-  border-radius:10px;
-  text-align:center;
-  font-size:14px;
-}
-
-/* =====================================================
-   📱 響應式（手機）
-   ===================================================== */
-@media (max-width:768px){
-
-  body{ font-size:18px; }
-
-  h2{ font-size:22px; }
-
-  .group-title{ font-size:20px; }
-
-  .card{
-    height:70px;
-    font-size:20px;
-    padding:0 18px;
-  }
-
-  .card .icon{
-    font-size:20px;
-  }
-
-  .annual-layout{
-    flex-direction:column;
-  }
-
-  .annual-right{
-    order:2;
-    position:static;
-    width:100%;
-  }
-
-}
-
-.annual-person{
-  margin-bottom:12px;
-}
-
-/* ✅ 手機排序 */
-@media (max-width:768px){
-
-  .annual-layout{
-    display:flex;
-    flex-direction:column;
-  }
-
-  .annual-person{ order:1; }
-  .annual-left{ order:2; }
-  .annual-right{ order:3; }
-
-}
-
-/* 圖餅圖大小 */
-.chart-box{
-  max-width: 220px;   /* ✅ 控制大小（可調 220~300） */
-  margin: 10px auto;  /* ✅ 置中 */
-  display:flex;
-  justify-content:center;
-}
-  </style>
+  <link rel="stylesheet" href="css/admin_dashboard.css">
   
 </head>
 
@@ -373,88 +64,147 @@ th, td{ white-space:nowrap; }
     document.addEventListener('DOMContentLoaded', loadHeader);
 </script>
   
-  <div class="main">
-    <h2>BBT出勤系統管理中心</h2>
-    <div class="section-title"></div>
-
-    <!-- ✅ 功能框，固定存在 -->
-      <div class="cards">
-      
-        <!-- 排班管理 -->
-        <div class="card-group">
-          <div class="group-title">📅 排班管理</div>
-          <div class="group-grid">
-      
-            <a href="judge_dashboard_admin.html">
-              <div class="card card-schedule">
-                <span class="icon">⚾</span> 裁判員班表安排
-              </div>
-            </a>
-      
-            <a href="record_dashboard_admin.html">
-              <div class="card card-schedule">
-                <span class="icon">📋</span> 紀錄員班表安排
-              </div>
-            </a>
-      
-          </div>
+    <div class="main">
+    
+      <h2>BBT出勤系統管理中心</h2>
+    
+      <!-- =========================
+           營運概況
+      ========================== -->
+      <div class="group-title">📊 本週營運概況</div>
+    
+      <div class="dashboard-kpi">
+    
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-value" id="kpiWeekGames">--</div>
+          <div class="kpi-label">本週賽事</div>
         </div>
-      
-        <!-- 出勤 -->
-        <div class="card-group">
-          <div class="group-title">✅ 出勤與執行</div>
-          <div class="group-grid">
-      
-            <a href="assignment_execution.html">
-              <div class="card card-execution">
-                <span class="icon">✅</span> 出勤確認
-              </div>
-            </a>
-      
-          </div>
+    
+        <div class="kpi-card kpi-red">
+          <div class="kpi-value" id="kpiJudgeVacancy">--</div>
+          <div class="kpi-label">裁判缺額</div>
         </div>
-      
-        <!-- 系統 -->
-        <div class="card-group">
-          <div class="group-title">⚙️ 系統管理</div>
-          <div class="group-grid">
-      
-            <a href="admin_users.html">
-              <div class="card card-admin">
-                <span class="icon">👤</span> 帳號管理
-              </div>
-            </a>
-      
-            <a href="admin_games.html">
-              <div class="card card-admin">
-                <span class="icon">🏟️</span> 賽事管理
-              </div>
-            </a>
-      
-          </div>
+    
+        <div class="kpi-card kpi-orange">
+          <div class="kpi-value" id="kpiRecordVacancy">--</div>
+          <div class="kpi-label">紀錄缺額</div>
         </div>
-      
-        <!-- 報表 -->
-        <div class="card-group">
-          <div class="group-title">📊 統計與報表</div>
-          <div class="group-grid">
-      
-            <div class="card card-report" onclick="openAnnualModal('judge')">
-              <span class="icon">📈</span> 裁判員年度總表
-            </div>
-      
-            <div class="card card-report" onclick="openAnnualModal('record')">
-              <span class="icon">📝</span> 紀錄員年度總表
-            </div>
-      
-            <div class="card card-report" onclick="goReport()">
-              <span class="icon">📊</span> 出勤報表
-            </div>
-      
-          </div>
+    
+        <div class="kpi-card kpi-green">
+          <div class="kpi-value" id="kpiPending">--</div>
+          <div class="kpi-label">待確認</div>
         </div>
-      
+    
       </div>
+    
+      <!-- =========================
+           缺額中心
+      ========================== -->
+    
+      <div class="group-title">🚨 缺額中心</div>
+    
+      <div class="vacancy-panel">
+    
+        <div class="vacancy-column">
+    
+          <div class="vacancy-title">
+            ⚾ 裁判缺額
+          </div>
+    
+          <div id="judgeVacancyList">
+            載入中...
+          </div>
+    
+        </div>
+    
+        <div class="vacancy-column">
+    
+          <div class="vacancy-title">
+            📝 紀錄缺額
+          </div>
+    
+          <div id="recordVacancyList">
+            載入中...
+          </div>
+    
+        </div>
+    
+      </div>
+    
+      <!-- =========================
+           快速功能
+      ========================== -->
+    
+      <div class="group-title">⚡ 快速功能</div>
+    
+      <div class="cards">
+    
+        <a href="judge_dashboard_admin.html">
+          <div class="card card-schedule">
+            <span class="icon">⚾</span>
+            裁判排班
+          </div>
+        </a>
+    
+        <a href="record_dashboard_admin.html">
+          <div class="card card-schedule">
+            <span class="icon">📝</span>
+            紀錄排班
+          </div>
+        </a>
+    
+        <a href="assignment_execution.html">
+          <div class="card card-execution">
+            <span class="icon">✅</span>
+            出勤確認
+          </div>
+        </a>
+    
+        <a href="admin_games.html">
+          <div class="card card-admin">
+            <span class="icon">🏟️</span>
+            賽事管理
+          </div>
+        </a>
+    
+        <a href="admin_users.html">
+          <div class="card card-admin">
+            <span class="icon">👤</span>
+            帳號管理
+          </div>
+        </a>
+    
+      </div>
+    
+      <!-- =========================
+           報表中心
+      ========================== -->
+    
+      <div class="group-title">📈 報表中心</div>
+    
+      <div class="cards">
+    
+        <div class="card card-report"
+             onclick="openAnnualModal('judge')">
+          <span class="icon">📈</span>
+          裁判年度總表
+        </div>
+    
+        <div class="card card-report"
+             onclick="openAnnualModal('record')">
+          <span class="icon">📝</span>
+          紀錄年度總表
+        </div>
+    
+        <div class="card card-report"
+             onclick="goReport()">
+          <span class="icon">📊</span>
+          出勤報表
+        </div>
+    
+      </div>
+    
+    </div>
 
   <!-- ✅ Modal 永遠在最外層，而且預設 hidden -->
   <div id="annualModal" class="modal hidden">
