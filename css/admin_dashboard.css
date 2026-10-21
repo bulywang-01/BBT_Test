@@ -100,18 +100,14 @@
     grid-template-columns:60px 60px 1fr auto;
     gap:10px;
     align-items:center;
-
     padding:6px 0;
-
     border-bottom:1px solid #eef2f7;
-
     font-size:14px;
 }
 
 .vacancy-date{
-    font-size:14px;
-    font-weight:700;
     color:#2563eb;
+    font-weight:700;
 }
 
 .vacancy-time{
@@ -127,6 +123,12 @@
     color:#dc2626;
     font-weight:700;
     white-space:nowrap;
+}
+
+.vacancy-empty{
+    color:#16a34a;
+    font-weight:700;
+    padding:8px 0;
 }
 
 .vacancy-code{
