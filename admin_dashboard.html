@@ -768,6 +768,81 @@ document.addEventListener('DOMContentLoaded',() => {
     loadAdminDashboard();
   }
 );
+
+/*********************************************************
+ ✅ Dashboard 缺額中心
+*********************************************************/
+function loadVacancyCenter(){
+
+  callApi({
+
+    action:'getAdminVacancyList'
+
+  }, res => {
+
+    if (!res || res.result !== 'ok'){
+      return;
+    }
+
+    document.getElementById(
+      'judgeVacancyList'
+    ).innerHTML =
+
+      res.judgeVacancy.length
+
+      ? res.judgeVacancy.map(v => `
+
+          <div class="vacancy-item">
+
+            <div class="vacancy-date">
+              ${v.date}
+            </div>
+
+            <div class="vacancy-game">
+              ${v.game_code}
+            </div>
+
+            <div class="vacancy-role">
+              缺${v.role}
+            </div>
+
+          </div>
+
+        `).join('')
+
+      : '✅ 無裁判缺額';
+
+    document.getElementById(
+      'recordVacancyList'
+    ).innerHTML =
+
+      res.recordVacancy.length
+
+      ? res.recordVacancy.map(v => `
+
+          <div class="vacancy-item">
+
+            <div class="vacancy-date">
+              ${v.date}
+            </div>
+
+            <div class="vacancy-game">
+              ${v.game_code}
+            </div>
+
+            <div class="vacancy-role">
+              ${v.role}
+            </div>
+
+          </div>
+
+        `).join('')
+
+      : '✅ 無紀錄缺額';
+
+  });
+
+}
   </script>
 </body>
 </html>
