@@ -91,6 +91,18 @@
     font-weight:700;
 }
 
+.quick-actions{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+    margin-bottom:24px;
+}
+
+.report-actions{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+}
 
 /* =====================================
    Mobile
