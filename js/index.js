@@ -1418,11 +1418,13 @@ window._yearRaw.allAssignments.forEach(g=>{
     
       date : g.date,
     
+      tournament :
+        `${g.tournament || ''}${
+          g.category ? ' - ' + g.category : ''
+        }`,
+    
       match :
-          g.away_team &&
-          g.home_team
-            ? `${g.away_team} VS ${g.home_team}`
-            : (g.game_code || '-'),
+        `${g.away_team || ''} VS ${g.home_team || ''}`,
     
       role : mapRole(item.role)
     
@@ -1532,62 +1534,78 @@ window._yearRaw.allAssignments.forEach(g=>{
       </div>
     
       <div class="history-list">
-    
-        ${
-          (()=>{
-    
-            const groups = {};
-    
-            historyRows
-              .sort((a,b)=>
-                new Date(b.date) - new Date(a.date)
-              )
-              .forEach(x=>{
-    
-                const year =
-                  String(x.date).substring(0,4);
-    
-                if (!groups[year]){
-                  groups[year] = [];
-                }
-    
-                groups[year].push(x);
-    
-              });
-    
-            return Object.keys(groups)
-              .sort((a,b)=>b-a)
-              .map(year => `
-    
-                <div class="history-year">
-                  ${year}年
+      
+      ${(() => {
+      
+        const groups = {};
+      
+        historyRows
+          .sort((a,b)=>
+            new Date(b.date) - new Date(a.date)
+          )
+          .forEach(x => {
+      
+            const year =
+              String(x.date).substring(0,4);
+      
+            const tournament =
+              x.tournament || '未分類賽事';
+      
+            if (!groups[year]){
+              groups[year] = {};
+            }
+      
+            if (!groups[year][tournament]){
+              groups[year][tournament] = [];
+            }
+      
+            groups[year][tournament].push(x);
+      
+          });
+      
+        return Object.keys(groups)
+          .sort((a,b)=>b-a)
+          .map(year => `
+      
+            <div class="history-year">
+              ${year}年
+            </div>
+      
+            ${Object.keys(groups[year])
+              .sort()
+              .map(tournament => `
+      
+                <div class="history-tournament">
+                  🏆 ${tournament}
                 </div>
-    
-                ${groups[year].map(x => `
-    
-                  <div class="history-row">
-    
-                    <span class="history-date">
-                      ${x.date.substring(5)}
-                    </span>
-    
-                    <span class="history-match">
-                      ${x.match}
-                    </span>
-    
-                    <span class="history-role">
-                      ${x.role}
-                    </span>
-    
-                  </div>
-    
-                `).join('')}
-    
-              `).join('');
-    
-          })()
-        }
-    
+      
+                ${groups[year][tournament]
+                  .map(x => `
+      
+                    <div class="history-row">
+      
+                      <span class="history-date">
+                        ${x.date.substring(5)}
+                      </span>
+      
+                      <span class="history-match">
+                        ${x.match}
+                      </span>
+      
+                      <span class="history-role">
+                        ${x.role}
+                      </span>
+      
+                    </div>
+      
+                  `).join('')}
+      
+              `).join('')}
+      
+          `).join('');
+      
+      })()}
+      
       </div>
     
     </div>
