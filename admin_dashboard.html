@@ -799,106 +799,73 @@ document.addEventListener('DOMContentLoaded',() => {
 function loadVacancyCenter(){
 
   callApi({
-    action:'getAdminVacancyList'
+    action:'getAdminDashboardSummary'
   }, res => {
 
-    console.log('vacancy=',res);
-
     if (!res || res.result !== 'ok'){
-
-      document.getElementById('judgeVacancyList').innerHTML =
-        '載入失敗';
-
-      document.getElementById('recordVacancyList').innerHTML =
-        '載入失敗';
-
       return;
     }
-
-    /* =========================
-       裁判缺額
-    ========================= */
 
     document.getElementById(
       'judgeVacancyList'
     ).innerHTML =
 
-      res.judgeVacancy.length
+      res.judgeVacancyList.length
 
-      ? res.judgeVacancy.map(v => `
+      ? res.judgeVacancyList.map(v => `
 
-            <div class="vacancy-row">
-            
-              <span class="vacancy-date">
-                ${v.date}
-              </span>
-            
-              <span class="vacancy-time">
-                ${v.time}
-              </span>
-            
-              <span class="vacancy-match">
-                ${v.match}
-              </span>
-            
-              <span class="vacancy-role">
-                缺：${v.roles}
-              </span>
-            
-            </div>
+        <div class="vacancy-item">
 
-        `).join('')
-
-      : `
-          <div class="vacancy-item">
-            ✅ 無裁判缺額
+          <div class="vacancy-line1">
+            ${v.date} ｜ ${v.time}
           </div>
-        `;
 
+          <div class="vacancy-line2">
+            ${v.match}
+          </div>
 
-    /* =========================
-       紀錄缺額
-    ========================= */
+          <div class="vacancy-line3">
+            缺：${v.roles}
+          </div>
+
+        </div>
+
+      `).join('')
+
+      : '✅ 無裁判缺額';
 
     document.getElementById(
       'recordVacancyList'
     ).innerHTML =
 
-      res.recordVacancy.length
+      res.recordVacancyList.length
 
-      ? res.recordVacancy.map(v => `
+      ? res.recordVacancyList.map(v => `
 
-            <div class="vacancy-row">
-            
-              <span class="vacancy-date">
-                ${v.date}
-              </span>
-            
-              <span class="vacancy-time">
-                ${v.time}
-              </span>
-            
-              <span class="vacancy-match">
-                ${v.match}
-              </span>
-            
-              <span class="vacancy-role">
-                缺：${v.roles}
-              </span>
-          
+        <div class="vacancy-item">
+
+          <div class="vacancy-line1">
+            ${v.date} ｜ ${v.time}
           </div>
 
-        `).join('')
-
-      : `
-          <div class="vacancy-item">
-            ✅ 無紀錄缺額
+          <div class="vacancy-line2">
+            ${v.match}
           </div>
-        `;
+
+          <div class="vacancy-line3">
+            缺：${v.roles}
+          </div>
+
+        </div>
+
+      `).join('')
+
+      : '✅ 無紀錄缺額';
 
   });
 
 }
+
   </script>
 </body>
 </html>
