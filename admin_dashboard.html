@@ -21,6 +21,29 @@
 
   <script>
 
+    <!-- 修正時間 -->
+    function formatGameTime(time){
+      if (!time) return '';
+    
+      // Google Sheet Date
+      if (typeof time === 'string' &&
+          time.includes('T')){
+    
+        const d = new Date(time);
+    
+        return d.toLocaleTimeString(
+          'zh-TW',
+          {
+            hour:'2-digit',
+            minute:'2-digit',
+            hour12:false
+          }
+        );
+      }
+    
+      return String(time).substring(0,5);
+    }
+    
     function guardAdminPage(){
       const session = JSON.parse(localStorage.getItem('session_user') || '{}');
       if (!session.user_id){
@@ -807,7 +830,7 @@ function loadVacancyCenter(){
           <div class="vacancy-item">
 
             <div class="vacancy-date">
-              ${v.date} ｜ ${v.time}
+              ${v.date} ｜ ${formatGameTime(v.time)}
             </div>
 
             <div class="vacancy-game">
@@ -844,7 +867,7 @@ function loadVacancyCenter(){
           <div class="vacancy-item">
 
             <div class="vacancy-date">
-              ${v.date} ｜ ${v.time}
+              ${v.date} ｜ ${formatGameTime(v.time)}
             </div>
 
             <div class="vacancy-game">
