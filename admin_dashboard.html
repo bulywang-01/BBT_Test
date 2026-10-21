@@ -761,38 +761,35 @@ function loadAdminDashboard(){
     action:'getAdminDashboardSummary'
   }, res => {
 
-    console.log('dashboard=',res);
+    console.log('dashboard=', res);
 
     if (!res || res.result !== 'ok'){
-      alert(
-        res?.message || 'Dashboard API 失敗'
-      );
       return;
     }
 
     document.getElementById('kpiWeekGames').textContent =
-      res.weekGames;
+      res.weekGames || 0;
 
     document.getElementById('kpiJudgeVacancy').textContent =
-      res.judgeVacancy;
+      res.judgeVacancy || 0;
 
     document.getElementById('kpiRecordVacancy').textContent =
-      res.recordVacancy;
+      res.recordVacancy || 0;
 
     document.getElementById('kpiPending').textContent =
-      res.pendingConfirm;
+      res.pendingConfirm || 0;
 
   });
 
 }
 
-document.addEventListener('DOMContentLoaded',() => {
-    guardAdminPage();
-    loadHeader();
-    loadAdminDashboard();
-    loadVacancyCenter();
-  }
-);
+document.addEventListener('DOMContentLoaded', () => {
+  guardAdminPage();
+  loadHeader();
+  loadAdminDashboard();
+  loadVacancyCenter();
+});
+
 
 
 /*********************************************************
@@ -804,32 +801,30 @@ function loadVacancyCenter(){
     action:'getAdminVacancyList'
   }, res => {
 
-    console.log('dashboard=', res);
+    console.log('vacancy=', res);
 
     if (!res || res.result !== 'ok'){
 
-      document.getElementById('judgeVacancyList').innerHTML =
-        '載入失敗';
+      document.getElementById(
+        'judgeVacancyList'
+      ).innerHTML = '載入失敗';
 
-      document.getElementById('recordVacancyList').innerHTML =
-        '載入失敗';
+      document.getElementById(
+        'recordVacancyList'
+      ).innerHTML = '載入失敗';
 
       return;
     }
 
     const judgeList =
-      Array.isArray(res.judgeVacancyList)
-        ? res.judgeVacancyList
+      Array.isArray(res.judgeVacancy)
+        ? res.judgeVacancy
         : [];
 
     const recordList =
-      Array.isArray(res.recordVacancyList)
-        ? res.recordVacancyList
+      Array.isArray(res.recordVacancy)
+        ? res.recordVacancy
         : [];
-
-    /* =========================
-       ⚾ 裁判缺額
-    ========================= */
 
     document.getElementById(
       'judgeVacancyList'
@@ -870,10 +865,6 @@ function loadVacancyCenter(){
           ✅ 無裁判缺額
         </div>
       `;
-
-    /* =========================
-       📝 紀錄缺額
-    ========================= */
 
     document.getElementById(
       'recordVacancyList'
