@@ -1288,18 +1288,28 @@ margin-top:8px;
 }
 
 .history-row{
-    display:flex;
+    display:grid;
+    grid-template-columns:
+        55px
+        55px
+        1fr
+        70px;
+    gap:10px;
     align-items:center;
-    gap:8px;
-    padding:6px 0;
+    padding:5px 0;
     border-bottom:1px solid #eef2f7;
     font-size:13px;
 }
-
+    
 .history-date{
     width:85px;
     flex-shrink:0;
     color:#64748b;
+}
+
+.history-time{
+    color:#64748b;
+    font-weight:600;
 }
 
 .history-match{
