@@ -830,12 +830,15 @@ function loadVacancyCenter(){
         <div class="vacancy-item">
         
           <div class="vacancy-line1">
-            ${v.date} ｜ ${formatGameTime(v.time)}
-            ｜ ${v.match}
+            ${v.date} ｜ ${v.time}
           </div>
-        
+          
           <div class="vacancy-line2">
-            缺：${v.role}
+            ${v.match}
+          </div>
+          
+          <div class="vacancy-line3">
+            缺：${v.roles}
           </div>
         
         </div>
@@ -864,12 +867,15 @@ function loadVacancyCenter(){
           <div class="vacancy-item">
           
             <div class="vacancy-line1">
-              ${v.date} ｜ ${formatGameTime(v.time)}
-              ｜ ${v.match}
+              ${v.date} ｜ ${v.time}
             </div>
-          
+            
             <div class="vacancy-line2">
-              缺：${v.role}
+              ${v.match}
+            </div>
+            
+            <div class="vacancy-line3">
+              缺：${v.roles}
             </div>
           
           </div>
