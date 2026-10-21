@@ -799,21 +799,20 @@ function loadVacancyCenter(){
     action:'getAdminDashboardData'
   }, res => {
 
-  if (!res || res.result !== 'ok'){
-    return;
-  }
-    
+    if (!res || res.result !== 'ok'){
+      return;
+    }
+
     const judgeList =
-      Array.isArray(res?.judgeVacancy)
-        ? res.judgeVacancy
+      Array.isArray(res?.judgeVacancyList)
+        ? res.judgeVacancyList
         : [];
 
     const recordList =
-      Array.isArray(res?.recordVacancy)
-        ? res.recordVacancy
+      Array.isArray(res?.recordVacancyList)
+        ? res.recordVacancyList
         : [];
 
-/*
     document.getElementById(
       'judgeVacancyList'
     ).innerHTML =
@@ -822,21 +821,21 @@ function loadVacancyCenter(){
 
       ? judgeList.map(v => `
 
-        <div class="vacancy-item">
+          <div class="vacancy-item">
 
-          <div class="vacancy-line1">
-            ${v.date} ｜ ${formatGameTime(v.time)}
+            <div class="vacancy-line1">
+              ${v.date} ｜ ${v.time}
+            </div>
+
+            <div class="vacancy-line2">
+              ${v.match}
+            </div>
+
+            <div class="vacancy-line3">
+              缺：${v.roles}
+            </div>
+
           </div>
-
-          <div class="vacancy-line2">
-            ${v.match}
-          </div>
-
-          <div class="vacancy-line3">
-            缺：${v.roles}
-          </div>
-
-        </div>
 
       `).join('')
 
@@ -850,27 +849,26 @@ function loadVacancyCenter(){
 
       ? recordList.map(v => `
 
-        <div class="vacancy-item">
+          <div class="vacancy-item">
 
-          <div class="vacancy-line1">
-            ${v.date} ｜ ${formatGameTime(v.time)}
+            <div class="vacancy-line1">
+              ${v.date} ｜ ${v.time}
+            </div>
+
+            <div class="vacancy-line2">
+              ${v.match}
+            </div>
+
+            <div class="vacancy-line3">
+              缺：${v.roles}
+            </div>
+
           </div>
-
-          <div class="vacancy-line2">
-            ${v.match}
-          </div>
-
-          <div class="vacancy-line3">
-            缺：${v.roles}
-          </div>
-
-        </div>
 
       `).join('')
 
       : '✅ 無紀錄缺額';
-*/
-  
+
   });
 
 }
