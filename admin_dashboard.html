@@ -793,21 +793,22 @@ function loadVacancyCenter(){
 
       ? res.judgeVacancy.map(v => `
 
-          <div class="vacancy-item">
-
-            <div class="vacancy-date">
-              ${v.date}
-            </div>
-
-            <div class="vacancy-game">
-              ${v.game_code}
-            </div>
-
-            <div class="vacancy-role">
-              缺${v.role}
-            </div>
-
+        <div class="vacancy-item">
+        
+          <div class="vacancy-date">
+            ${v.date} ｜ ${v.time}
           </div>
+        
+          <div class="vacancy-game">
+            ${v.match}
+          </div>
+        
+          <div class="vacancy-role">
+            缺${v.role}
+          </div>
+        
+        </div>
+
 
         `).join('')
 
@@ -821,19 +822,22 @@ function loadVacancyCenter(){
 
       ? res.recordVacancy.map(v => `
 
-          <div class="vacancy-item">
+        <div class="vacancy-item">
+        
+          <div class="vacancy-date">
+            ${v.date} ｜ ${v.time}
+          </div>
+        
+          <div class="vacancy-game">
+            ${v.match}
+          </div>
+        
+          <div class="vacancy-role">
+            缺${v.role}
+          </div>
+        
+        </div>
 
-            <div class="vacancy-date">
-              ${v.date}
-            </div>
-
-            <div class="vacancy-game">
-              ${v.game_code}
-            </div>
-
-            <div class="vacancy-role">
-              ${v.role}
-            </div>
 
           </div>
 
