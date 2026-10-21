@@ -1412,8 +1412,17 @@ window._yearRaw.allAssignments.forEach(g=>{
   (g.list || []).forEach(item=>{
 
     if (String(item.user_id) !== String(userId)) return;
+    
+    // ✅ 生涯出勤狀態（全部保留）
+    if (item.status === 'completed') career_completed++;
+    if (item.status === 'late') career_late++;
+    if (item.status === 'no_show') career_no_show++;
 
-    // ✅ 個人歷史履歷
+    // ✅ ✅ ✅ ✅ ✅ ✅ ✅ ✅ ✅ ✅
+    // 🔥 圓餅圖只算 completed（關鍵🔥）
+    if (item.status !== 'completed') return;
+
+    // ✅ 履歷全部保留
     historyRows.push({
     
       date : g.date,
@@ -1426,19 +1435,13 @@ window._yearRaw.allAssignments.forEach(g=>{
       match :
         `${g.away_team || ''} VS ${g.home_team || ''}`,
     
-      role : mapRole(item.role)
+      role : mapRole(item.role),
+    
+      status : item.status
     
     });
     
-    // ✅ 生涯出勤狀態（全部保留）
-    if (item.status === 'completed') career_completed++;
-    if (item.status === 'late') career_late++;
-    if (item.status === 'no_show') career_no_show++;
-
-    // ✅ ✅ ✅ ✅ ✅ ✅ ✅ ✅ ✅ ✅
-    // 🔥 圓餅圖只算 completed（關鍵🔥）
-    if (item.status !== 'completed') return;
-
+    // ✅ 圓餅圖也統計全部出勤紀錄
     const role = mapRole(item.role);
     roleMap[role] = (roleMap[role] || 0) + 1;
 
