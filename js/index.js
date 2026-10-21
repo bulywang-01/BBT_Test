@@ -1427,6 +1427,17 @@ window._yearRaw.allAssignments.forEach(g=>{
     
       date : g.date,
     
+      time : (() => {
+        const dt = new Date(g.date);
+        return isNaN(dt)
+          ? ''
+          : Utilities.formatDate(
+              dt,
+              'Asia/Taipei',
+              'HH:mm'
+            );
+      })(),
+    
       tournament :
         `${g.tournament || ''}${
           g.category ? ' - ' + g.category : ''
@@ -1540,12 +1551,10 @@ window._yearRaw.allAssignments.forEach(g=>{
       
       ${(() => {
       
-        const groups = {};
+        const yearGroups = {};
       
         historyRows
-          .sort((a,b)=>
-            new Date(b.date) - new Date(a.date)
-          )
+          .sort((a,b)=>new Date(b.date) - new Date(a.date))
           .forEach(x => {
       
             const year =
@@ -1554,19 +1563,26 @@ window._yearRaw.allAssignments.forEach(g=>{
             const tournament =
               x.tournament || '未分類賽事';
       
-            if (!groups[year]){
-              groups[year] = {};
+            const day =
+              String(x.date).substring(5,10);
+      
+            if (!yearGroups[year]){
+              yearGroups[year] = {};
             }
       
-            if (!groups[year][tournament]){
-              groups[year][tournament] = [];
+            if (!yearGroups[year][tournament]){
+              yearGroups[year][tournament] = {};
             }
       
-            groups[year][tournament].push(x);
+            if (!yearGroups[year][tournament][day]){
+              yearGroups[year][tournament][day] = [];
+            }
+      
+            yearGroups[year][tournament][day].push(x);
       
           });
       
-        return Object.keys(groups)
+        return Object.keys(yearGroups)
           .sort((a,b)=>b-a)
           .map(year => `
       
@@ -1574,7 +1590,7 @@ window._yearRaw.allAssignments.forEach(g=>{
               ${year}年
             </div>
       
-            ${Object.keys(groups[year])
+            ${Object.keys(yearGroups[year])
               .sort()
               .map(tournament => `
       
@@ -1582,24 +1598,34 @@ window._yearRaw.allAssignments.forEach(g=>{
                   🏆 ${tournament}
                 </div>
       
-                ${groups[year][tournament]
-                  .map(x => `
+                ${Object.keys(yearGroups[year][tournament])
+                  .sort((a,b)=>b.localeCompare(a))
+                  .map(day => `
       
-                    <div class="history-row">
-      
-                      <span class="history-date">
-                        ${x.date.substring(5)}
-                      </span>
-      
-                      <span class="history-match">
-                        ${x.match}
-                      </span>
-      
-                      <span class="history-role">
-                        ${x.role}
-                      </span>
-      
+                    <div class="history-day">
+                      ${day}
                     </div>
+      
+                    ${yearGroups[year][tournament][day]
+                      .map(x => `
+      
+                        <div class="history-row">
+      
+                          <span class="history-time">
+                            ${x.time || ''}
+                          </span>
+      
+                          <span class="history-match">
+                            ${x.match}
+                          </span>
+      
+                          <span class="history-role">
+                            ${x.role}
+                          </span>
+      
+                        </div>
+      
+                      `).join('')}
       
                   `).join('')}
       
