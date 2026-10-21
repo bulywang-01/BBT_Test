@@ -760,25 +760,29 @@ function loadAdminDashboard(){
   callApi({
     action:'getAdminDashboardData'
   }, res => {
-  
+
+    console.log('dashboard=',res);
+
     if (!res || res.result !== 'ok'){
+      alert(
+        res?.message || 'Dashboard API 失敗'
+      );
       return;
     }
-  
+
     document.getElementById('kpiWeekGames').textContent =
       res.weekGames;
-  
+
     document.getElementById('kpiJudgeVacancy').textContent =
       res.judgeVacancy;
-  
+
     document.getElementById('kpiRecordVacancy').textContent =
       res.recordVacancy;
-  
+
     document.getElementById('kpiPending').textContent =
       res.pendingConfirm;
-  
-  });
 
+  });
 
 }
 
@@ -790,6 +794,7 @@ document.addEventListener('DOMContentLoaded',() => {
   }
 );
 
+
 /*********************************************************
  ✅ Dashboard 缺額中心
 *********************************************************/
@@ -799,19 +804,32 @@ function loadVacancyCenter(){
     action:'getAdminDashboardData'
   }, res => {
 
+    console.log('dashboard=', res);
+
     if (!res || res.result !== 'ok'){
+
+      document.getElementById('judgeVacancyList').innerHTML =
+        '載入失敗';
+
+      document.getElementById('recordVacancyList').innerHTML =
+        '載入失敗';
+
       return;
     }
 
     const judgeList =
-      Array.isArray(res?.judgeVacancyList)
+      Array.isArray(res.judgeVacancyList)
         ? res.judgeVacancyList
         : [];
 
     const recordList =
-      Array.isArray(res?.recordVacancyList)
+      Array.isArray(res.recordVacancyList)
         ? res.recordVacancyList
         : [];
+
+    /* =========================
+       ⚾ 裁判缺額
+    ========================= */
 
     document.getElementById(
       'judgeVacancyList'
@@ -821,25 +839,41 @@ function loadVacancyCenter(){
 
       ? judgeList.map(v => `
 
-          <div class="vacancy-item">
+        <div class="vacancy-item">
 
-            <div class="vacancy-line1">
-              ${v.date} ｜ ${v.time}
-            </div>
+          <div class="vacancy-row">
 
-            <div class="vacancy-line2">
+            <span class="vacancy-date">
+              ${v.date}
+            </span>
+
+            <span class="vacancy-time">
+              ${formatGameTime(v.time)}
+            </span>
+
+            <span class="vacancy-match">
               ${v.match}
-            </div>
+            </span>
 
-            <div class="vacancy-line3">
+            <span class="vacancy-role">
               缺：${v.roles}
-            </div>
+            </span>
 
           </div>
 
+        </div>
+
       `).join('')
 
-      : '✅ 無裁判缺額';
+      : `
+        <div class="vacancy-empty">
+          ✅ 無裁判缺額
+        </div>
+      `;
+
+    /* =========================
+       📝 紀錄缺額
+    ========================= */
 
     document.getElementById(
       'recordVacancyList'
@@ -849,25 +883,37 @@ function loadVacancyCenter(){
 
       ? recordList.map(v => `
 
-          <div class="vacancy-item">
+        <div class="vacancy-item">
 
-            <div class="vacancy-line1">
-              ${v.date} ｜ ${v.time}
-            </div>
+          <div class="vacancy-row">
 
-            <div class="vacancy-line2">
+            <span class="vacancy-date">
+              ${v.date}
+            </span>
+
+            <span class="vacancy-time">
+              ${formatGameTime(v.time)}
+            </span>
+
+            <span class="vacancy-match">
               ${v.match}
-            </div>
+            </span>
 
-            <div class="vacancy-line3">
+            <span class="vacancy-role">
               缺：${v.roles}
-            </div>
+            </span>
 
           </div>
 
+        </div>
+
       `).join('')
 
-      : '✅ 無紀錄缺額';
+      : `
+        <div class="vacancy-empty">
+          ✅ 無紀錄缺額
+        </div>
+      `;
 
   });
 
