@@ -731,6 +731,43 @@ function renderRoleStats(p){
   </table>
   `;
 }
+
+function loadAdminDashboard(){
+
+  callApi({
+    action:'getAdminDashboardSummary'
+  }, res => {
+
+    if (!res || res.result !== 'ok'){
+      return;
+    }
+
+    document.getElementById('kpiWeekGames')
+      .textContent =
+      res.weekGames;
+
+    document.getElementById('kpiJudgeVacancy')
+      .textContent =
+      res.judgeVacancy;
+
+    document.getElementById('kpiRecordVacancy')
+      .textContent =
+      res.recordVacancy;
+
+    document.getElementById('kpiPending')
+      .textContent =
+      res.pendingConfirm;
+
+  });
+
+}
+
+document.addEventListener('DOMContentLoaded',() => {
+    guardAdminPage();
+    loadHeader();
+    loadAdminDashboard();
+  }
+);
   </script>
 </body>
 </html>
