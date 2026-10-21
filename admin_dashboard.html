@@ -776,14 +776,25 @@ document.addEventListener('DOMContentLoaded',() => {
 function loadVacancyCenter(){
 
   callApi({
-
     action:'getAdminVacancyList'
-
   }, res => {
 
+    console.log('vacancy=',res);
+
     if (!res || res.result !== 'ok'){
+
+      document.getElementById('judgeVacancyList').innerHTML =
+        '載入失敗';
+
+      document.getElementById('recordVacancyList').innerHTML =
+        '載入失敗';
+
       return;
     }
+
+    /* =========================
+       裁判缺額
+    ========================= */
 
     document.getElementById(
       'judgeVacancyList'
@@ -793,26 +804,34 @@ function loadVacancyCenter(){
 
       ? res.judgeVacancy.map(v => `
 
-        <div class="vacancy-item">
-        
-          <div class="vacancy-date">
-            ${v.date} ｜ ${v.time}
-          </div>
-        
-          <div class="vacancy-game">
-            ${v.match}
-          </div>
-        
-          <div class="vacancy-role">
-            缺${v.role}
-          </div>
-        
-        </div>
+          <div class="vacancy-item">
 
+            <div class="vacancy-date">
+              ${v.date} ｜ ${v.time}
+            </div>
+
+            <div class="vacancy-game">
+              ${v.match}
+            </div>
+
+            <div class="vacancy-role">
+              缺 ${v.role}
+            </div>
+
+          </div>
 
         `).join('')
 
-      : '✅ 無裁判缺額';
+      : `
+          <div class="vacancy-item">
+            ✅ 本週無裁判缺額
+          </div>
+        `;
+
+
+    /* =========================
+       紀錄缺額
+    ========================= */
 
     document.getElementById(
       'recordVacancyList'
@@ -822,28 +841,29 @@ function loadVacancyCenter(){
 
       ? res.recordVacancy.map(v => `
 
-        <div class="vacancy-item">
-        
-          <div class="vacancy-date">
-            ${v.date} ｜ ${v.time}
-          </div>
-        
-          <div class="vacancy-game">
-            ${v.match}
-          </div>
-        
-          <div class="vacancy-role">
-            缺${v.role}
-          </div>
-        
-        </div>
+          <div class="vacancy-item">
 
+            <div class="vacancy-date">
+              ${v.date} ｜ ${v.time}
+            </div>
+
+            <div class="vacancy-game">
+              ${v.match}
+            </div>
+
+            <div class="vacancy-role">
+              缺 ${v.role}
+            </div>
 
           </div>
 
         `).join('')
 
-      : '✅ 無紀錄缺額';
+      : `
+          <div class="vacancy-item">
+            ✅ 本週無紀錄缺額
+          </div>
+        `;
 
   });
 
