@@ -799,25 +799,33 @@ document.addEventListener('DOMContentLoaded',() => {
 function loadVacancyCenter(){
 
   callApi({
-    action:'getAdminDashboardSummary'
+    action:'getAdminVacancyList'
   }, res => {
 
-    if (!res || res.result !== 'ok'){
-      return;
-    }
+    console.log('vacancy=', res);
+
+    const judgeList =
+      Array.isArray(res?.judgeVacancy)
+        ? res.judgeVacancy
+        : [];
+
+    const recordList =
+      Array.isArray(res?.recordVacancy)
+        ? res.recordVacancy
+        : [];
 
     document.getElementById(
       'judgeVacancyList'
     ).innerHTML =
 
-      res.judgeVacancyList.length
+      judgeList.length
 
-      ? res.judgeVacancyList.map(v => `
+      ? judgeList.map(v => `
 
         <div class="vacancy-item">
 
           <div class="vacancy-line1">
-            ${v.date} ｜ ${v.time}
+            ${v.date} ｜ ${formatGameTime(v.time)}
           </div>
 
           <div class="vacancy-line2">
@@ -834,18 +842,20 @@ function loadVacancyCenter(){
 
       : '✅ 無裁判缺額';
 
+
+
     document.getElementById(
       'recordVacancyList'
     ).innerHTML =
 
-      res.recordVacancyList.length
+      recordList.length
 
-      ? res.recordVacancyList.map(v => `
+      ? recordList.map(v => `
 
         <div class="vacancy-item">
 
           <div class="vacancy-line1">
-            ${v.date} ｜ ${v.time}
+            ${v.date} ｜ ${formatGameTime(v.time)}
           </div>
 
           <div class="vacancy-line2">
