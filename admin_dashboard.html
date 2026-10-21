@@ -758,30 +758,27 @@ function renderRoleStats(p){
 function loadAdminDashboard(){
 
   callApi({
-    action:'getAdminDashboardSummary'
+    action:'getAdminDashboardData'
   }, res => {
-
+  
     if (!res || res.result !== 'ok'){
       return;
     }
-
-    document.getElementById('kpiWeekGames')
-      .textContent =
+  
+    document.getElementById('kpiWeekGames').textContent =
       res.weekGames;
-
-    document.getElementById('kpiJudgeVacancy')
-      .textContent =
+  
+    document.getElementById('kpiJudgeVacancy').textContent =
       res.judgeVacancy;
-
-    document.getElementById('kpiRecordVacancy')
-      .textContent =
+  
+    document.getElementById('kpiRecordVacancy').textContent =
       res.recordVacancy;
-
-    document.getElementById('kpiPending')
-      .textContent =
+  
+    document.getElementById('kpiPending').textContent =
       res.pendingConfirm;
-
+  
   });
+
 
 }
 
@@ -799,11 +796,13 @@ document.addEventListener('DOMContentLoaded',() => {
 function loadVacancyCenter(){
 
   callApi({
-    action:'getAdminVacancyList'
+    action:'getAdminDashboardData'
   }, res => {
 
-    console.log('vacancy=', res);
-
+  if (!res || res.result !== 'ok'){
+    return;
+  }
+    
     const judgeList =
       Array.isArray(res?.judgeVacancy)
         ? res.judgeVacancy
@@ -814,6 +813,7 @@ function loadVacancyCenter(){
         ? res.recordVacancy
         : [];
 
+/*
     document.getElementById(
       'judgeVacancyList'
     ).innerHTML =
@@ -842,8 +842,6 @@ function loadVacancyCenter(){
 
       : '✅ 無裁判缺額';
 
-
-
     document.getElementById(
       'recordVacancyList'
     ).innerHTML =
@@ -871,7 +869,8 @@ function loadVacancyCenter(){
       `).join('')
 
       : '✅ 無紀錄缺額';
-
+*/
+  
   });
 
 }
