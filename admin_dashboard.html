@@ -651,140 +651,128 @@
     
     </section>
 
-      <!-- DATA TABLE SECTION: 缺額賽事與即時指派控制台 (Missing Games Data Table) -->
-      <section id="missing-games-section" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        
-        <!-- Table Header & Controls -->
-        <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div class="flex items-center space-x-3">
-            <div class="p-2 bg-rose-100 text-rose-600 rounded-xl">
-              <i data-lucide="alert-triangle" class="w-5 h-5"></i>
-            </div>
-            <div>
-              <h3 class="font-black text-slate-900 text-base">待處理缺額賽事清單</h3>
-              <p class="text-xs text-slate-500">此表格列出目前尚未排滿裁判/紀錄之場次，可直接進行管理員指派</p>
-            </div>
+    <!-- =====================================================
+         📋 待處理缺額賽事清單
+    ===================================================== -->
+    <section id="missing-games-section"
+             class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    
+      <!-- Header -->
+      <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    
+        <div class="flex items-center space-x-3">
+    
+          <div class="p-2 bg-rose-100 text-rose-600 rounded-xl">
+            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
           </div>
-          
-          <div class="flex items-center space-x-2">
-            <span class="text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-xl">
-              共 2 場急需補人
-            </span>
-            <button onclick="showModal('快速新增賽事')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition shadow flex items-center gap-1">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-              <span>手動開班</span>
-            </button>
+    
+          <div>
+    
+            <h3 class="font-black text-slate-900 text-base">
+              待處理缺額賽事清單
+            </h3>
+    
+            <p class="text-xs text-slate-500">
+              目前尚未補齊裁判或紀錄人員之賽事
+            </p>
+    
           </div>
+    
         </div>
-
-        <!-- RWD Scrollable Data Table -->
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-50 text-slate-500 text-[11px] font-black uppercase tracking-wider border-b border-slate-200">
-                <th class="py-3 px-4">聯賽 / 場次</th>
-                <th class="py-3 px-4">賽事時間</th>
-                <th class="py-3 px-4">對決隊伍</th>
-                <th class="py-3 px-4">球場地點</th>
-                <th class="py-3 px-4">目前人力配置與缺額</th>
-                <th class="py-3 px-4 text-right">管理員操作</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 text-xs font-medium text-slate-700">
-              
-              <!-- Row 1 -->
-              <tr class="hover:bg-slate-50/80 transition">
-                <td class="py-3.5 px-4 font-bold">
-                  <div class="flex items-center space-x-2">
-                    <span class="bg-brand-100 text-brand-700 text-[10px] font-black px-2 py-0.5 rounded border border-brand-200">#M-1024</span>
-                    <span class="text-slate-900">2026-BBT聯賽</span>
-                  </div>
-                </td>
-                <td class="py-3.5 px-4">
-                  <div class="font-bold text-slate-900">10/24 (六) 08:30</div>
-                  <div class="text-[10px] text-slate-400">第一場次</div>
-                </td>
-                <td class="py-3.5 px-4">
-                  <div class="font-black text-slate-900 flex items-center space-x-1.5">
-                    <span>夢想家</span>
-                    <span class="text-[10px] font-normal text-slate-400">VS</span>
-                    <span>PTTPE</span>
-                  </div>
-                </td>
-                <td class="py-3.5 px-4 text-slate-600">
-                  <div class="flex items-center space-x-1">
-                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
-                    <span>八里挖仔尾 A 場</span>
-                  </div>
-                </td>
-                <td class="py-3.5 px-4">
-                  <div class="flex flex-wrap gap-1">
-                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px]">主審: 王韶文</span>
-                    <span class="bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded text-[11px] border border-rose-200 flex items-center gap-1">
-                      <i data-lucide="alert-circle" class="w-3 h-3"></i> 缺一壘審
-                    </span>
-                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px]">紀錄: 林有祥</span>
-                  </div>
-                </td>
-                <td class="py-3.5 px-4 text-right">
-                  <button onclick="assignReferee('2026-BBT聯賽 10/24 08:30', '一壘審')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-3 py-1.5 rounded-lg transition shadow-sm inline-flex items-center gap-1">
-                    <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                    <span>指派一壘審</span>
-                  </button>
-                </td>
-              </tr>
-
-              <!-- Row 2 -->
-              <tr class="hover:bg-slate-50/80 transition">
-                <td class="py-3.5 px-4 font-bold">
-                  <div class="flex items-center space-x-2">
-                    <span class="bg-brand-100 text-brand-700 text-[10px] font-black px-2 py-0.5 rounded border border-brand-200">#M-1025</span>
-                    <span class="text-slate-900">2026-BBT聯賽</span>
-                  </div>
-                </td>
-                <td class="py-3.5 px-4">
-                  <div class="font-bold text-slate-900">10/24 (六) 10:30</div>
-                  <div class="text-[10px] text-slate-400">第二場次</div>
-                </td>
-                <td class="py-3.5 px-4">
-                  <div class="font-black text-slate-900 flex items-center space-x-1.5">
-                    <span>戰神隊</span>
-                    <span class="text-[10px] font-normal text-slate-400">VS</span>
-                    <span>暴龍隊</span>
-                  </div>
-                </td>
-                <td class="py-3.5 px-4 text-slate-600">
-                  <div class="flex items-center space-x-1">
-                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
-                    <span>八里國中球場</span>
-                  </div>
-                </td>
-                <td class="py-3.5 px-4">
-                  <div class="flex flex-wrap gap-1">
-                    <span class="bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded text-[11px] border border-rose-200 flex items-center gap-1">
-                      <i data-lucide="alert-circle" class="w-3 h-3"></i> 缺主審
-                    </span>
-                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px]">一壘: 李大華</span>
-                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px]">紀錄: 張小美</span>
-                  </div>
-                </td>
-                <td class="py-3.5 px-4 text-right">
-                  <button onclick="assignReferee('2026-BBT聯賽 10/24 10:30', '主審')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-3 py-1.5 rounded-lg transition shadow-sm inline-flex items-center gap-1">
-                    <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                    <span>指派主審</span>
-                  </button>
-                </td>
-              </tr>
-
-            </tbody>
-          </table>
+    
+        <div class="flex items-center space-x-2">
+    
+          <span
+            id="vacancyGameCount"
+            class="text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-xl">
+    
+            載入中...
+    
+          </span>
+    
+          <button
+            onclick="showModal('快速新增賽事')"
+            class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition shadow flex items-center gap-1">
+    
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+    
+            <span>手動開班</span>
+    
+          </button>
+    
         </div>
-        
-        <!-- Table Footer -->
-        <div class="p-3 bg-slate-50 border-t border-slate-200 text-center text-xs text-slate-500 font-semibold">
-          顯示 2 筆缺額賽事（資料每 30 秒自動整合更新）
-        </div>
-      </section>
+    
+      </div>
+    
+      <!-- Table -->
+      <div class="overflow-x-auto">
+    
+        <table class="w-full text-left border-collapse">
+    
+          <thead>
+    
+            <tr class="bg-slate-50 text-slate-500 text-[11px] font-black uppercase tracking-wider border-b border-slate-200">
+    
+              <th class="py-3 px-4">
+                聯賽 / 場次
+              </th>
+    
+              <th class="py-3 px-4">
+                賽事時間
+              </th>
+    
+              <th class="py-3 px-4">
+                對戰隊伍
+              </th>
+    
+              <th class="py-3 px-4">
+                球場地點
+              </th>
+    
+              <th class="py-3 px-4">
+                缺額狀態
+              </th>
+    
+              <th class="py-3 px-4 text-right">
+                管理員操作
+              </th>
+    
+            </tr>
+    
+          </thead>
+    
+          <tbody
+            id="vacancy-table-body"
+            class="divide-y divide-slate-100 text-xs font-medium text-slate-700">
+    
+            <tr>
+    
+              <td colspan="6"
+                  class="text-center py-10 text-slate-400">
+    
+                載入中...
+    
+              </td>
+    
+            </tr>
+    
+          </tbody>
+    
+        </table>
+    
+      </div>
+    
+      <!-- Footer -->
+    
+      <div
+        id="vacancy-table-footer"
+        class="p-3 bg-slate-50 border-t border-slate-200 text-center text-xs text-slate-500 font-semibold">
+    
+        載入中...
+    
+      </div>
+    
+    </section>
 
     </main>
   </div>
