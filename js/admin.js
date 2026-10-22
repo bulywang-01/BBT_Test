@@ -775,7 +775,7 @@ function toggleSidebar(){
 }
 
 /*********************************************************
- * 快速指派 Modal
+ * Dashboard 快速指派
  *********************************************************/
 function openAssignment(gameId){
 
@@ -789,38 +789,22 @@ function openAssignment(gameId){
 
   if(!game){
 
-    showToast(
-      '找不到賽事資料'
-    );
+    showToast('找不到賽事資料');
 
     return;
 
   }
 
-  const missingJudge =
-    game.missingJudge || [];
-
-  const missingRecord =
-    game.missingRecord || [];
-
-  const roleOptions = [
-
-    ...missingJudge.map(r => ({
-      type:'judge',
-      role:r
-    })),
-
-    ...missingRecord.map(r => ({
-      type:'record',
-      role:r
-    }))
-
-  ];
-
   document.getElementById(
     'modal-title'
   ).textContent =
-    `快速指派 ${game.game_code}`;
+    `快速指派｜${game.game_code}`;
+
+  const judgeRoles =
+    game.missingJudge || [];
+
+  const recordRoles =
+    game.missingRecord || [];
 
   document.getElementById(
     'modal-content'
@@ -830,14 +814,15 @@ function openAssignment(gameId){
 
       <div>
 
-        <div class="font-bold text-slate-900 text-base">
+        <div class="text-base font-bold text-slate-900">
           ${game.away_team}
           VS
           ${game.home_team}
         </div>
 
         <div class="text-sm text-slate-500">
-          ${game.date} ${game.time}
+          ${game.date}
+          ${game.time}
         </div>
 
         <div class="text-sm text-slate-500">
@@ -848,60 +833,40 @@ function openAssignment(gameId){
 
       <div>
 
-        <label
-          class="block mb-1 text-sm font-bold">
-
+        <div class="font-bold mb-2">
           缺額職務
+        </div>
 
-        </label>
+        <div class="flex flex-wrap gap-2">
 
-        <select
-          id="assign-role"
-          class="w-full rounded-xl border border-slate-200 p-2">
+          ${judgeRoles.map(role => `
+            <button
+              class="assign-role-btn bg-rose-100 text-rose-700 border border-rose-200 rounded-lg px-3 py-2 text-sm font-bold"
+              onclick="openJudgeAssignment('${gameId}','${role}')">
 
-          ${roleOptions.map(r => `
-            <option
-              value="${r.type}|${r.role}">
-              ${r.role}
-            </option>
+              ${role}
+
+            </button>
           `).join('')}
 
-        </select>
+          ${recordRoles.map(role => `
+            <button
+              class="assign-role-btn bg-amber-100 text-amber-700 border border-amber-200 rounded-lg px-3 py-2 text-sm font-bold"
+              onclick="openRecordAssignment('${gameId}','${role}')">
+
+              ${role}
+
+            </button>
+          `).join('')}
+
+        </div>
 
       </div>
 
-      <div>
+      <div class="text-xs text-slate-500">
 
-        <label
-          class="block mb-1 text-sm font-bold">
-
-          處理方式
-
-        </label>
-
-        <div class="grid grid-cols-2 gap-2">
-
-          <button
-            class="bg-blue-600 text-white rounded-xl py-2 font-bold"
-            onclick="
-              openJudgePage('${game.game_id}')
-            ">
-
-            前往排班頁
-
-          </button>
-
-          <button
-            class="bg-emerald-600 text-white rounded-xl py-2 font-bold"
-            onclick="
-              copyGameCode('${game.game_code}')
-            ">
-
-            複製場次
-
-          </button>
-
-        </div>
+        點選缺額職務後，
+        將自動跳往對應排班頁處理。
 
       </div>
 
@@ -910,19 +875,9 @@ function openAssignment(gameId){
   `;
 
   document
-    .getElementById(
-      'admin-modal'
-    )
+    .getElementById('admin-modal')
     .classList
     .remove('hidden');
-
-}
-
-function confirmAssignment(){
-
-  showToast(
-    '第二階段實作中'
-  );
 
 }
 
@@ -939,6 +894,46 @@ function openJudgePage(gameId){
 
   location.href =
     'judge_dashboard_admin.html';
+
+}
+
+/*********************************************************
+ * 裁判指派
+ *********************************************************/
+function openJudgeAssignment(gameId, role){
+
+  sessionStorage.setItem(
+    'dashboard_assign_game',
+    gameId
+  );
+
+  sessionStorage.setItem(
+    'dashboard_assign_role',
+    role
+  );
+
+  location.href =
+    'judge_dashboard_admin.html';
+
+}
+
+/*********************************************************
+ * 紀錄指派
+ *********************************************************/
+function openRecordAssignment(gameId, role){
+
+  sessionStorage.setItem(
+    'dashboard_assign_game',
+    gameId
+  );
+
+  sessionStorage.setItem(
+    'dashboard_assign_role',
+    role
+  );
+
+  location.href =
+    'record_dashboard_admin.html';
 
 }
 
