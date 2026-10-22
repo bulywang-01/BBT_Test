@@ -67,11 +67,6 @@ function loadDashboard(){
  *********************************************************/
 function renderDashboard(data){
 
-  console.log(
-    'dashboard=',
-    data
-  );
-
   if(
     !data ||
     data.result !== 'ok'
@@ -81,12 +76,14 @@ function renderDashboard(data){
   }
 
   renderAlerts(data);
-
   renderMatchStats(data);
-
   renderPeopleStats(data);
-
   renderVacancyGames(data);
+  renderSidebar(data);
+
+  if(window.lucide){
+    lucide.createIcons();
+  }
 
 }
 
@@ -98,24 +95,106 @@ function renderAlerts(data){
   const alerts =
     data.alerts || {};
 
+  const judgeCount =
+    alerts.judgeShortageGames || 0;
+
+  const recordCount =
+    alerts.recordShortageGames || 0;
+
+  const pendingCount =
+    alerts.pendingConfirm || 0;
+
   setText(
     'alertJudgeCount',
-    alerts.judgeShortageGames || 0
+    judgeCount
   );
 
   setText(
     'alertRecordCount',
-    alerts.recordShortageGames || 0
+    recordCount
   );
 
   setText(
     'alertPendingCount',
-    alerts.pendingConfirm || 0
+    pendingCount
   );
+
+  const tag =
+    document.getElementById(
+      'recordStatusTag'
+    );
+
+  const text =
+    document.getElementById(
+      'recordStatusText'
+    );
+
+  const badge =
+    document.getElementById(
+      'recordStatusBadge'
+    );
+
+  if(recordCount === 0){
+
+    tag.textContent =
+      '人力補齊';
+
+    text.textContent =
+      '（本週名額皆滿）';
+
+    badge.innerHTML =
+      '<i data-lucide="shield-check" class="w-3.5 h-3.5"></i>正常';
+
+  }else{
+
+    tag.textContent =
+      '需補人力';
+
+    text.textContent =
+      `（尚缺 ${recordCount} 位）`;
+
+    badge.innerHTML =
+      '<i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>缺額';
+
+  }
+
+}
+
+/*********************************************************
+ * Sidebar
+ *********************************************************/
+function renderSidebar(data){
+
+  const alerts =
+    data.alerts || {};
+
+  const people =
+    data.peopleStats || {};
 
   setText(
     'sidebarJudgeShortage',
-    `${alerts.judgeShortageGames || 0} 缺額`
+    alerts.judgeShortageGames > 0
+      ? `${alerts.judgeShortageGames} 缺額`
+      : ''
+  );
+
+  setText(
+    'sidebarRecordShortage',
+    alerts.recordShortageGames > 0
+      ? `${alerts.recordShortageGames} 缺額`
+      : '額滿'
+  );
+
+  setText(
+    'sidebarPendingConfirm',
+    alerts.pendingConfirm > 0
+      ? `${alerts.pendingConfirm} 待簽`
+      : ''
+  );
+
+  setText(
+    'sidebarUserCount',
+    `${people.totalUsers || 0}帳號`
   );
 
 }
@@ -129,44 +208,21 @@ function renderMatchStats(data){
     data.matchStats || {};
 
   const total =
-    Number(
-      stats.totalGames || 0
-    );
+    Number(stats.totalGames || 0);
 
   const completed =
-    Number(
-      stats.completedGames || 0
-    );
+    Number(stats.completedGames || 0);
 
   const pending =
-    Number(
-      stats.pendingGames || 0
-    );
+    Number(stats.pendingGames || 0);
 
   const week =
-    Number(
-      stats.weekGames || 0
-    );
+    Number(stats.weekGames || 0);
 
-  setText(
-    'totalGames',
-    total
-  );
-
-  setText(
-    'completedGames',
-    completed
-  );
-
-  setText(
-    'pendingGames',
-    pending
-  );
-
-  setText(
-    'weekGames',
-    week
-  );
+  setText('totalGames', total);
+  setText('completedGames', completed);
+  setText('pendingGames', pending);
+  setText('weekGames', week);
 
   const progress =
     total > 0
@@ -186,19 +242,13 @@ function renderMatchStats(data){
   );
 
   const completedBar =
-    document.getElementById(
-      'completedBar'
-    );
+    document.getElementById('completedBar');
 
   const pendingBar =
-    document.getElementById(
-      'pendingBar'
-    );
+    document.getElementById('pendingBar');
 
   const weekBar =
-    document.getElementById(
-      'weekBar'
-    );
+    document.getElementById('weekBar');
 
   if(completedBar){
     completedBar.style.width =
@@ -207,12 +257,20 @@ function renderMatchStats(data){
 
   if(pendingBar){
     pendingBar.style.width =
-      `${100-progress}%`;
+      `${100 - progress}%`;
   }
 
   if(weekBar){
+
+    const weekPercent =
+      total
+        ? Math.round(
+            (week / total) * 100
+          )
+        : 0;
+
     weekBar.style.width =
-      `${Math.min(week * 10,100)}%`;
+      `${weekPercent}%`;
   }
 
 }
