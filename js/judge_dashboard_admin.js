@@ -492,7 +492,19 @@ function renderPosCell(game, role) {
 /* =========================
  * 啟動
  * ========================= */
-loadGames();
+document.addEventListener(
+  'DOMContentLoaded',
+  () => {
+
+    console.log(
+      'judge dashboard start'
+    );
+
+    loadGames();
+
+  }
+);
+
 
 let currentAssignContext = null;
 
