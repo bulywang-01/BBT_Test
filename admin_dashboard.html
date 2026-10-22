@@ -4,10 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BBT 出勤系統 - 後端管理員控制台</title>
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- ✅ 你原本就有的 JS（一定要） -->
+  <script src="js/auth.js"></script>
+  <script src="js/config.js"></script>
+  
+
+  <link rel="stylesheet" href="css/admin_dashboard.css">
+  
   <script>
     tailwind.config = {
       theme: {
@@ -93,7 +104,7 @@
             <i data-lucide="calendar-range" class="w-4 h-4 text-slate-400 group-hover:text-brand-400 transition"></i>
             <span>賽程與裁判排班</span>
           </div>
-          <span class="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">2 缺額</span>
+          <span id="sidebarJudgeShortage"></span>
         </a>
         <a href="#" class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition group">
           <div class="flex items-center space-x-3">
@@ -193,153 +204,346 @@
     <!-- Scrollable Main Dashboard Container -->
     <main class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 max-w-7xl w-full mx-auto">
 
-      <!-- ALERT BLOCK: Real-time Shortage & Pending Approvals -->
-      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        
-        <!-- Alert 1: 裁判缺額 -->
-        <div class="bg-gradient-to-br from-rose-500 to-rose-600 text-white rounded-2xl p-4 shadow-md shadow-rose-500/20 relative overflow-hidden flex flex-col justify-between group">
-          <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:scale-125 transition-transform"></div>
-          <div class="flex items-start justify-between relative z-10">
-            <div>
-              <span class="text-[11px] font-black uppercase tracking-wider bg-black/20 px-2 py-0.5 rounded-md text-rose-100">緊急告警</span>
-              <h3 class="text-sm font-bold mt-1 text-white/90">裁判人力缺額</h3>
-            </div>
-            <div class="p-2.5 bg-white/20 rounded-xl backdrop-blur-md">
-              <i data-lucide="user-x" class="w-5 h-5 text-white"></i>
-            </div>
-          </div>
-          <div class="mt-3 flex items-baseline justify-between relative z-10">
-            <div>
-              <span class="text-3xl font-black tracking-tight">2</span>
-              <span class="text-xs text-rose-100 font-medium ml-1">場缺裁判</span>
-            </div>
-            <a href="#missing-games-section" class="bg-white text-rose-700 hover:bg-rose-50 text-xs font-black px-3 py-1.5 rounded-xl shadow transition flex items-center gap-1">
-              <span>立即補人</span>
-              <i data-lucide="arrow-right" class="w-3 h-3"></i>
-            </a>
-          </div>
-        </div>
-
-        <!-- Alert 2: 紀錄缺額 -->
-        <div class="bg-white border-2 border-emerald-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between relative overflow-hidden">
-          <div class="flex items-start justify-between">
-            <div>
-              <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">人力補齊</span>
-              <h3 class="text-sm font-bold text-slate-700 mt-1">紀錄員缺額</h3>
-            </div>
-            <div class="p-2.5 bg-emerald-100 text-emerald-600 rounded-xl">
-              <i data-lucide="check-circle-2" class="w-5 h-5"></i>
-            </div>
-          </div>
-          <div class="mt-3 flex items-baseline justify-between">
-            <div>
-              <span class="text-3xl font-black text-slate-900">0</span>
-              <span class="text-xs text-emerald-600 font-bold ml-1.5">（本週名額皆滿）</span>
-            </div>
-            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center gap-1">
-              <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> 正常
+    <!-- =====================================================
+         🚨 即時告警區
+    ===================================================== -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    
+      <!-- 裁判缺額 -->
+      <div class="bg-gradient-to-br from-rose-500 to-rose-600 text-white rounded-2xl p-4 shadow-md shadow-rose-500/20 relative overflow-hidden flex flex-col justify-between">
+    
+        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+    
+        <div class="flex items-start justify-between relative z-10">
+          <div>
+            <span class="text-[11px] font-black uppercase tracking-wider bg-black/20 px-2 py-0.5 rounded-md text-rose-100">
+              緊急告警
             </span>
+    
+            <h3 class="text-sm font-bold mt-1 text-white/90">
+              裁判人力缺額
+            </h3>
+          </div>
+    
+          <div class="p-2.5 bg-white/20 rounded-xl backdrop-blur-md">
+            <i data-lucide="user-x" class="w-5 h-5 text-white"></i>
           </div>
         </div>
-
-        <!-- Alert 3: 待確認事項 -->
-        <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-4 shadow-md relative overflow-hidden flex flex-col justify-between">
-          <div class="flex items-start justify-between">
-            <div>
-              <span class="text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-md border border-amber-500/30">審核隊列</span>
-              <h3 class="text-sm font-bold text-slate-200 mt-1">待審核與待確認</h3>
-            </div>
-            <div class="p-2.5 bg-amber-500 text-slate-950 rounded-xl shadow">
-              <i data-lucide="clock" class="w-5 h-5"></i>
-            </div>
+    
+        <div class="mt-3 flex items-baseline justify-between relative z-10">
+          <div>
+    
+            <span
+              id="alertJudgeCount"
+              class="text-3xl font-black tracking-tight">
+              -
+            </span>
+    
+            <span class="text-xs text-rose-100 font-medium ml-1">
+              場缺裁判
+            </span>
+    
           </div>
-          <div class="mt-3 flex items-baseline justify-between">
-            <div>
-              <span class="text-3xl font-black text-amber-400">3</span>
-              <span class="text-xs text-slate-300 font-medium ml-1">筆申請待簽核</span>
-            </div>
-            <button onclick="showModal('待確認事項列表')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black px-3 py-1.5 rounded-xl shadow transition">
-              批次確認
-            </button>
-          </div>
+    
+          <a href="#missing-games-section"
+             class="bg-white text-rose-700 hover:bg-rose-50 text-xs font-black px-3 py-1.5 rounded-xl shadow transition flex items-center gap-1">
+    
+            <span>立即補人</span>
+    
+            <i data-lucide="arrow-right"
+               class="w-3 h-3"></i>
+    
+          </a>
         </div>
-
-      </section>
-
-      <!-- METRICS SECTION 1: 全年賽事營運數據 (Match Statistics Cards) -->
-      <section class="space-y-3">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-2">
-            <div class="w-2 h-5 bg-brand-600 rounded-full"></div>
-            <h3 class="font-black text-slate-900 text-base">賽事營運數據 (年度總計)</h3>
+    
+      </div>
+    
+      <!-- 紀錄缺額 -->
+      <div class="bg-white border-2 border-emerald-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between relative overflow-hidden">
+    
+        <div class="flex items-start justify-between">
+    
+          <div>
+    
+            <span
+              id="recordStatusTag"
+              class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+              人力補齊
+            </span>
+    
+            <h3 class="text-sm font-bold text-slate-700 mt-1">
+              紀錄員缺額
+            </h3>
+    
           </div>
-          <span class="text-xs text-slate-500 font-bold">賽季進度: 65.6%</span>
+    
+          <div class="p-2.5 bg-emerald-100 text-emerald-600 rounded-xl">
+            <i data-lucide="check-circle-2"
+               class="w-5 h-5"></i>
+          </div>
+    
         </div>
-
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          
-          <!-- Card 1: 全年賽程數 -->
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-            <div class="flex items-center justify-between text-slate-500">
-              <span class="text-xs font-bold">全年賽程總數</span>
-              <i data-lucide="trophy" class="w-4 h-4 text-brand-600"></i>
-            </div>
-            <div class="mt-2 flex items-baseline justify-between">
-              <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">128</span>
-              <span class="text-xs font-bold text-slate-400">場賽事</span>
-            </div>
-            <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
-              <div class="bg-brand-600 h-1.5 rounded-full" style="width: 100%"></div>
-            </div>
+    
+        <div class="mt-3 flex items-baseline justify-between">
+    
+          <div>
+    
+            <span
+              id="alertRecordCount"
+              class="text-3xl font-black text-slate-900">
+              -
+            </span>
+    
+            <span
+              id="recordStatusText"
+              class="text-xs text-emerald-600 font-bold ml-1.5">
+            </span>
+    
           </div>
-
-          <!-- Card 2: 已完賽 -->
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-            <div class="flex items-center justify-between text-slate-500">
-              <span class="text-xs font-bold">已順利完賽</span>
-              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
-            </div>
-            <div class="mt-2 flex items-baseline justify-between">
-              <span class="text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight">84</span>
-              <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">65.6% 執行率</span>
-            </div>
-            <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
-              <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 65.6%"></div>
-            </div>
-          </div>
-
-          <!-- Card 3: 未完賽 -->
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-            <div class="flex items-center justify-between text-slate-500">
-              <span class="text-xs font-bold">未完賽（剩餘）</span>
-              <i data-lucide="hourglass" class="w-4 h-4 text-brand-500"></i>
-            </div>
-            <div class="mt-2 flex items-baseline justify-between">
-              <span class="text-2xl sm:text-3xl font-black text-brand-600 tracking-tight">44</span>
-              <span class="text-xs font-bold text-slate-400">待執行場次</span>
-            </div>
-            <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
-              <div class="bg-brand-500 h-1.5 rounded-full" style="width: 34.4%"></div>
-            </div>
-          </div>
-
-          <!-- Card 4: 本週賽事 -->
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-            <div class="flex items-center justify-between text-slate-500">
-              <span class="text-xs font-bold">本週賽事數量</span>
-              <i data-lucide="flame" class="w-4 h-4 text-amber-500"></i>
-            </div>
-            <div class="mt-2 flex items-baseline justify-between">
-              <span class="text-2xl sm:text-3xl font-black text-amber-500 tracking-tight">6</span>
-              <span class="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">本週焦點</span>
-            </div>
-            <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
-              <div class="bg-amber-500 h-1.5 rounded-full" style="width: 80%"></div>
-            </div>
-          </div>
-
+    
+          <span
+            id="recordStatusBadge"
+            class="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center gap-1">
+    
+            <i data-lucide="shield-check"
+               class="w-3.5 h-3.5"></i>
+    
+            正常
+    
+          </span>
+    
         </div>
-      </section>
+    
+      </div>
+    
+      <!-- 待確認 -->
+      <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-4 shadow-md relative overflow-hidden flex flex-col justify-between">
+    
+        <div class="flex items-start justify-between">
+    
+          <div>
+    
+            <span class="text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-md border border-amber-500/30">
+              審核隊列
+            </span>
+    
+            <h3 class="text-sm font-bold text-slate-200 mt-1">
+              待審核與待確認
+            </h3>
+    
+          </div>
+    
+          <div class="p-2.5 bg-amber-500 text-slate-950 rounded-xl shadow">
+            <i data-lucide="clock"
+               class="w-5 h-5"></i>
+          </div>
+    
+        </div>
+    
+        <div class="mt-3 flex items-baseline justify-between">
+    
+          <div>
+    
+            <span
+              id="alertPendingCount"
+              class="text-3xl font-black text-amber-400">
+              -
+            </span>
+    
+            <span class="text-xs text-slate-300 font-medium ml-1">
+              筆待簽核
+            </span>
+    
+          </div>
+    
+          <button
+            onclick="showModal('待確認事項列表')"
+            class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black px-3 py-1.5 rounded-xl shadow transition">
+    
+            批次確認
+    
+          </button>
+    
+        </div>
+    
+      </div>
+    
+    </section>
+
+    <!-- =====================================================
+         📊 賽事營運數據
+    ===================================================== -->
+    <section class="space-y-3">
+    
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="w-2 h-5 bg-brand-600 rounded-full"></div>
+          <h3 class="font-black text-slate-900 text-base">
+            賽事營運數據
+          </h3>
+        </div>
+    
+        <span
+          id="seasonProgressText"
+          class="text-xs text-slate-500 font-bold">
+          賽季進度 --
+        </span>
+    
+      </div>
+    
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    
+        <!-- 全年賽程 -->
+    
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+    
+          <div class="flex items-center justify-between text-slate-500">
+            <span class="text-xs font-bold">
+              全年賽程總數
+            </span>
+    
+            <i data-lucide="trophy"
+               class="w-4 h-4 text-brand-600"></i>
+          </div>
+    
+          <div class="mt-2 flex items-baseline justify-between">
+    
+            <span
+              id="totalGames"
+              class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              --
+            </span>
+    
+            <span class="text-xs font-bold text-slate-400">
+              場賽事
+            </span>
+    
+          </div>
+    
+          <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3">
+            <div class="bg-brand-600 h-1.5 rounded-full w-full"></div>
+          </div>
+    
+        </div>
+    
+        <!-- 已完賽 -->
+    
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+    
+          <div class="flex items-center justify-between text-slate-500">
+            <span class="text-xs font-bold">
+              已完賽
+            </span>
+    
+            <i data-lucide="check-circle"
+               class="w-4 h-4 text-emerald-600"></i>
+          </div>
+    
+          <div class="mt-2 flex items-baseline justify-between">
+    
+            <span
+              id="completedGames"
+              class="text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight">
+              --
+            </span>
+    
+            <span
+              id="completedRate"
+              class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+    
+              --
+    
+            </span>
+    
+          </div>
+    
+          <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3">
+            <div
+              id="completedBar"
+              class="bg-emerald-500 h-1.5 rounded-full"
+              style="width:0%">
+            </div>
+          </div>
+    
+        </div>
+    
+        <!-- 未完賽 -->
+    
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+    
+          <div class="flex items-center justify-between text-slate-500">
+            <span class="text-xs font-bold">
+              未完賽
+            </span>
+    
+            <i data-lucide="hourglass"
+               class="w-4 h-4 text-brand-500"></i>
+          </div>
+    
+          <div class="mt-2 flex items-baseline justify-between">
+    
+            <span
+              id="pendingGames"
+              class="text-2xl sm:text-3xl font-black text-brand-600 tracking-tight">
+              --
+            </span>
+    
+            <span class="text-xs font-bold text-slate-400">
+              待執行
+            </span>
+    
+          </div>
+    
+          <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3">
+            <div
+              id="pendingBar"
+              class="bg-brand-500 h-1.5 rounded-full"
+              style="width:0%">
+            </div>
+          </div>
+    
+        </div>
+    
+        <!-- 本週賽事 -->
+    
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+    
+          <div class="flex items-center justify-between text-slate-500">
+            <span class="text-xs font-bold">
+              本週賽事
+            </span>
+    
+            <i data-lucide="flame"
+               class="w-4 h-4 text-amber-500"></i>
+          </div>
+    
+          <div class="mt-2 flex items-baseline justify-between">
+    
+            <span
+              id="weekGames"
+              class="text-2xl sm:text-3xl font-black text-amber-500 tracking-tight">
+              --
+            </span>
+    
+            <span class="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+              本週焦點
+            </span>
+    
+          </div>
+    
+          <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3">
+            <div
+              id="weekBar"
+              class="bg-amber-500 h-1.5 rounded-full"
+              style="width:0%">
+            </div>
+          </div>
+    
+        </div>
+    
+      </div>
+    
+    </section>
 
       <!-- METRICS SECTION 2: 人員結構與系統帳號 (Personnel & Accounts Cards) -->
       <section class="space-y-3">
