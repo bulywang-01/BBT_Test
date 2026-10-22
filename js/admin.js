@@ -451,27 +451,11 @@ function renderVacancyGames(data){
   const games =
     data.vacancyGames || [];
 
-  const cardContainer =
-    document.getElementById(
-      'vacancy-card-container'
-    );
-
-  const tableContainer =
-    document.getElementById(
-      'vacancy-table-container'
-    );
-
   if(window.innerWidth < 768){
-
-    cardContainer?.classList.remove('hidden');
-    tableContainer?.classList.add('hidden');
 
     renderVacancyCards(games);
 
   }else{
-
-    cardContainer?.classList.add('hidden');
-    tableContainer?.classList.remove('hidden');
 
     renderVacancyTable(games);
 
