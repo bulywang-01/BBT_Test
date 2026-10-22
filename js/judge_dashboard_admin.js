@@ -51,6 +51,68 @@ function changeDateFilter(date){
 }
 
 /* =========================
+ * 全部日期前先判斷
+* ========================= */
+function getDateStatus(date){
+
+  const games =
+    allGames.filter(
+      g => formatDate(g.date) === date
+    );
+
+  let hasRed = false;
+  let hasYellow = false;
+
+  games.forEach(game => {
+
+    const activeRoles = {
+      0:[],
+      1:['PU'],
+      2:['PU','U1'],
+      3:['PU','U1','U3'],
+      4:['PU','U1','U2','U3']
+    }[
+      Number(game.umpire_count ?? 0)
+    ] || [];
+
+    if(!activeRoles.length){
+      return;
+    }
+
+    let assignedCount = 0;
+
+    activeRoles.forEach(role => {
+
+      if(
+        game.positions?.[role]?.assigned
+      ){
+        assignedCount++;
+      }
+
+    });
+
+    if(assignedCount === 0){
+
+      hasRed = true;
+
+    }else if(
+      assignedCount < activeRoles.length
+    ){
+
+      hasYellow = true;
+
+    }
+
+  });
+
+  if(hasRed) return 'RED';
+  if(hasYellow) return 'YELLOW';
+
+  return 'GREEN';
+
+}
+
+/* =========================
  * 全部日期
 * ========================= */
 function renderDateTabs(){
@@ -64,7 +126,7 @@ function renderDateTabs(){
     return;
   }
 
-  const dates = [
+  let dates = [
     ...new Set(
       allGames.map(g =>
         formatDate(g.date)
@@ -72,39 +134,101 @@ function renderDateTabs(){
     )
   ];
 
+  dates.sort((a,b)=>{
+
+    const priority = {
+      RED:0,
+      YELLOW:1,
+      GREEN:2
+    };
+
+    const statusA =
+      getDateStatus(a);
+
+    const statusB =
+      getDateStatus(b);
+
+    if(
+      priority[statusA] !==
+      priority[statusB]
+    ){
+
+      return (
+        priority[statusA] -
+        priority[statusB]
+      );
+
+    }
+
+    return (
+      new Date(a.replace(/\//g,'-')) -
+      new Date(b.replace(/\//g,'-'))
+    );
+
+  });
+
   tabs.innerHTML = `
 
     <button
       onclick="changeDateFilter('ALL')"
       class="
-        px-3 py-1.5 rounded-xl text-xs font-bold
+        px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap
         ${
           currentDateFilter === 'ALL'
-            ? 'bg-slate-900 text-white'
-            : 'bg-slate-100 text-slate-600'
+          ? 'bg-slate-900 text-white'
+          : 'bg-slate-100 text-slate-600'
         }">
 
       全部日期
 
     </button>
 
-    ${dates.map(d => `
+    ${dates.map(date => {
 
-      <button
-        onclick="changeDateFilter('${d}')"
-        class="
-          px-3 py-1.5 rounded-xl text-xs font-bold
-          ${
-            currentDateFilter === d
-              ? 'bg-slate-900 text-white'
-              : 'bg-slate-100 text-slate-600'
-          }">
+      const status =
+        getDateStatus(date);
 
-        ${d}
+      let buttonClass =
+        'bg-emerald-500 text-white';
 
-      </button>
+      if(status === 'RED'){
 
-    `).join('')}
+        buttonClass =
+          'bg-rose-500 text-white';
+
+      }else
+      if(status === 'YELLOW'){
+
+        buttonClass =
+          'bg-amber-400 text-slate-900';
+
+      }
+
+      if(
+        currentDateFilter === date
+      ){
+
+        buttonClass +=
+          ' ring-2 ring-slate-900';
+
+      }
+
+      return `
+
+        <button
+          onclick="changeDateFilter('${date}')"
+          class="
+            px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap
+            ${buttonClass}
+          ">
+
+          ${date}
+
+        </button>
+
+      `;
+
+    }).join('')}
 
   `;
 
@@ -925,12 +1049,6 @@ function cancelJudgeSignup(
  *********************************************************/
 function renderKPI(){
 
-  const weekGames = allGames.length;
-
-  let vacancyCount = 0;
-  let assignedCount = 0;
-  let pendingGames = 0;
-
   const requiredRoles = {
     0:[],
     1:['PU'],
@@ -939,27 +1057,38 @@ function renderKPI(){
     4:['PU','U1','U2','U3']
   };
 
-  allGames.forEach(game => {
+  // 只統計未鎖定場次
+  const validGames = allGames.filter(
+    g => !g.is_locked
+  );
 
-    let gameHasVacancy = false;
+  const weekGames =
+    validGames.length;
+
+  let vacancyCount = 0;
+  let assignedCount = 0;
+  let pendingGames = 0;
+
+  validGames.forEach(game => {
 
     const activeRoles =
       requiredRoles[
         Number(game.umpire_count ?? 0)
       ] || [];
 
+    // 不需配置裁判
+    if(activeRoles.length === 0){
+      return;
+    }
+
+    let gameHasVacancy = false;
+
     activeRoles.forEach(role => {
 
       const pos =
         game.positions?.[role];
 
-      if(!pos){
-        vacancyCount++;
-        gameHasVacancy = true;
-        return;
-      }
-
-      if(pos.assigned){
+      if(pos?.assigned){
 
         assignedCount++;
 
@@ -999,3 +1128,4 @@ function renderKPI(){
   );
 
 }
+
