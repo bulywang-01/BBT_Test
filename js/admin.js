@@ -67,11 +67,24 @@ function loadDashboard(){
  *********************************************************/
 function renderDashboard(data){
 
+  console.log(
+    'Dashboard Data',
+    data
+  );
+
   if(
     !data ||
     data.result !== 'ok'
   ){
-    showToast('Dashboard 載入失敗');
+    console.error(
+      'Dashboard API Error',
+      data
+    );
+
+    showToast(
+      'Dashboard 載入失敗'
+    );
+
     return;
   }
 
@@ -81,11 +94,8 @@ function renderDashboard(data){
   renderVacancyGames(data);
   renderSidebar(data);
 
-  if(window.lucide){
-    lucide.createIcons();
-  }
-
 }
+
 
 /*********************************************************
  * Alert 區塊
