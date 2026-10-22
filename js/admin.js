@@ -781,6 +781,11 @@ function renderVacancyCards(games){
       'vacancy-card-container'
     );
   
+  console.log(
+    'vacancy-card-container=',
+    container
+  );
+  
 
   const footer =
     document.getElementById(
