@@ -36,18 +36,79 @@ function formatTime(t) {
  * 載入資料
  * ========================= */
 function loadGames() {
+
+  console.log('開始載入裁判班表...');
+
   callApi(
-    { action: 'getGamesWithAssignments_admin' },
+    {
+      action: 'getGamesWithAssignments_admin'
+    },
     res => {
-      if (!res || res.result !== 'ok') {
-        console.error('API 回傳異常', res);
+
+      console.log(
+        'judge dashboard data =',
+        res
+      );
+
+      if (
+        !res ||
+        res.result !== 'ok'
+      ) {
+
+        console.error(
+          'API 回傳異常',
+          res
+        );
+
+        const box =
+          document.getElementById('content');
+
+        if (box) {
+
+          box.innerHTML = `
+            <div class="bg-white rounded-2xl border border-rose-200 p-8 text-center text-rose-600">
+              載入失敗
+            </div>
+          `;
+
+        }
+
         return;
       }
-      allGames = res.games || [];
-      allJudges = res.judges || [];
+
+      allGames =
+        res.games || [];
+
+      allJudges =
+        res.judges || [];
+
+      console.log(
+        'games count =',
+        allGames.length
+      );
+
+      console.log(
+        'judges count =',
+        allJudges.length
+      );
+
+      const box =
+        document.getElementById('content');
+
+      if (!box) {
+
+        console.error(
+          '#content 不存在'
+        );
+
+        return;
+      }
+
       render();
+
     }
   );
+
 }
 
 /* =========================
@@ -76,50 +137,181 @@ function groupGames(games) {
   return map;
 }
 
-/* =========================
- * render 主畫面
- * ========================= */
-function render() {
-  const box = document.getElementById('content');
-  box.innerHTML = '';
+/*********************************************************
+ * Render 主畫面 V2
+ *********************************************************/
+function render(){
 
-  if (allGames.length === 0) {
-    box.innerHTML = '<p>目前沒有賽事</p>';
+  const box =
+    document.getElementById('content');
+
+  if(!box){
     return;
   }
 
-  const grouped = groupGames(allGames);
+  if(!allGames.length){
 
-  // ✅ 日期依真正時間排序
-  const dates = Object.keys(grouped).sort(
-    (a, b) => new Date(a.replace(/\//g, '-')) - new Date(b.replace(/\//g, '-'))
-  );
+    box.innerHTML = `
+      <div class="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-400">
+        目前沒有賽事資料
+      </div>
+    `;
 
-  dates.forEach(date => {
-    const datePanel = document.createElement('div');
-    datePanel.className = 'panel';
+    return;
 
-    const dateHeader = document.createElement('div');
-    dateHeader.className = 'game-header';
-    dateHeader.textContent = date;
-    datePanel.appendChild(dateHeader);
+  }
 
-    const categoryMap = grouped[date];
+  const grouped =
+    groupGames(allGames);
 
-    Object.keys(categoryMap).forEach(category => {
-      const categoryTitle = document.createElement('div');
-      categoryTitle.style.fontWeight = '700';
-      categoryTitle.style.margin = '10px 0 6px';
-      categoryTitle.textContent = category; // ✅ 一定是「大聯盟組 / 小聯盟組」
-      datePanel.appendChild(categoryTitle);
+  const dates =
+    Object.keys(grouped).sort(
+      (a,b)=>
+        new Date(a.replace(/\//g,'-')) -
+        new Date(b.replace(/\//g,'-'))
+    );
 
-      categoryMap[category].forEach(game => {
-        datePanel.appendChild(renderGameRow(game));
-      });
-    });
+  box.innerHTML = dates.map(date => {
 
-    box.appendChild(datePanel);
-  });
+    const categoryMap =
+      grouped[date];
+
+    return `
+
+      <div class="space-y-4">
+
+        <div class="flex items-center space-x-2 border-b-2 border-slate-200 pb-2">
+
+          <i data-lucide="calendar"
+             class="w-5 h-5 text-brand-600"></i>
+
+          <h3 class="text-base font-black text-slate-900">
+            ${date}
+          </h3>
+
+        </div>
+
+        ${Object.keys(categoryMap).map(category => `
+
+          <div class="mb-2">
+
+            <span
+              class="bg-slate-200 text-slate-700 text-xs px-2.5 py-0.5 rounded-full font-bold">
+
+              ${category}
+
+            </span>
+
+          </div>
+
+          ${categoryMap[category]
+            .map(game => renderGameCard(game))
+            .join('')}
+
+        `).join('')}
+
+      </div>
+
+    `;
+
+  }).join('');
+
+  if(window.lucide){
+    lucide.createIcons();
+  }
+
+}
+
+/*********************************************************
+ * 賽事卡片
+ *********************************************************/
+function renderGameCard(game){
+
+  const requiredRoles = {
+    1:['PU'],
+    2:['PU','U1'],
+    3:['PU','U1','U3'],
+    4:['PU','U1','U2','U3']
+  };
+
+  const roles =
+    requiredRoles[
+      Number(game.umpire_count || 4)
+    ] || ['PU','U1','U2','U3'];
+
+  const missingCount =
+    roles.filter(r =>
+      !game.positions?.[r]?.assigned
+    ).length;
+
+  return `
+
+    <div
+      id="game-${game.game_id}"
+      class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition mb-4">
+
+      <div class="bg-slate-50 px-5 py-3 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-2">
+
+        <div class="flex items-center space-x-3">
+
+          <span class="bg-brand-600 text-white text-xs font-black px-2.5 py-1 rounded-lg">
+
+            ${formatTime(game.time)}
+
+          </span>
+
+          <span class="font-black text-slate-900 text-base">
+
+            ${game.away_team}
+
+            <span class="text-slate-400 font-normal mx-1">
+              VS
+            </span>
+
+            ${game.home_team}
+
+          </span>
+
+        </div>
+
+        <div class="flex items-center gap-3 text-xs font-bold">
+
+          <span class="text-slate-500">
+
+            📍 ${game.field || '-'}
+
+          </span>
+
+          ${
+            missingCount > 0
+            ? `
+              <span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg border border-amber-200">
+                尚缺 ${missingCount} 位裁判
+              </span>
+            `
+            : `
+              <span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200">
+                已指派完畢
+              </span>
+            `
+          }
+
+        </div>
+
+      </div>
+
+      <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        ${['PU','U1','U2','U3']
+          .map(role => renderPosCell(game, role))
+          .join('')}
+
+      </div>
+
+    </div>
+
+  `;
+
 }
 
 /* =========================
