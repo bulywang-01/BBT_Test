@@ -818,7 +818,7 @@ function cancelJudgeSignup(
  *********************************************************/
 function renderKPI(){
 
-  const w*ekGames = allGames.length;
+  const weekGames = allGames.length;
 
   let *acancyCount = 0;
   let assignedCou*t = 0;
