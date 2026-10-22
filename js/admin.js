@@ -434,9 +434,21 @@ function renderVacancyGames(data){
 
   if(window.innerWidth < 768){
 
+    document
+      .getElementById(
+        'vacancy-card-container'
+      )
+      .classList.remove('hidden');
+
     renderVacancyCards(games);
 
   }else{
+
+    document
+      .getElementById(
+        'vacancy-card-container'
+      )
+      .classList.add('hidden');
 
     renderVacancyTable(games);
 
@@ -611,10 +623,11 @@ function renderVacancyTable(games){
  *********************************************************/
 function renderVacancyCards(games){
 
-  const tbody =
+  const container =
     document.getElementById(
-      'vacancy-table-body'
+      'vacancy-card-container'
     );
+  
 
   const footer =
     document.getElementById(
