@@ -3,6 +3,7 @@
  * ========================= */
 let allGames = [];
 let allJudges = [];
+let currentDateFilter = 'ALL';
 
 /* =========================
  * 站位中文對照
@@ -29,7 +30,6 @@ function setText(id, value){
   if(el){
     el.textContent = value;
   }
-
 }
 
 function formatDate(d) {
@@ -42,30 +42,40 @@ function formatTime(t) {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
+function changeDateFilter(date){
+  currentDateFilter = date;
+  renderDateTabs();
+  render();
+}
+
 /* =========================
  * 全部日期
 * ========================= */
 function renderDateTabs(){
 
   const tabs =
-    document.getElementById(
-      'dateTabs'
-    );
+    document.getElementById('dateTabs');
 
-  if(!tabs){
-    return;
-  }
+  if(!tabs) return;
 
-  const dates =
-    [...new Set(
+  const dates = [
+    ...new Set(
       allGames.map(g =>
         formatDate(g.date)
       )
-    )];
+    )
+  ];
 
   tabs.innerHTML = `
+
     <button
-      class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white">
+      onclick="changeDateFilter('ALL')"
+      class="
+        px-3 py-1.5 rounded-xl text-xs font-bold
+        ${currentDateFilter === 'ALL'
+          ? 'bg-slate-900 text-white'
+          : 'bg-slate-100 text-slate-600'}
+      ">
 
       全部日期
 
@@ -73,13 +83,21 @@ function renderDateTabs(){
 
     ${dates.map(d => `
       <button
-        class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">
+        onclick="changeDateFilter('${d}')"
+        class="
+          px-3 py-1.5 rounded-xl text-xs font-bold
+          ${currentDateFilter === d
+            ? 'bg-slate-900 text-white'
+            : 'bg-slate-100 text-slate-600'}
+        ">
 
         ${d}
 
       </button>
     `).join('')}
+
   `;
+
 }
 
 /* =========================
@@ -194,8 +212,17 @@ function render(){
 
   }
 
+  const filteredGames =
+    currentDateFilter === 'ALL'
+  
+    ? allGames
+  
+    : allGames.filter(g =>
+        formatDate(g.date) === currentDateFilter
+      );
+  
   const grouped =
-    groupGames(allGames);
+    groupGames(filteredGames);
 
   const dates =
     Object.keys(grouped).sort(
@@ -267,14 +294,14 @@ function renderGameCard(game){
     4:['PU','U1','U2','U3']
   };
 
-  const roles =
+  const activeRoles =
     requiredRoles[
       Number(game.umpire_count || 4)
     ] || ['PU','U1','U2','U3'];
 
   const missingCount =
-    roles.filter(r =>
-      !game.positions?.[r]?.assigned
+    activeRoles.filter(role =>
+      !game.positions?.[role]?.assigned
     ).length;
 
   return `
@@ -283,55 +310,73 @@ function renderGameCard(game){
       id="game-${game.game_id}"
       class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition mb-4">
 
-      <div class="bg-slate-50 px-5 py-3 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-2">
+      <!-- 比賽資訊 -->
 
-        <div class="flex items-center flex-wrap gap-3">
-        
-          <span class="bg-brand-600 text-white text-xs font-black px-2.5 py-1 rounded-lg">
+      <div class="bg-slate-50 px-5 py-3 border-b border-slate-100">
+
+        <div class="flex flex-wrap items-center gap-3">
+
+          <span
+            class="bg-brand-600 text-white text-xs font-black px-2.5 py-1 rounded-lg">
+
             ${formatTime(game.time)}
+
           </span>
-        
-          <span class="font-black text-slate-900 text-base">
+
+          <span
+            class="font-black text-slate-900 text-base">
+
             ${game.away_team}
-            <span class="text-slate-400 mx-1">VS</span>
+
+            <span class="text-slate-400 mx-1">
+              VS
+            </span>
+
             ${game.home_team}
+
           </span>
-        
-          <span class="text-xs text-slate-500">
-            📍 ${game.field || '-'}
-          </span>
-        
+
         </div>
 
-        <div class="flex items-center gap-3 text-xs font-bold">
+        <div
+          class="mt-2 flex flex-wrap items-center justify-between gap-2">
 
-          <span class="text-slate-500">
+          <div
+            class="text-xs text-slate-500">
 
             📍 ${game.field || '-'}
 
-          </span>
+          </div>
 
           ${
             missingCount > 0
-            ? `
-              <span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg border border-amber-200">
-                尚缺 ${missingCount} 位裁判
-              </span>
-            `
-            : `
-              <span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200">
-                已指派完畢
-              </span>
-            `
+              ? `
+                <span
+                  class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg border border-amber-200 text-xs font-bold">
+
+                  尚缺 ${missingCount} 位裁判
+
+                </span>
+              `
+              : `
+                <span
+                  class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 text-xs font-bold">
+
+                  已指派完畢
+
+                </span>
+              `
           }
 
         </div>
 
       </div>
 
-      <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- 裁判席位 -->
 
-        ${['PU','U1','U2','U3']
+      <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-${Math.min(activeRoles.length,4)} gap-4">
+
+        ${activeRoles
           .map(role => renderPosCell(game, role))
           .join('')}
 
@@ -340,32 +385,6 @@ function renderGameCard(game){
     </div>
 
   `;
-
-}
-
-/* =========================
- * render 單場比賽
- * ========================= */
-function renderGameRow(game) {
-  const wrap = document.createElement('div');
-  wrap.style.marginBottom = '14px';
-
-  const title = document.createElement('div');
-  title.style.fontWeight = '700';
-  title.style.marginBottom = '6px';
-  title.textContent =
-    `${formatTime(game.time)} ｜ ${game.away_team} vs ${game.home_team}`;
-  wrap.appendChild(title);
-
-  const grid = document.createElement('div');
-  grid.className = 'pos-grid';
-
-  ['PU', 'U1', 'U2', 'U3'].forEach(role => {
-    grid.insertAdjacentHTML('beforeend', renderPosCell(game, role));
-  });
-
-  wrap.appendChild(grid);
-  return wrap;
 }
 
 /*********************************************************
