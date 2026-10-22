@@ -257,25 +257,55 @@ function renderVacancyGames(data){
       'vacancy-table-body'
     );
 
-  if(!tbody){
-    return;
-  }
+  const footer =
+    document.getElementById(
+      'vacancy-table-footer'
+    );
+
+  const countBox =
+    document.getElementById(
+      'vacancyGameCount'
+    );
 
   const games =
     data.vacancyGames || [];
+
+  if(!tbody){
+    return;
+  }
 
   if(!games.length){
 
     tbody.innerHTML = `
       <tr>
         <td colspan="6"
-            class="text-center py-8 text-slate-500">
+            class="text-center py-10 text-slate-400">
           ✅ 本週無缺額賽事
         </td>
       </tr>
     `;
 
+    if(footer){
+      footer.textContent =
+        '本週無缺額賽事';
+    }
+
+    if(countBox){
+      countBox.textContent =
+        '共 0 場缺額賽事';
+    }
+
     return;
+  }
+
+  if(footer){
+    footer.textContent =
+      `顯示 ${games.length} 筆缺額賽事`;
+  }
+
+  if(countBox){
+    countBox.textContent =
+      `共 ${games.length} 場急需補人`;
   }
 
   tbody.innerHTML = games.map(g => {
@@ -283,7 +313,7 @@ function renderVacancyGames(data){
     const judgeBadges =
       (g.missingJudge || [])
         .map(x => `
-          <span class="badge badge-red">
+          <span class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 px-2 py-1 text-[11px] font-bold text-rose-700 mr-1">
             ${x}
           </span>
         `)
@@ -292,7 +322,7 @@ function renderVacancyGames(data){
     const recordBadges =
       (g.missingRecord || [])
         .map(x => `
-          <span class="badge badge-orange">
+          <span class="inline-flex items-center rounded-lg border border-amber-200 bg-amber-100 px-2 py-1 text-[11px] font-bold text-amber-700 mr-1">
             ${x}
           </span>
         `)
@@ -328,13 +358,15 @@ function renderVacancyGames(data){
 
         <td class="py-3 px-4">
 
-          ${g.away_team || ''}
-          VS
-          ${g.home_team || ''}
+          <div class="font-bold text-slate-900">
+            ${g.away_team || ''}
+            <span class="text-slate-400 mx-1">VS</span>
+            ${g.home_team || ''}
+          </div>
 
         </td>
 
-        <td class="py-3 px-4">
+        <td class="py-3 px-4 text-slate-600">
 
           ${g.field || ''}
 
@@ -350,10 +382,10 @@ function renderVacancyGames(data){
         <td class="py-3 px-4 text-right">
 
           <button
-            class="btn-action"
-            onclick="openAssignment('${g.game_id}')">
+            onclick="openAssignment('${g.game_id}')"
+            class="bg-brand-600 hover:bg-brand-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold">
 
-            指派
+            快速指派
 
           </button>
 
@@ -366,6 +398,7 @@ function renderVacancyGames(data){
   }).join('');
 
 }
+
 
 /*********************************************************
  * Sidebar
