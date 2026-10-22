@@ -448,7 +448,8 @@ function renderPeopleStats(data){
  *********************************************************/
 function renderVacancyGames(data){
 
-  const games = data.vacancyGames || [];
+  const games =
+    data.vacancyGames || [];
 
   const cardContainer =
     document.getElementById(
@@ -462,25 +463,15 @@ function renderVacancyGames(data){
 
   if(window.innerWidth < 768){
 
-    if(cardContainer){
-      cardContainer.classList.remove('hidden');
-    }
-
-    if(tableContainer){
-      tableContainer.classList.add('hidden');
-    }
+    cardContainer?.classList.remove('hidden');
+    tableContainer?.classList.add('hidden');
 
     renderVacancyCards(games);
 
   }else{
 
-    if(cardContainer){
-      cardContainer.classList.add('hidden');
-    }
-
-    if(tableContainer){
-      tableContainer.classList.remove('hidden');
-    }
+    cardContainer?.classList.add('hidden');
+    tableContainer?.classList.remove('hidden');
 
     renderVacancyTable(games);
 
@@ -771,129 +762,6 @@ function renderVacancyCards(games){
 
 }
 
-/*********************************************************
- * 缺額賽事 - 手機卡片版
- *********************************************************/
-function renderVacancyCards(games){
-
-  const container =
-    document.getElementById(
-      'vacancy-card-container'
-    );
-  
-  console.log(
-    'vacancy-card-container=',
-    container
-  );
-  
-
-  const footer =
-    document.getElementById(
-      'vacancy-table-footer'
-    );
-
-  const countBox =
-    document.getElementById(
-      'vacancyGameCount'
-    );
-
-  if(!tbody){
-    return;
-  }
-
-  if(!games.length){
-
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6"
-            class="text-center py-8 text-slate-400">
-          ✅ 本週無缺額賽事
-        </td>
-      </tr>
-    `;
-
-    return;
-  }
-
-  if(countBox){
-    countBox.textContent =
-      `共 ${games.length} 場急需補人`;
-  }
-
-  if(footer){
-    footer.textContent =
-      `顯示 ${games.length} 筆缺額賽事`;
-  }
-
-  tbody.innerHTML = `
-    <tr>
-      <td colspan="6" class="p-0">
-
-        ${games.map(g => `
-
-          <div class="border-b border-slate-200 p-4">
-
-            <div class="font-bold text-brand-700">
-              ${g.tournament}
-            </div>
-
-            <div class="text-xs text-slate-500 mb-2">
-              ${g.game_code}
-            </div>
-
-            <div class="font-semibold">
-              ${g.date} ${g.time}
-            </div>
-
-            <div class="mt-2 font-bold">
-              ${g.away_team}
-              <span class="text-slate-400">
-                VS
-              </span>
-              ${g.home_team}
-            </div>
-
-            <div class="text-sm text-slate-500 mt-1">
-              📍 ${g.field}
-            </div>
-
-            <div class="mt-3 flex flex-wrap gap-1">
-
-              ${(g.missingJudge || [])
-                .map(x => `
-                  <span class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 px-2 py-1 text-[11px] font-bold text-rose-700">
-                    ${x}
-                  </span>
-                `)
-                .join('')}
-
-              ${(g.missingRecord || [])
-                .map(x => `
-                  <span class="inline-flex items-center rounded-lg border border-amber-200 bg-amber-100 px-2 py-1 text-[11px] font-bold text-amber-700">
-                    ${x}
-                  </span>
-                `)
-                .join('')}
-
-            </div>
-
-            <button
-              onclick="openAssignment('${g.game_id}')"
-              class="mt-3 w-full bg-brand-600 hover:bg-brand-700 text-white py-2 rounded-lg text-sm font-bold">
-
-              快速指派
-
-            </button>
-
-          </div>
-
-        `).join('')}
-
-      </td>
-    </tr>
-  `;
-
-}
 
 /*********************************************************
  * Sidebar
