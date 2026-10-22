@@ -545,61 +545,111 @@
     
     </section>
 
-      <!-- METRICS SECTION 2: 人員結構與系統帳號 (Personnel & Accounts Cards) -->
-      <section class="space-y-3">
-        <div class="flex items-center space-x-2">
-          <div class="w-2 h-5 bg-indigo-600 rounded-full"></div>
-          <h3 class="font-black text-slate-900 text-base">人員與帳號結構數據</h3>
+    <!-- =====================================================
+         👥 人員與帳號結構數據
+    ===================================================== -->
+    <section class="space-y-3">
+    
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-5 bg-indigo-600 rounded-full"></div>
+        <h3 class="font-black text-slate-900 text-base">
+          人員與帳號結構數據
+        </h3>
+      </div>
+    
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    
+        <!-- 帳號總數 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+    
+          <div>
+            <span class="text-xs font-bold text-slate-500">
+              帳號總數
+            </span>
+    
+            <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
+              <span id="totalUsers">-</span>
+              <span class="text-xs font-normal text-slate-400">
+                人
+              </span>
+            </div>
+          </div>
+    
+          <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+            <i data-lucide="users" class="w-5 h-5"></i>
+          </div>
+    
         </div>
-
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          
-          <!-- Card 1: 帳號總數 -->
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div>
-              <span class="text-xs font-bold text-slate-500">帳號總數</span>
-              <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">52 <span class="text-xs font-normal text-slate-400">人</span></div>
-            </div>
-            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
-              <i data-lucide="users" class="w-5 h-5"></i>
-            </div>
-          </div>
-
-          <!-- Card 2: 裁判人數 -->
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div>
-              <span class="text-xs font-bold text-slate-500">裁判總人數</span>
-              <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">38 <span class="text-xs font-normal text-slate-400">人</span></div>
-            </div>
-            <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
-              <i data-lucide="flag" class="w-5 h-5"></i>
+    
+        <!-- 裁判總人數 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+    
+          <div>
+            <span class="text-xs font-bold text-slate-500">
+              裁判總人數
+            </span>
+    
+            <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
+              <span id="totalJudges">-</span>
+              <span class="text-xs font-normal text-slate-400">
+                人
+              </span>
             </div>
           </div>
-
-          <!-- Card 3: 紀錄人數 -->
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div>
-              <span class="text-xs font-bold text-slate-500">紀錄員總人數</span>
-              <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">10 <span class="text-xs font-normal text-slate-400">人</span></div>
-            </div>
-            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-              <i data-lucide="notebook-pen" class="w-5 h-5"></i>
-            </div>
+    
+          <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+            <i data-lucide="flag" class="w-5 h-5"></i>
           </div>
-
-          <!-- Card 4: 管理員人數 -->
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div>
-              <span class="text-xs font-bold text-slate-500">系統管理員</span>
-              <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">4 <span class="text-xs font-normal text-slate-400">人</span></div>
-            </div>
-            <div class="p-3 bg-purple-50 text-purple-600 rounded-xl">
-              <i data-lucide="shield-alert" class="w-5 h-5"></i>
-            </div>
-          </div>
-
+    
         </div>
-      </section>
+    
+        <!-- 紀錄員總人數 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+    
+          <div>
+            <span class="text-xs font-bold text-slate-500">
+              紀錄員總人數
+            </span>
+    
+            <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
+              <span id="totalRecords">-</span>
+              <span class="text-xs font-normal text-slate-400">
+                人
+              </span>
+            </div>
+          </div>
+    
+          <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+            <i data-lucide="notebook-pen" class="w-5 h-5"></i>
+          </div>
+    
+        </div>
+    
+        <!-- 系統管理員 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+    
+          <div>
+            <span class="text-xs font-bold text-slate-500">
+              系統管理員
+            </span>
+    
+            <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
+              <span id="totalAdmins">-</span>
+              <span class="text-xs font-normal text-slate-400">
+                人
+              </span>
+            </div>
+          </div>
+    
+          <div class="p-3 bg-purple-50 text-purple-600 rounded-xl">
+            <i data-lucide="shield-alert" class="w-5 h-5"></i>
+          </div>
+    
+        </div>
+    
+      </div>
+    
+    </section>
 
       <!-- DATA TABLE SECTION: 缺額賽事與即時指派控制台 (Missing Games Data Table) -->
       <section id="missing-games-section" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
