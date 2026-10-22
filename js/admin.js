@@ -778,14 +778,8 @@ function toggleSidebar(){
  *********************************************************/
 function openAssignment(gameId){
 
-  console.log(
-    'assign game',
-    gameId
-  );
-
-  showToast(
-    `開啟賽事 ${gameId}`
-  );
+  location.href =
+    `judge_dashboard_admin.html?gameId=${gameId}`;
 
 }
 
