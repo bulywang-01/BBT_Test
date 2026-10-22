@@ -825,62 +825,67 @@
     
       </div>
     
-      <!-- Table -->
-      <div class="overflow-x-auto">
-    
+      <!-- 手機版 Card -->
+      <div id="vacancy-card-container"
+           class="block md:hidden">
+      </div>
+      
+      <!-- 桌機版 Table -->
+      <div class="hidden md:block overflow-x-auto">
+      
         <table class="w-full text-left border-collapse">
-    
+      
           <thead>
-    
+      
             <tr class="bg-slate-50 text-slate-500 text-[11px] font-black uppercase tracking-wider border-b border-slate-200">
-    
+      
               <th class="py-3 px-4">
                 聯賽 / 場次
               </th>
-    
+      
               <th class="py-3 px-4">
                 賽事時間
               </th>
-    
+      
               <th class="py-3 px-4">
                 對戰隊伍
               </th>
-    
+      
               <th class="py-3 px-4">
                 球場地點
               </th>
-    
+      
               <th class="py-3 px-4">
                 缺額狀態
               </th>
-    
+      
               <th class="py-3 px-4 text-right">
                 管理員操作
               </th>
-    
+      
             </tr>
-    
+      
           </thead>
-    
+      
           <tbody
             id="vacancy-table-body"
             class="divide-y divide-slate-100 text-xs font-medium text-slate-700">
-    
+      
             <tr>
-    
+      
               <td colspan="6"
                   class="text-center py-10 text-slate-400">
-    
+      
                 載入中...
-    
+      
               </td>
-    
+      
             </tr>
-    
+      
           </tbody>
-    
+      
         </table>
-    
+      
       </div>
     
       <!-- Footer -->
