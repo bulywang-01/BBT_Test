@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BBT 出勤系統 - 裁判班表管理與指派</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#2563eb',
+              600: '#1d4ed8',
+              700: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    body { font-family: 'Noto Sans TC', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex">
+
+  <!-- 1. 左側後端導航欄 (Sidebar) -->
+  <aside class="w-64 bg-slate-900 text-slate-300 hidden md:flex flex-col justify-between shrink-0 shadow-xl border-r border-slate-800">
+    <div>
+      <!-- 系統 Logo 區 -->
+      <div class="h-16 flex items-center space-x-3 px-6 bg-slate-950 border-b border-slate-800">
+        <div class="bg-brand-600 p-2 rounded-xl text-white shadow-md">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="font-black text-white text-base tracking-wide">BBT 管理控制台</h1>
+          <p class="text-[10px] text-slate-400">出勤與排班後端管理系統</p>
+        </div>
+      </div>
+
+      <!-- 導航選單 -->
+      <nav class="p-4 space-y-1 text-sm font-semibold">
+        <div class="text-[11px] text-slate-500 font-bold px-3 py-2 uppercase tracking-wider">主控台</div>
+        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-400"></i>
+          <span>管理首頁 / 總覽</span>
+        </a>
+
+        <div class="text-[11px] text-slate-500 font-bold px-3 py-2 uppercase tracking-wider pt-4">賽事與排班</div>
+        <a href="#" class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-brand-600 text-white shadow-md">
+          <div class="flex items-center space-x-3">
+            <i data-lucide="calendar-range" class="w-4 h-4"></i>
+            <span>裁判班表管理</span>
+          </div>
+          <span class="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">2缺</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+          <i data-lucide="file-spreadsheet" class="w-4 h-4 text-slate-400"></i>
+          <span>紀錄員班表管理</span>
+        </a>
+
+        <div class="text-[11px] text-slate-500 font-bold px-3 py-2 uppercase tracking-wider pt-4">審核與權限</div>
+        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+          <i data-lucide="clipboard-check" class="w-4 h-4 text-slate-400"></i>
+          <span>出勤審核確認</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+          <i data-lucide="users" class="w-4 h-4 text-slate-400"></i>
+          <span>帳號與權限管理</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- 底部管理員 Profile -->
+    <div class="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-amber-500 text-slate-900 font-black flex items-center justify-center text-sm">王</div>
+        <div>
+          <div class="text-xs font-bold text-white">王韶文</div>
+          <div class="text-[10px] text-amber-400">最高系統管理員</div>
+        </div>
+      </div>
+      <button title="登出系統" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition">
+        <i data-lucide="log-out" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- 2. 右側主要操作區 (Main Content Area) -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+
+    <!-- 頂部 Header -->
+    <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 sticky top-0 z-20 shadow-sm">
+      <div class="flex items-center space-x-3">
+        <h2 class="font-black text-slate-900 text-lg">裁判班表與指派管理</h2>
+        <span class="text-xs bg-brand-50 text-brand-700 border border-brand-200 px-2.5 py-1 rounded-lg font-bold">2026 年度賽程</span>
+      </div>
+      <div class="flex items-center space-x-3">
+        <select class="bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none">
+          <option>2026-BBT聯賽</option>
+          <option>2026-BBT聯賽-育成組</option>
+        </select>
+        <button class="bg-brand-600 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow hover:bg-brand-700 transition flex items-center space-x-1">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>新增賽程場次</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 主內容面板 -->
+    <main class="p-6 space-y-6 max-w-7xl w-full mx-auto">
+
+      <!-- 快捷篩選與狀態列 -->
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center space-x-2 overflow-x-auto w-full sm:w-auto">
+          <button class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white shadow-sm whitespace-nowrap">全部日期</button>
+          <button class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition whitespace-nowrap">2026/11/07 (六)</button>
+          <button class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition whitespace-nowrap">2026/11/08 (日)</button>
+        </div>
+
+        <div class="flex items-center space-x-3 text-xs font-bold text-slate-500 shrink-0">
+          <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span><span>已滿編</span></span>
+          <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span><span>尚有缺額</span></span>
+          <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span><span>完全未指派</span></span>
+        </div>
+      </div>
+
+      <!-- 賽事日列表區 -->
+
+      <!-- 日期群組 1：2026/11/07 -->
+      <div class="space-y-4">
+        <div class="flex items-center space-x-2 border-b-2 border-slate-200 pb-2">
+          <i data-lucide="calendar" class="w-5 h-5 text-brand-600"></i>
+          <h3 class="text-base font-black text-slate-900">2026/11/07 (星期六)</h3>
+          <span class="bg-slate-200 text-slate-700 text-xs px-2.5 py-0.5 rounded-full font-bold">育成組</span>
+        </div>
+
+        <!-- 場次 1 卡片 (缺額狀態) -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition">
+          <!-- 場次 Header -->
+          <div class="bg-slate-50 px-5 py-3 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <div class="flex items-center space-x-3">
+              <span class="bg-brand-600 text-white text-xs font-black px-2.5 py-1 rounded-lg">08:00</span>
+              <span class="font-black text-slate-900 text-base">到齊隊 <span class="text-slate-400 font-normal mx-1">VS</span> 虎霸</span>
+            </div>
+            <div class="flex items-center space-x-3 text-xs font-bold">
+              <span class="text-slate-500 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> 八里國中棒球場</span>
+              <span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg border border-amber-200 flex items-center gap-1">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-amber-600"></i> 尚缺 2 位裁判
+              </span>
+            </div>
+          </div>
+
+          <!-- 四席裁判 Grid -->
+          <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- 主審 (未指派/開放指派) -->
+            <div class="bg-amber-50/50 border-2 border-dashed border-amber-300 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-amber-800 uppercase tracking-wider">主審</span>
+                <span class="text-[11px] font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded">尚未指派</span>
+              </div>
+              <div class="text-center py-1">
+                <p class="text-xs text-slate-400 font-medium mb-2">尚未選擇裁判</p>
+                <button onclick="openAssignModal('08:00 到齊隊 vs 虎霸', '主審')" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-2 rounded-lg shadow transition flex items-center justify-center space-x-1">
+                  <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                  <span>指派主審</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 一壘審 (未指派/開放指派) -->
+            <div class="bg-amber-50/50 border-2 border-dashed border-amber-300 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-amber-800 uppercase tracking-wider">一壘審</span>
+                <span class="text-[11px] font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded">尚未指派</span>
+              </div>
+              <div class="text-center py-1">
+                <p class="text-xs text-slate-400 font-medium mb-2">尚未選擇裁判</p>
+                <button onclick="openAssignModal('08:00 到齊隊 vs 虎霸', '一壘審')" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-2 rounded-lg shadow transition flex items-center justify-center space-x-1">
+                  <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                  <span>指派一壘</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 二壘審 (不指派) -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between opacity-60">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-500">二壘審</span>
+                <span class="text-[10px] text-slate-400 bg-slate-200 px-2 py-0.5 rounded">不指派</span>
+              </div>
+              <div class="text-center py-3 text-xs font-bold text-slate-400">
+                本場不配置
+              </div>
+            </div>
+
+            <!-- 三壘審 (不指派) -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between opacity-60">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-500">三壘審</span>
+                <span class="text-[10px] text-slate-400 bg-slate-200 px-2 py-0.5 rounded">不指派</span>
+              </div>
+              <div class="text-center py-3 text-xs font-bold text-slate-400">
+                本場不配置
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 場次 2 卡片 (已指派人員狀態) -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition">
+          <div class="bg-slate-50 px-5 py-3 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <div class="flex items-center space-x-3">
+              <span class="bg-slate-800 text-white text-xs font-black px-2.5 py-1 rounded-lg">10:30</span>
+              <span class="font-black text-slate-900 text-base">MK Stars <span class="text-slate-400 font-normal mx-1">VS</span> 世壯鄉民</span>
+            </div>
+            <div class="flex items-center space-x-3 text-xs font-bold">
+              <span class="text-slate-500 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> 新莊瓊林球場</span>
+              <span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 flex items-center gap-1">
+                <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i> 已指派完畢
+              </span>
+            </div>
+          </div>
+
+          <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- 主審 (已指派：周政宏) -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-700 uppercase tracking-wider">主審</span>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">已確認</span>
+              </div>
+              <div>
+                <div class="font-black text-base text-slate-900 mb-1">周政宏</div>
+                <div class="flex items-center space-x-1.5">
+                  <button onclick="openAssignModal('10:30 MK Stars vs 世壯鄉民', '主審')" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] py-1.5 rounded-lg transition">更換</button>
+                  <button class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold text-[11px] py-1.5 rounded-lg transition">刪除</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 一壘審 (已指派：孫翊翔) -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-700 uppercase tracking-wider">一壘審</span>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">已確認</span>
+              </div>
+              <div>
+                <div class="font-black text-base text-slate-900 mb-1">孫翊翔</div>
+                <div class="flex items-center space-x-1.5">
+                  <button onclick="openAssignModal('10:30 MK Stars vs 世壯鄉民', '一壘審')" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] py-1.5 rounded-lg transition">更換</button>
+                  <button class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold text-[11px] py-1.5 rounded-lg transition">刪除</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 二壘審 (不指派) -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 opacity-60">
+              <span class="text-xs font-bold text-slate-500 block mb-2">二壘審</span>
+              <div class="text-center py-2 text-xs font-bold text-slate-400">不指派</div>
+            </div>
+
+            <!-- 三壘審 (已指派：王韶文) -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-slate-700 uppercase tracking-wider">三壘審</span>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">已確認</span>
+              </div>
+              <div>
+                <div class="font-black text-base text-slate-900 mb-1">王韶文</div>
+                <div class="flex items-center space-x-1.5">
+                  <button onclick="openAssignModal('10:30 MK Stars vs 世壯鄉民', '三壘審')" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] py-1.5 rounded-lg transition">更換</button>
+                  <button class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold text-[11px] py-1.5 rounded-lg transition">刪除</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- 3. 全新互動式「指派裁判」彈出視窗 (Assignment Modal) -->
+  <div id="assignModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden transform transition-all">
+      
+      <!-- Modal Header -->
+      <div class="bg-slate-900 text-white p-5 flex items-center justify-between">
+        <div>
+          <h3 class="font-black text-base" id="modalTitle">指派人員 - 主審</h3>
+          <p class="text-xs text-slate-400 mt-0.5" id="modalMatchInfo">11/07 08:00 到齊隊 vs 虎霸</p>
+        </div>
+        <button onclick="closeAssignModal()" class="text-slate-400 hover:text-white p-1 rounded-lg transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- 搜尋列 -->
+      <div class="p-4 border-b border-slate-100 bg-slate-50">
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" placeholder="搜尋裁判姓名..." class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-brand-500 shadow-inner">
+        </div>
+      </div>
+
+      <!-- 裁判清單 (卡片式高質感網格) -->
+      <div class="p-4 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">請選擇欲指派的裁判人選：</p>
+
+        <div class="grid grid-cols-2 gap-2">
+          <!-- 裁判選項卡片 -->
+          <button onclick="selectReferee('周政宏')" class="p-3 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 border border-slate-200 rounded-xl text-left transition flex items-center justify-between group">
+            <div>
+              <div class="font-bold text-xs text-slate-800 group-hover:text-brand-700">周政宏</div>
+              <span class="text-[10px] text-slate-400">C級裁判</span>
+            </div>
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-600 opacity-0 group-hover:opacity-100 transition"></i>
+          </button>
+
+          <button onclick="selectReferee('孫翊翔')" class="p-3 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 border border-slate-200 rounded-xl text-left transition flex items-center justify-between group">
+            <div>
+              <div class="font-bold text-xs text-slate-800 group-hover:text-brand-700">孫翊翔</div>
+              <span class="text-[10px] text-slate-400">C級裁判</span>
+            </div>
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-600 opacity-0 group-hover:opacity-100 transition"></i>
+          </button>
+
+          <button onclick="selectReferee('(聘)林有樺')" class="p-3 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 border border-slate-200 rounded-xl text-left transition flex items-center justify-between group">
+            <div>
+              <div class="font-bold text-xs text-slate-800 group-hover:text-brand-700">(聘)林有樺</div>
+              <span class="text-[10px] text-amber-600 font-bold">外聘裁判</span>
+            </div>
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-600 opacity-0 group-hover:opacity-100 transition"></i>
+          </button>
+
+          <button onclick="selectReferee('王韶文')" class="p-3 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 border border-slate-200 rounded-xl text-left transition flex items-center justify-between group">
+            <div>
+              <div class="font-bold text-xs text-slate-800 group-hover:text-brand-700">王韶文</div>
+              <span class="text-[10px] text-slate-400">C級裁判</span>
+            </div>
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-600 opacity-0 group-hover:opacity-100 transition"></i>
+          </button>
+
+          <button onclick="selectReferee('陳澤宇')" class="p-3 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 border border-slate-200 rounded-xl text-left transition flex items-center justify-between group">
+            <div>
+              <div class="font-bold text-xs text-slate-800 group-hover:text-brand-700">陳澤宇</div>
+              <span class="text-[10px] text-slate-400">C級裁判</span>
+            </div>
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-600 opacity-0 group-hover:opacity-100 transition"></i>
+          </button>
+
+          <!-- 衝突提示樣式 -->
+          <button class="p-3 bg-rose-50 border border-rose-200 rounded-xl text-left opacity-75 cursor-not-allowed flex items-center justify-between">
+            <div>
+              <div class="font-bold text-xs text-slate-700">林勛恩</div>
+              <span class="text-[10px] text-rose-600 font-bold">⚠️ 當日時間衝突</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-end space-x-2">
+        <button onclick="closeAssignModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition">取消</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Lucide & Modal 觸發腳本 -->
+  <script>
+    lucide.createIcons();
+
+    function openAssignModal(matchInfo, role) {
+      document.getElementById('modalTitle').innerText = `指派人員 - ${role}`;
+      document.getElementById('modalMatchInfo').innerText = matchInfo;
+      document.getElementById('assignModal').classList.remove('hidden');
+    }
+
+    function closeAssignModal() {
+      document.getElementById('assignModal').classList.add('hidden');
+    }
+
+    function selectReferee(name) {
+      alert(`已成功指派 ${name}！`);
+      closeAssignModal();
+    }
+  </script>
+</body>
+</html>
