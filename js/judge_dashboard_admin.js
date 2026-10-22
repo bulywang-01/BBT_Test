@@ -321,10 +321,10 @@ function renderGameRow(game) {
   return wrap;
 }
 
-/* =========================
- * render 單一站位（你原本的邏輯，未動）
- * ========================= */
-function renderPosCell(game, role) {
+/*********************************************************
+ * 裁判站位卡
+ *********************************************************/
+function renderPosCell(game, role){
 
   const pos = game.positions[role];
 
@@ -355,33 +355,25 @@ function renderPosCell(game, role) {
   if(disabled){
 
     return `
-
       <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 opacity-60">
 
         <div class="flex items-center justify-between">
 
           <span class="text-xs font-bold text-slate-500">
-
             ${roleMap[role]}
-
           </span>
 
           <span class="text-[10px] text-slate-400 bg-slate-200 px-2 py-0.5 rounded">
-
             不指派
-
           </span>
 
         </div>
 
-        <div class="text-center py-3 text-xs font-bold text-slate-400">
-
+        <div class="text-center py-4 text-xs font-bold text-slate-400">
           本場不配置
-
         </div>
 
       </div>
-
     `;
   }
 
@@ -390,38 +382,31 @@ function renderPosCell(game, role) {
   if(pos.assigned){
 
     return `
-
       <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
 
         <div class="flex items-center justify-between">
 
           <span class="text-xs font-black text-slate-700">
-
             ${roleMap[role]}
-
           </span>
 
           <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
-
             已確認
-
           </span>
 
         </div>
 
         <div>
 
-          <div class="font-black text-base text-slate-900 mb-1">
-
+          <div class="font-black text-base text-slate-900 mb-2">
             ${pos.assigned.name || '未命名'}
-
           </div>
 
           <div class="flex gap-1">
 
             <button
               onclick="openAssignJudge('${game.game_id}','${role}')"
-              class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] py-1.5 rounded-lg">
+              class="flex-1 bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold py-1.5 rounded-lg">
 
               更換
 
@@ -429,7 +414,7 @@ function renderPosCell(game, role) {
 
             <button
               onclick="cancelJudgeAssignment('${game.game_id}','${role}')"
-              class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold text-[11px] py-1.5 rounded-lg">
+              class="flex-1 bg-rose-500 hover:bg-rose-600 text-white text-[11px] font-bold py-1.5 rounded-lg">
 
               刪除
 
@@ -440,38 +425,94 @@ function renderPosCell(game, role) {
         </div>
 
       </div>
+    `;
+  }
 
+  /* 已有人報名但尚未指派 */
+
+  if(
+    pos.preferred &&
+    pos.preferred.length > 0
+  ){
+
+    return `
+      <div class="bg-amber-50 border-2 border-dashed border-amber-300 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
+
+        <div class="flex items-center justify-between">
+
+          <span class="text-xs font-black text-amber-800">
+            ${roleMap[role]}
+          </span>
+
+          <span class="text-[11px] font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded">
+            ${pos.preferred.length} 人報名
+          </span>
+
+        </div>
+
+        <div class="space-y-2">
+
+          ${pos.preferred.map((j,index) => `
+
+            <div class="flex items-center justify-between text-xs">
+
+              <span class="font-medium text-slate-700">
+                ${index + 1}. ${j.name}
+              </span>
+
+              <button
+                onclick="
+                  cancelJudgeSignup(
+                    '${game.game_id}',
+                    '${role}',
+                    '${j.id}'
+                  )
+                "
+                class="bg-rose-500 hover:bg-rose-600 text-white text-[10px] px-2 py-0.5 rounded">
+
+                取消
+
+              </button>
+
+            </div>
+
+          `).join('')}
+
+        </div>
+
+        <button
+          onclick="openAssignJudge('${game.game_id}','${role}')"
+          class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-2 rounded-lg">
+
+          指派${roleMap[role]}
+
+        </button>
+
+      </div>
     `;
   }
 
   /* 尚未指派 */
 
   return `
-
     <div class="bg-amber-50/50 border-2 border-dashed border-amber-300 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
 
       <div class="flex items-center justify-between">
 
         <span class="text-xs font-black text-amber-800">
-
           ${roleMap[role]}
-
         </span>
 
         <span class="text-[11px] font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded">
-
           尚未指派
-
         </span>
 
       </div>
 
-      <div class="text-center py-1">
+      <div class="text-center py-3">
 
         <p class="text-xs text-slate-400 font-medium mb-2">
-
           尚未選擇裁判
-
         </p>
 
         <button
@@ -485,7 +526,6 @@ function renderPosCell(game, role) {
       </div>
 
     </div>
-
   `;
 }
 
