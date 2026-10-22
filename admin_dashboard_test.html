@@ -1,25 +1,26 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" class="h-full bg-slate-100">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BBT 出勤系統 - 後端管理控制台</title>
-
+  <title>BBT 出勤系統 - 後端管理員控制台</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            admin: {
-              50: '#f4f6f9',
-              100: '#e8ecef',
-              800: '#1e293b',
-              900: '#0f172a',
-            },
             brand: {
-              500: '#2563eb',
-              600: '#1d4ed8',
-              700: '#1e40af',
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
             }
           }
         }
@@ -28,261 +29,587 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
-    body { font-family: 'Noto Sans TC', sans-serif; }
+    body { 
+      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex">
+<body class="h-full antialiased text-slate-800 flex overflow-hidden">
 
-  <!-- 1. 左側後端導航欄 (Sidebar) -->
-  <aside class="w-64 bg-slate-900 text-slate-300 hidden md:flex flex-col justify-between shrink-0 shadow-xl border-r border-slate-800">
+  <!-- Mobile Overlay -->
+  <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity"></div>
+
+  <!-- 1. LEFT SIDEBAR (Dark Theme Admin Nav) -->
+  <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 z-50 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shrink-0 border-r border-slate-800 shadow-2xl lg:shadow-none">
     <div>
-      <!-- 系統 Logo 區 -->
-      <div class="h-16 flex items-center space-x-3 px-6 bg-slate-950 border-b border-slate-800">
-        <div class="bg-brand-600 p-2 rounded-xl text-white shadow-md">
-          <i data-lucide="shield-check" class="w-5 h-5"></i>
+      <!-- System Brand Logo Header -->
+      <div class="h-16 flex items-center justify-between px-5 bg-slate-950 border-b border-slate-800">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 text-white flex items-center justify-center shadow-md shadow-brand-500/20">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-black text-white text-base tracking-wide flex items-center gap-1.5">
+              BBT 管理中心
+            </h1>
+            <p class="text-[10px] font-bold text-slate-400">出勤與賽事後端控制台</p>
+          </div>
         </div>
-        <div>
-          <h1 class="font-black text-white text-base tracking-wide">BBT 管理控制台</h1>
-          <p class="text-[10px] text-slate-400">出勤與排班後端管理系統</p>
-        </div>
+        <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
 
-      <!-- 導航選單 -->
-      <nav class="p-4 space-y-1 text-sm font-semibold">
-        <div class="text-[11px] text-slate-500 font-bold px-3 py-2 uppercase tracking-wider">主控台</div>
-        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-brand-600 text-white shadow-md">
-          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-          <span>管理首頁 / 總覽</span>
+      <!-- Navigation Links -->
+      <nav class="p-3.5 space-y-1 text-xs font-semibold overflow-y-auto max-h-[calc(100vh-140px)]">
+        
+        <div class="text-[10px] text-slate-500 font-bold px-3 pt-2 pb-1 uppercase tracking-wider">主控數據中心</div>
+        <a href="#" class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-brand-600 text-white font-bold shadow-lg shadow-brand-600/30 transition">
+          <div class="flex items-center space-x-3">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            <span>管理總覽 (Dashboard)</span>
+          </div>
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
         </a>
 
-        <div class="text-[11px] text-slate-500 font-bold px-3 py-2 uppercase tracking-wider pt-4">賽事與排班</div>
-        <a href="#" class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+        <div class="text-[10px] text-slate-500 font-bold px-3 pt-4 pb-1 uppercase tracking-wider">賽程與人力排班</div>
+        <a href="#missing-games-section" class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition group">
           <div class="flex items-center space-x-3">
-            <i data-lucide="calendar-range" class="w-4 h-4 text-slate-400"></i>
+            <i data-lucide="calendar-range" class="w-4 h-4 text-slate-400 group-hover:text-brand-400 transition"></i>
             <span>賽程與裁判排班</span>
           </div>
-          <span class="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">2缺</span>
+          <span class="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">2 缺額</span>
         </a>
-        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
-          <i data-lucide="file-spreadsheet" class="w-4 h-4 text-slate-400"></i>
-          <span>紀錄員排班</span>
-        </a>
-
-        <div class="text-[11px] text-slate-500 font-bold px-3 py-2 uppercase tracking-wider pt-4">審核與出勤</div>
-        <a href="#" class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+        <a href="#" class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition group">
           <div class="flex items-center space-x-3">
-            <i data-lucide="clipboard-check" class="w-4 h-4 text-slate-400"></i>
-            <span>出勤審核確認</span>
+            <i data-lucide="file-spreadsheet" class="w-4 h-4 text-slate-400 group-hover:text-emerald-400 transition"></i>
+            <span>紀錄員班表排定</span>
           </div>
-          <span class="bg-amber-500 text-slate-900 text-[10px] font-black px-2 py-0.5 rounded-full">3待</span>
+          <span class="bg-emerald-950 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-800/50">額滿</span>
         </a>
 
-        <div class="text-[11px] text-slate-500 font-bold px-3 py-2 uppercase tracking-wider pt-4">系統權限與報表</div>
-        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
-          <i data-lucide="users" class="w-4 h-4 text-slate-400"></i>
-          <span>帳號與權限管理</span>
+        <div class="text-[10px] text-slate-500 font-bold px-3 pt-4 pb-1 uppercase tracking-wider">審核與出勤管理</div>
+        <a href="#pending-approvals-modal" onclick="showModal('待確認事項審核中心')" class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition group">
+          <div class="flex items-center space-x-3">
+            <i data-lucide="clipboard-check" class="w-4 h-4 text-slate-400 group-hover:text-amber-400 transition"></i>
+            <span>出勤確認與審核</span>
+          </div>
+          <span class="bg-amber-500 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full">3 待簽</span>
         </a>
-        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
-          <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-400"></i>
-          <span>年度出勤統計報表</span>
+        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition group">
+          <i data-lucide="user-minus" class="w-4 h-4 text-slate-400 group-hover:text-slate-200 transition"></i>
+          <span>請假與代班申請</span>
+        </a>
+
+        <div class="text-[10px] text-slate-500 font-bold px-3 pt-4 pb-1 uppercase tracking-wider">系統與數據報表</div>
+        <a href="#" class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition group">
+          <div class="flex items-center space-x-3">
+            <i data-lucide="users" class="w-4 h-4 text-slate-400 group-hover:text-indigo-400 transition"></i>
+            <span>帳號權限管理</span>
+          </div>
+          <span class="text-[10px] text-slate-500 font-mono">52帳號</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition group">
+          <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-400 group-hover:text-purple-400 transition"></i>
+          <span>裁判年度統計總表</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition group">
+          <i data-lucide="pie-chart" class="w-4 h-4 text-slate-400 group-hover:text-cyan-400 transition"></i>
+          <span>紀錄員年度統計表</span>
         </a>
       </nav>
     </div>
 
-    <!-- 底部管理員 Profile -->
-    <div class="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
+    <!-- Admin Profile Footer -->
+    <div class="p-3.5 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-xl bg-amber-500 text-slate-900 font-black flex items-center justify-center text-sm">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 font-black flex items-center justify-center text-sm shadow">
           王
         </div>
-        <div>
-          <div class="text-xs font-bold text-white">王韶文</div>
-          <div class="text-[10px] text-amber-400">最高系統管理員</div>
+        <div class="truncate">
+          <div class="text-xs font-bold text-white flex items-center gap-1">
+            <span>王韶文</span>
+            <span class="bg-amber-400/20 text-amber-300 text-[9px] px-1 rounded">Admin</span>
+          </div>
+          <div class="text-[10px] text-slate-400 truncate">wang@bbt-league.org</div>
         </div>
       </div>
-      <button title="登出系統" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition">
-        <i data-lucide="log-out" class="w-4 h-4"></i>
+      <button onclick="alert('已模擬安全登出！')" title="安全登出" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition">
+        <i data-lucide="log-out" class="w-4.5 h-4.5"></i>
       </button>
     </div>
   </aside>
 
-  <!-- 2. 右側主要操作區 (Main Header & Content) -->
-  <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+  <!-- 2. MAIN CONTENT AREA -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-100">
 
-    <!-- 頂部 Header -->
-    <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 sticky top-0 z-20">
+    <!-- Top Navigation Header -->
+    <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20 shrink-0 shadow-sm">
       <div class="flex items-center space-x-3">
-        <h2 class="font-black text-slate-900 text-lg">系統管理中心概觀</h2>
-        <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-bold">2026 年度賽季</span>
+        <button onclick="toggleSidebar()" class="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <div>
+          <h2 class="font-black text-slate-900 text-base sm:text-lg tracking-tight flex items-center gap-2">
+            <span>BBT 聯盟出勤管理中心</span>
+            <span class="hidden sm:inline-block text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">2026 賽季後端</span>
+          </h2>
+        </div>
       </div>
-      <div class="flex items-center space-x-3">
-        <a href="#" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition flex items-center space-x-1">
-          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-          <span>前往前台</span>
+
+      <!-- Top Header Right Controls -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <div class="hidden md:flex items-center bg-slate-100 rounded-xl px-3 py-1.5 border border-slate-200 text-xs text-slate-500">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 mr-2 text-brand-600"></i>
+          <span id="current-date-text">2026 年賽季執行中</span>
+        </div>
+
+        <button onclick="showToast('已更新最新出勤數據！')" class="p-2 text-slate-500 hover:text-brand-600 hover:bg-slate-100 rounded-xl transition relative" title="重新整理數據">
+          <i data-lucide="refresh-cw" class="w-4.5 h-4.5"></i>
+        </button>
+
+        <a href="#" onclick="alert('導引至前台裁判報名首頁')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shadow-sm">
+          <i data-lucide="external-link" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>前台報名端</span>
         </a>
       </div>
     </header>
 
-    <!-- 內容區 -->
-    <main class="p-6 space-y-6 max-w-7xl w-full mx-auto">
+    <!-- Scrollable Main Dashboard Container -->
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 max-w-7xl w-full mx-auto">
 
-      <!-- 第一層：告警與處理卡片 (High Priority Actions) -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- ALERT BLOCK: Real-time Shortage & Pending Approvals -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
         
-        <!-- 裁判缺額 -->
-        <div class="bg-white border-2 border-rose-200 rounded-2xl p-4 shadow-sm flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="p-3 bg-rose-500 text-white rounded-xl shadow-md">
-              <i data-lucide="user-x" class="w-6 h-6"></i>
-            </div>
+        <!-- Alert 1: 裁判缺額 -->
+        <div class="bg-gradient-to-br from-rose-500 to-rose-600 text-white rounded-2xl p-4 shadow-md shadow-rose-500/20 relative overflow-hidden flex flex-col justify-between group">
+          <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:scale-125 transition-transform"></div>
+          <div class="flex items-start justify-between relative z-10">
             <div>
-              <span class="text-xs font-bold text-rose-600">裁判缺額警告</span>
-              <div class="text-2xl font-black text-slate-900">2 <span class="text-xs font-normal text-slate-500">場次待補強</span></div>
+              <span class="text-[11px] font-black uppercase tracking-wider bg-black/20 px-2 py-0.5 rounded-md text-rose-100">緊急告警</span>
+              <h3 class="text-sm font-bold mt-1 text-white/90">裁判人力缺額</h3>
+            </div>
+            <div class="p-2.5 bg-white/20 rounded-xl backdrop-blur-md">
+              <i data-lucide="user-x" class="w-5 h-5 text-white"></i>
             </div>
           </div>
-          <button class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow">
-            立即指派
-          </button>
+          <div class="mt-3 flex items-baseline justify-between relative z-10">
+            <div>
+              <span class="text-3xl font-black tracking-tight">2</span>
+              <span class="text-xs text-rose-100 font-medium ml-1">場缺裁判</span>
+            </div>
+            <a href="#missing-games-section" class="bg-white text-rose-700 hover:bg-rose-50 text-xs font-black px-3 py-1.5 rounded-xl shadow transition flex items-center gap-1">
+              <span>立即補人</span>
+              <i data-lucide="arrow-right" class="w-3 h-3"></i>
+            </a>
+          </div>
         </div>
 
-        <!-- 紀錄缺額 -->
-        <div class="bg-white border-2 border-emerald-200 rounded-2xl p-4 shadow-sm flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="p-3 bg-emerald-500 text-white rounded-xl shadow-md">
-              <i data-lucide="check-circle-2" class="w-6 h-6"></i>
-            </div>
+        <!-- Alert 2: 紀錄缺額 -->
+        <div class="bg-white border-2 border-emerald-200 rounded-2xl p-4 shadow-sm flex flex-col justify-between relative overflow-hidden">
+          <div class="flex items-start justify-between">
             <div>
-              <span class="text-xs font-bold text-emerald-600">紀錄員缺額</span>
-              <div class="text-2xl font-black text-slate-900">0 <span class="text-xs font-normal text-slate-500">（全部額滿）</span></div>
+              <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">人力補齊</span>
+              <h3 class="text-sm font-bold text-slate-700 mt-1">紀錄員缺額</h3>
+            </div>
+            <div class="p-2.5 bg-emerald-100 text-emerald-600 rounded-xl">
+              <i data-lucide="check-circle-2" class="w-5 h-5"></i>
             </div>
           </div>
-          <span class="bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-lg">狀態良好</span>
+          <div class="mt-3 flex items-baseline justify-between">
+            <div>
+              <span class="text-3xl font-black text-slate-900">0</span>
+              <span class="text-xs text-emerald-600 font-bold ml-1.5">（本週名額皆滿）</span>
+            </div>
+            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center gap-1">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> 正常
+            </span>
+          </div>
         </div>
 
-        <!-- 待確認事項 -->
-        <div class="bg-white border-2 border-amber-200 rounded-2xl p-4 shadow-sm flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="p-3 bg-amber-500 text-white rounded-xl shadow-md">
-              <i data-lucide="clock" class="w-6 h-6"></i>
-            </div>
+        <!-- Alert 3: 待確認事項 -->
+        <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-4 shadow-md relative overflow-hidden flex flex-col justify-between">
+          <div class="flex items-start justify-between">
             <div>
-              <span class="text-xs font-bold text-amber-600">待審核/待確認</span>
-              <div class="text-2xl font-black text-slate-900">3 <span class="text-xs font-normal text-slate-500">筆提交紀錄</span></div>
+              <span class="text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-md border border-amber-500/30">審核隊列</span>
+              <h3 class="text-sm font-bold text-slate-200 mt-1">待審核與待確認</h3>
+            </div>
+            <div class="p-2.5 bg-amber-500 text-slate-950 rounded-xl shadow">
+              <i data-lucide="clock" class="w-5 h-5"></i>
             </div>
           </div>
-          <button class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow">
-            審核資料
-          </button>
+          <div class="mt-3 flex items-baseline justify-between">
+            <div>
+              <span class="text-3xl font-black text-amber-400">3</span>
+              <span class="text-xs text-slate-300 font-medium ml-1">筆申請待簽核</span>
+            </div>
+            <button onclick="showModal('待確認事項列表')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black px-3 py-1.5 rounded-xl shadow transition">
+              批次確認
+            </button>
+          </div>
         </div>
 
-      </div>
+      </section>
 
-      <!-- 第二層：賽事營運與進度數據 (Match Metrics) -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+      <!-- METRICS SECTION 1: 全年賽事營運數據 (Match Statistics Cards) -->
+      <section class="space-y-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-2">
-            <i data-lucide="trophy" class="w-5 h-5 text-brand-600"></i>
-            <h3 class="font-black text-slate-900 text-base">賽事營運數據概況</h3>
+            <div class="w-2 h-5 bg-brand-600 rounded-full"></div>
+            <h3 class="font-black text-slate-900 text-base">賽事營運數據 (年度總計)</h3>
           </div>
-          <span class="text-xs text-slate-500 font-medium">即時統計數據</span>
+          <span class="text-xs text-slate-500 font-bold">賽季進度: 65.6%</span>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <span class="text-xs font-bold text-slate-500">全年賽程數</span>
-            <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">128 <span class="text-xs font-normal text-slate-500">場</span></div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          
+          <!-- Card 1: 全年賽程數 -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex items-center justify-between text-slate-500">
+              <span class="text-xs font-bold">全年賽程總數</span>
+              <i data-lucide="trophy" class="w-4 h-4 text-brand-600"></i>
+            </div>
+            <div class="mt-2 flex items-baseline justify-between">
+              <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">128</span>
+              <span class="text-xs font-bold text-slate-400">場賽事</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
+              <div class="bg-brand-600 h-1.5 rounded-full" style="width: 100%"></div>
+            </div>
           </div>
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <span class="text-xs font-bold text-slate-500">已完賽</span>
-            <div class="text-2xl sm:text-3xl font-black text-emerald-600 mt-1">84 <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded text-xs">65.6%</span></div>
-          </div>
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <span class="text-xs font-bold text-slate-500">未完賽（剩餘）</span>
-            <div class="text-2xl sm:text-3xl font-black text-brand-600 mt-1">44 <span class="text-xs font-normal text-slate-500">場</span></div>
-          </div>
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <span class="text-xs font-bold text-slate-500">本週賽程</span>
-            <div class="text-2xl sm:text-3xl font-black text-amber-500 mt-1">6 <span class="text-xs font-normal text-slate-500">場</span></div>
-          </div>
-        </div>
-      </div>
 
-      <!-- 第三層：人員結構與帳號總計 (Personnel & Accounts) -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <!-- Card 2: 已完賽 -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex items-center justify-between text-slate-500">
+              <span class="text-xs font-bold">已順利完賽</span>
+              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+            </div>
+            <div class="mt-2 flex items-baseline justify-between">
+              <span class="text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight">84</span>
+              <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">65.6% 執行率</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
+              <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 65.6%"></div>
+            </div>
+          </div>
+
+          <!-- Card 3: 未完賽 -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex items-center justify-between text-slate-500">
+              <span class="text-xs font-bold">未完賽（剩餘）</span>
+              <i data-lucide="hourglass" class="w-4 h-4 text-brand-500"></i>
+            </div>
+            <div class="mt-2 flex items-baseline justify-between">
+              <span class="text-2xl sm:text-3xl font-black text-brand-600 tracking-tight">44</span>
+              <span class="text-xs font-bold text-slate-400">待執行場次</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
+              <div class="bg-brand-500 h-1.5 rounded-full" style="width: 34.4%"></div>
+            </div>
+          </div>
+
+          <!-- Card 4: 本週賽事 -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex items-center justify-between text-slate-500">
+              <span class="text-xs font-bold">本週賽事數量</span>
+              <i data-lucide="flame" class="w-4 h-4 text-amber-500"></i>
+            </div>
+            <div class="mt-2 flex items-baseline justify-between">
+              <span class="text-2xl sm:text-3xl font-black text-amber-500 tracking-tight">6</span>
+              <span class="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">本週焦點</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
+              <div class="bg-amber-500 h-1.5 rounded-full" style="width: 80%"></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- METRICS SECTION 2: 人員結構與系統帳號 (Personnel & Accounts Cards) -->
+      <section class="space-y-3">
         <div class="flex items-center space-x-2">
-          <i data-lucide="users" class="w-5 h-5 text-brand-600"></i>
+          <div class="w-2 h-5 bg-indigo-600 rounded-full"></div>
           <h3 class="font-black text-slate-900 text-base">人員與帳號結構數據</h3>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <div class="text-xs font-bold text-slate-500">帳號總數</div>
-            <div class="text-2xl font-black text-slate-900 mt-1">52 <span class="text-xs font-normal text-slate-500">人</span></div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          
+          <!-- Card 1: 帳號總數 -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-slate-500">帳號總數</span>
+              <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">52 <span class="text-xs font-normal text-slate-400">人</span></div>
+            </div>
+            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+              <i data-lucide="users" class="w-5 h-5"></i>
+            </div>
           </div>
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <div class="text-xs font-bold text-slate-500">裁判人數</div>
-            <div class="text-2xl font-black text-slate-900 mt-1">38 <span class="text-xs font-normal text-slate-500">人</span></div>
-          </div>
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <div class="text-xs font-bold text-slate-500">紀錄人數</div>
-            <div class="text-2xl font-black text-slate-900 mt-1">10 <span class="text-xs font-normal text-slate-500">人</span></div>
-          </div>
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <div class="text-xs font-bold text-slate-500">管理員人數</div>
-            <div class="text-2xl font-black text-slate-900 mt-1">4 <span class="text-xs font-normal text-slate-500">人</span></div>
-          </div>
-        </div>
-      </div>
 
-      <!-- 第四層：缺額賽事列表資料表 (Data Table for Missing Referees) -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+          <!-- Card 2: 裁判人數 -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-slate-500">裁判總人數</span>
+              <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">38 <span class="text-xs font-normal text-slate-400">人</span></div>
+            </div>
+            <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+              <i data-lucide="flag" class="w-5 h-5"></i>
+            </div>
+          </div>
+
+          <!-- Card 3: 紀錄人數 -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-slate-500">紀錄員總人數</span>
+              <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">10 <span class="text-xs font-normal text-slate-400">人</span></div>
+            </div>
+            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+              <i data-lucide="notebook-pen" class="w-5 h-5"></i>
+            </div>
+          </div>
+
+          <!-- Card 4: 管理員人數 -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-slate-500">系統管理員</span>
+              <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">4 <span class="text-xs font-normal text-slate-400">人</span></div>
+            </div>
+            <div class="p-3 bg-purple-50 text-purple-600 rounded-xl">
+              <i data-lucide="shield-alert" class="w-5 h-5"></i>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- DATA TABLE SECTION: 缺額賽事與即時指派控制台 (Missing Games Data Table) -->
+      <section id="missing-games-section" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        
+        <!-- Table Header & Controls -->
+        <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center space-x-3">
+            <div class="p-2 bg-rose-100 text-rose-600 rounded-xl">
+              <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="font-black text-slate-900 text-base">待處理缺額賽事清單</h3>
+              <p class="text-xs text-slate-500">此表格列出目前尚未排滿裁判/紀錄之場次，可直接進行管理員指派</p>
+            </div>
+          </div>
+          
           <div class="flex items-center space-x-2">
-            <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600"></i>
-            <h3 class="font-black text-slate-900 text-base">待處理缺額賽事清單</h3>
+            <span class="text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-xl">
+              共 2 場急需補人
+            </span>
+            <button onclick="showModal('快速新增賽事')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition shadow flex items-center gap-1">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <span>手動開班</span>
+            </button>
           </div>
-          <span class="text-xs font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-lg">共 2 場需急補裁判</span>
         </div>
 
+        <!-- RWD Scrollable Data Table -->
         <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs sm:text-sm">
-            <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
-              <tr>
-                <th class="p-3.5">賽事名稱</th>
-                <th class="p-3.5">日期/時間</th>
-                <th class="p-3.5">對決隊伍</th>
-                <th class="p-3.5">地點</th>
-                <th class="p-3.5">缺額職位</th>
-                <th class="p-3.5 text-right">操作</th>
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-[11px] font-black uppercase tracking-wider border-b border-slate-200">
+                <th class="py-3 px-4">聯賽 / 場次</th>
+                <th class="py-3 px-4">賽事時間</th>
+                <th class="py-3 px-4">對決隊伍</th>
+                <th class="py-3 px-4">球場地點</th>
+                <th class="py-3 px-4">目前人力配置與缺額</th>
+                <th class="py-3 px-4 text-right">管理員操作</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 font-semibold text-slate-700">
-              <tr class="hover:bg-slate-50">
-                <td class="p-3.5"><span class="bg-brand-100 text-brand-700 font-bold px-2 py-0.5 rounded">2026-BBT聯賽</span></td>
-                <td class="p-3.5">10/24 (六) 08:30</td>
-                <td class="p-3.5 font-bold text-slate-900">夢想家 VS PTTPE</td>
-                <td class="p-3.5">八里挖仔尾</td>
-                <td class="p-3.5"><span class="bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded">缺一壘審</span></td>
-                <td class="p-3.5 text-right"><button class="bg-brand-600 text-white font-bold px-3 py-1 rounded-lg hover:bg-brand-700 transition">手動指派</button></td>
+            <tbody class="divide-y divide-slate-100 text-xs font-medium text-slate-700">
+              
+              <!-- Row 1 -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-3.5 px-4 font-bold">
+                  <div class="flex items-center space-x-2">
+                    <span class="bg-brand-100 text-brand-700 text-[10px] font-black px-2 py-0.5 rounded border border-brand-200">#M-1024</span>
+                    <span class="text-slate-900">2026-BBT聯賽</span>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900">10/24 (六) 08:30</div>
+                  <div class="text-[10px] text-slate-400">第一場次</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-black text-slate-900 flex items-center space-x-1.5">
+                    <span>夢想家</span>
+                    <span class="text-[10px] font-normal text-slate-400">VS</span>
+                    <span>PTTPE</span>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-slate-600">
+                  <div class="flex items-center space-x-1">
+                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
+                    <span>八里挖仔尾 A 場</span>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="flex flex-wrap gap-1">
+                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px]">主審: 王韶文</span>
+                    <span class="bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded text-[11px] border border-rose-200 flex items-center gap-1">
+                      <i data-lucide="alert-circle" class="w-3 h-3"></i> 缺一壘審
+                    </span>
+                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px]">紀錄: 林有祥</span>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button onclick="assignReferee('2026-BBT聯賽 10/24 08:30', '一壘審')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-3 py-1.5 rounded-lg transition shadow-sm inline-flex items-center gap-1">
+                    <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                    <span>指派一壘審</span>
+                  </button>
+                </td>
               </tr>
-              <tr class="hover:bg-slate-50">
-                <td class="p-3.5"><span class="bg-brand-100 text-brand-700 font-bold px-2 py-0.5 rounded">2026-BBT聯賽</span></td>
-                <td class="p-3.5">10/24 (六) 10:30</td>
-                <td class="p-3.5 font-bold text-slate-900">戰神 VS 暴龍</td>
-                <td class="p-3.5">八里國中</td>
-                <td class="p-3.5"><span class="bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded">缺主審</span></td>
-                <td class="p-3.5 text-right"><button class="bg-brand-600 text-white font-bold px-3 py-1 rounded-lg hover:bg-brand-700 transition">手動指派</button></td>
+
+              <!-- Row 2 -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-3.5 px-4 font-bold">
+                  <div class="flex items-center space-x-2">
+                    <span class="bg-brand-100 text-brand-700 text-[10px] font-black px-2 py-0.5 rounded border border-brand-200">#M-1025</span>
+                    <span class="text-slate-900">2026-BBT聯賽</span>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900">10/24 (六) 10:30</div>
+                  <div class="text-[10px] text-slate-400">第二場次</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-black text-slate-900 flex items-center space-x-1.5">
+                    <span>戰神隊</span>
+                    <span class="text-[10px] font-normal text-slate-400">VS</span>
+                    <span>暴龍隊</span>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-slate-600">
+                  <div class="flex items-center space-x-1">
+                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
+                    <span>八里國中球場</span>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="flex flex-wrap gap-1">
+                    <span class="bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded text-[11px] border border-rose-200 flex items-center gap-1">
+                      <i data-lucide="alert-circle" class="w-3 h-3"></i> 缺主審
+                    </span>
+                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px]">一壘: 李大華</span>
+                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px]">紀錄: 張小美</span>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button onclick="assignReferee('2026-BBT聯賽 10/24 10:30', '主審')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-3 py-1.5 rounded-lg transition shadow-sm inline-flex items-center gap-1">
+                    <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                    <span>指派主審</span>
+                  </button>
+                </td>
               </tr>
+
             </tbody>
           </table>
         </div>
-      </div>
+        
+        <!-- Table Footer -->
+        <div class="p-3 bg-slate-50 border-t border-slate-200 text-center text-xs text-slate-500 font-semibold">
+          顯示 2 筆缺額賽事（資料每 30 秒自動整合更新）
+        </div>
+      </section>
 
     </main>
   </div>
 
+  <!-- MODAL / DRAWER DIALOG (Interactive Demo) -->
+  <div id="admin-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4 animate-in fade-in zoom-in duration-200">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 id="modal-title" class="font-black text-slate-900 text-base">指派裁判員</h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="modal-content" class="text-xs text-slate-600 space-y-3">
+        <p>請選擇欲手動指派進此場次的裁判員：</p>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">可用裁判名單 (依年資排序)</label>
+          <select id="referee-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-bold text-slate-800 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            <option value="張偉強">張偉強 (A級裁判 / 本週尚有空檔)</option>
+            <option value="陳建宏">陳建宏 (B級裁判 / 本週已執勤 1 場)</option>
+            <option value="黃裕翔">黃裕翔 (C級裁判 / 新進)</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
+        <button onclick="closeModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition">取消</button>
+        <button onclick="confirmAssignment()" class="px-4 py-2 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white transition shadow">確認補派</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toast-msg">操作成功</span>
+  </div>
+
   <script>
+    // Initialize Lucide Icons
     lucide.createIcons();
+
+    // Toggle Sidebar on Mobile
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    }
+
+    // Modal Control
+    function showModal(title) {
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('admin-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('admin-modal').classList.add('hidden');
+    }
+
+    function assignReferee(matchInfo, role) {
+      document.getElementById('modal-title').innerText = `指派 ${role} - ${matchInfo}`;
+      document.getElementById('admin-modal').classList.remove('hidden');
+    }
+
+    function confirmAssignment() {
+      closeModal();
+      const refName = document.getElementById('referee-select').value;
+      showToast(`已成功指派【${refName}】填補裁判缺額！`);
+    }
+
+    // Toast Notification logic
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
   </script>
 </body>
 </html>
