@@ -64,6 +64,16 @@ function isPositionFilled(pos){
 
 }
 
+function isPositionFilled(pos){
+  return !!(
+    pos?.assigned ||
+    (
+      Array.isArray(pos?.preferred) &&
+      pos.preferred.length > 0
+    )
+  );
+}
+
 /* =========================
  * 日期燈號
  * RED    = 完全沒人
@@ -99,22 +109,17 @@ function getDateStatus(date){
     let filledCount = 0;
 
     activeRoles.forEach(role => {
-
-      const pos =
-        game.positions?.[role];
-
-      const isFilled =
-        pos?.assigned ||
-        (
-          Array.isArray(pos?.preferred) &&
-          pos.preferred.length > 0
-        );
-
-      if(isFilled){
+    
+      if(
+        isPositionFilled(
+          game.positions?.[role]
+        )
+      ){
         filledCount++;
       }
-
+    
     });
+
 
     if(filledCount === 0){
 
@@ -466,18 +471,12 @@ function renderGameCard(game){
 
   const missingCount =
     activeRoles.filter(role => {
-
+  
       const pos =
         game.positions?.[role];
-
-      return !(
-        pos?.assigned ||
-        (
-          Array.isArray(pos?.preferred) &&
-          pos.preferred.length > 0
-        )
-      );
-
+  
+      return !isPositionFilled(pos);
+  
     }).length;
 
   return `
@@ -1074,7 +1073,7 @@ function renderKPI(){
       g => !g.is_locked
     );
 
-  const weekGames =
+  const yearGames =
     validGames.length;
 
   let vacancyCount = 0;
@@ -1099,32 +1098,18 @@ function renderKPI(){
       const pos =
         game.positions?.[role];
 
-      const hasAssigned =
-        !!pos?.assigned;
-
-      const hasPreferred =
-        Array.isArray(pos?.preferred) &&
-        pos.preferred.length > 0;
-
-      // 已指派
-      if(hasAssigned){
+      if(
+        isPositionFilled(pos)
+      ){
 
         assignedCount++;
-        return;
+
+      }else{
+
+        vacancyCount++;
+        gameHasVacancy = true;
 
       }
-
-      // 已報名（視同已有人）
-      if(hasPreferred){
-
-        assignedCount++;
-        return;
-
-      }
-
-      // 真正缺額
-      vacancyCount++;
-      gameHasVacancy = true;
 
     });
 
@@ -1136,7 +1121,7 @@ function renderKPI(){
 
   setText(
     'kpiWeekGames',
-    weekGames
+    yearGames
   );
 
   setText(
@@ -1153,5 +1138,33 @@ function renderKPI(){
     'kpiPending',
     pendingGames
   );
+
+  /* Sidebar 缺額 */
+
+  const badge =
+    document.getElementById(
+      'judgeVacancyBadge'
+    );
+
+  if(badge){
+
+    if(vacancyCount > 0){
+
+      badge.textContent =
+        `${vacancyCount}缺`;
+
+      badge.classList.remove(
+        'hidden'
+      );
+
+    }else{
+
+      badge.classList.add(
+        'hidden'
+      );
+
+    }
+
+  }
 
 }
