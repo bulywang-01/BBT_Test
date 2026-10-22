@@ -156,6 +156,21 @@
     font-weight:700;
 }
 
+.quick-panel{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+    margin-bottom:24px;
+}
+
+.quick-panel .card{
+    height:72px;
+}
+
+.quick-panel a{
+    text-decoration:none;
+    color:inherit;
+}
 /* =====================================
    Mobile
 ===================================== */
