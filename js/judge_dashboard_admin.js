@@ -5,6 +5,7 @@ let allGames = [];
 let allJudges = [];
 let currentDateFilter = 'ALL';
 
+
 /* =========================
  * 站位中文對照
  * ========================= */
@@ -42,6 +43,7 @@ function formatTime(t) {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
+// 日期切換
 function changeDateFilter(date){
   currentDateFilter = date;
   renderDateTabs();
@@ -54,9 +56,13 @@ function changeDateFilter(date){
 function renderDateTabs(){
 
   const tabs =
-    document.getElementById('dateTabs');
+    document.getElementById(
+      'dateTabs'
+    );
 
-  if(!tabs) return;
+  if(!tabs){
+    return;
+  }
 
   const dates = [
     ...new Set(
@@ -72,28 +78,32 @@ function renderDateTabs(){
       onclick="changeDateFilter('ALL')"
       class="
         px-3 py-1.5 rounded-xl text-xs font-bold
-        ${currentDateFilter === 'ALL'
-          ? 'bg-slate-900 text-white'
-          : 'bg-slate-100 text-slate-600'}
-      ">
+        ${
+          currentDateFilter === 'ALL'
+            ? 'bg-slate-900 text-white'
+            : 'bg-slate-100 text-slate-600'
+        }">
 
       全部日期
 
     </button>
 
     ${dates.map(d => `
+
       <button
         onclick="changeDateFilter('${d}')"
         class="
           px-3 py-1.5 rounded-xl text-xs font-bold
-          ${currentDateFilter === d
-            ? 'bg-slate-900 text-white'
-            : 'bg-slate-100 text-slate-600'}
-        ">
+          ${
+            currentDateFilter === d
+              ? 'bg-slate-900 text-white'
+              : 'bg-slate-100 text-slate-600'
+          }">
 
         ${d}
 
       </button>
+
     `).join('')}
 
   `;
@@ -288,6 +298,7 @@ function render(){
 function renderGameCard(game){
 
   const requiredRoles = {
+    0:[],
     1:['PU'],
     2:['PU','U1'],
     3:['PU','U1','U3'],
@@ -296,8 +307,8 @@ function renderGameCard(game){
 
   const activeRoles =
     requiredRoles[
-      Number(game.umpire_count || 4)
-    ] || ['PU','U1','U2','U3'];
+      Number(game.umpire_count ?? 0)
+    ] || [];
 
   const missingCount =
     activeRoles.filter(role =>
@@ -310,7 +321,7 @@ function renderGameCard(game){
       id="game-${game.game_id}"
       class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition mb-4">
 
-      <!-- 比賽資訊 -->
+      <!-- Header -->
 
       <div class="bg-slate-50 px-5 py-3 border-b border-slate-100">
 
@@ -341,46 +352,72 @@ function renderGameCard(game){
         <div
           class="mt-2 flex flex-wrap items-center justify-between gap-2">
 
-          <div
-            class="text-xs text-slate-500">
-
+          <div class="text-xs text-slate-500">
             📍 ${game.field || '-'}
-
           </div>
 
           ${
-            missingCount > 0
+            activeRoles.length === 0
               ? `
                 <span
-                  class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg border border-amber-200 text-xs font-bold">
+                  class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg text-xs font-bold">
 
-                  尚缺 ${missingCount} 位裁判
-
-                </span>
-              `
-              : `
-                <span
-                  class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 text-xs font-bold">
-
-                  已指派完畢
+                  不需裁判配置
 
                 </span>
               `
+              : missingCount > 0
+                ? `
+                  <span
+                    class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg border border-amber-200 text-xs font-bold">
+
+                    尚缺 ${missingCount} 位裁判
+
+                  </span>
+                `
+                : `
+                  <span
+                    class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 text-xs font-bold">
+
+                    已指派完畢
+
+                  </span>
+                `
           }
 
         </div>
 
       </div>
 
-      <!-- 裁判席位 -->
+      <!-- 席位區 -->
 
-      <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-${Math.min(activeRoles.length,4)} gap-4">
+      ${
+        activeRoles.length === 0
 
-        ${activeRoles
-          .map(role => renderPosCell(game, role))
-          .join('')}
+        ? `
 
-      </div>
+          <div class="p-8 text-center text-slate-400 text-sm font-bold">
+
+            本場賽事不配置裁判
+
+          </div>
+
+        `
+
+        : `
+
+          <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-${Math.min(activeRoles.length,4)} gap-4">
+
+            ${activeRoles
+              .map(role =>
+                renderPosCell(game, role)
+              )
+              .join('')}
+
+          </div>
+
+        `
+      }
 
     </div>
 
@@ -894,50 +931,49 @@ function renderKPI(){
   let assignedCount = 0;
   let pendingGames = 0;
 
+  const requiredRoles = {
+    0:[],
+    1:['PU'],
+    2:['PU','U1'],
+    3:['PU','U1','U3'],
+    4:['PU','U1','U2','U3']
+  };
+
   allGames.forEach(game => {
 
     let gameHasVacancy = false;
 
-    ['PU','U1','U2','U3'].forEach(role => {
+    const activeRoles =
+      requiredRoles[
+        Number(game.umpire_count ?? 0)
+      ] || [];
 
-      const pos = game.positions?.[role];
+    activeRoles.forEach(role => {
 
-      if(!pos) return;
+      const pos =
+        game.positions?.[role];
 
-      const assigned =
-        !!pos.assigned;
+      if(!pos){
+        vacancyCount++;
+        gameHasVacancy = true;
+        return;
+      }
 
-      if(assigned){
+      if(pos.assigned){
 
         assignedCount++;
 
       }else{
 
-        const activeRoles = {
-          1:['PU'],
-          2:['PU','U1'],
-          3:['PU','U1','U3'],
-          4:['PU','U1','U2','U3']
-        }[
-          Number(game.umpire_count || 4)
-        ] || ['PU','U1','U2','U3'];
-
-        if(activeRoles.includes(role)){
-
-          vacancyCount++;
-
-          gameHasVacancy = true;
-
-        }
+        vacancyCount++;
+        gameHasVacancy = true;
 
       }
 
     });
 
     if(gameHasVacancy){
-
       pendingGames++;
-
     }
 
   });
