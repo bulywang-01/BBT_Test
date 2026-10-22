@@ -11,6 +11,60 @@
  * 7. Modal
  * 8. Toast
  *********************************************************/
+/*********************************************************
+ * 共用工具
+ *********************************************************/
+
+/* 格式化時間 */
+function formatGameTime(time){
+
+  if (!time) return '';
+
+  if (
+    typeof time === 'string' &&
+    time.includes('T')
+  ){
+
+    const d = new Date(time);
+
+    return d.toLocaleTimeString(
+      'zh-TW',
+      {
+        hour:'2-digit',
+        minute:'2-digit',
+        hour12:false
+      }
+    );
+
+  }
+  return String(time).substring(0,5);
+}
+
+/* 管理頁登入驗證 */
+function guardAdminPage(){
+
+  const session =
+    JSON.parse(
+      localStorage.getItem(
+        'session_user'
+      ) || '{}'
+    );
+
+  if (!session.user_id){
+
+    alert('尚未登入');
+
+    location.replace(
+      'login.html'
+    );
+
+    return false;
+
+  }
+
+  return true;
+
+}
 
 /*********************************************************
  * 初始化
@@ -22,16 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
   loadDashboard();
 
 });
-
-function guardAdminPage(){
-  const session = JSON.parse(localStorage.getItem('session_user') || '{}');
-    if (!session.user_id){
-      alert('尚未登入');
-      location.replace('login.html');
-      return false;
-    }
-    return true;
-  }
 
 /*********************************************************
  * Header
@@ -51,13 +95,69 @@ function loadHeader(){
         container.innerHTML = html;
       }
 
-      if (window.lucide){
+      const session =
+        typeof getSession === 'function'
+          ? getSession()
+          : null;
+
+      document.body.classList.remove(
+        'role-admin',
+        'role-judge',
+        'role-record'
+      );
+
+      if (
+        session &&
+        session.role
+      ){
+
+        const roles =
+          session.role
+            .split(',')
+            .map(r => r.trim());
+
+        if (
+          roles.includes('admin')
+        ){
+          document.body.classList.add(
+            'role-admin'
+          );
+        }
+
+        if (
+          roles.includes('judge') ||
+          roles.includes('chief_judge')
+        ){
+          document.body.classList.add(
+            'role-judge'
+          );
+        }
+
+        if (
+          roles.includes('record') ||
+          roles.includes('record_chief')
+        ){
+          document.body.classList.add(
+            'role-record'
+          );
+        }
+
+      }
+
+      if(window.lucide){
         lucide.createIcons();
       }
 
+    })
+    .catch(err => {
+      console.error(
+        'Header 載入失敗',
+        err
+      );
     });
 
 }
+
 
 /*********************************************************
  * Dashboard 主入口
