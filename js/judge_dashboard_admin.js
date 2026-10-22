@@ -83,8 +83,12 @@ function isPositionFilled(pos){
 function getDateStatus(date){
 
   const games =
-    allGames.filter(
-      g => formatDate(g.date) === date
+    allGames.filter(g =>
+  
+      formatDate(g.date) === date &&
+  
+      Number(g.umpire_count ?? 0) > 0
+  
     );
 
   let hasRed = false;
@@ -382,13 +386,19 @@ function render(){
   }
 
   const filteredGames =
-    currentDateFilter === 'ALL'
   
-    ? allGames
+    (
+      currentDateFilter === 'ALL'
+        ? allGames
+        : allGames.filter(g =>
+          formatDate(g.date) ===
+          currentDateFilter
+        )
+    )
   
-    : allGames.filter(g =>
-        formatDate(g.date) === currentDateFilter
-      );
+    .filter(g =>
+      Number(g.umpire_count ?? 0) > 0
+    );
   
   const grouped =
     groupGames(filteredGames);
@@ -1069,8 +1079,9 @@ function renderKPI(){
   };
 
   const validGames =
-    allGames.filter(
-      g => !g.is_locked
+    allGames.filter(g =>
+     !g.is_locked &&
+      Number(g.umpire_count ?? 0) > 0
     );
 
   const yearGames =
