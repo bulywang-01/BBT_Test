@@ -37,11 +37,13 @@ function formatTime(t) {
  * ========================= */
 function loadGames() {
 
-  console.log('開始載入裁判班表...');
+  console.log(
+    'loadGames start'
+  );
 
   callApi(
     {
-      action: 'getGamesWithAssignments_admin'
+      action:'getGamesWithAssignments_admin'
     },
     res => {
 
@@ -50,10 +52,10 @@ function loadGames() {
         res
       );
 
-      if (
+      if(
         !res ||
         res.result !== 'ok'
-      ) {
+      ){
 
         console.error(
           'API 回傳異常',
@@ -61,13 +63,15 @@ function loadGames() {
         );
 
         const box =
-          document.getElementById('content');
+          document.getElementById(
+            'content'
+          );
 
-        if (box) {
+        if(box){
 
           box.innerHTML = `
-            <div class="bg-white rounded-2xl border border-rose-200 p-8 text-center text-rose-600">
-              載入失敗
+            <div class="bg-white rounded-2xl border border-rose-200 p-10 text-center text-rose-600 font-bold">
+              裁判班表資料載入失敗
             </div>
           `;
 
@@ -81,28 +85,6 @@ function loadGames() {
 
       allJudges =
         res.judges || [];
-
-      console.log(
-        'games count =',
-        allGames.length
-      );
-
-      console.log(
-        'judges count =',
-        allJudges.length
-      );
-
-      const box =
-        document.getElementById('content');
-
-      if (!box) {
-
-        console.error(
-          '#content 不存在'
-        );
-
-        return;
-      }
 
       render();
 
@@ -343,97 +325,168 @@ function renderGameRow(game) {
  * render 單一站位（你原本的邏輯，未動）
  * ========================= */
 function renderPosCell(game, role) {
+
   const pos = game.positions[role];
 
-  const requiredRolesByCount = {
-    1: ['PU'],
-    2: ['PU', 'U1'],
-    3: ['PU', 'U1', 'U3'],
-    4: ['PU', 'U1', 'U2', 'U3']
+  const roleMap = {
+    PU:'主審',
+    U1:'一壘審',
+    U2:'二壘審',
+    U3:'三壘審'
   };
-  const neededRoles = requiredRolesByCount[game.umpire_count] || [];
-  const isDisabled = !neededRoles.includes(role);
 
-  if (isDisabled) {
+  const requiredRoles = {
+    1:['PU'],
+    2:['PU','U1'],
+    3:['PU','U1','U3'],
+    4:['PU','U1','U2','U3']
+  };
+
+  const activeRoles =
+    requiredRoles[
+      Number(game.umpire_count || 4)
+    ] || ['PU','U1','U2','U3'];
+
+  const disabled =
+    !activeRoles.includes(role);
+
+  /* 不配置 */
+
+  if(disabled){
+
     return `
-      <div class="pos-cell">
-        <div class="role">${ROLE_LABEL[role]}</div>
-        <div>不指派</div>
-      </div>`;
+
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 opacity-60">
+
+        <div class="flex items-center justify-between">
+
+          <span class="text-xs font-bold text-slate-500">
+
+            ${roleMap[role]}
+
+          </span>
+
+          <span class="text-[10px] text-slate-400 bg-slate-200 px-2 py-0.5 rounded">
+
+            不指派
+
+          </span>
+
+        </div>
+
+        <div class="text-center py-3 text-xs font-bold text-slate-400">
+
+          本場不配置
+
+        </div>
+
+      </div>
+
+    `;
   }
 
-  if (pos.assigned) {
+  /* 已指派 */
+
+  if(pos.assigned){
+
     return `
-      <div class="pos-cell assigned">
-        <div class="role">${ROLE_LABEL[role]}</div>
-        <div class="judge">${pos.assigned.name || '（未知裁判）'}</div>
-        <button class="btn-change" onclick="openAssignJudge('${game.game_id}', '${role}')">更換</button>
-        <button class="btn-cancel" onclick="cancelJudgeAssignment('${game.game_id}','${role}')">刪除</button>
-      </div>`;
+
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
+
+        <div class="flex items-center justify-between">
+
+          <span class="text-xs font-black text-slate-700">
+
+            ${roleMap[role]}
+
+          </span>
+
+          <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+
+            已確認
+
+          </span>
+
+        </div>
+
+        <div>
+
+          <div class="font-black text-base text-slate-900 mb-1">
+
+            ${pos.assigned.name || '未命名'}
+
+          </div>
+
+          <div class="flex gap-1">
+
+            <button
+              onclick="openAssignJudge('${game.game_id}','${role}')"
+              class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] py-1.5 rounded-lg">
+
+              更換
+
+            </button>
+
+            <button
+              onclick="cancelJudgeAssignment('${game.game_id}','${role}')"
+              class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold text-[11px] py-1.5 rounded-lg">
+
+              刪除
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
   }
 
-      let preferredText = '尚未報名';
-      
-      if (pos.preferred && pos.preferred.length > 0){
-      
-        const list = pos.preferred;
-      
-        preferredText = list.map((j, i) => {
-        
-          const prefix =
-            i === 0
-              ? ''
-              : (['①','②','③','④','⑤'][i] || `(${i+1})`) + ' ';
-        
-          return `
-            <div
-              style="
-                display:flex;
-                justify-content:center;
-                align-items:center;
-                gap:6px;
-                margin:4px 0;
-              "
-            >
-        
-              <span>
-                ${prefix}${j.name}
-              </span>
-        
-              <button
-                style="
-                  background:#ef4444;
-                  color:#fff;
-                  border:none;
-                  border-radius:6px;
-                  padding:2px 8px;
-                  cursor:pointer;
-                  font-size:12px;
-                "
-                onclick="
-                  cancelJudgeSignup(
-                    '${game.game_id}',
-                    '${role}',
-                    '${j.id}'
-                  )
-                "
-              >
-                取消
-              </button>
-        
-            </div>
-          `;
-        
-        }).join('');
-      }
+  /* 尚未指派 */
 
   return `
-    <div class="pos-cell">
-      <div class="role">${ROLE_LABEL[role]}</div>
-      <div class="judge preferred">${preferredText}</div>
-      <button class="btn-assign"
-        onclick="openAssignJudge('${game.game_id}', '${role}')">指派</button>
-    </div>`;
+
+    <div class="bg-amber-50/50 border-2 border-dashed border-amber-300 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
+
+      <div class="flex items-center justify-between">
+
+        <span class="text-xs font-black text-amber-800">
+
+          ${roleMap[role]}
+
+        </span>
+
+        <span class="text-[11px] font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded">
+
+          尚未指派
+
+        </span>
+
+      </div>
+
+      <div class="text-center py-1">
+
+        <p class="text-xs text-slate-400 font-medium mb-2">
+
+          尚未選擇裁判
+
+        </p>
+
+        <button
+          onclick="openAssignJudge('${game.game_id}','${role}')"
+          class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-2 rounded-lg">
+
+          指派${roleMap[role]}
+
+        </button>
+
+      </div>
+
+    </div>
+
+  `;
 }
 
 /* =========================
@@ -552,12 +605,6 @@ window.openAssignJudge = function (gameId, role) {
     }
   });
 };
-
-/*
-function closeJudgeModal() {
-  document.getElementById('judgeModal').classList.add('hidden');
-}
-*/
 
 /* 改成掛在 window */
 window.closeJudgeModal = function () {
