@@ -468,9 +468,6 @@ function renderVacancyTable(games){
     return;
   }
 
-  const games =
-    data.vacancyGames || [];
-
   if(!games.length){
 
     tbody.innerHTML = `
