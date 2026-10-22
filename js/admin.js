@@ -699,47 +699,56 @@ function renderVacancyCards(games){
       `).join('');
 
     return `
-
+    
       <div class="border-b border-slate-200 p-4">
-
-        <div class="font-bold text-brand-700">
-          ${g.tournament || ''}
+    
+        <div class="flex items-center justify-between">
+    
+          <div class="font-bold text-brand-700">
+            ${g.tournament || ''}
+          </div>
+    
+          <div class="text-xs text-slate-500">
+            ${g.game_code || ''}
+          </div>
+    
         </div>
-
-        <div class="text-xs text-slate-500">
-          ${g.game_code || ''}
+    
+        <div class="mt-3 flex items-center justify-between">
+    
+          <div class="font-semibold text-slate-900">
+            ${g.date || ''} ${g.time || ''}
+          </div>
+    
+          <div class="font-bold text-slate-900 text-right">
+            ${g.away_team || ''}
+            <span class="text-slate-400 px-1">
+              VS
+            </span>
+            ${g.home_team || ''}
+          </div>
+    
         </div>
-
-        <div class="mt-2 font-semibold">
-          ${g.date || ''}
-          ${g.time || ''}
-        </div>
-
-        <div class="mt-2 font-bold text-slate-900">
-          ${g.away_team || ''}
-          <span class="text-slate-400">VS</span>
-          ${g.home_team || ''}
-        </div>
-
+    
         <div class="mt-1 text-sm text-slate-500">
           📍 ${g.field || ''}
         </div>
-
+    
         <div class="mt-3 flex flex-wrap gap-1">
           ${judgeBadges}
           ${recordBadges}
         </div>
-
+    
         <button
           class="mt-3 w-full bg-brand-600 hover:bg-brand-700 text-white py-2 rounded-lg text-sm font-bold"
           onclick="openAssignment('${g.game_id}')">
-
+    
           快速指派
-
+    
         </button>
-
+    
       </div>
-
+    
     `;
 
   }).join('');
