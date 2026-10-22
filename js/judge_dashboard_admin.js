@@ -15,12 +15,22 @@ const ROLE_LABEL = {
 };
 
 /* =========================
- * 工具
+ * 共用工具
  * ========================= */
 // ✅ 目前登入使用者（裁判長 / admin）
 const session = JSON.parse(localStorage.getItem('session_user') || '{}');
 const CURRENT_USER_ID = session.user_id || '';
 
+function setText(id, value){
+
+  const el =
+    document.getElementById(id);
+
+  if(el){
+    el.textContent = value;
+  }
+
+}
 
 function formatDate(d) {
   const x = new Date(d);
@@ -30,6 +40,46 @@ function formatDate(d) {
 function formatTime(t) {
   const d = new Date(t);
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+/* =========================
+ * 全部日期
+* ========================= */
+function renderDateTabs(){
+
+  const tabs =
+    document.getElementById(
+      'dateTabs'
+    );
+
+  if(!tabs){
+    return;
+  }
+
+  const dates =
+    [...new Set(
+      allGames.map(g =>
+        formatDate(g.date)
+      )
+    )];
+
+  tabs.innerHTML = `
+    <button
+      class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white">
+
+      全部日期
+
+    </button>
+
+    ${dates.map(d => `
+      <button
+        class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">
+
+        ${d}
+
+      </button>
+    `).join('')}
+  `;
 }
 
 /* =========================
@@ -88,6 +138,7 @@ function loadGames() {
 
       render();
       renderKPI();
+      renderDateTabs();
     }
   );
 
