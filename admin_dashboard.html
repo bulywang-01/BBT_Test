@@ -916,12 +916,8 @@
       <div id="modal-content" class="text-xs text-slate-600 space-y-3">
         <p>請選擇欲手動指派進此場次的裁判員：</p>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">可用裁判名單 (依年資排序)</label>
-          <select id="referee-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-bold text-slate-800 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
-            <option value="張偉強">張偉強 (A級裁判 / 本週尚有空檔)</option>
-            <option value="陳建宏">陳建宏 (B級裁判 / 本週已執勤 1 場)</option>
-            <option value="黃裕翔">黃裕翔 (C級裁判 / 新進)</option>
-          </select>
+          <label class="block font-bold text-slate-700 mb-1">可用裁判名單</label>
+請稍後
         </div>
       </div>
       <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
@@ -962,12 +958,6 @@
     function assignReferee(matchInfo, role) {
       document.getElementById('modal-title').innerText = `指派 ${role} - ${matchInfo}`;
       document.getElementById('admin-modal').classList.remove('hidden');
-    }
-
-    function confirmAssignment() {
-      closeModal();
-      const refName = document.getElementById('referee-select').value;
-      showToast(`已成功指派【${refName}】填補裁判缺額！`);
     }
 
     // Toast Notification logic
