@@ -184,6 +184,7 @@ function renderDashboard(data){
     !data ||
     data.result !== 'ok'
   ){
+
     console.error(
       'Dashboard API Error',
       data
@@ -194,13 +195,31 @@ function renderDashboard(data){
     );
 
     return;
+
   }
 
+  // ✅ 保存 Dashboard 資料
+  window._dashboardData = data;
+
+  // ✅ Alert
   renderAlerts(data);
+
+  // ✅ 賽事 KPI
   renderMatchStats(data);
+
+  // ✅ 人員 KPI
   renderPeopleStats(data);
+
+  // ✅ 缺額賽事
   renderVacancyGames(data);
+
+  // ✅ Sidebar
   renderSidebar(data);
+
+  // ✅ Lucide Icons 重新渲染
+  if(window.lucide){
+    lucide.createIcons();
+  }
 
 }
 
@@ -425,12 +444,11 @@ function renderPeopleStats(data){
 
 
 /*********************************************************
- * 缺額賽事表格　—　主要呼叫版
+ * 缺額賽事表格
  *********************************************************/
 function renderVacancyGames(data){
 
-  const games =
-    data.vacancyGames || [];
+  const games = data.vacancyGames || [];
 
   const cardContainer =
     document.getElementById(
@@ -438,8 +456,8 @@ function renderVacancyGames(data){
     );
 
   const tableContainer =
-    document.querySelector(
-      '.hidden.md\\:block'
+    document.getElementById(
+      'vacancy-table-container'
     );
 
   if(window.innerWidth < 768){
@@ -979,3 +997,18 @@ function setText(id,value){
   }
 
 }
+
+/*********************************************************
+ * RWD 自動切換
+ *********************************************************/
+window.addEventListener('resize', () => {
+
+  if(window._dashboardData){
+
+    renderVacancyGames(
+      window._dashboardData
+    );
+
+  }
+
+});
