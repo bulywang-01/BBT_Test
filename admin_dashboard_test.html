@@ -1,405 +1,25 @@
-<!DOCTYPE1 html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BBT出勤系統管理中心</title>
-
-  
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0f7ff',
-              100: '#e0effe',
-              500: '#1d63ed',
-              600: '#134cd8',
-              700: '#103bb2',
-              900: '#0f2963',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
-    body {
-      font-family: 'Noto Sans TC', 'Inter', sans-serif;
-    }
-    .custom-scrollbar::-webkit-scrollbar {
-      height: 6px;
-      width: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-  </style>
-</head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col pb-24 md:pb-12">
-
-  <!-- 頂部導航列 (Top Header) -->
-  <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <!-- Logo & 系統標題 -->
-        <div class="flex items-center space-x-3">
-          <div class="bg-brand-500 p-2 rounded-xl text-white shadow-lg shadow-brand-500/30">
-            <i data-lucide="shield-alert" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <div class="flex items-center space-x-2">
-              <span class="font-bold text-lg tracking-wide">BBT 棒球聯盟</span>
-              <span class="bg-brand-500/20 text-brand-300 text-xs px-2 py-0.5 rounded-full border border-brand-500/30">裁判執勤端</span>
-            </div>
-            <p class="text-xs text-slate-400 hidden sm:block">裁判班表查詢與跨賽事快速報名系統</p>
-          </div>
-        </div>
-
-        <!-- 桌機版用戶資訊與功能選項 -->
-        <div class="hidden md:flex items-center space-x-6">
-          <nav class="flex space-x-1">
-            <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium bg-slate-800 text-brand-400 flex items-center space-x-1.5 border border-slate-700">
-              <i data-lucide="calendar" class="w-4 h-4"></i>
-              <span>裁判班表</span>
-            </a>
-            <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center space-x-1.5">
-              <i data-lucide="clipboard-list" class="w-4 h-4"></i>
-              <span>紀錄班表</span>
-            </a>
-            <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center space-x-1.5">
-              <i data-lucide="lock" class="w-4 h-4"></i>
-              <span>修改密碼</span>
-            </a>
-          </nav>
-
-          <div class="h-6 w-px bg-slate-700"></div>
-
-          <!-- 使用者 Profile -->
-          <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-full bg-brand-600 border-2 border-brand-400 flex items-center justify-center font-bold text-sm shadow">
-              林
-            </div>
-            <div class="text-left">
-              <div class="text-sm font-semibold flex items-center space-x-1">
-                <span>林有樺</span>
-                <span class="bg-amber-400/20 text-amber-300 text-[10px] px-1.5 py-0.2 rounded border border-amber-400/30">C級裁判</span>
-              </div>
-              <p class="text-xs text-slate-400">登入中</p>
-            </div>
-            <button title="登出系統" class="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition">
-              <i data-lucide="log-out" class="w-5 h-5"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- 手機版右側 Quick Info -->
-        <div class="flex items-center space-x-2 md:hidden">
-          <div class="flex items-center space-x-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
-            <div class="w-6 h-6 rounded-full bg-brand-600 flex items-center justify-center text-xs font-bold">林</div>
-            <span class="text-xs font-medium">林有樺</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- 主要內容區 (Main Content) -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
-
-    <!-- 1. 賽事切換與動態公告 Banner (Tournament Control & Notice Box) -->
-    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-brand-900 rounded-2xl p-4 sm:p-6 text-white shadow-xl mb-6 relative overflow-hidden border border-slate-700">
-      <!-- 裝飾背景棒球紋理 -->
-      <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
-        <i data-lucide="circle-dot" class="w-64 h-64"></i>
-      </div>
-
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
-        <!-- 賽事選擇 Dropdown (更清晰大方的選單) -->
-        <div class="flex-1">
-          <label class="text-xs font-semibold text-brand-300 uppercase tracking-wider mb-1.5 flex items-center space-x-1">
-            <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
-            <span>目前選擇賽事 (可跨賽事切換與報名)</span>
-          </label>
-          <div class="relative max-w-md">
-            <select id="tournamentSelect" class="w-full bg-slate-800/90 hover:bg-slate-800 text-white font-semibold text-base sm:text-lg rounded-xl px-4 py-3 border-2 border-brand-500/50 focus:border-brand-400 focus:ring-4 focus:ring-brand-500/20 appearance-none cursor-pointer transition shadow-inner">
-              <option value="2026-BBT">🏆 2026-BBT聯盟 (目前選擇)</option>
-              <option value="2026-BBT-育成">⚾ 2026-BBT聯盟-育成組</option>
-              <option value="2026-新北社區">🥇 2026-新北社區棒球大賽</option>
-            </select>
-            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-brand-300">
-              <i data-lucide="chevron-down" class="w-5 h-5"></i>
-            </div>
-          </div>
-        </div>
-
-        <!-- 新功能即時說明/提醒卡片 -->
-        <div class="bg-white/10 backdrop-blur-md rounded-xl p-3.5 sm:p-4 border border-white/15 flex items-start space-x-3 lg:max-w-md">
-          <div class="bg-amber-400/20 text-amber-300 p-2 rounded-lg shrink-0 mt-0.5">
-            <i data-lucide="sparkles" class="w-5 h-5"></i>
-          </div>
-          <div class="text-xs sm:text-sm">
-            <p class="font-bold text-amber-300 mb-0.5">跨賽事報名功能已開放！</p>
-            <p class="text-slate-300 leading-relaxed">
-              您可自由切換上方賽事，點選任何有缺額的場次「一鍵報名」，系統將自動彙整下方待提交清單，方便您一次完成！
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2. 月份頁籤切換 (Month Navigation Bar - 滑動平順化) -->
-    <div class="mb-6 bg-white p-2 rounded-2xl shadow-sm border border-slate-200">
-      <div class="flex items-center justify-between mb-2 px-3 pt-1">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="calendar-days" class="w-5 h-5 text-brand-600"></i>
-          <span class="font-bold text-slate-800">選擇月份班表</span>
-        </div>
-        <span class="text-xs text-slate-500 font-medium">顯示 2026 年賽程</span>
-      </div>
-
-      <div class="flex items-center space-x-2 overflow-x-auto custom-scrollbar pb-2 pt-1 px-1">
-        <button class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200 transition">全年班表</button>
-        <button class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200 transition">1月</button>
-        <button class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200 transition">2月</button>
-        <button class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200 transition">3月</button>
-        <button class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200 transition">4月</button>
-        
-以你覺得最佳的介面幫我做出最終版本的報名系統介面
-
-這裡為您設計並整合了最佳最終版本的裁判班表與賽事報名系統（單一完整 HTML 檔，包含響應式 RWD 佈局、現代化 SaaS 設計風格、跨賽事選單、班表卡片與可互動的底欄報名購物車）。
-
-您可以直接複製下方完整程式碼，儲存為 .html 檔案（例如 index.html）後在瀏覽器開啟：
-
-HTML
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>裁判班表與賽事報名系統 - BBT聯賽</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <title>BBT 出勤系統 - 後端管理控制台</title>
+
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
+            admin: {
+              50: '#f4f6f9',
+              100: '#e8ecef',
+              800: '#1e293b',
+              900: '#0f172a',
+            },
             brand: {
-              50: '#f0f7ff',
-              100: '#e0effe',
-              500: '#1d63ed',
-              600: '#134cd8',
-              700: '#103bb2',
-              900: '#0f2963',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
-    body {
-      font-family: 'Noto Sans TC', 'Inter', sans-serif;
-    }
-    .custom-scrollbar::-webkit-scrollbar {
-      height: 6px;
-      width: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-  </style>
-</head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col pb-24 md:pb-12">
-
-  <!-- 頂部導航列 (Top Header) -->
-  <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <!-- Logo & 系統標題 -->
-        <div class="flex items-center space-x-3">
-          <div class="bg-brand-500 p-2 rounded-xl text-white shadow-lg shadow-brand-500/30">
-            <i data-lucide="shield-alert" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <div class="flex items-center space-x-2">
-              <span class="font-bold text-lg tracking-wide">BBT 棒球聯盟</span>
-              <span class="bg-brand-500/20 text-brand-300 text-xs px-2 py-0.5 rounded-full border border-brand-500/30">裁判執勤端</span>
-            </div>
-            <p class="text-xs text-slate-400 hidden sm:block">裁判班表查詢與跨賽事快速報名系統</p>
-          </div>
-        </div>
-
-        <!-- 桌機版選單 -->
-        <div class="hidden md:flex items-center space-x-6">
-          <nav class="flex space-x-1">
-            <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium bg-slate-800 text-brand-400 flex items-center space-x-1.5 border border-slate-700">
-              <i data-lucide="calendar" class="w-4 h-4"></i>
-              <span>裁判班表</span>
-            </a>
-            <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center space-x-1.5">
-              <i data-lucide="clipboard-list" class="w-4 h-4"></i>
-              <span>紀錄班表</span>
-            </a>
-            <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center space-x-1.5">
-              <i data-lucide="lock" class="w-4 h-4"></i>
-              <span>修改密碼</span>
-            </a>
-          </nav>
-
-          <div class="h-6 w-px bg-slate-700"></div>
-
-          <!-- 使用者 Profile -->
-          <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-full bg-brand-600 border-2 border-brand-400 flex items-center justify-center font-bold text-sm shadow">
-              林
-            </div>
-            <div class="text-left">
-              <div class="text-
-以你覺得最佳的介面幫我做出最終版本的報名系統介面，先給我圖檔看看
-
-A professional, cohesive, and modern user interface designed for both mobile and desktop screens, presenting the final version of the Referee Shift & Tournament Registration System for a baseball league (like BBT League), building upon <IMAGE_0> but radically clean, expressive, and high-quality. The design uses a responsive single-column layout with flexible elements, a light-mode color palette of fresh blues, greens, warm oranges, and clean grays.
-
-At the top, a streamlined multi-match registration cart bar is always present (sticky). In mobile, it is a simplified floating panel at the bottom with a 'View Cart (2)' button. In desktop, it is a detailed sidebar on the right. Both show selected matches (like: [2026-BBT League, 10/18, B040, TFT vs KRATOS], [育成組, 10/24, B043, 夢想家 vs PTTPE]), individual unregister buttons, and a prominent 'Confirm Multi-Match Registration (2)' button. This cart makes multi-match registration explicit.
-
-A dynamic filter panel at the top (dropdowns on desktop, expandable filter sheet on mobile) allows selection of 'Calendar Month' and 'League/Tournament'. The global filter is currently set to 'All Leagues' and 'October 2026'.
-
-The central area is a clear, prioritized list of match cards, grouping matches by date. Each match card is modular and visually consistent.
-A desktop match card (TFT vs KRATOS) features:
-[Top Bar]: Match ID B040 | Date 10/18(日) | Time 10:15 | Field 八里國中 | status icon.
-[Main Area]: Clean teams and score area: TFT (Score: N/A) vs KRATOS (Score: N/A). Status labels: 'Minor League', with a clear orange '⚠️ 衝突警告: 已有 10/18 B041 宙斯賽事' badge and a red '⚠️ 已指派：林助恩 (主審)' badge.
-[Assignments]: Detailed 'Assignments (Minor League C)' table for available roles (e.g., 主審 (Plate Umpire): '已指派 林助恩', 一壘 (1B): '待指派 (可報名)', 二壘 (2B): '待指派 (可報名)', 三壘 (3B): '待指派 (可報名)').
-[Action Buttons]: A grid of specific register/unregister buttons for each *available* position, like '報名 一壘 (C)', '報名 二壘 (C)', '報名 三壘 (C)'. Buttons are color-coded (orange for C, yellow for B, green for A).
-Matches already registered, like [B043, 夢想家 vs PTTPE], are clearly marked with a green checkmark '✅ 已註冊 (一壘)' and unregister buttons are distinct.
-
-The overall style is clean and professional, with clear typography, intuitive icons, and extensive use of micro-interactions and animations. Data hierarchy is prioritized. The entire interface is structured for seamless use across different screen sizes, with elements reflowing and scaling. All original match details are preserved and presented with greater clarity., AI generated (由 AI 生成)
-
-編輯影像
-以你覺得最佳的介面幫我做出最終版本的報名系統介面,一樣先給我圖檔看看
-
-Based on <IMAGE_0>, the user interface for the Referee Multi-Tournament Registration System is refined and optimized into a single, cohesive view, presented as a professional-grade dashboard. This optimized interface eliminates the need for separate mobile/desktop layouts by using a single, responsive layout that prioritizes content clarity and multi-registration flow. The global navigation (top search, profile, settings, logout, calendar, staff, reports, permissions) is preserved at the top.
-
-The central content area is streamlined. On the left, a prioritized 'Upcoming Matches' list features compact match cards, like the '10/18(日)' cards for TFT vs KRATOS and related matches, grouping by date and using status badges ('Minor League', 'Minor League C Assignments'). Key details (teams, match ID, time, field) are prominent, with integrated warning icons for conflicts and assignments, using the color scheme from <IMAGE_0>.
-
-The main interaction area is the consolidated 'Match Details and Multi-Registration' panel. At the top of this panel, the global filters (Calendar Month: October 2026, League/Tournament: All Leagues) are clear and non-redundant. Below the filters, dynamic match grouping is handled by section headers like 'Sunday, October 18, 2026', grouping matches by date. Each match card (e.g., the large B040 TFT vs KRATOS card) is a unified information module, combining assignment lists (Plate, 1B, 2B, 3B with availability and buttons) and multi-league context (Major League status in text, Minor League C tags). Conflicts are explicitly detailed with clean, orange-boxed warnings. The green checkmark 'Already assigned' is visible for relevant matches.
-
-On the far right, the 'Registration Cart' sidebar is permanently visible, integrated as a natural part of the flow. It uses the green-checked badges from <IMAGE_0> with distinct 'Unregister' buttons for each selected role and match (e.g., '[2026-BBT League, 10/18, B040, TFT vs KRATOS]'), as well as the 'Multi-Match Registration (2)' summary. Below the list, the large, prominent 'Confirm Multi-Match Registration (2)' button is always accessible. The number (2) dynamically updates.
-
-All elements are visually consolidated into a clean, modern grid. Spacing is optimized, and typography is adjusted for maximum readability across all sections. The final interface is clear, professional, and efficient, guiding the user through the process from selection to confirmation without redundancy. The overall color palette is a clean, modern blend of white, light grays, light blues, greens, and oranges., AI generated (由 AI 生成)
-
-編輯影像
-這樣的版面, 你有沒有更好的建議, 可以達到：
-
-更清爽
-清楚表達
-專業級
-
-
-如果打破既有規則, 讓你重新設計, 你會怎麼把它設計的更專業以及更有風格??而且要手機版跟桌機版都共用，而且整個格式不會因為手機版或桌機版而打亂格式哦(目前版本就是)
-
-
-
-給你參考這個網站看看
-
-
-
-https://bbtls.com/scoring.php 
-
-針對現有介面的問題與參考網站（BBT 聯盟官網）的特色，若要打破既有規則重新設計，達成「更清爽、清楚表達、專業級」，並且實現「桌機與手機共用且版面絕不打亂」的目標，我建議從以下 4 大核心架構進行優化：
-
-💡 核心優化建議與設計邏輯
-模組化響應式網格（Responsive Cards Grid）
-
-問題：目前桌機版橫向排列太寬，手機版容易擠壓變形或文字斷行錯亂。
-
-最佳解：採用 CSS Grid / Flexbox 彈性響應式卡片。
-
-桌機版：自動排成雙欄或三欄卡片（2~3 Columns），視覺豐富且滿版。
-
-手機版：自動直向堆疊為單欄（1 Column），卡片內部元素（隊伍、時間、裁判職缺）維持相對比例，文字不擠壓。
-
-清楚的「資訊層級與狀態視覺化」
-
-問題：目前的警告文字（如「本日已有其他勤務」、「時間衝突」）與隊伍名稱混在一起，排版較雜亂。
-
-最佳解：
-
-頂部狀態標籤（Badge）：將「大聯盟組」、「八里國中棒球場」改為精緻膠囊標籤（Pill Badges）。
-
-衝突提醒精簡化：將落落長警語改為具醒目圖示的黃色警示列（例如 ⚠️ 時間衝突：14:30 新莊），點擊或懸停時再顯示完整細節。
-
-隊伍與比分/時間對決框：採用「主隊 VS 客隊」對稱排版，中間突出顯示時間與場次代碼（如 B040 / 08:00）。
-
-直覺的「裁判職缺與一鍵報名」按鈕區
-
-問題：原本報名按鈕太小、不夠醒目，且多場賽事報名時缺乏即時反饋。
-
-最佳解：
-
-每張賽事卡片底部設有獨立的「裁判狀態區」。
-
-已指派人員：顯示姓名與職務（如 主審：陳澤宇、一壘：趙家麟）。
-
-開放報名職缺：直接呈現高亮按鈕（如 [+ 報名主審]、[+ 報名一壘]），點擊後立即變更狀態為「已選擇（待提交）」，並同步計入底部的「報名清單列」。
-
-底部懸浮式「多場賽事報名購物車」（Multi-Match Registration Bar）
-
-問題：跨賽事或多場報名時，使用者選完後找不到總結提交按鈕。
-
-最佳解：
-
-只要使用者點擊任何場次的報名按鈕，畫面底部就會滑出懸浮報名工具列。
-
-清楚列出：已選 2 場賽事 + 簡要清單，右側一個醒目的主按鈕 【確認一次提交報名】。手機版與桌機版皆能完美呈現。
-
-🎨 最終版報名系統 HTML 互動原型
-以下為您製作了最佳最終版本的報名系統介面。程式碼已完全整合 Tailwind CSS 與響應式架構，手機與桌機皆能自動適應且格式絕不打亂！
-
-HTML
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BBT 棒球聯盟 - 裁判班表與賽事報名系統</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
               500: '#2563eb',
               600: '#1d4ed8',
               700: '#1e40af',
-              900: '#1e3a8a',
             }
           }
         }
@@ -409,841 +29,257 @@ HTML
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
     body { font-family: 'Noto Sans TC', sans-serif; }
-    .custom-scrollbar::-webkit-scrollbar { height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col pb-28">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex">
 
-  <!-- 1. 頂部系統導航列 (Header) -->
-  <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-lg border-b border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <!-- Logo / Title -->
-        <div class="flex items-center space-x-3">
-          <div class="bg-brand-600 p-2 rounded-xl text-white shadow-md shadow-brand-500/20">
-            <i data-lucide="shield" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <div class="flex items-center space-x-2">
-              <span class="font-black text-lg tracking-wide">BBT 棒球聯盟</span>
-              <span class="bg-brand-500/20 text-brand-300 text-xs px-2 py-0.5 rounded-full border border-brand-500/30">裁判執勤端</span>
-            </div>
-            <p class="text-[11px] text-slate-400 hidden sm:block">裁判班表查詢與跨賽事快速報名系統</p>
-          </div>
-        </div>
-
-        <!-- 功能選單 (桌機) -->
-        <div class="hidden md:flex items-center space-x-2">
-          <a href="#" class="px-3 py-2 rounded-lg text-sm font-bold bg-brand-600 text-white flex items-center space-x-1.5 shadow-sm">
-            <i data-lucide="calendar" class="w-4 h-4"></i>
-            <span>裁判班表</span>
-          </a>
-          <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center space-x-1.5">
-            <i data-lucide="clipboard-list" class="w-4 h-4"></i>
-            <span>紀錄班表</span>
-          </a>
-          <a href="#" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center space-x-1.5">
-            <i data-lucide="key-round" class="w-4 h-4"></i>
-            <span>修改密碼</span>
-          </a>
-          <div class="h-5 w-px bg-slate-700 mx-2"></div>
-          <div class="flex items-center space-x-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
-            <div class="w-6 h-6 rounded-full bg-amber-500 text-slate-900 font-bold flex items-center justify-center text-xs">林</div>
-            <span class="text-xs font-semibold text-slate-200">林有樺 (C級)</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- 2. 主要內容區 (Main Container) -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full space-y-6">
-
-    <!-- 賽事選擇與公告卡片 (Tournament Selector) -->
-    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-brand-900 rounded-2xl p-5 text-white shadow-xl border border-slate-700/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-      <div class="flex-1 w-full md:w-auto">
-        <label class="text-xs font-bold text-brand-300 uppercase tracking-wider mb-1.5 flex items-center space-x-1">
-          <i data-lucide="trophy" class="w-4 h-4"></i>
-          <span>請選擇報名賽事 (支援跨賽事切換報名)</span>
-        </label>
-        <div class="relative max-w-md">
-          <select id="tournamentSelect" onchange="switchTournament(this.value)" class="w-full bg-slate-800 text-white font-bold text-base sm:text-lg rounded-xl px-4 py-3 border-2 border-brand-500/50 focus:border-brand-400 focus:outline-none appearance-none cursor-pointer shadow-inner pr-10">
-            <option value="2026-BBT">🏆 2026-BBT聯賽 (主要賽事)</option>
-            <option value="2026-BBT-育成">⚾ 2026-BBT聯賽-育成組</option>
-            <option value="2026-新北社區">🥇 2026-新北社區棒球大賽</option>
-          </select>
-          <div class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-brand-400">
-            <i data-lucide="chevron-down" class="w-5 h-5"></i>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-slate-800/80 rounded-xl p-3.5 border border-slate-700 text-xs sm:text-sm text-slate-300 flex items-center space-x-3 w-full md:w-auto">
-        <div class="bg-amber-500/20 text-amber-400 p-2 rounded-lg shrink-0">
-          <i data-lucide="sparkles" class="w-5 h-5"></i>
+  <!-- 1. 左側後端導航欄 (Sidebar) -->
+  <aside class="w-64 bg-slate-900 text-slate-300 hidden md:flex flex-col justify-between shrink-0 shadow-xl border-r border-slate-800">
+    <div>
+      <!-- 系統 Logo 區 -->
+      <div class="h-16 flex items-center space-x-3 px-6 bg-slate-950 border-b border-slate-800">
+        <div class="bg-brand-600 p-2 rounded-xl text-white shadow-md">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
         </div>
         <div>
-          <span class="font-bold text-white block mb-0.5">跨賽事報名新功能：</span>
-          <span>先選定上方賽事後點擊「報名」，可同時選擇多場賽事再一起送出！</span>
+          <h1 class="font-black text-white text-base tracking-wide">BBT 管理控制台</h1>
+          <p class="text-[10px] text-slate-400">出勤與排班後端管理系統</p>
         </div>
       </div>
+
+      <!-- 導航選單 -->
+      <nav class="p-4 space-y-1 text-sm font-semibold">
+        <div class="text-[11px] text-slate-500 font-bold px-3 py-2 uppercase tracking-wider">主控台</div>
+        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl bg-brand-600 text-white shadow-md">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>管理首頁 / 總覽</span>
+        </a>
+
+        <div class="text-[11px] text-slate-500 font-bold px-3 py-2 uppercase tracking-wider pt-4">賽事與排班</div>
+        <a href="#" class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+          <div class="flex items-center space-x-3">
+            <i data-lucide="calendar-range" class="w-4 h-4 text-slate-400"></i>
+            <span>賽程與裁判排班</span>
+          </div>
+          <span class="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">2缺</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+          <i data-lucide="file-spreadsheet" class="w-4 h-4 text-slate-400"></i>
+          <span>紀錄員排班</span>
+        </a>
+
+        <div class="text-[11px] text-slate-500 font-bold px-3 py-2 uppercase tracking-wider pt-4">審核與出勤</div>
+        <a href="#" class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+          <div class="flex items-center space-x-3">
+            <i data-lucide="clipboard-check" class="w-4 h-4 text-slate-400"></i>
+            <span>出勤審核確認</span>
+          </div>
+          <span class="bg-amber-500 text-slate-900 text-[10px] font-black px-2 py-0.5 rounded-full">3待</span>
+        </a>
+
+        <div class="text-[11px] text-slate-500 font-bold px-3 py-2 uppercase tracking-wider pt-4">系統權限與報表</div>
+        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+          <i data-lucide="users" class="w-4 h-4 text-slate-400"></i>
+          <span>帳號與權限管理</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+          <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-400"></i>
+          <span>年度出勤統計報表</span>
+        </a>
+      </nav>
     </div>
 
-    <!-- 月份頁籤切換 (Month Selector) -->
-    <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-200">
-      <div class="flex items-center space-x-1.5 overflow-x-auto custom-scrollbar pb-1 pt-0.5 px-1">
-        <button class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200 transition">全年班表</button>
-        <button class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200 transition">9月</button>
-        <button class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-brand-600 text-white shadow-md shadow-brand-500/30">10月</button>
-        <button class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200 transition">11月</button>
-        <button class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200 transition">12月</button>
+    <!-- 底部管理員 Profile -->
+    <div class="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-amber-500 text-slate-900 font-black flex items-center justify-center text-sm">
+          王
+        </div>
+        <div>
+          <div class="text-xs font-bold text-white">王韶文</div>
+          <div class="text-[10px] text-amber-400">最高系統管理員</div>
+        </div>
       </div>
+      <button title="登出系統" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition">
+        <i data-lucide="log-out" class="w-4 h-4"></i>
+      </button>
     </div>
+  </aside>
 
-    <!-- 3. 賽程卡片列表 (Match Cards Grid) -->
-    <!-- 10/18 (日) 日期分組 -->
-    <div class="space-y-4">
-      <div class="flex items-center space-x-2 border-b-2 border-slate-200 pb-2">
-        <div class="bg-brand-600 text-white p-1.5 rounded-lg">
-          <i data-lucide="calendar" class="w-5 h-5"></i>
-        </div>
-        <h2 class="text-lg font-black text-slate-900">10/18 (日) 賽程</h2>
-        <span class="bg-slate-200 text-slate-700 text-xs px-2.5 py-0.5 rounded-full font-bold">共 4 場</span>
+  <!-- 2. 右側主要操作區 (Main Header & Content) -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+
+    <!-- 頂部 Header -->
+    <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 sticky top-0 z-20">
+      <div class="flex items-center space-x-3">
+        <h2 class="font-black text-slate-900 text-lg">系統管理中心概觀</h2>
+        <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-bold">2026 年度賽季</span>
       </div>
-
-      <!-- 卡片網格：桌機 2 欄，手機 1 欄，保持格式穩定平衡 -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-        <!-- 場次卡片 1 (已有勤務警告 + 開放報名) -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition overflow-hidden flex flex-col justify-between">
-          <div>
-            <!-- 卡片頂部標籤列 -->
-            <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-100 flex items-center justify-between text-xs font-bold text-slate-600">
-              <div class="flex items-center space-x-2">
-                <span class="bg-brand-100 text-brand-700 px-2 py-0.5 rounded-md">2026-BBT聯賽</span>
-                <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md">混合組</span>
-              </div>
-              <span class="text-slate-500 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> 八里國中棒球場</span>
-            </div>
-
-            <!-- 衝突警示條 -->
-            <div class="bg-amber-50 border-b border-amber-100 px-4 py-1.5 text-xs text-amber-800 font-bold flex items-center space-x-1.5">
-              <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0"></i>
-              <span>本日已有其他勤務 (預賽 5 08:00 | 新莊瓊林C | 一壘審)</span>
-            </div>
-
-            <!-- 對決內容 -->
-            <div class="p-4">
-              <div class="flex items-center justify-between">
-                <!-- 客隊 -->
-                <div class="flex-1 text-center font-black text-base sm:text-lg text-slate-800">實踐夢想家</div>
-                <!-- 場次與時間 -->
-                <div class="px-3 py-1 bg-slate-100 rounded-xl text-center shrink-0 mx-2">
-                  <span class="block text-[11px] font-bold text-brand-600 tracking-wider">A040</span>
-                  <span class="block font-black text-lg text-slate-900 leading-none">08:00</span>
-                </div>
-                <!-- 主隊 -->
-                <div class="flex-1 text-center font-black text-base sm:text-lg text-slate-800">新北暴龍</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 裁判名單與報名按鈕區 -->
-          <div class="bg-slate-50 p-3.5 border-t border-slate-100">
-            <div class="flex items-center justify-between text-xs mb-2">
-              <span class="font-bold text-slate-500">裁判指派狀況：</span>
-              <span class="text-emerald-600 font-bold">已安排 3 位</span>
-            </div>
-            <div class="flex flex-wrap gap-2 text-xs font-semibold">
-              <span class="bg-white border border-slate-200 px-2.5 py-1 rounded-lg text-slate-700">主審：陳澤宇</span>
-              <span class="bg-white border border-slate-200 px-2.5 py-1 rounded-lg text-slate-700">一壘：趙家麟</span>
-              <span class="bg-white border border-slate-200 px-2.5 py-1 rounded-lg text-slate-700">三壘：林勛恩</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 場次卡片 2 (有時間衝突警示 + 尚有缺額開放報名) -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition overflow-hidden flex flex-col justify-between">
-          <div>
-            <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-100 flex items-center justify-between text-xs font-bold text-slate-600">
-              <div class="flex items-center space-x-2">
-                <span class="bg-brand-100 text-brand-700 px-2 py-0.5 rounded-md">2026-BBT聯賽</span>
-                <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md">大聯盟組</span>
-              </div>
-              <span class="text-slate-500 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> 三峽台北大學</span>
-            </div>
-
-            <!-- 時間衝突警示 -->
-            <div class="bg-rose-50 border-b border-rose-100 px-4 py-1.5 text-xs text-rose-800 font-bold flex items-center space-x-1.5">
-              <i data-lucide="alert-circle" class="w-4 h-4 text-rose-600 shrink-0"></i>
-              <span>時間衝突 (本日已有其他場次 14:30 新莊瓊林C)</span>
-            </div>
-
-            <div class="p-4">
-              <div class="flex items-center justify-between">
-                <div class="flex-1 text-center font-black text-base sm:text-lg text-slate-800">賽亞人</div>
-                <div class="px-3 py-1 bg-slate-100 rounded-xl text-center shrink-0 mx-2">
-                  <span class="block text-[11px] font-bold text-brand-600 tracking-wider">A042</span>
-                  <span class="block font-black text-lg text-slate-900 leading-none">13:50</span>
-                </div>
-                <div class="flex-1 text-center font-black text-base sm:text-lg text-slate-800">親子勇士</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 裁判指派與可報名按鈕 -->
-          <div class="bg-slate-50 p-3.5 border-t border-slate-100">
-            <div class="flex items-center justify-between text-xs mb-2">
-              <span class="font-bold text-slate-500">裁判指派狀況：</span>
-              <span class="text-amber-600 font-bold">尚缺 1 位</span>
-            </div>
-            <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
-              <span class="bg-white border border-slate-200 px-2.5 py-1 rounded-lg text-slate-700">主審：(聘)林有樺</span>
-              <span class="bg-white border border-slate-200 px-2.5 py-1 rounded-lg text-slate-700">一壘：王成榮</span>
-              <!-- 報名按鈕 -->
-              <button onclick="toggleSelect(this, '賽亞人 vs 親子勇士', '二壘審')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-3 py-1 rounded-lg shadow-sm transition flex items-center space-x-1">
-                <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                <span>報名二壘</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
+      <div class="flex items-center space-x-3">
+        <a href="#" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition flex items-center space-x-1">
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          <span>前往前台</span>
+        </a>
       </div>
-    </div>
+    </header>
 
-    <!-- 10/24 (六) 日期分組 -->
-    <div class="space-y-4 pt-4">
-      <div class="flex items-center space-x-2 border-b-2 border-slate-200 pb-2">
-        <div class="bg-brand-600 text-white p-1.5 rounded-lg">
-          <i data-lucide="calendar" class="w-5 h-5"></i>
-        </div>
-        <h2 class="text-lg font-black text-slate-900">10/24 (六) 賽程</h2>
-        <span class="bg-slate-200 text-slate-700 text-xs px-2.5 py-0.5 rounded-full font-bold">共 1 場</span>
-      </div>
+    <!-- 內容區 -->
+    <main class="p-6 space-y-6 max-w-7xl w-full mx-auto">
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <!-- 開放多個裁判席位報名之場次 -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition overflow-hidden flex flex-col justify-between">
-          <div>
-            <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-100 flex items-center justify-between text-xs font-bold text-slate-600">
-              <div class="flex items-center space-x-2">
-                <span class="bg-brand-100 text-brand-700 px-2 py-0.5 rounded-md">2026-BBT聯賽</span>
-                <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md">小聯盟組</span>
-              </div>
-              <span class="text-slate-500 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> 八里挖仔尾</span>
-            </div>
-
-            <div class="p-4">
-              <div class="flex items-center justify-between">
-                <div class="flex-1 text-center font-black text-base sm:text-lg text-slate-800">夢想家</div>
-                <div class="px-3 py-1 bg-slate-100 rounded-xl text-center shrink-0 mx-2">
-                  <span class="block text-[11px] font-bold text-brand-600 tracking-wider">B043</span>
-                  <span class="block font-black text-lg text-slate-900 leading-none">08:30</span>
-                </div>
-                <div class="flex-1 text-center font-black text-base sm:text-lg text-slate-800">PTTPE</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-slate-50 p-3.5 border-t border-slate-100">
-            <div class="flex items-center justify-between text-xs mb-2">
-              <span class="font-bold text-slate-500">裁判指派狀況：</span>
-              <span class="text-rose-600 font-bold">開放主審、一壘審報名</span>
-            </div>
-            <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
-              <button onclick="toggleSelect(this, '夢想家 vs PTTPE', '主審')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-3 py-1 rounded-lg shadow-sm transition flex items-center space-x-1">
-                <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                <span>報名主審</span>
-              </button>
-              <button onclick="toggleSelect(this, '夢想家 vs PTTPE', '一壘審')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-3 py-1 rounded-lg shadow-sm transition flex items-center space-x-1">
-                <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                <span>報名一壘</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- 4. 懸浮式多場賽事報名購物車 (Floating Cart Bar) -->
-  <div id="cartBar" class="fixed bottom-0 left-0 right-0 z-50 bg-slate-900 text-white shadow-2xl border-t border-slate-700 transform translate-y-full transition-transform duration-300 ease-in-out">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3">
-      
-      <!-- 選擇場次摘要 -->
-      <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
-        <div class="flex items-center space-x-2">
-          <div class="bg-amber-500 text-slate-900 font-black rounded-full w-7 h-7 flex items-center justify-center text-sm shadow" id="cartCount">
-            0
-          </div>
-          <span class="font-bold text-sm sm:text-base">已選擇待提交場次</span>
-        </div>
-        <!-- 展開細節圖示 (手機版) -->
-        <div id="cartItemsText" class="text-xs text-slate-300 truncate max-w-[200px] sm:max-w-md bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700">
-          尚未選擇場次
-        </div>
-      </div>
-
-      <!-- 送出按鈕 -->
-      <div class="flex items-center space-x-2 w-full sm:w-auto">
-        <button onclick="submitRegistrations()" class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-black px-6 py-2.5 rounded-xl shadow-lg transition flex items-center justify-center space-x-2 text-sm sm:text-base">
-          <i data-lucide="check-circle-2" class="w-5 h-5"></i>
-          <span>確認一次提交報名</span>
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Lucide Icons 初始化與互動邏輯 -->
-  <script>
-    lucide.createIcons();
-
-    // 儲存已選報名的場次
-    let selectedMatches = [];
-
-    function toggleSelect(btn, matchName, role) {
-      const matchKey = `${matchName} (${role})`;
-      const index = selectedMatches.indexOf(matchKey);
-
-      if (index === -1) {
-        // 新增選取
-        selectedMatches.push(matchKey);
-        btn.classList.remove('bg-brand-600', 'hover:bg-brand-700', 'text-white');
-        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700', 'text-white', 'ring-2', 'ring-emerald-400');
-        btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i><span>已選 ${role}</span>`;
-      } else {
-        // 取消選取
-        selectedMatches.splice(index, 1);
-        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700', 'text-white', 'ring-2', 'ring-emerald-400');
-        btn.classList.add('bg-brand-600', 'hover:bg-brand-700', 'text-white');
-        btn.innerHTML = `<i data-lucide="user-plus" class="w-3.5 h-3.5"></i><span>報名${role.replace('審','')}</span>`;
-      }
-
-      lucide.createIcons();
-      updateCartBar();
-    }
-
-    function updateCartBar() {
-      const cartBar = document.getElementById('cartBar');
-      const cartCount = document.getElementById('cartCount');
-      const cartItemsText = document.getElementById('cartItemsText');
-
-      cartCount.innerText = selectedMatches.length;
-
-      if (selectedMatches.length > 0) {
-        cartBar.classList.remove('translate-y-full');
-        cartItemsText.innerText = selectedMatches.join(' | ');
-      } else {
-        cartBar.classList.add('translate-y-full');
-      }
-    }
-
-    function switchTournament(value) {
-      alert(`已成功切換至賽事：${value}\n下方班表已同步更新！`);
-    }
-
-    function submitRegistrations() {
-      if (selectedMatches.length === 0) return;
-      alert(`成功一次提交以下 ${selectedMatches.length} 場賽事報名：\n\n` + selectedMatches.join('\n'));
-      location.reload();
-    }
-  </script>
-</body>
-</html>
-幫我做公告圖:
-
-新增個人執勤數據分析及豐功偉業查詢，可以讓各位知道自已的執勤紀錄
-查詢方式就是在首頁數據下方有個　查詢完整分析　按鈕，點選後就會看到詳細資訊
-我為您製作了一張專屬的系統新功能公告圖卡（ Announcement Graphic ）。
-
-圖卡採用現代專業體育聯賽的 UI 設計風格，明確標示了新功能亮點（執勤數據分析、豐功偉業履歷）以及清晰的兩步驟查詢教學指南，方便您直接分享於 LINE 群組或公告欄上！
-
-BBT出勤管理系統-新功能公告圖
-
-
-
-說明字體可以再大一點，另外幫我加入：如數據有問題可洽本人
-
-已為您製作好新版的公告圖，說明文字已放大，並加入了「如數據有問題可洽本人」的提醒：
-
-A professional, modern system feature announcement card for the BBT Baseball League umpire attendance system, set against the clean background interface of the homepage from <IMAGE_0>. The card itself is a prominent, clean modal or large panel with rounded corners and a sophisticated color scheme of deep blue, white, and accent colors from <IMAGE_0>. The top of the card features large, bold Traditional Chinese text: '系統新功能開放！個人執勤數據分析與豐功偉業查詢'. Below this headline, the card is structured with clear step-by-step illustrations.
-
-Step 1 (Left Side): An illustrative panel titled 'Step 1: 點擊『查看完整分析』' with an annotated mockup of the homepage dashboard from <IMAGE_0>, specifically highlighting the '查看完整分析' button with a glowing blue border and a cursor clicking it. Below the mockup, clear, extra large, Traditional Chinese text instruction: '在首頁數據下方點擊『查看完整分析』即可檢視詳細資訊'.
-
-Step 2 (Right Side): An illustrative panel titled 'Step 2: 檢視詳細資訊與歷史' with an annotated, combined modal view. This modal view is a simplified combination of the analysis window from <IMAGE_1> and the history list from <IMAGE_2>. It features the charts (attendance pie, statistics) and the detailed attendance history list, all in Traditional Chinese as seen in the source images. Clear annotations point to different sections like '數據分析' (<IMAGE_1> style charts) and '出勤履歷' (<IMAGE_2> style list). Below this combined mockup, clear, extra large, Traditional Chinese text instruction: '可查詢個人執勤場次、經驗值、出勤率與角色分布等數據'. A connector arrow shows the flow from Step 1 to Step 2.
-
-The overall card has a clean layout with subtle modern gradient effects (blue to a lighter tone). At the very bottom of the card, in a dedicated, prominent text area, is the large, bold Traditional Chinese text: '如數據有問題可洽本人'. A stylized '關閉' button is at the bottom right, and a subtle modern BBT league logo is subtly integrated. The entire scene maintains high readability and a professional, informative tone., AI generated (由 AI 生成)
-圖中主要重點摘要：
-主題放大：標明「個人執勤數據分析與豐功偉業查詢」開放使用。
-
-操作步驟說明（文字放大易讀）：
-
-步驟一：於首頁數據看板下方點選 「查看完整分析」 按鈕。
-
-步驟二：開啟詳細視窗，即可檢視個人執勤場次、經驗值、出勤率、角色圓餅圖及完整出勤履歷。
-
-底部溫馨提醒：附上醒目的 「如數據有問題可洽本人」 說明。
-
-
-編輯影像
-改一下好了，數據如有問題煩請告知
-
-這就為您更新公告圖的文字，將底部提醒改為「數據如有問題煩請告知」，字體也維持清晰好讀的大字版！
-
-🎨 新版公告圖已更新完成
-主標題：系統新功能開放！個人執勤數據分析與豐功偉業查詢
-
-操作說明：
-
-Step 1：在首頁數據下方點擊 「查看完整分析」 按鈕。
-
-Step 2：可查詢個人執勤場次、經驗值、出勤率與完整出勤履歷。
-
-底部提醒：數據如有問題煩請告知
-
-您可以直接將這張圖片下載並發布至 LINE 群組或公告欄中！若還需要微調任何字眼或排版隨時告訴我。
-
-就用這個圖，但下方幫我改成：數據如有問題煩請提出，謝謝
-
-我只是一个文本 AI，在这方面没法帮到你。
-
-換這個頁面, 新舊頁面及改寫中的temp頁面, 這是系統後端的管理介面, 我希望能有以下功能：
-
-
-
-全年賽程數
-
-已完賽
-
-未完賽
-
-本週賽事
-
-裁判人數
-
-紀錄人數
-
-管理員人數
-
-帳號總數
-
-裁判缺額
-
-紀錄缺額
-
-待確認
-
-缺額賽事
-
-
-
-等等的數據給管理者看
-
-
-
-你能幫我設計個版面，既專業又一目瞭然的管理頁首頁介面嗎？
-
-管理者介面的設計核心在於「數據分級與視覺層級（Visual Hierarchy）」，要讓管理者一進到管理中心，0.5 秒內就能抓住：
-
-緊急需處理事項（如缺額、待確認事項）
-
-營運總覽（賽事進度、人力結構）
-
-快速操作入口（排班、確認出勤、帳號管理）
-
-🎨 版面設計重點與資訊架構
-1. 頂部「緊急動態與告警區」（Alert & Action Needed）—— 優先關注
-管理者每天開啟介面最關心「今天/本週有沒有缺人？有沒有人待審核？」。
-
-缺額賽事：高亮顯示（如紅色警示），並直接列出是哪一天哪一場缺裁判/紀錄。
-
-待確認事項：待確認出勤或報名審核的數量。
-
-2. 第一層：「賽事營運 KPI 卡片區」（Match Operations）
-將賽事相關數據集中，形成一個獨立的模組：
-
-全年賽事總數（指標）
-
-已完賽（進度條或數字）
-
-未完賽（剩餘場次）
-
-本週賽事（焦點場次）
-
-3. 第二層：「人力與帳號結構卡片區」（Personnel & Accounts）
-將人員相關數據劃分開來，一目瞭然：
-
-帳號總數
-
-裁判人數
-
-紀錄人數
-
-管理員人數
-
-4. 第三層：「快速功能入口卡片」（Quick Actions Dashboard）
-參考您新版 temp 頁面的分組概念，將功能按模組以質感卡片方式排列（包含排班管理、出勤確認、系統管理、統計報表）。
-
-💻 完整後端管理中心介面 HTML 原型
-已為您將所有要求的數據欄位、告警區與快速功能整合為響應式（RWD）現代化管理儀表板。
-
-admin_dashboard.html [generated with web_code_canvas tool]
-
-沒看到檔案或畫面?
-
-管理者介面的設計核心在於「數據分級與視覺層級」，要讓管理者一進到管理中心，0.5 秒內就能抓住：
-
-緊急需處理事項（如裁判/紀錄缺額、待確認事項）
-
-營運總覽（全年賽程、完賽進度、人力結構）
-
-快速操作入口（排班、出勤確認、帳號與賽事管理）
-
-🎨 版面設計重點與資訊架構
-頂部：緊急告警與動態區（Priority Alert Bar）
-
-管理者每天開啟介面最關心「今天/本週有沒有缺人？有沒有待審核事項？」。
-
-將 缺額賽事 與 待確認事項 放最上方，如有缺額直接高亮標紅並提供「立即補人/安排」快捷按鈕。
-
-第一層：賽事營運統計 (Match Metrics)
-
-全年賽程數
-
-已完賽（附帶進度百分比）
-
-未完賽
-
-本週賽事
-
-第二層：人力與帳號數據 (Personnel Metrics)
-
-帳號總數
-
-裁判人數
-
-紀錄人數
-
-管理員人數
-
-第三層：功能模組導引 (Quick Navigation Cards)
-
-參考您 temp 頁面的良好分組（排班管理、出勤與執行、系統管理、統計與報表），改用乾淨俐落的白底卡片加 Hover 效果。
-
-💻 完整後端管理中心 HTML/Tailwind 原始碼
-您可以直接將下方原始碼儲存為 .html 檔案（例如 admin.html）後在瀏覽器開啟：
-
-HTML
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BBT 出勤系統管理中心 - Dashboard</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0f7ff',
-              100: '#e0effe',
-              500: '#1d63ed',
-              600: '#134cd8',
-              700: '#103bb2',
-              900: '#0f2963',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
-    body { font-family: 'Noto Sans TC', sans-serif; }
-  </style>
-</head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col pb-12">
-
-  <!-- 1. 頂部導航列 (Top Nav) -->
-  <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <!-- Logo & Title -->
-        <div class="flex items-center space-x-3">
-          <div class="bg-brand-600 p-2 rounded-xl text-white shadow-md">
-            <i data-lucide="shield-check" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <div class="flex items-center space-x-2">
-              <span class="font-black text-lg tracking-wide">BBT 出勤管理中心</span>
-              <span class="bg-rose-500/20 text-rose-300 text-xs px-2 py-0.5 rounded-full border border-rose-500/30">後端管理員</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 導航功能鈕 -->
-        <div class="flex items-center space-x-2">
-          <a href="#" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center space-x-1">
-            <i data-lucide="home" class="w-4 h-4"></i>
-            <span class="hidden sm:inline">前台首頁</span>
-          </a>
-          <a href="#" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-600 text-white flex items-center space-x-1 shadow">
-            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-            <span class="hidden sm:inline">管理介面</span>
-          </a>
-          <a href="#" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center space-x-1">
-            <i data-lucide="key-round" class="w-4 h-4"></i>
-            <span class="hidden sm:inline">修改密碼</span>
-          </a>
-          <a href="#" class="px-3 py-1.5 rounded-lg text-xs font-bold text-rose-400 hover:bg-rose-950 transition flex items-center space-x-1 ml-2">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-            <span class="hidden sm:inline">登出</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- 2. 主要內容區 (Main Content) -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-grow w-full">
-
-    <!-- 告警看板：缺額與待處理事項 (Priority Alerts) -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      
-      <!-- 裁判缺額 -->
-      <div class="bg-rose-50 border-2 border-rose-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-        <div class="flex items-center space-x-3">
-          <div class="bg-rose-500 text-white p-3 rounded-xl shadow-md">
-            <i data-lucide="user-x" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <span class="text-xs font-bold text-rose-600 uppercase tracking-wider">裁判缺額</span>
-            <div class="text-2xl font-black text-rose-900">2 <span class="text-xs font-normal text-rose-700">個席位缺額</span></div>
-          </div>
-        </div>
-        <button class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow">
-          前往補人
-        </button>
-      </div>
-
-      <!-- 紀錄缺額 -->
-      <div class="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-        <div class="flex items-center space-x-3">
-          <div class="bg-emerald-500 text-white p-3 rounded-xl shadow-md">
-            <i data-lucide="check-circle-2" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">紀錄缺額</span>
-            <div class="text-2xl font-black text-emerald-900">0 <span class="text-xs font-normal text-emerald-700">（目前額滿）</span></div>
-          </div>
-        </div>
-        <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2.5 py-1 rounded-lg">狀態正常</span>
-      </div>
-
-      <!-- 待確認事項 -->
-      <div class="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-        <div class="flex items-center space-x-3">
-          <div class="bg-amber-500 text-white p-3 rounded-xl shadow-md">
-            <i data-lucide="clock" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">待審核/待確認</span>
-            <div class="text-2xl font-black text-amber-900">3 <span class="text-xs font-normal text-amber-700">筆報名/出勤紀錄</span></div>
-          </div>
-        </div>
-        <button class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow">
-          立即確認
-        </button>
-      </div>
-
-    </div>
-
-    <!-- 第一區塊：賽事數據總覽 (Match Statistics) -->
-    <div>
-      <div class="flex items-center space-x-2 mb-3">
-        <i data-lucide="trophy" class="w-5 h-5 text-brand-600"></i>
-        <h2 class="text-base font-black text-slate-800">賽事營運數據 (年度總計)</h2>
-      </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <!-- 全年賽程數 -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-xs font-bold text-slate-500">全年總賽程數</span>
-          <div class="mt-2 flex items-baseline justify-between">
-            <span class="text-2xl sm:text-3xl font-black text-slate-900">128</span>
-            <span class="text-xs font-bold text-slate-400">場</span>
-          </div>
-        </div>
-
-        <!-- 已完賽 -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-xs font-bold text-slate-500">已完賽</span>
-          <div class="mt-2 flex items-baseline justify-between">
-            <span class="text-2xl sm:text-3xl font-black text-emerald-600">84</span>
-            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">65.6%</span>
-          </div>
-        </div>
-
-        <!-- 未完賽 -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-xs font-bold text-slate-500">未完賽（剩餘）</span>
-          <div class="mt-2 flex items-baseline justify-between">
-            <span class="text-2xl sm:text-3xl font-black text-brand-600">44</span>
-            <span class="text-xs font-bold text-slate-400">場</span>
-          </div>
-        </div>
-
-        <!-- 本週賽事 -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <span class="text-xs font-bold text-slate-500">本週賽事數量</span>
-          <div class="mt-2 flex items-baseline justify-between">
-            <span class="text-2xl sm:text-3xl font-black text-amber-500">6</span>
-            <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded">本週焦點</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 第二區塊：人員與帳號數據 (Personnel Statistics) -->
-    <div>
-      <div class="flex items-center space-x-2 mb-3">
-        <i data-lucide="users" class="w-5 h-5 text-brand-600"></i>
-        <h2 class="text-base font-black text-slate-800">人員與帳號結構</h2>
-      </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <!-- 帳號總數 -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-500 mb-1">
-            <span class="text-xs font-bold">系統帳號總數</span>
-            <i data-lucide="user" class="w-4 h-4"></i>
-          </div>
-          <div class="text-2xl sm:text-3xl font-black text-slate-900">52 <span class="text-xs font-normal text-slate-500">人</span></div>
-        </div>
-
-        <!-- 裁判人數 -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-500 mb-1">
-            <span class="text-xs font-bold">裁判總人數</span>
-            <i data-lucide="flag" class="w-4 h-4 text-brand-500"></i>
-          </div>
-          <div class="text-2xl sm:text-3xl font-black text-slate-900">38 <span class="text-xs font-normal text-slate-500">人</span></div>
-        </div>
-
-        <!-- 紀錄人數 -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-500 mb-1">
-            <span class="text-xs font-bold">紀錄員人數</span>
-            <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-500"></i>
-          </div>
-          <div class="text-2xl sm:text-3xl font-black text-slate-900">10 <span class="text-xs font-normal text-slate-500">人</span></div>
-        </div>
-
-        <!-- 管理員人數 -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between text-slate-500 mb-1">
-            <span class="text-xs font-bold">系統管理員</span>
-            <i data-lucide="shield" class="w-4 h-4 text-purple-500"></i>
-          </div>
-          <div class="text-2xl sm:text-3xl font-black text-slate-900">4 <span class="text-xs font-normal text-slate-500">人</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 第三區塊：快捷功能模組入口 (Quick Navigation Cards) -->
-    <div>
-      <div class="flex items-center space-x-2 mb-3">
-        <i data-lucide="layout-grid" class="w-5 h-5 text-brand-600"></i>
-        <h2 class="text-base font-black text-slate-800">管理功能模組</h2>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- 第一層：告警與處理卡片 (High Priority Actions) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         
-        <!-- 排班管理 -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center space-x-2 text-brand-600 font-black text-sm mb-3">
-            <i data-lucide="calendar-range" class="w-5 h-5"></i>
-            <span>排班管理</span>
+        <!-- 裁判缺額 -->
+        <div class="bg-white border-2 border-rose-200 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="p-3 bg-rose-500 text-white rounded-xl shadow-md">
+              <i data-lucide="user-x" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <span class="text-xs font-bold text-rose-600">裁判缺額警告</span>
+              <div class="text-2xl font-black text-slate-900">2 <span class="text-xs font-normal text-slate-500">場次待補強</span></div>
+            </div>
           </div>
-          <div class="space-y-2">
-            <a href="#" class="block p-2.5 rounded-xl bg-slate-50 hover:bg-brand-50 hover:text-brand-700 text-xs font-bold text-slate-700 transition flex items-center justify-between">
-              <span>裁判員班表安排</span>
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </a>
-            <a href="#" class="block p-2.5 rounded-xl bg-slate-50 hover:bg-brand-50 hover:text-brand-700 text-xs font-bold text-slate-700 transition flex items-center justify-between">
-              <span>紀錄員班表安排</span>
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </a>
-          </div>
+          <button class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow">
+            立即指派
+          </button>
         </div>
 
-        <!-- 出勤與執行 -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center space-x-2 text-emerald-600 font-black text-sm mb-3">
-            <i data-lucide="clipboard-check" class="w-5 h-5"></i>
-            <span>出勤與執行</span>
+        <!-- 紀錄缺額 -->
+        <div class="bg-white border-2 border-emerald-200 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="p-3 bg-emerald-500 text-white rounded-xl shadow-md">
+              <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <span class="text-xs font-bold text-emerald-600">紀錄員缺額</span>
+              <div class="text-2xl font-black text-slate-900">0 <span class="text-xs font-normal text-slate-500">（全部額滿）</span></div>
+            </div>
           </div>
-          <div class="space-y-2">
-            <a href="#" class="block p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 text-xs font-bold text-slate-700 transition flex items-center justify-between">
-              <span>出勤審核與確認</span>
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </a>
-            <a href="#" class="block p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 text-xs font-bold text-slate-700 transition flex items-center justify-between">
-              <span>請假與異動處理</span>
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </a>
-          </div>
+          <span class="bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-lg">狀態良好</span>
         </div>
 
-        <!-- 系統管理 -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center space-x-2 text-purple-600 font-black text-sm mb-3">
-            <i data-lucide="settings" class="w-5 h-5"></i>
-            <span>系統管理</span>
+        <!-- 待確認事項 -->
+        <div class="bg-white border-2 border-amber-200 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="p-3 bg-amber-500 text-white rounded-xl shadow-md">
+              <i data-lucide="clock" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <span class="text-xs font-bold text-amber-600">待審核/待確認</span>
+              <div class="text-2xl font-black text-slate-900">3 <span class="text-xs font-normal text-slate-500">筆提交紀錄</span></div>
+            </div>
           </div>
-          <div class="space-y-2">
-            <a href="#" class="block p-2.5 rounded-xl bg-slate-50 hover:bg-purple-50 hover:text-purple-700 text-xs font-bold text-slate-700 transition flex items-center justify-between">
-              <span>帳號與權限管理</span>
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </a>
-            <a href="#" class="block p-2.5 rounded-xl bg-slate-50 hover:bg-purple-50 hover:text-purple-700 text-xs font-bold text-slate-700 transition flex items-center justify-between">
-              <span>賽事與球場設定</span>
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </a>
-          </div>
-        </div>
-
-        <!-- 統計與報表 -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center space-x-2 text-amber-600 font-black text-sm mb-3">
-            <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
-            <span>統計與報表</span>
-          </div>
-          <div class="space-y-2">
-            <a href="#" class="block p-2.5 rounded-xl bg-slate-50 hover:bg-amber-50 hover:text-amber-700 text-xs font-bold text-slate-700 transition flex items-center justify-between">
-              <span>裁判員年度總表</span>
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </a>
-            <a href="#" class="block p-2.5 rounded-xl bg-slate-50 hover:bg-amber-50 hover:text-amber-700 text-xs font-bold text-slate-700 transition flex items-center justify-between">
-              <span>紀錄員年度總表</span>
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </a>
-          </div>
+          <button class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition shadow">
+            審核資料
+          </button>
         </div>
 
       </div>
-    </div>
 
-  </main>
+      <!-- 第二層：賽事營運與進度數據 (Match Metrics) -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="trophy" class="w-5 h-5 text-brand-600"></i>
+            <h3 class="font-black text-slate-900 text-base">賽事營運數據概況</h3>
+          </div>
+          <span class="text-xs text-slate-500 font-medium">即時統計數據</span>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <span class="text-xs font-bold text-slate-500">全年賽程數</span>
+            <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">128 <span class="text-xs font-normal text-slate-500">場</span></div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <span class="text-xs font-bold text-slate-500">已完賽</span>
+            <div class="text-2xl sm:text-3xl font-black text-emerald-600 mt-1">84 <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded text-xs">65.6%</span></div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <span class="text-xs font-bold text-slate-500">未完賽（剩餘）</span>
+            <div class="text-2xl sm:text-3xl font-black text-brand-600 mt-1">44 <span class="text-xs font-normal text-slate-500">場</span></div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <span class="text-xs font-bold text-slate-500">本週賽程</span>
+            <div class="text-2xl sm:text-3xl font-black text-amber-500 mt-1">6 <span class="text-xs font-normal text-slate-500">場</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第三層：人員結構與帳號總計 (Personnel & Accounts) -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="users" class="w-5 h-5 text-brand-600"></i>
+          <h3 class="font-black text-slate-900 text-base">人員與帳號結構數據</h3>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <div class="text-xs font-bold text-slate-500">帳號總數</div>
+            <div class="text-2xl font-black text-slate-900 mt-1">52 <span class="text-xs font-normal text-slate-500">人</span></div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <div class="text-xs font-bold text-slate-500">裁判人數</div>
+            <div class="text-2xl font-black text-slate-900 mt-1">38 <span class="text-xs font-normal text-slate-500">人</span></div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <div class="text-xs font-bold text-slate-500">紀錄人數</div>
+            <div class="text-2xl font-black text-slate-900 mt-1">10 <span class="text-xs font-normal text-slate-500">人</span></div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <div class="text-xs font-bold text-slate-500">管理員人數</div>
+            <div class="text-2xl font-black text-slate-900 mt-1">4 <span class="text-xs font-normal text-slate-500">人</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第四層：缺額賽事列表資料表 (Data Table for Missing Referees) -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600"></i>
+            <h3 class="font-black text-slate-900 text-base">待處理缺額賽事清單</h3>
+          </div>
+          <span class="text-xs font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-lg">共 2 場需急補裁判</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+              <tr>
+                <th class="p-3.5">賽事名稱</th>
+                <th class="p-3.5">日期/時間</th>
+                <th class="p-3.5">對決隊伍</th>
+                <th class="p-3.5">地點</th>
+                <th class="p-3.5">缺額職位</th>
+                <th class="p-3.5 text-right">操作</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-semibold text-slate-700">
+              <tr class="hover:bg-slate-50">
+                <td class="p-3.5"><span class="bg-brand-100 text-brand-700 font-bold px-2 py-0.5 rounded">2026-BBT聯賽</span></td>
+                <td class="p-3.5">10/24 (六) 08:30</td>
+                <td class="p-3.5 font-bold text-slate-900">夢想家 VS PTTPE</td>
+                <td class="p-3.5">八里挖仔尾</td>
+                <td class="p-3.5"><span class="bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded">缺一壘審</span></td>
+                <td class="p-3.5 text-right"><button class="bg-brand-600 text-white font-bold px-3 py-1 rounded-lg hover:bg-brand-700 transition">手動指派</button></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="p-3.5"><span class="bg-brand-100 text-brand-700 font-bold px-2 py-0.5 rounded">2026-BBT聯賽</span></td>
+                <td class="p-3.5">10/24 (六) 10:30</td>
+                <td class="p-3.5 font-bold text-slate-900">戰神 VS 暴龍</td>
+                <td class="p-3.5">八里國中</td>
+                <td class="p-3.5"><span class="bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded">缺主審</span></td>
+                <td class="p-3.5 text-right"><button class="bg-brand-600 text-white font-bold px-3 py-1 rounded-lg hover:bg-brand-700 transition">手動指派</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
 
   <script>
     lucide.createIcons();
