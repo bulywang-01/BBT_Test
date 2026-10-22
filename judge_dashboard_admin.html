@@ -107,9 +107,8 @@
         <span class="text-xs bg-brand-50 text-brand-700 border border-brand-200 px-2.5 py-1 rounded-lg font-bold">2026 年度賽程</span>
       </div>
       <div class="flex items-center space-x-3">
-        <select class="bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none">
-          <option>2026-BBT聯賽</option>
-          <option>2026-BBT聯賽-育成組</option>
+        <select id="tournamentFilter"
+                class="bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none">
         </select>
         <button class="bg-brand-600 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow hover:bg-brand-700 transition flex items-center space-x-1">
           <i data-lucide="plus" class="w-4 h-4"></i>
@@ -121,6 +120,44 @@
     <!-- 主內容面板 -->
     <main class="p-6 space-y-6 max-w-7xl w-full mx-auto">
 
+      <!-- KPI -->
+      <div id="judge-kpi"
+           class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      
+        <div class="bg-white rounded-2xl border border-slate-200 p-4">
+          <div class="text-xs text-slate-500">本週賽事</div>
+          <div id="kpiWeekGames"
+               class="text-3xl font-black">
+            -
+          </div>
+        </div>
+      
+        <div class="bg-white rounded-2xl border border-slate-200 p-4">
+          <div class="text-xs text-slate-500">裁判缺額</div>
+          <div id="kpiJudgeVacancy"
+               class="text-3xl font-black text-rose-600">
+            -
+          </div>
+        </div>
+      
+        <div class="bg-white rounded-2xl border border-slate-200 p-4">
+          <div class="text-xs text-slate-500">已完成派遣</div>
+          <div id="kpiAssigned"
+               class="text-3xl font-black text-emerald-600">
+            -
+          </div>
+        </div>
+      
+        <div class="bg-white rounded-2xl border border-slate-200 p-4">
+          <div class="text-xs text-slate-500">待處理場次</div>
+          <div id="kpiPending"
+               class="text-3xl font-black text-amber-500">
+            -
+          </div>
+        </div>
+      
+      </div>
+      
       <!-- 快捷篩選與狀態列 -->
       <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center space-x-2 overflow-x-auto w-full sm:w-auto">
@@ -139,158 +176,13 @@
       <!-- 賽事日列表區 -->
 
       <!-- 日期群組 1：2026/11/07 -->
-      <div class="space-y-4">
-        <div class="flex items-center space-x-2 border-b-2 border-slate-200 pb-2">
-          <i data-lucide="calendar" class="w-5 h-5 text-brand-600"></i>
-          <h3 class="text-base font-black text-slate-900">2026/11/07 (星期六)</h3>
-          <span class="bg-slate-200 text-slate-700 text-xs px-2.5 py-0.5 rounded-full font-bold">育成組</span>
+      <!-- 裁判班表內容區 -->
+      <div id="content">
+      
+        <div class="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-400">
+          載入中...
         </div>
-
-        <!-- 場次 1 卡片 (缺額狀態) -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition">
-          <!-- 場次 Header -->
-          <div class="bg-slate-50 px-5 py-3 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <div class="flex items-center space-x-3">
-              <span class="bg-brand-600 text-white text-xs font-black px-2.5 py-1 rounded-lg">08:00</span>
-              <span class="font-black text-slate-900 text-base">到齊隊 <span class="text-slate-400 font-normal mx-1">VS</span> 虎霸</span>
-            </div>
-            <div class="flex items-center space-x-3 text-xs font-bold">
-              <span class="text-slate-500 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> 八里國中棒球場</span>
-              <span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg border border-amber-200 flex items-center gap-1">
-                <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-amber-600"></i> 尚缺 2 位裁判
-              </span>
-            </div>
-          </div>
-
-          <!-- 四席裁判 Grid -->
-          <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            
-            <!-- 主審 (未指派/開放指派) -->
-            <div class="bg-amber-50/50 border-2 border-dashed border-amber-300 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-black text-amber-800 uppercase tracking-wider">主審</span>
-                <span class="text-[11px] font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded">尚未指派</span>
-              </div>
-              <div class="text-center py-1">
-                <p class="text-xs text-slate-400 font-medium mb-2">尚未選擇裁判</p>
-                <button onclick="openAssignModal('08:00 到齊隊 vs 虎霸', '主審')" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-2 rounded-lg shadow transition flex items-center justify-center space-x-1">
-                  <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                  <span>指派主審</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- 一壘審 (未指派/開放指派) -->
-            <div class="bg-amber-50/50 border-2 border-dashed border-amber-300 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-black text-amber-800 uppercase tracking-wider">一壘審</span>
-                <span class="text-[11px] font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded">尚未指派</span>
-              </div>
-              <div class="text-center py-1">
-                <p class="text-xs text-slate-400 font-medium mb-2">尚未選擇裁判</p>
-                <button onclick="openAssignModal('08:00 到齊隊 vs 虎霸', '一壘審')" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-2 rounded-lg shadow transition flex items-center justify-center space-x-1">
-                  <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                  <span>指派一壘</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- 二壘審 (不指派) -->
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between opacity-60">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-500">二壘審</span>
-                <span class="text-[10px] text-slate-400 bg-slate-200 px-2 py-0.5 rounded">不指派</span>
-              </div>
-              <div class="text-center py-3 text-xs font-bold text-slate-400">
-                本場不配置
-              </div>
-            </div>
-
-            <!-- 三壘審 (不指派) -->
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between opacity-60">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-500">三壘審</span>
-                <span class="text-[10px] text-slate-400 bg-slate-200 px-2 py-0.5 rounded">不指派</span>
-              </div>
-              <div class="text-center py-3 text-xs font-bold text-slate-400">
-                本場不配置
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- 場次 2 卡片 (已指派人員狀態) -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition">
-          <div class="bg-slate-50 px-5 py-3 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <div class="flex items-center space-x-3">
-              <span class="bg-slate-800 text-white text-xs font-black px-2.5 py-1 rounded-lg">10:30</span>
-              <span class="font-black text-slate-900 text-base">MK Stars <span class="text-slate-400 font-normal mx-1">VS</span> 世壯鄉民</span>
-            </div>
-            <div class="flex items-center space-x-3 text-xs font-bold">
-              <span class="text-slate-500 flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> 新莊瓊林球場</span>
-              <span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 flex items-center gap-1">
-                <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i> 已指派完畢
-              </span>
-            </div>
-          </div>
-
-          <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            
-            <!-- 主審 (已指派：周政宏) -->
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-black text-slate-700 uppercase tracking-wider">主審</span>
-                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">已確認</span>
-              </div>
-              <div>
-                <div class="font-black text-base text-slate-900 mb-1">周政宏</div>
-                <div class="flex items-center space-x-1.5">
-                  <button onclick="openAssignModal('10:30 MK Stars vs 世壯鄉民', '主審')" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] py-1.5 rounded-lg transition">更換</button>
-                  <button class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold text-[11px] py-1.5 rounded-lg transition">刪除</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 一壘審 (已指派：孫翊翔) -->
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-black text-slate-700 uppercase tracking-wider">一壘審</span>
-                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">已確認</span>
-              </div>
-              <div>
-                <div class="font-black text-base text-slate-900 mb-1">孫翊翔</div>
-                <div class="flex items-center space-x-1.5">
-                  <button onclick="openAssignModal('10:30 MK Stars vs 世壯鄉民', '一壘審')" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] py-1.5 rounded-lg transition">更換</button>
-                  <button class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold text-[11px] py-1.5 rounded-lg transition">刪除</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 二壘審 (不指派) -->
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 opacity-60">
-              <span class="text-xs font-bold text-slate-500 block mb-2">二壘審</span>
-              <div class="text-center py-2 text-xs font-bold text-slate-400">不指派</div>
-            </div>
-
-            <!-- 三壘審 (已指派：王韶文) -->
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-black text-slate-700 uppercase tracking-wider">三壘審</span>
-                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">已確認</span>
-              </div>
-              <div>
-                <div class="font-black text-base text-slate-900 mb-1">王韶文</div>
-                <div class="flex items-center space-x-1.5">
-                  <button onclick="openAssignModal('10:30 MK Stars vs 世壯鄉民', '三壘審')" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] py-1.5 rounded-lg transition">更換</button>
-                  <button class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold text-[11px] py-1.5 rounded-lg transition">刪除</button>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
+      
       </div>
 
     </main>
