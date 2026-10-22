@@ -820,20 +820,21 @@ function renderKPI(){
 
   const weekGames = allGames.length;
 
-  let *acancyCount = 0;
-  let assignedCou*t = 0;
+  let vacancyCount = 0;
+  let assignedCount = 0;
   let pendingGames = 0;
 
-  *llGames.forEach(game => {
+  allGames.forEach(game => {
 
-    let*gameHasVacancy = false;
+    let gameHasVacancy = false;
 
     ['PU','U1','U2','U3'].forEach(role => {
-*      const pos = game.positions?.*role];
+
+      const pos = game.positions?.[role];
 
       if(!pos) return;
 
-  *   const assigned =
+      const assigned =
         !!pos.assigned;
 
       if(assigned){
@@ -847,11 +848,14 @@ function renderKPI(){
           2:['PU','U1'],
           3:['PU','U1','U3'],
           4:['PU','U1','U2','U3']
-        }[Number(game.umpire_count || 4)] || ['PU','U1','U2','U3'];
+        }[
+          Number(game.umpire_count || 4)
+        ] || ['PU','U1','U2','U3'];
 
         if(activeRoles.includes(role)){
 
           vacancyCount++;
+
           gameHasVacancy = true;
 
         }
@@ -861,14 +865,31 @@ function renderKPI(){
     });
 
     if(gameHasVacancy){
+
       pendingGames++;
+
     }
 
   });
 
-  setText('kpiWeekGames', weekGames);
-  setText('kpiJudgeVacancy', vacancyCount);
-  setText('kpiAssigned', assignedCount);
-  setText('kpiPending', pendingGames);
+  setText(
+    'kpiWeekGames',
+    weekGames
+  );
+
+  setText(
+    'kpiJudgeVacancy',
+    vacancyCount
+  );
+
+  setText(
+    'kpiAssigned',
+    assignedCount
+  );
+
+  setText(
+    'kpiPending',
+    pendingGames
+  );
 
 }
