@@ -10,6 +10,7 @@
  * 6. Sidebar
  * 7. Modal
  * 8. Toast
+ * 9. 開啟快速指派
  *********************************************************/
 /*********************************************************
  * 共用工具
@@ -774,12 +775,187 @@ function toggleSidebar(){
 }
 
 /*********************************************************
- * 快速指派
+ * 快速指派 Modal
  *********************************************************/
 function openAssignment(gameId){
 
+  const games =
+    window._dashboardData?.vacancyGames || [];
+
+  const game =
+    games.find(
+      g => String(g.game_id) === String(gameId)
+    );
+
+  if(!game){
+
+    showToast(
+      '找不到賽事資料'
+    );
+
+    return;
+
+  }
+
+  const missingJudge =
+    game.missingJudge || [];
+
+  const missingRecord =
+    game.missingRecord || [];
+
+  const roleOptions = [
+
+    ...missingJudge.map(r => ({
+      type:'judge',
+      role:r
+    })),
+
+    ...missingRecord.map(r => ({
+      type:'record',
+      role:r
+    }))
+
+  ];
+
+  document.getElementById(
+    'modal-title'
+  ).textContent =
+    `快速指派 ${game.game_code}`;
+
+  document.getElementById(
+    'modal-content'
+  ).innerHTML = `
+
+    <div class="space-y-4">
+
+      <div>
+
+        <div class="font-bold text-slate-900 text-base">
+          ${game.away_team}
+          VS
+          ${game.home_team}
+        </div>
+
+        <div class="text-sm text-slate-500">
+          ${game.date} ${game.time}
+        </div>
+
+        <div class="text-sm text-slate-500">
+          📍 ${game.field}
+        </div>
+
+      </div>
+
+      <div>
+
+        <label
+          class="block mb-1 text-sm font-bold">
+
+          缺額職務
+
+        </label>
+
+        <select
+          id="assign-role"
+          class="w-full rounded-xl border border-slate-200 p-2">
+
+          ${roleOptions.map(r => `
+            <option
+              value="${r.type}|${r.role}">
+              ${r.role}
+            </option>
+          `).join('')}
+
+        </select>
+
+      </div>
+
+      <div>
+
+        <label
+          class="block mb-1 text-sm font-bold">
+
+          處理方式
+
+        </label>
+
+        <div class="grid grid-cols-2 gap-2">
+
+          <button
+            class="bg-blue-600 text-white rounded-xl py-2 font-bold"
+            onclick="
+              openJudgePage('${game.game_id}')
+            ">
+
+            前往排班頁
+
+          </button>
+
+          <button
+            class="bg-emerald-600 text-white rounded-xl py-2 font-bold"
+            onclick="
+              copyGameCode('${game.game_code}')
+            ">
+
+            複製場次
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+  document
+    .getElementById(
+      'admin-modal'
+    )
+    .classList
+    .remove('hidden');
+
+}
+
+function confirmAssignment(){
+
+  showToast(
+    '第二階段實作中'
+  );
+
+}
+
+/*********************************************************
+ * 前往排班頁
+ *********************************************************/
+function openJudgePage(gameId){
+
+  closeModal();
+
+  showToast(
+    `請至排班頁處理 ${gameId}`
+  );
+
   location.href =
-    `judge_dashboard_admin.html?gameId=${gameId}`;
+    'judge_dashboard_admin.html';
+
+}
+
+/*********************************************************
+ * 複製場次代號
+ *********************************************************/
+function copyGameCode(code){
+
+  navigator.clipboard
+    .writeText(code)
+    .then(() => {
+
+      showToast(
+        `已複製 ${code}`
+      );
+
+    });
 
 }
 
