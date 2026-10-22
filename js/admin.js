@@ -18,12 +18,20 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   guardAdminPage();
-
   loadHeader();
-
   loadDashboard();
 
 });
+
+function guardAdminPage(){
+  const session = JSON.parse(localStorage.getItem('session_user') || '{}');
+    if (!session.user_id){
+      alert('尚未登入');
+      location.replace('login.html');
+      return false;
+    }
+    return true;
+  }
 
 /*********************************************************
  * Header
