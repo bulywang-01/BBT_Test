@@ -432,23 +432,37 @@ function renderVacancyGames(data){
   const games =
     data.vacancyGames || [];
 
+  const cardContainer =
+    document.getElementById(
+      'vacancy-card-container'
+    );
+
+  const tableContainer =
+    document.querySelector(
+      '.hidden.md\\:block'
+    );
+
   if(window.innerWidth < 768){
 
-    document
-      .getElementById(
-        'vacancy-card-container'
-      )
-      .classList.remove('hidden');
+    if(cardContainer){
+      cardContainer.classList.remove('hidden');
+    }
+
+    if(tableContainer){
+      tableContainer.classList.add('hidden');
+    }
 
     renderVacancyCards(games);
 
   }else{
 
-    document
-      .getElementById(
-        'vacancy-card-container'
-      )
-      .classList.add('hidden');
+    if(cardContainer){
+      cardContainer.classList.add('hidden');
+    }
+
+    if(tableContainer){
+      tableContainer.classList.remove('hidden');
+    }
 
     renderVacancyTable(games);
 
@@ -611,6 +625,127 @@ function renderVacancyTable(games){
         </td>
 
       </tr>
+
+    `;
+
+  }).join('');
+
+}
+
+/*********************************************************
+ * 缺額賽事表格－手機版
+ *********************************************************/
+function renderVacancyCards(games){
+
+  const container =
+    document.getElementById(
+      'vacancy-card-container'
+    );
+
+  const footer =
+    document.getElementById(
+      'vacancy-table-footer'
+    );
+
+  const countBox =
+    document.getElementById(
+      'vacancyGameCount'
+    );
+
+  if(!container){
+    return;
+  }
+
+  if(!games.length){
+
+    container.innerHTML = `
+      <div class="text-center py-10 text-slate-400">
+        ✅ 本週無缺額賽事
+      </div>
+    `;
+
+    if(footer){
+      footer.textContent =
+        '本週無缺額賽事';
+    }
+
+    if(countBox){
+      countBox.textContent =
+        '共 0 場需補派';
+    }
+
+    return;
+  }
+
+  if(footer){
+    footer.textContent =
+      `顯示 ${games.length} 筆缺額賽事`;
+  }
+
+  if(countBox){
+    countBox.textContent =
+      `共 ${games.length} 場急需補人`;
+  }
+
+  container.innerHTML = games.map(g => {
+
+    const judgeBadges =
+      (g.missingJudge || [])
+      .map(x => `
+        <span class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 px-2 py-1 text-[11px] font-bold text-rose-700">
+          ${x}
+        </span>
+      `).join('');
+
+    const recordBadges =
+      (g.missingRecord || [])
+      .map(x => `
+        <span class="inline-flex items-center rounded-lg border border-amber-200 bg-amber-100 px-2 py-1 text-[11px] font-bold text-amber-700">
+          ${x}
+        </span>
+      `).join('');
+
+    return `
+
+      <div class="border-b border-slate-200 p-4">
+
+        <div class="font-bold text-brand-700">
+          ${g.tournament || ''}
+        </div>
+
+        <div class="text-xs text-slate-500">
+          ${g.game_code || ''}
+        </div>
+
+        <div class="mt-2 font-semibold">
+          ${g.date || ''}
+          ${g.time || ''}
+        </div>
+
+        <div class="mt-2 font-bold text-slate-900">
+          ${g.away_team || ''}
+          <span class="text-slate-400">VS</span>
+          ${g.home_team || ''}
+        </div>
+
+        <div class="mt-1 text-sm text-slate-500">
+          📍 ${g.field || ''}
+        </div>
+
+        <div class="mt-3 flex flex-wrap gap-1">
+          ${judgeBadges}
+          ${recordBadges}
+        </div>
+
+        <button
+          class="mt-3 w-full bg-brand-600 hover:bg-brand-700 text-white py-2 rounded-lg text-sm font-bold"
+          onclick="openAssignment('${g.game_id}')">
+
+          快速指派
+
+        </button>
+
+      </div>
 
     `;
 
