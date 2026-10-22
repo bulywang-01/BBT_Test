@@ -87,7 +87,7 @@ function loadGames() {
         res.judges || [];
 
       render();
-
+      renderKPI();
     }
   );
 
@@ -234,26 +234,22 @@ function renderGameCard(game){
 
       <div class="bg-slate-50 px-5 py-3 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-2">
 
-        <div class="flex items-center space-x-3">
-
+        <div class="flex items-center flex-wrap gap-3">
+        
           <span class="bg-brand-600 text-white text-xs font-black px-2.5 py-1 rounded-lg">
-
             ${formatTime(game.time)}
-
           </span>
-
+        
           <span class="font-black text-slate-900 text-base">
-
             ${game.away_team}
-
-            <span class="text-slate-400 font-normal mx-1">
-              VS
-            </span>
-
+            <span class="text-slate-400 mx-1">VS</span>
             ${game.home_team}
-
           </span>
-
+        
+          <span class="text-xs text-slate-500">
+            📍 ${game.field || '-'}
+          </span>
+        
         </div>
 
         <div class="flex items-center gap-3 text-xs font-bold">
@@ -814,5 +810,65 @@ function cancelJudgeSignup(
     loadGames();
 
   });
+
+}
+
+/*********************************************************
+ * KPI
+ *********************************************************/
+function renderKPI(){
+
+  const w*ekGames = allGames.length;
+
+  let *acancyCount = 0;
+  let assignedCou*t = 0;
+  let pendingGames = 0;
+
+  *llGames.forEach(game => {
+
+    let*gameHasVacancy = false;
+
+    ['PU','U1','U2','U3'].forEach(role => {
+*      const pos = game.positions?.*role];
+
+      if(!pos) return;
+
+  *   const assigned =
+        !!pos.assigned;
+
+      if(assigned){
+
+        assignedCount++;
+
+      }else{
+
+        const activeRoles = {
+          1:['PU'],
+          2:['PU','U1'],
+          3:['PU','U1','U3'],
+          4:['PU','U1','U2','U3']
+        }[Number(game.umpire_count || 4)] || ['PU','U1','U2','U3'];
+
+        if(activeRoles.includes(role)){
+
+          vacancyCount++;
+          gameHasVacancy = true;
+
+        }
+
+      }
+
+    });
+
+    if(gameHasVacancy){
+      pendingGames++;
+    }
+
+  });
+
+  setText('kpiWeekGames', weekGames);
+  setText('kpiJudgeVacancy', vacancyCount);
+  setText('kpiAssigned', assignedCount);
+  setText('kpiPending', pendingGames);
 
 }
