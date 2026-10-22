@@ -443,12 +443,12 @@ function renderVacancyGames(data){
       'vacancyGameCount'
     );
 
-  const games =
-    data.vacancyGames || [];
-
   if(!tbody){
     return;
   }
+
+  const games =
+    data.vacancyGames || [];
 
   if(!games.length){
 
@@ -468,15 +468,10 @@ function renderVacancyGames(data){
 
     if(countBox){
       countBox.textContent =
-        '共 0 場缺額賽事';
+        '共 0 場需補派';
     }
 
     return;
-  }
-
-  if(footer){
-    footer.textContent =
-      `顯示 ${games.length} 筆缺額賽事`;
   }
 
   if(countBox){
@@ -484,12 +479,17 @@ function renderVacancyGames(data){
       `共 ${games.length} 場急需補人`;
   }
 
+  if(footer){
+    footer.textContent =
+      `顯示 ${games.length} 筆缺額賽事`;
+  }
+
   tbody.innerHTML = games.map(g => {
 
     const judgeBadges =
       (g.missingJudge || [])
         .map(x => `
-          <span class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 px-2 py-1 text-[11px] font-bold text-rose-700 mr-1">
+          <span class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 px-2 py-1 text-[11px] font-bold text-rose-700 mr-1 mb-1">
             ${x}
           </span>
         `)
@@ -498,7 +498,7 @@ function renderVacancyGames(data){
     const recordBadges =
       (g.missingRecord || [])
         .map(x => `
-          <span class="inline-flex items-center rounded-lg border border-amber-200 bg-amber-100 px-2 py-1 text-[11px] font-bold text-amber-700 mr-1">
+          <span class="inline-flex items-center rounded-lg border border-amber-200 bg-amber-100 px-2 py-1 text-[11px] font-bold text-amber-700 mr-1 mb-1">
             ${x}
           </span>
         `)
@@ -506,11 +506,12 @@ function renderVacancyGames(data){
 
     return `
 
-      <tr class="hover:bg-slate-50">
+      <tr class="hover:bg-slate-50 transition">
 
+        <!-- 聯賽 -->
         <td class="py-3 px-4">
 
-          <div class="font-bold">
+          <div class="font-bold text-slate-900">
             ${g.tournament || ''}
           </div>
 
@@ -520,46 +521,58 @@ function renderVacancyGames(data){
 
         </td>
 
+        <!-- 時間 -->
         <td class="py-3 px-4">
 
-          <div class="font-semibold">
-            ${g.date}
+          <div class="font-semibold text-slate-900">
+            ${g.date || ''}
           </div>
 
           <div class="text-xs text-slate-500">
-            ${g.time}
+            ${g.time || ''}
           </div>
 
         </td>
 
+        <!-- 對戰 -->
         <td class="py-3 px-4">
 
           <div class="font-bold text-slate-900">
             ${g.away_team || ''}
-            <span class="text-slate-400 mx-1">VS</span>
+            <span class="mx-1 text-slate-400">
+              VS
+            </span>
             ${g.home_team || ''}
           </div>
 
         </td>
 
+        <!-- 球場 -->
         <td class="py-3 px-4 text-slate-600">
 
           ${g.field || ''}
 
         </td>
 
+        <!-- 缺額 -->
         <td class="py-3 px-4">
 
-          ${judgeBadges}
-          ${recordBadges}
+          <div class="flex flex-wrap">
+
+            ${judgeBadges}
+
+            ${recordBadges}
+
+          </div>
 
         </td>
 
+        <!-- 操作 -->
         <td class="py-3 px-4 text-right">
 
           <button
             onclick="openAssignment('${g.game_id}')"
-            class="bg-brand-600 hover:bg-brand-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold">
+            class="bg-brand-600 hover:bg-brand-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
 
             快速指派
 
