@@ -50,9 +50,26 @@ function changeDateFilter(date){
   render();
 }
 
+function isPositionFilled(pos){
+
+  if(!pos){
+    return false;
+  }
+
+  return !!(
+    pos.assigned ||
+    (pos.preferred &&
+     pos.preferred.length > 0)
+  );
+
+}
+
 /* =========================
- * 全部日期前先判斷
-* ========================= */
+ * 日期燈號
+ * RED    = 完全沒人
+ * YELLOW = 有缺額
+ * GREEN  = 全部已有報名/指派
+ * ========================= */
 function getDateStatus(date){
 
   const games =
@@ -79,24 +96,32 @@ function getDateStatus(date){
       return;
     }
 
-    let assignedCount = 0;
+    let filledCount = 0;
 
     activeRoles.forEach(role => {
 
-      if(
-        game.positions?.[role]?.assigned
-      ){
-        assignedCount++;
+      const pos =
+        game.positions?.[role];
+
+      const isFilled =
+        pos?.assigned ||
+        (
+          Array.isArray(pos?.preferred) &&
+          pos.preferred.length > 0
+        );
+
+      if(isFilled){
+        filledCount++;
       }
 
     });
 
-    if(assignedCount === 0){
+    if(filledCount === 0){
 
       hasRed = true;
 
     }else if(
-      assignedCount < activeRoles.length
+      filledCount < activeRoles.length
     ){
 
       hasYellow = true;
@@ -105,8 +130,13 @@ function getDateStatus(date){
 
   });
 
-  if(hasRed) return 'RED';
-  if(hasYellow) return 'YELLOW';
+  if(hasRed){
+    return 'RED';
+  }
+
+  if(hasYellow){
+    return 'YELLOW';
+  }
 
   return 'GREEN';
 
@@ -435,46 +465,43 @@ function renderGameCard(game){
     ] || [];
 
   const missingCount =
-    activeRoles.filter(role =>
-      !game.positions?.[role]?.assigned
-    ).length;
+    activeRoles.filter(role => {
+
+      const pos =
+        game.positions?.[role];
+
+      return !(
+        pos?.assigned ||
+        (
+          Array.isArray(pos?.preferred) &&
+          pos.preferred.length > 0
+        )
+      );
+
+    }).length;
 
   return `
-
     <div
       id="game-${game.game_id}"
       class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition mb-4">
 
-      <!-- Header -->
+      <div class="bg-slate-50 px-4 py-3 border-b border-slate-100">
 
-      <div class="bg-slate-50 px-5 py-3 border-b border-slate-100">
+        <div class="flex flex-wrap items-center gap-2">
 
-        <div class="flex flex-wrap items-center gap-3">
-
-          <span
-            class="bg-brand-600 text-white text-xs font-black px-2.5 py-1 rounded-lg">
-
+          <span class="bg-brand-600 text-white text-xs font-black px-2.5 py-1 rounded-lg">
             ${formatTime(game.time)}
-
           </span>
 
-          <span
-            class="font-black text-slate-900 text-base">
-
+          <span class="font-black text-slate-900 text-base">
             ${game.away_team}
-
-            <span class="text-slate-400 mx-1">
-              VS
-            </span>
-
+            <span class="text-slate-400 mx-1">VS</span>
             ${game.home_team}
-
           </span>
 
         </div>
 
-        <div
-          class="mt-2 flex flex-wrap items-center justify-between gap-2">
+        <div class="mt-1 flex flex-wrap items-center justify-between gap-2">
 
           <div class="text-xs text-slate-500">
             📍 ${game.field || '-'}
@@ -482,55 +509,38 @@ function renderGameCard(game){
 
           ${
             activeRoles.length === 0
-              ? `
-                <span
-                  class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg text-xs font-bold">
 
-                  不需裁判配置
+            ? `
+              <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded-lg text-xs font-bold">
+                不需裁判
+              </span>
+            `
 
-                </span>
-              `
-              : missingCount > 0
-                ? `
-                  <span
-                    class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg border border-amber-200 text-xs font-bold">
+            : missingCount > 0
 
-                    尚缺 ${missingCount} 位裁判
+            ? `
+              <span class="bg-amber-100 text-amber-800 px-2 py-1 rounded-lg border border-amber-200 text-xs font-bold">
+                尚缺 ${missingCount} 位裁判
+              </span>
+            `
 
-                  </span>
-                `
-                : `
-                  <span
-                    class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 text-xs font-bold">
-
-                    已指派完畢
-
-                  </span>
-                `
+            : `
+              <span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-lg border border-emerald-200 text-xs font-bold">
+                已滿編
+              </span>
+            `
           }
 
         </div>
 
       </div>
 
-      <!-- 席位區 -->
-
       ${
-        activeRoles.length === 0
+        activeRoles.length > 0
 
         ? `
 
-          <div class="p-8 text-center text-slate-400 text-sm font-bold">
-
-            本場賽事不配置裁判
-
-          </div>
-
-        `
-
-        : `
-
-          <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-${Math.min(activeRoles.length,4)} gap-4">
+          <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-${Math.min(activeRoles.length,4)} gap-3">
 
             ${activeRoles
               .map(role =>
@@ -541,10 +551,12 @@ function renderGameCard(game){
           </div>
 
         `
+
+        : ''
+
       }
 
     </div>
-
   `;
 }
 
@@ -1057,10 +1069,10 @@ function renderKPI(){
     4:['PU','U1','U2','U3']
   };
 
-  // 只統計未鎖定場次
-  const validGames = allGames.filter(
-    g => !g.is_locked
-  );
+  const validGames =
+    allGames.filter(
+      g => !g.is_locked
+    );
 
   const weekGames =
     validGames.length;
@@ -1076,7 +1088,6 @@ function renderKPI(){
         Number(game.umpire_count ?? 0)
       ] || [];
 
-    // 不需配置裁判
     if(activeRoles.length === 0){
       return;
     }
@@ -1088,16 +1099,32 @@ function renderKPI(){
       const pos =
         game.positions?.[role];
 
-      if(pos?.assigned){
+      const hasAssigned =
+        !!pos?.assigned;
+
+      const hasPreferred =
+        Array.isArray(pos?.preferred) &&
+        pos.preferred.length > 0;
+
+      // 已指派
+      if(hasAssigned){
 
         assignedCount++;
-
-      }else{
-
-        vacancyCount++;
-        gameHasVacancy = true;
+        return;
 
       }
+
+      // 已報名（視同已有人）
+      if(hasPreferred){
+
+        assignedCount++;
+        return;
+
+      }
+
+      // 真正缺額
+      vacancyCount++;
+      gameHasVacancy = true;
 
     });
 
@@ -1128,4 +1155,3 @@ function renderKPI(){
   );
 
 }
-
