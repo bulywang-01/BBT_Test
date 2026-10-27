@@ -4,7 +4,7 @@
 let allGames = [];
 let allJudges = [];
 let currentDateFilter = 'ALL';
-
+let currentMonthFilter = 'ALL';  // 篩選月份
 
 /* =========================
  * 站位中文對照
@@ -42,6 +42,21 @@ function formatTime(t) {
   const d = new Date(t);
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
+
+// 日期不呈現年份
+function formatShortDate(date){
+  const d = new Date(date);
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+
+// 篩選月份
+function changeMonthFilter(month){
+  currentMonthFilter = month;
+  currentDateFilter = 'ALL';
+  renderDateTabs();
+  render();
+}
+
 
 // 日期切換
 function changeDateFilter(date){
@@ -255,13 +270,13 @@ function renderDateTabs(){
       return `
 
         <button
-          onclick="changeDateFilter('${date}')"
+          onclick="changeDateFilter('${formatShortDate(date)}')"
           class="
             px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap
             ${buttonClass}
           ">
 
-          ${date}
+          ${formatShortDate(date)}
 
         </button>
 
@@ -385,20 +400,28 @@ function render(){
 
   }
 
-  const filteredGames =
+  const filteredGames = allGames.filter(g=>{
   
-    (
+    const gameMonth =
+      new Date(g.date).getMonth()+1;
+  
+    const monthMatch =
+      currentMonthFilter === 'ALL'
+        ? true
+        : gameMonth === Number(currentMonthFilter);
+  
+    const dateMatch =
       currentDateFilter === 'ALL'
-        ? allGames
-        : allGames.filter(g =>
-          formatDate(g.date) ===
-          currentDateFilter
-        )
-    )
+        ? true
+        : formatDate(g.date) === currentDateFilter;
   
-    .filter(g =>
+    return (
+      monthMatch &&
+      dateMatch &&
       Number(g.umpire_count ?? 0) > 0
     );
+  
+  });
   
   const grouped =
     groupGames(filteredGames);
@@ -425,7 +448,7 @@ function render(){
              class="w-5 h-5 text-brand-600"></i>
 
           <h3 class="text-base font-black text-slate-900">
-            ${date}
+            ${formatShortDate(date)}
           </h3>
 
         </div>
@@ -496,17 +519,18 @@ function renderGameCard(game){
 
       <div class="bg-slate-50 px-4 py-3 border-b border-slate-100">
 
-        <div class="flex flex-wrap items-center gap-2">
-
-          <span class="bg-brand-600 text-white text-xs font-black px-2.5 py-1 rounded-lg">
-            ${formatTime(game.time)}
-          </span>
-
-          <span class="font-black text-slate-900 text-base">
-            ${game.away_team}
-            <span class="text-slate-400 mx-1">VS</span>
-            ${game.home_team}
-          </span>
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div class="flex items-center gap-2">
+            <span class="bg-brand-600 text-white text-xs font-black px-2.5 py-1 rounded-lg">
+              ${formatTime(game.time)}
+            </span>
+  
+            <span class="font-black text-slate-900 text-base">
+              ${game.away_team}
+              <span class="text-slate-400 mx-1">VS</span>
+              ${game.home_team}
+            </span>
+          </div>
 
         </div>
 
@@ -1178,4 +1202,61 @@ function renderKPI(){
 
   }
 
+}
+
+// 月份篩選
+function renderMonthTabs(){
+
+  const box =
+    document.getElementById(
+      'monthTabs'
+    );
+
+  if(!box) return;
+
+  const months = [
+    ...new Set(
+      allGames.map(g => {
+
+        const d = new Date(g.date);
+
+        return d.getMonth() + 1;
+
+      })
+    )
+  ].sort((a,b)=>a-b);
+
+  box.innerHTML = `
+
+    <button
+      onclick="changeMonthFilter('ALL')"
+      class="
+      px-3 py-1 rounded-lg text-xs font-bold
+      ${currentMonthFilter === 'ALL'
+        ? 'bg-slate-900 text-white'
+        : 'bg-slate-100'}
+      ">
+
+      全部
+
+    </button>
+
+    ${months.map(m=>`
+
+      <button
+        onclick="changeMonthFilter('${m}')"
+        class="
+        px-3 py-1 rounded-lg text-xs font-bold
+        ${String(currentMonthFilter)===String(m)
+          ? 'bg-slate-900 text-white'
+          : 'bg-slate-100'}
+        ">
+
+        ${m}月
+
+      </button>
+
+    `).join('')}
+
+  `;
 }
