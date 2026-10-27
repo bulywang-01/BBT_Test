@@ -196,31 +196,77 @@ function renderDateTabs(){
     return;
   }
 
+  let sourceGames = allGames.filter(g => {
+  
+    if(
+      Number(g.umpire_count ?? 0) <= 0
+    ){
+      return false;
+    }
+  
+    if(
+      currentMonthFilter !== 'ALL'
+    ){
+  
+      const gameMonth =
+        new Date(g.date).getMonth() + 1;
+  
+      if(
+        gameMonth !== Number(currentMonthFilter)
+      ){
+        return false;
+      }
+  
+    }
+  
+    return true;
+  
+  });
+  
+  /* =========================
+   * KPI 篩選同步
+   * ========================= */
+  switch(currentKpiFilter){
+  
+    case 'VACANCY':
+  
+      sourceGames =
+        sourceGames.filter(game =>
+          hasVacancy(game)
+        );
+  
+      break;
+  
+    case 'ASSIGNED':
+  
+      sourceGames =
+        sourceGames.filter(game =>
+          !hasVacancy(game)
+        );
+  
+      break;
+  
+    case 'PENDING':
+  
+      sourceGames =
+        sourceGames.filter(game =>
+          hasVacancy(game)
+        );
+  
+      break;
+  
+  }
+  
   let dates = [
+  
     ...new Set(
   
-      allGames
-        .filter(g => {
-  
-          if(
-            currentMonthFilter === 'ALL'
-          ){
-            return true;
-          }
-  
-          return (
-            new Date(g.date)
-              .getMonth() + 1
-          ) === Number(
-            currentMonthFilter
-          );
-  
-        })
-        .map(g =>
-          formatDate(g.date)
-        )
+      sourceGames.map(g =>
+        formatDate(g.date)
+      )
   
     )
+  
   ];
 
   dates.sort((a,b)=>{
@@ -1274,8 +1320,9 @@ function cancelJudgeSignup(
 // KPI點選後篩選賽事功能
 function setKpiFilter(type){
   currentKpiFilter = type;
-  render();
   renderKpiActive();
+  renderDateTabs();
+  render();
 }
 
 /*********************************************************
