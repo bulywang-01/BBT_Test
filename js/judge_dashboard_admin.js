@@ -456,6 +456,7 @@ function loadGames() {
       renderMonthTabs();
       renderDateTabs();
       renderKpiActive();
+      focusGameFromUrl();
     }
   );
 
@@ -1815,5 +1816,64 @@ function getLevelLabel(level){
   };
 
   return map[level] || '未分級';
+
+}
+
+
+function focusGameFromUrl(){
+
+  const params =
+    new URLSearchParams(
+      location.search
+    );
+
+  const gameId =
+    params.get('gameId');
+
+  const role =
+    params.get('role');
+
+  if(!gameId){
+    return;
+  }
+
+  setTimeout(()=>{
+
+    const card =
+      document.getElementById(
+        `game-${gameId}`
+      );
+
+    if(!card){
+      return;
+    }
+
+    card.scrollIntoView({
+      behavior:'smooth',
+      block:'center'
+    });
+
+    card.classList.add(
+      'ring-4',
+      'ring-amber-400'
+    );
+
+    setTimeout(()=>{
+
+      card.classList.remove(
+        'ring-4',
+        'ring-amber-400'
+      );
+
+    },3000);
+
+    if(role){
+      openAssignJudge(
+        gameId,
+        role
+      );
+    }
+
+  },300);
 
 }
