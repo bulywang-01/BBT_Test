@@ -1333,7 +1333,7 @@ function renderJudgeList(judges, game){
         </div>
 
         <div class="text-xs text-slate-400">
-          ${j.level || '未分級'} 級裁判
+          ${getLevelLabel(j.level)}
         </div>
 
       </div>
@@ -1802,4 +1802,18 @@ function renderMonthTabs(){
     `).join('')}
 
   `;
+}
+
+// 證照等級
+function getLevelLabel(level){
+
+  const map = {
+    A: 'A級裁判',
+    B: 'B級裁判',
+    C: 'C級裁判',
+    N: '無證照'
+  };
+
+  return map[level] || '未分級';
+
 }
