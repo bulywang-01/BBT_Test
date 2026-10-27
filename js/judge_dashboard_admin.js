@@ -814,35 +814,50 @@ function renderPosCell(game, role){
 /* =========================
  * 啟動
  * ========================= */
-const btn =
-  document.getElementById('mobileMenuBtn');
+document.addEventListener('DOMContentLoaded', () => {
 
-const sidebar =
-  document.getElementById('sidebar');
+  console.log('judge dashboard start');
 
-const overlay =
-  document.getElementById('sidebarOverlay');
+  loadGames();
 
-if(btn && sidebar && overlay){
+  const btn = document.getElementById('mobileMenuBtn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
 
-  btn.addEventListener('click', () => {
+  if(btn && sidebar){
+    btn.addEventListener('click', () => {
+      sidebar.classList.toggle('mobile-open');
 
-    sidebar.classList.toggle('mobile-open');
-    overlay.classList.toggle('hidden');
+      if(overlay){
+        overlay.classList.toggle('hidden');
+      }
+    });
+  }
 
-  });
+  if(overlay && sidebar){
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('mobile-open');
+      overlay.classList.add('hidden');
+    });
+  }
 
-  overlay.addEventListener('click', () => {
+  const userName =
+    document.getElementById('sidebarUserName');
 
-    sidebar.classList.remove('mobile-open');
-    overlay.classList.add('hidden');
+  const userRole =
+    document.getElementById('sidebarUserRole');
 
-  });
+  if(userName){
+    userName.textContent =
+      session.name || session.user_name || '未登入';
+  }
 
-  document.getElementById('sidebarUserName').textContent = session.name || '';
-  document.getElementById('sidebarUserRole').textContent = session.role || '';
+  if(userRole){
+    userRole.textContent =
+      session.role || '-';
+  }
 
-}
+});
 
 
 let currentAssignContext = null;
