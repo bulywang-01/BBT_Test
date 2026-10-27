@@ -561,7 +561,7 @@ function renderVacancyTable(games){
     (g.missingJudge || [])
       .map(x => `
         <button
-          onclick="openQuickJudgeAssign('${g.game_id}','${x.code}')"
+          onclick="openAssignJudge('${g.game_id}','${x.code}')"
           class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 hover:bg-rose-200 px-2 py-1 text-[11px] font-bold text-rose-700 mr-1 mb-1 transition">
   
           ${x.name}
