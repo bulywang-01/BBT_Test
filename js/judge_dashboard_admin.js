@@ -112,18 +112,13 @@ function hasVacancy(game){
  * YELLOW = 有缺額
  * GREEN  = 全部已有報名/指派
  * ========================= */
-function getDateStatus(date){
+function getDateStatus(date, gameSource){
 
   const games =
-  (
-    currentDisplayGames.length
-      ? currentDisplayGames
-      : allGames
-  ).filter(g =>
-    formatDate(g.date) === date &&
-    Number(g.umpire_count ?? 0) > 0
-  );
-  
+    gameSource.filter(
+      g =>
+        formatDate(g.date) === date
+    );
 
   let hasRed = false;
   let hasYellow = false;
@@ -147,7 +142,7 @@ function getDateStatus(date){
     let filledCount = 0;
 
     activeRoles.forEach(role => {
-    
+
       if(
         isPositionFilled(
           game.positions?.[role]
@@ -155,9 +150,8 @@ function getDateStatus(date){
       ){
         filledCount++;
       }
-    
-    });
 
+    });
 
     if(filledCount === 0){
 
@@ -281,10 +275,17 @@ function renderDateTabs(){
     };
 
     const statusA =
-      getDateStatus(a);
-
+      getDateStatus(
+        a,
+        sourceGames
+      );
+    
     const statusB =
-      getDateStatus(b);
+      getDateStatus(
+        b,
+        sourceGames
+      );
+
 
     if(
       priority[statusA] !==
@@ -323,8 +324,30 @@ function renderDateTabs(){
 
     ${dates.map(date => {
 
-      const status =
-        getDateStatus(date);
+      let status;
+      
+      if(currentKpiFilter === 'ASSIGNED'){
+      
+        status = 'GREEN';
+      
+      }else if(
+      
+        currentKpiFilter === 'VACANCY' ||
+        currentKpiFilter === 'PENDING'
+      
+      ){
+      
+        status = 'RED';
+      
+      }else{
+      
+        status =
+          getDateStatus(
+            date,
+            sourceGames
+          );
+      
+      }
 
       let buttonClass =
         'bg-emerald-500 text-white';
