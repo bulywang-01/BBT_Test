@@ -552,7 +552,7 @@ function renderGameCard(game){
         <div class="flex items-center justify-between gap-2 flex-wrap">
           <div class="flex items-center justify-between gap-2 flex-wrap">
           
-            <div class="flex items-center gap-2 min-w-0">
+            <div class="game-header flex items-center gap-2 min-w-0">
           
               <span class="bg-brand-600 text-white text-xs font-black px-2.5 py-1 rounded-lg shrink-0">
                 ${formatTime(game.time)}
@@ -695,9 +695,9 @@ function renderPosCell(game, role){
     return `
       <div class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
 
-        <div class="flex items-center justify-between gap-2">
+        <div class="position-row flex items-center justify-between gap-2">
 
-          <div class="flex items-center gap-3 min-w-0 flex-1">
+          <div class="position-main flex items-center gap-3 min-w-0 flex-1">
 
             <span class="text-xs font-black text-slate-600 w-14 shrink-0">
               ${roleMap[role]}
@@ -713,7 +713,7 @@ function renderPosCell(game, role){
 
           </div>
 
-          <div class="flex items-center gap-1 shrink-0">
+          <div class="position-actions flex items-center gap-1 shrink-0">
 
             <button
               onclick="openAssignJudge('${game.game_id}','${role}')"
@@ -756,9 +756,9 @@ function renderPosCell(game, role){
     return `
       <div class="bg-amber-50 border border-amber-300 rounded-xl px-3 py-2">
 
-        <div class="flex items-center justify-between gap-2">
+        <div class="position-row flex items-center justify-between gap-2">
 
-          <div class="flex items-center gap-3 min-w-0 flex-1">
+          <div class="position-main flex items-center gap-3 min-w-0 flex-1">
 
             <span class="text-xs font-black text-amber-700 w-14 shrink-0">
               ${roleMap[role]}
@@ -779,7 +779,7 @@ function renderPosCell(game, role){
 
           </div>
 
-          <div class="flex items-center gap-1 shrink-0">
+          <div class="position-actions flex items-center gap-1 shrink-0">
 
             <button
               onclick="openAssignJudge('${game.game_id}','${role}')"
@@ -803,7 +803,7 @@ function renderPosCell(game, role){
   return `
     <div class="bg-rose-50 border border-rose-300 rounded-xl px-3 py-2">
 
-      <div class="flex items-center justify-between gap-2">
+      <div class="position-row flex items-center justify-between gap-2">
 
         <div class="flex items-center gap-3 flex-1">
 
