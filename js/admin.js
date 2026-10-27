@@ -78,6 +78,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+const userName =
+  document.getElementById('sidebarUserName');
+
+const userRole =
+  document.getElementById('sidebarUserRole');
+
+const avatar =
+  document.getElementById('sidebarAvatar');
+
+const displayName =
+  session.name ||
+  session.user_name ||
+  '未登入';
+
+if(userName){
+  userName.textContent = displayName;
+}
+
+if(userRole){
+  userRole.textContent =
+    session.role || '-';
+}
+
+if(avatar){
+  avatar.textContent =
+    displayName.trim().charAt(0);
+}
+
 /*********************************************************
  * Header
  *********************************************************/
