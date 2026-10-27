@@ -16,6 +16,9 @@
  * 共用工具
  *********************************************************/
 
+/* 全域變數定義 */
+let quickAssignContext = null;
+
 /* 格式化時間 */
 function formatGameTime(time){
 
@@ -558,7 +561,7 @@ function renderVacancyTable(games){
     (g.missingJudge || [])
       .map(x => `
         <button
-          onclick="openJudgeAssignment('${g.game_id}','${x.code}')"
+          onclick="openQuickJudgeAssign('${g.game_id}','${x.code}')"
           class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 hover:bg-rose-200 px-2 py-1 text-[11px] font-bold text-rose-700 mr-1 mb-1 transition">
   
           ${x.name}
@@ -645,14 +648,6 @@ function renderVacancyTable(games){
 
         <!-- 操作 -->
         <td class="py-3 px-4 text-right">
-
-          <button
-            onclick="openAssignment('${g.game_id}')"
-            class="bg-brand-600 hover:bg-brand-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
-
-            快速指派
-
-          </button>
 
         </td>
 
@@ -1163,5 +1158,122 @@ function focusGameFromUrl(){
     );
 
   },300);
+
+}
+
+// 首頁快速指派裁判
+function openQuickJudgeAssign(
+  gameId,
+  role
+){
+
+  quickAssignContext = {
+    gameId,
+    role
+  };
+
+  document
+    .getElementById(
+      'quickAssignTitle'
+    )
+    .textContent =
+      `指派 ${role}`;
+
+  callApi({
+    action : 'getAvailableJudges',
+    game_id : gameId,
+    role : role
+
+  }, res => {
+
+    const list =
+      document.getElementById(
+        'quickAssignList'
+      );
+
+    list.innerHTML =
+      (res.data || [])
+        .map(j => `
+
+          <button
+            onclick="quickAssignJudge('${j.user_id}')"
+            class="w-full text-left border rounded-lg p-3 mb-2 hover:bg-slate-50">
+
+            <div class="font-semibold">
+              ${j.name}
+            </div>
+
+          </button>
+
+        `)
+        .join('');
+
+    document
+      .getElementById(
+        'quickAssignModal'
+      )
+      .classList
+      .remove('hidden');
+
+  });
+
+}
+
+function quickAssignJudge(
+  judgeId
+){
+
+  if(!quickAssignContext){
+    return;
+  }
+
+  callApi({
+
+    action :
+      'assignJudgeToPosition_admin',
+
+    game_id :
+      quickAssignContext.gameId,
+
+    role :
+      quickAssignContext.role,
+
+    judge_id :
+      judgeId
+
+  }, res => {
+
+    if(
+      !res ||
+      res.result !== 'ok'
+    ){
+      alert(
+        res?.message ||
+        '指派失敗'
+      );
+      return;
+    }
+
+    document
+      .getElementById(
+        'quickAssignModal'
+      )
+      .classList
+      .add('hidden');
+
+    loadDashboard();
+
+  });
+
+}
+
+function closeQuickAssignModal(){
+
+  document
+    .getElementById(
+      'quickAssignModal'
+    )
+    .classList
+    .add('hidden');
 
 }
