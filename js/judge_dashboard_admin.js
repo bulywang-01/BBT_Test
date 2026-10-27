@@ -5,6 +5,7 @@ let allGames = [];
 let allJudges = [];
 let currentDateFilter = 'ALL';
 let currentMonthFilter = 'ALL';  // 篩選月份
+let currentKpiFilter = 'ALL';  // KPI點選篩選呈現的賽事
 
 /* =========================
  * 站位中文對照
@@ -75,6 +76,34 @@ function isPositionFilled(pos){
     )
   );
 }
+
+// 缺額判斷
+function hasVacancy(game){
+
+  const requiredRoles = {
+    0:[],
+    1:['PU'],
+    2:['PU','U1'],
+    3:['PU','U1','U3'],
+    4:['PU','U1','U2','U3']
+  };
+
+  const activeRoles =
+    requiredRoles[
+      Number(game.umpire_count ?? 0)
+    ] || [];
+
+  return activeRoles.some(role => {
+
+    const pos =
+      game.positions?.[role];
+
+    return !isPositionFilled(pos);
+
+  });
+
+}
+
 
 /* =========================
  * 日期燈號
@@ -352,6 +381,7 @@ function loadGames() {
       renderKPI();
       renderMonthTabs();
       renderDateTabs();
+      renderKpiActive();
     }
   );
 
@@ -404,57 +434,123 @@ function render(){
     `;
 
     return;
-
   }
 
+  /* =========================
+   * 月份 + 日期篩選
+   * ========================= */
   const filteredGames = allGames.filter(g=>{
-  
+
     const gameMonth =
-      new Date(g.date).getMonth()+1;
-  
+      new Date(g.date).getMonth() + 1;
+
     const monthMatch =
       currentMonthFilter === 'ALL'
         ? true
         : gameMonth === Number(currentMonthFilter);
-  
+
     const dateMatch =
       currentDateFilter === 'ALL'
         ? true
         : formatDate(g.date) === currentDateFilter;
-  
+
     return (
       monthMatch &&
       dateMatch &&
       Number(g.umpire_count ?? 0) > 0
     );
-  
+
   });
-  
+
   /* =========================
-   * 沒有符合資料
+   * KPI 篩選
    * ========================= */
-  if(filteredGames.length === 0){
-  
+  let displayGames = [...filteredGames];
+
+  switch(currentKpiFilter){
+
+    /* 全部 */
+    case 'ALL':
+      break;
+
+    /* 有缺額 */
+    case 'VACANCY':
+
+      displayGames =
+        displayGames.filter(game =>
+          hasVacancy(game)
+        );
+
+      break;
+
+    /* 已全部補齊 */
+    case 'ASSIGNED':
+
+      displayGames =
+        displayGames.filter(game =>
+          !hasVacancy(game)
+        );
+
+      break;
+
+    /* 待補賽事 */
+    case 'PENDING':
+
+      displayGames =
+        displayGames.filter(game =>
+          hasVacancy(game)
+        );
+
+      break;
+
+  }
+
+  /* =========================
+   * 無資料
+   * ========================= */
+  if(displayGames.length === 0){
+
+    let message =
+      '本條件下沒有符合賽事';
+
+    switch(currentKpiFilter){
+
+      case 'VACANCY':
+        message = '目前沒有缺額賽事';
+        break;
+
+      case 'ASSIGNED':
+        message = '目前沒有已滿編賽事';
+        break;
+
+      case 'PENDING':
+        message = '目前沒有待補賽事';
+        break;
+    }
+
     box.innerHTML = `
       <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-  
+
         <div class="text-lg font-black text-slate-700">
-          本日期沒有裁判賽事
+          ${message}
         </div>
-  
+
         <div class="text-sm text-slate-400 mt-2">
-          請切換其他日期
+          請切換月份、日期或 KPI 條件
         </div>
-  
+
       </div>
     `;
-  
+
     return;
   }
-  
+
+  /* =========================
+   * 分組
+   * ========================= */
   const grouped =
-    groupGames(filteredGames);
-  
+    groupGames(displayGames);
+
   const dates =
     Object.keys(grouped)
       .sort(
@@ -463,6 +559,9 @@ function render(){
           new Date(b.replace(/\//g,'-'))
       );
 
+  /* =========================
+   * Render 畫面
+   * ========================= */
   box.innerHTML = dates.map(date => {
 
     const categoryMap =
@@ -474,8 +573,10 @@ function render(){
 
         <div class="flex items-center space-x-2 border-b-2 border-slate-200 pb-2">
 
-          <i data-lucide="calendar"
-             class="w-5 h-5 text-brand-600"></i>
+          <i
+            data-lucide="calendar"
+            class="w-5 h-5 text-brand-600">
+          </i>
 
           <h3 class="text-base font-black text-slate-900">
             ${formatShortDate(date)}
@@ -497,7 +598,9 @@ function render(){
           </div>
 
           ${categoryMap[category]
-            .map(game => renderGameCard(game))
+            .map(game =>
+              renderGameCard(game)
+            )
             .join('')}
 
         `).join('')}
@@ -1167,6 +1270,14 @@ function cancelJudgeSignup(
 
 }
 
+
+// KPI點選後篩選賽事功能
+function setKpiFilter(type){
+  currentKpiFilter = type;
+  render();
+  renderKpiActive();
+}
+
 /*********************************************************
  * KPI
  *********************************************************/
@@ -1283,6 +1394,52 @@ function renderKPI(){
       );
 
     }
+
+  }
+
+}
+
+// KPI 樣式切換
+function renderKpiActive(){
+
+  const cards = {
+
+    ALL:
+      document.getElementById('kpiAllCard'),
+
+    VACANCY:
+      document.getElementById('kpiVacancyCard'),
+
+    ASSIGNED:
+      document.getElementById('kpiAssignedCard'),
+
+    PENDING:
+      document.getElementById('kpiPendingCard')
+
+  };
+
+  Object.values(cards).forEach(card => {
+
+    if(!card) return;
+
+    card.classList.remove(
+      'ring-2',
+      'ring-brand-500',
+      'bg-brand-50'
+    );
+
+  });
+
+  const activeCard =
+    cards[currentKpiFilter];
+
+  if(activeCard){
+
+    activeCard.classList.add(
+      'ring-2',
+      'ring-brand-500',
+      'bg-brand-50'
+    );
 
   }
 
