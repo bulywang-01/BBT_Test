@@ -857,6 +857,18 @@ document.addEventListener('DOMContentLoaded', () => {
       session.role || '-';
   }
 
+  const avatar =
+  document.getElementById('sidebarAvatar');
+
+  const displayName =
+    session.name ||
+    session.user_name ||
+    '未登入';
+  
+  if (avatar) {
+    avatar.textContent =
+      displayName.trim().charAt(0);
+  }
 });
 
 
