@@ -41,7 +41,11 @@
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
+    /* =========================
+     * Mobile Layout
+     * ========================= */
     @media (max-width:767px){
+    
       #sidebar{
         position: fixed;
         top: 0;
@@ -59,7 +63,40 @@
 
       #mainContent{
         width:100%;
+      } 
+      
+      /* 賽事標題 */
+    
+      .game-header{
+        flex-direction:column;
+        align-items:flex-start !important;
+        gap:8px;
       }
+    
+      /* 站位列 */
+    
+      .position-row{
+        flex-direction:column;
+        align-items:flex-start !important;
+      }
+    
+      .position-main{
+        width:100%;
+      }
+    
+      .position-actions{
+        width:100%;
+        margin-top:8px;
+        display:flex;
+        justify-content:flex-end;
+        gap:6px;
+      }
+    
+      .position-actions button{
+        min-width:70px;
+      }
+    
+    }
   </style>
   
 </head>
