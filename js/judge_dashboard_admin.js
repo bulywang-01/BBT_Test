@@ -6,6 +6,7 @@ let allJudges = [];
 let currentDateFilter = 'ALL';
 let currentMonthFilter = 'ALL';  // 篩選月份
 let currentKpiFilter = 'ALL';  // KPI點選篩選呈現的賽事
+let currentDisplayGames = [];  // 正確顯示賽事資訊
 
 /* =========================
  * 站位中文對照
@@ -114,13 +115,15 @@ function hasVacancy(game){
 function getDateStatus(date){
 
   const games =
-    allGames.filter(g =>
+  (
+    currentDisplayGames.length
+      ? currentDisplayGames
+      : allGames
+  ).filter(g =>
+    formatDate(g.date) === date &&
+    Number(g.umpire_count ?? 0) > 0
+  );
   
-      formatDate(g.date) === date &&
-  
-      Number(g.umpire_count ?? 0) > 0
-  
-    );
 
   let hasRed = false;
   let hasYellow = false;
@@ -551,6 +554,9 @@ function render(){
 
   }
 
+  currentDisplayGames =
+  [...displayGames];
+  
   /* =========================
    * 無資料
    * ========================= */
