@@ -262,7 +262,7 @@
           <div id="sidebarUserRole" class="text-[10px] text-amber-400">-</div>
         </div>
       </div>
-      <button title="登出系統" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition">
+      <button title="登出系統" onclick="logout()" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition">
         <i data-lucide="log-out" class="w-4 h-4"></i>
       </button>
     </div>
@@ -409,7 +409,7 @@
   </div>
 
   <!-- 3. 全新互動式「指派裁判」彈出視窗 (Assignment Modal) -->
-  <div id="assignModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div id="assignModal" onclick="handleModalBackdrop(event)" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden transform transition-all">
       
       <!-- Modal Header -->
@@ -418,7 +418,7 @@
           <h3 class="font-black text-base" id="modalTitle">指派人員 - 主審</h3>
           <p class="text-xs text-slate-400 mt-0.5" id="modalMatchInfo">11/07 08:00 到齊隊 vs 虎霸</p>
         </div>
-        <button onclick="closeAssignModal()" class="text-slate-400 hover:text-white p-1 rounded-lg transition">
+        <button onclick="closeJudgeModal()" class="text-slate-400 hover:text-white p-1 rounded-lg transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -432,87 +432,19 @@
       </div>
 
       <!-- 裁判清單 (卡片式高質感網格) -->
-      <div class="p-4 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
-        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">請選擇欲指派的裁判人選：</p>
-
-        <div class="grid grid-cols-2 gap-2">
-          <!-- 裁判選項卡片 -->
-          <button onclick="selectReferee('周政宏')" class="p-3 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 border border-slate-200 rounded-xl text-left transition flex items-center justify-between group">
-            <div>
-              <div class="font-bold text-xs text-slate-800 group-hover:text-brand-700">周政宏</div>
-              <span class="text-[10px] text-slate-400">C級裁判</span>
-            </div>
-            <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-600 opacity-0 group-hover:opacity-100 transition"></i>
-          </button>
-
-          <button onclick="selectReferee('孫翊翔')" class="p-3 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 border border-slate-200 rounded-xl text-left transition flex items-center justify-between group">
-            <div>
-              <div class="font-bold text-xs text-slate-800 group-hover:text-brand-700">孫翊翔</div>
-              <span class="text-[10px] text-slate-400">C級裁判</span>
-            </div>
-            <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-600 opacity-0 group-hover:opacity-100 transition"></i>
-          </button>
-
-          <button onclick="selectReferee('(聘)林有樺')" class="p-3 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 border border-slate-200 rounded-xl text-left transition flex items-center justify-between group">
-            <div>
-              <div class="font-bold text-xs text-slate-800 group-hover:text-brand-700">(聘)林有樺</div>
-              <span class="text-[10px] text-amber-600 font-bold">外聘裁判</span>
-            </div>
-            <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-600 opacity-0 group-hover:opacity-100 transition"></i>
-          </button>
-
-          <button onclick="selectReferee('王韶文')" class="p-3 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 border border-slate-200 rounded-xl text-left transition flex items-center justify-between group">
-            <div>
-              <div class="font-bold text-xs text-slate-800 group-hover:text-brand-700">王韶文</div>
-              <span class="text-[10px] text-slate-400">C級裁判</span>
-            </div>
-            <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-600 opacity-0 group-hover:opacity-100 transition"></i>
-          </button>
-
-          <button onclick="selectReferee('陳澤宇')" class="p-3 bg-slate-50 hover:bg-brand-50 hover:border-brand-300 border border-slate-200 rounded-xl text-left transition flex items-center justify-between group">
-            <div>
-              <div class="font-bold text-xs text-slate-800 group-hover:text-brand-700">陳澤宇</div>
-              <span class="text-[10px] text-slate-400">C級裁判</span>
-            </div>
-            <i data-lucide="check-circle-2" class="w-4 h-4 text-brand-600 opacity-0 group-hover:opacity-100 transition"></i>
-          </button>
-
-          <!-- 衝突提示樣式 -->
-          <button class="p-3 bg-rose-50 border border-rose-200 rounded-xl text-left opacity-75 cursor-not-allowed flex items-center justify-between">
-            <div>
-              <div class="font-bold text-xs text-slate-700">林勛恩</div>
-              <span class="text-[10px] text-rose-600 font-bold">⚠️ 當日時間衝突</span>
-            </div>
-          </button>
+      <div id="judgeList" class="p-4 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+        <div class="text-center py-6 text-slate-400">
+          載入中...
         </div>
       </div>
 
       <!-- Modal Footer -->
       <div class="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-end space-x-2">
-        <button onclick="closeAssignModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition">取消</button>
+        <button onclick="closeJudgeModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition">取消</button>
       </div>
 
     </div>
   </div>
 
-  <!-- Lucide & Modal 觸發腳本 -->
-  <script>
-    lucide.createIcons();
-
-    function openAssignModal(matchInfo, role) {
-      document.getElementById('modalTitle').innerText = `指派人員 - ${role}`;
-      document.getElementById('modalMatchInfo').innerText = matchInfo;
-      document.getElementById('assignModal').classList.remove('hidden');
-    }
-
-    function closeAssignModal() {
-      document.getElementById('assignModal').classList.add('hidden');
-    }
-
-    function selectReferee(name) {
-      alert(`已成功指派 ${name}！`);
-      closeAssignModal();
-    }
-  </script>
 </body>
 </html>
