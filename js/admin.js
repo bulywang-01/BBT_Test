@@ -42,11 +42,11 @@ function formatGameTime(time){
 }
 
 /* 管理頁登入驗證 */
-const session = JSON.parse(localStorage.getItem('session_user') || '{}');
-const CURRENT_USER_ID = session.user_id || '';
 
 function guardAdminPage(){
 
+  const session = JSON.parse(localStorage.getItem('session_user') || '{}');
+  
   if (!session.user_id){
 
     alert('尚未登入');
@@ -69,38 +69,44 @@ function guardAdminPage(){
 document.addEventListener('DOMContentLoaded', () => {
 
   guardAdminPage();
+
+  const session =
+    JSON.parse(
+      localStorage.getItem('session_user') || '{}'
+    );
+
+  const userName =
+    document.getElementById('sidebarUserName');
+
+  const userRole =
+    document.getElementById('sidebarUserRole');
+
+  const avatar =
+    document.getElementById('sidebarAvatar');
+
+  const displayName =
+    session.name ||
+    session.user_name ||
+    '未登入';
+
+  if(userName){
+    userName.textContent = displayName;
+  }
+
+  if(userRole){
+    userRole.textContent =
+      session.role || '-';
+  }
+
+  if(avatar){
+    avatar.textContent =
+      displayName.trim().charAt(0);
+  }
+
   loadHeader();
   loadDashboard();
 
 });
-
-const userName =
-  document.getElementById('sidebarUserName');
-
-const userRole =
-  document.getElementById('sidebarUserRole');
-
-const avatar =
-  document.getElementById('sidebarAvatar');
-
-const displayName =
-  session.name ||
-  session.user_name ||
-  '未登入';
-
-if(userName){
-  userName.textContent = displayName;
-}
-
-if(userRole){
-  userRole.textContent =
-    session.role || '-';
-}
-
-if(avatar){
-  avatar.textContent =
-    displayName.trim().charAt(0);
-}
 
 /*********************************************************
  * Header
