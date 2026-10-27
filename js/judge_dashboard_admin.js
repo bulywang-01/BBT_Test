@@ -9,6 +9,7 @@ let currentKpiFilter = 'ALL';  // KPI點選篩選呈現的賽事
 let currentDisplayGames = [];  // 正確顯示賽事資訊
 let currentAssignContext = null;
 let currentJudgeList = [];
+let autoAssignOpened = false;
 
 /* =========================
  * 站位中文對照
@@ -1395,14 +1396,16 @@ window.handleModalBackdrop = function(e){
 
 
 function assignJudge(judge) {
+
   if (!currentAssignContext) return;
 
-  const modal = document.getElementById('assignModal');
+  const modal =
+    document.getElementById('assignModal');
 
-  // ✅ 立刻給使用者回饋
-  showAssignMessage('⏳ 指派中，請稍候…');
+  showAssignMessage(
+    '⏳ 指派中，請稍候…'
+  );
 
-  // ✅ 防止連續點擊
   modal.style.pointerEvents = 'none';
 
   callApi({
@@ -1410,28 +1413,44 @@ function assignJudge(judge) {
     game_id: currentAssignContext.gameId,
     role: currentAssignContext.role,
     judge_id: judge.user_id
+
   }, res => {
 
     modal.style.pointerEvents = 'auto';
 
-    /* =========================
-     * ❌ 1️⃣ 明確失敗（後端規則擋）
-     * ========================= */
-    if (res && res.result === 'error') {
-      // ✅ 這裡就是你現在缺的
+    if (
+      res &&
+      res.result === 'error'
+    ) {
+
       showAssignMessage(
         `❌ ${res.message || '指派失敗'}`
       );
+
       return;
     }
 
-    /* =========================
-     * ✅ 2️⃣ 成功 or 非明確錯誤
-     * ========================= */
-    showAssignMessage('✅ 指派完成');
+    showAssignMessage(
+      '✅ 指派完成'
+    );
+
     closeJudgeModal();
-    loadGames();   // ✅ 一定要重整
+
+    /* ✅ 防止 Dashboard 帶來的 URL 再次開窗 */
+    history.replaceState(
+      {},
+      '',
+      location.pathname
+    );
+
+    /* ✅ 防止 focusGameFromUrl 再開一次 */
+    autoAssignOpened = true;
+
+    /* ✅ 重整資料 */
+    loadGames();
+
   });
+
 }
 
 
