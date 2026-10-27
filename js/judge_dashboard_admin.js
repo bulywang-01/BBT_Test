@@ -527,24 +527,26 @@ function renderGameCard(game){
       <div class="bg-slate-50 px-4 py-3 border-b border-slate-100">
 
         <div class="flex items-center justify-between gap-2 flex-wrap">
-          <div class="flex items-center gap-2">
-            <span class="bg-brand-600 text-white text-xs font-black px-2.5 py-1 rounded-lg">
-              ${formatTime(game.time)}
-            </span>
-  
-            <span class="font-black text-slate-900 text-base">
-              ${game.away_team}
-              <span class="text-slate-400 mx-1">VS</span>
-              ${game.home_team}
-            </span>
-          </div>
-
-        </div>
-
-        <div class="mt-1 flex flex-wrap items-center justify-between gap-2">
-
-          <div class="text-xs text-slate-500">
-            📍 ${game.field || '-'}
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+          
+            <div class="flex items-center gap-2 min-w-0">
+          
+              <span class="bg-brand-600 text-white text-xs font-black px-2.5 py-1 rounded-lg shrink-0">
+                ${formatTime(game.time)}
+              </span>
+          
+              <span class="font-black text-slate-900 text-base">
+                ${game.away_team}
+                <span class="text-slate-400 mx-1">VS</span>
+                ${game.home_team}
+              </span>
+          
+            </div>
+          
+            <div class="text-xs text-slate-500 shrink-0">
+              📍 ${game.field || '-'}
+            </div>
+          
           </div>
 
           ${
