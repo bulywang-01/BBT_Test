@@ -557,18 +557,26 @@ function renderVacancyTable(games){
     const judgeBadges =
       (g.missingJudge || [])
         .map(x => `
-          <span class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 px-2 py-1 text-[11px] font-bold text-rose-700 mr-1 mb-1">
+          <button
+            onclick="openJudgeAssignment('${g.game_id}','${x}')"
+            class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 hover:bg-rose-200 px-2 py-1 text-[11px] font-bold text-rose-700 mr-1 mb-1 transition">
+    
             ${x}
-          </span>
+    
+          </button>
         `)
         .join('');
 
     const recordBadges =
       (g.missingRecord || [])
         .map(x => `
-          <span class="inline-flex items-center rounded-lg border border-amber-200 bg-amber-100 px-2 py-1 text-[11px] font-bold text-amber-700 mr-1 mb-1">
+          <button
+            onclick="openRecordAssignment('${g.game_id}','${x}')"
+            class="inline-flex items-center rounded-lg border border-amber-200 bg-amber-100 hover:bg-amber-200 px-2 py-1 text-[11px] font-bold text-amber-700 mr-1 mb-1 transition">
+    
             ${x}
-          </span>
+    
+          </button>
         `)
         .join('');
 
@@ -932,18 +940,8 @@ function openJudgePage(gameId){
  *********************************************************/
 function openJudgeAssignment(gameId, role){
 
-  sessionStorage.setItem(
-    'dashboard_assign_game',
-    gameId
-  );
-
-  sessionStorage.setItem(
-    'dashboard_assign_role',
-    role
-  );
-
   location.href =
-    'judge_dashboard_admin.html';
+    `judge_dashboard_admin.html?gameId=${gameId}&role=${role}`;
 
 }
 
@@ -952,18 +950,8 @@ function openJudgeAssignment(gameId, role){
  *********************************************************/
 function openRecordAssignment(gameId, role){
 
-  sessionStorage.setItem(
-    'dashboard_assign_game',
-    gameId
-  );
-
-  sessionStorage.setItem(
-    'dashboard_assign_role',
-    role
-  );
-
   location.href =
-    'record_dashboard_admin.html';
+    `record_dashboard_admin.html?gameId=${gameId}&role=${role}`;
 
 }
 
@@ -981,6 +969,23 @@ function copyGameCode(code){
       );
 
     });
+
+}
+
+/*********************************************************
+ * 裁判 Dashboard 接 URL
+ *********************************************************/
+function getUrlParams(){
+
+  const params =
+    new URLSearchParams(
+      location.search
+    );
+
+  return {
+    gameId : params.get('gameId'),
+    role   : params.get('role')
+  };
 
 }
 
@@ -1073,3 +1078,60 @@ window.addEventListener('resize', () => {
   }
 
 });
+
+/*********************************************************
+ * ?????????
+ *********************************************************/
+function focusGameFromUrl(){
+
+  const {
+    gameId,
+    role
+  } = getUrlParams();
+
+  if(!gameId){
+    return;
+  }
+
+  setTimeout(()=>{
+
+    const card =
+      document.getElementById(
+        `game-${gameId}`
+      );
+
+    if(!card){
+      return;
+    }
+
+    card.scrollIntoView({
+      behavior:'smooth',
+      block:'center'
+    });
+
+    card.classList.add(
+      'ring-4',
+      'ring-amber-400'
+    );
+
+    setTimeout(()=>{
+
+      card.classList.remove(
+        'ring-4',
+        'ring-amber-400'
+      );
+
+    },3000);
+
+    if(role){
+
+      openAssignJudge(
+        gameId,
+        role
+      );
+
+    }
+
+  },300);
+
+}
