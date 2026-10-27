@@ -554,31 +554,31 @@ function renderVacancyTable(games){
 
   tbody.innerHTML = games.map(g => {
 
-    const judgeBadges =
-      (g.missingJudge || [])
-        .map(x => `
-          <button
-            onclick="openJudgeAssignment('${g.game_id}','${x}')"
-            class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 hover:bg-rose-200 px-2 py-1 text-[11px] font-bold text-rose-700 mr-1 mb-1 transition">
-    
-            ${x}
-    
-          </button>
-        `)
-        .join('');
+  const judgeBadges =
+    (g.missingJudge || [])
+      .map(x => `
+        <button
+          onclick="openJudgeAssignment('${g.game_id}','${x.code}')"
+          class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 hover:bg-rose-200 px-2 py-1 text-[11px] font-bold text-rose-700 mr-1 mb-1 transition">
+  
+          ${x.name}
+  
+        </button>
+      `)
+      .join('');
 
-    const recordBadges =
-      (g.missingRecord || [])
-        .map(x => `
-          <button
-            onclick="openRecordAssignment('${g.game_id}','${x}')"
-            class="inline-flex items-center rounded-lg border border-amber-200 bg-amber-100 hover:bg-amber-200 px-2 py-1 text-[11px] font-bold text-amber-700 mr-1 mb-1 transition">
-    
-            ${x}
-    
-          </button>
-        `)
-        .join('');
+  const recordBadges =
+    (g.missingRecord || [])
+      .map(x => `
+        <button
+          onclick="openRecordAssignment('${g.game_id}','${x.code}')"
+          class="inline-flex items-center rounded-lg border border-amber-200 bg-amber-100 hover:bg-amber-200 px-2 py-1 text-[11px] font-bold text-amber-700 mr-1 mb-1 transition">
+  
+          ${x.name}
+  
+        </button>
+      `)
+      .join('');
 
     return `
 
@@ -723,19 +723,27 @@ function renderVacancyCards(games){
 
     const judgeBadges =
       (g.missingJudge || [])
-      .map(x => `
-        <span class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 px-2 py-1 text-[11px] font-bold text-rose-700">
-          ${x}
-        </span>
-      `).join('');
-
+        .map(x => `
+          <button
+            onclick="openJudgeAssignment('${g.game_id}','${x.code}')"
+            class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 hover:bg-rose-200 px-2 py-1 text-[11px] font-bold text-rose-700">
+    
+            ${x.name}
+    
+          </button>
+        `).join('');
+    
     const recordBadges =
       (g.missingRecord || [])
-      .map(x => `
-        <span class="inline-flex items-center rounded-lg border border-amber-200 bg-amber-100 px-2 py-1 text-[11px] font-bold text-amber-700">
-          ${x}
-        </span>
-      `).join('');
+        .map(x => `
+          <button
+            onclick="openRecordAssignment('${g.game_id}','${x.code}')"
+            class="inline-flex items-center rounded-lg border border-amber-200 bg-amber-100 hover:bg-amber-200 px-2 py-1 text-[11px] font-bold text-amber-700">
+    
+            ${x.name}
+    
+          </button>
+        `).join('');
 
     return `
     
@@ -938,10 +946,10 @@ function openJudgePage(gameId){
 /*********************************************************
  * 裁判指派
  *********************************************************/
-function openJudgeAssignment(gameId, role){
+function openRecordAssignment(gameId, role){
 
   location.href =
-    `judge_dashboard_admin.html?gameId=${gameId}&role=${role}`;
+    `record_dashboard_admin.html?gameId=${gameId}&role=${encodeURIComponent(role)}`;
 
 }
 
