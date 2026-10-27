@@ -888,20 +888,20 @@ function openAssignment(gameId){
           ${judgeRoles.map(role => `
             <button
               class="assign-role-btn bg-rose-100 text-rose-700 border border-rose-200 rounded-lg px-3 py-2 text-sm font-bold"
-              onclick="openJudgeAssignment('${gameId}','${role}')">
-
-              ${role}
-
+              onclick="openJudgeAssignment('${gameId}','${role.code}')">
+          
+              ${role.name}
+          
             </button>
           `).join('')}
 
           ${recordRoles.map(role => `
             <button
               class="assign-role-btn bg-amber-100 text-amber-700 border border-amber-200 rounded-lg px-3 py-2 text-sm font-bold"
-              onclick="openRecordAssignment('${gameId}','${role}')">
-
-              ${role}
-
+              onclick="openRecordAssignment('${gameId}','${role.code}')">
+          
+              ${role.name}
+          
             </button>
           `).join('')}
 
