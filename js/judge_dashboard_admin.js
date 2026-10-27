@@ -65,19 +65,6 @@ function changeDateFilter(date){
   render();
 }
 
-function isPositionFilled(pos){
-
-  if(!pos){
-    return false;
-  }
-
-  return !!(
-    pos.assigned ||
-    (pos.preferred &&
-     pos.preferred.length > 0)
-  );
-
-}
 
 function isPositionFilled(pos){
   return !!(
@@ -182,9 +169,28 @@ function renderDateTabs(){
 
   let dates = [
     ...new Set(
-      allGames.map(g =>
-        formatDate(g.date)
-      )
+  
+      allGames
+        .filter(g => {
+  
+          if(
+            currentMonthFilter === 'ALL'
+          ){
+            return true;
+          }
+  
+          return (
+            new Date(g.date)
+              .getMonth() + 1
+          ) === Number(
+            currentMonthFilter
+          );
+  
+        })
+        .map(g =>
+          formatDate(g.date)
+        )
+  
     )
   ];
 
@@ -270,7 +276,7 @@ function renderDateTabs(){
       return `
 
         <button
-          onclick="changeDateFilter('${formatShortDate(date)}')"
+          onclick="changeDateFilter('${date}')"
           class="
             px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap
             ${buttonClass}
@@ -344,6 +350,7 @@ function loadGames() {
 
       render();
       renderKPI();
+      renderMonthTabs();
       renderDateTabs();
     }
   );
@@ -608,16 +615,17 @@ function renderPosCell(game, role){
   };
 
   const requiredRoles = {
+    0:[],
     1:['PU'],
     2:['PU','U1'],
     3:['PU','U1','U3'],
     4:['PU','U1','U2','U3']
   };
-
+  
   const activeRoles =
     requiredRoles[
-      Number(game.umpire_count || 4)
-    ] || ['PU','U1','U2','U3'];
+      Number(game.umpire_count ?? 0)
+    ] || [];
 
   const disabled =
     !activeRoles.includes(role);
@@ -1109,7 +1117,13 @@ function renderKPI(){
     );
 
   const yearGames =
-    validGames.length;
+    new Set(
+  
+      validGames.map(
+        g => String(g.game_id)
+      )
+  
+    ).size;
 
   let vacancyCount = 0;
   let assignedCount = 0;
