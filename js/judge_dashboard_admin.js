@@ -7,6 +7,8 @@ let currentDateFilter = 'ALL';
 let currentMonthFilter = 'ALL';  // 篩選月份
 let currentKpiFilter = 'ALL';  // KPI點選篩選呈現的賽事
 let currentDisplayGames = [];  // 正確顯示賽事資訊
+let currentAssignContext = null;
+let currentJudgeList = [];
 
 /* =========================
  * 站位中文對照
@@ -807,7 +809,7 @@ function renderGameCard(game){
  * 裁判站位卡（V2 緊湊版）
  *********************************************************/
 function renderPosCell(game, role){
-
+  
   const pos = game.positions?.[role] || {};
 
   const roleMap = {
@@ -816,6 +818,47 @@ function renderPosCell(game, role){
     U2:'二壘審',
     U3:'三壘審'
   };
+  
+  if(game.is_locked){
+  
+    return `
+      <div class="bg-slate-100 border border-slate-300 rounded-xl px-3 py-2">
+  
+        <div class="flex items-center justify-between">
+  
+          <div class="flex items-center gap-3">
+  
+            <span class="text-xs font-black">
+              ${roleMap[role]}
+            </span>
+  
+            <span class="font-bold text-slate-600">
+              ${
+                pos.assigned?.name ||
+                '未配置'
+              }
+            </span>
+  
+          </div>
+  
+          <span class="
+            bg-slate-300
+            text-slate-700
+            text-xs
+            px-2 py-1
+            rounded-lg
+            font-bold">
+  
+            🔒 已鎖定
+  
+          </span>
+  
+        </div>
+  
+      </div>
+    `;
+  }
+
 
   const requiredRoles = {
     0:[],
@@ -1074,23 +1117,61 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-let currentAssignContext = null;
-
 /**
  * 開啟指派裁判 modal
  * @param {string|number} gameId
  * @param {string} role  PU / U1 / U2 / U3
  */
 
-window.openAssignJudge = function (gameId, role) {
-  currentAssignContext = { gameId, role };
+window.openAssignJudge = function(gameId, role){
 
-  const modal = document.getElementById('judgeModal');
-  const list = document.getElementById('judgeList');
-  const title = document.getElementById('judgeModalTitle');
+  const game =
+    allGames.find(
+      g => String(g.game_id) === String(gameId)
+    );
 
-  title.textContent = `指派 ${ROLE_LABEL[role]}`;
-  list.innerHTML = '載入中…';
+  if(!game){
+    showAssignMessage('❌ 找不到賽事');
+    return;
+  }
+
+  if(game.is_locked){
+    showAssignMessage('🔒 此賽事已鎖定');
+    return;
+  }
+
+  currentAssignContext = {
+    gameId,
+    role
+  };
+
+  currentJudgeList = [];
+
+  const modal =
+    document.getElementById('assignModal');
+
+  const title =
+    document.getElementById('modalTitle');
+
+  const matchInfo =
+    document.getElementById('modalMatchInfo');
+
+  const container =
+    document.getElementById('judgeList');
+
+  title.textContent =
+    `指派 ${ROLE_LABEL[role]}`;
+
+  matchInfo.textContent =
+    `${formatDate(game.date)} ${game.home_team} VS ${game.away_team}`;
+
+  if(container){
+    container.innerHTML = `
+      <div class="text-center py-6 text-slate-400">
+        載入中...
+      </div>
+    `;
+  }
 
   modal.classList.remove('hidden');
 
@@ -1100,120 +1181,228 @@ window.openAssignJudge = function (gameId, role) {
     user_id: CURRENT_USER_ID
   }, res => {
 
-    list.innerHTML = '';
+    if(
+      !res ||
+      res.result !== 'ok' ||
+      !Array.isArray(res.judges)
+    ){
 
-    // ❌ 防呆
-    if (!res || res.result !== 'ok' || !Array.isArray(res.judges)) {
-      list.innerHTML = `<div class="empty">目前無可指派裁判</div>`;
+      if(container){
+        container.innerHTML = `
+          <div class="text-center py-6 text-rose-500">
+            無法取得裁判清單
+          </div>
+        `;
+      }
+
       return;
     }
 
-    // ✅ 找到該場比賽
-    const game = allGames.find(g => String(g.game_id) === String(gameId));
-    
-    // ✅ 本場「已佔位的人（裁判 + 報名）」全部抓出來
-    const occupiedIds = new Set();
-    
-    if (game && game.positions) {
-    
-      Object.values(game.positions).forEach(p => {
-    
-        // ✅ 已指派
-        if (p.assigned && p.assigned.id) {
-          occupiedIds.add(String(p.assigned.id));
-        }
-    
-        // ✅ ✅ ✅ 加這段（關鍵！）→ 報名的人也不能再當別的位置
-        if (Array.isArray(p.preferred)) {
-          p.preferred.forEach(u => {
-            if (u.id) {
-              occupiedIds.add(String(u.id));
-            }
-          });
-        }
-    
-      });
-    }
+    renderJudgeList(
+      res.judges,
+      game
+    );
 
-
-    // ✅ 排序（證照 > 姓名）
-    const levelPriority = {
-      A: 3,
-      B: 2,
-      C: 1
-    };
-    
-    const sortedJudges = res.judges.sort((a, b) => {
-    
-      // ✅ level（你 Users 裡是 level 欄位）
-      const levelA = (a.level || '').toUpperCase();
-      const levelB = (b.level || '').toUpperCase();
-    
-      const scoreA = levelPriority[levelA] || 0;
-      const scoreB = levelPriority[levelB] || 0;
-    
-      // ✅ 先比證照（高 → 低）
-      if (scoreA !== scoreB) {
-        return scoreB - scoreA;
-      }
-    
-      // ✅ 再比姓名第一個字
-      const nameA = (a.name || '').charAt(0);
-      const nameB = (b.name || '').charAt(0);
-    
-      return nameA.localeCompare(nameB, 'zh-Hant');
-    });
-
-    // ✅ 嚴格過濾：只要已在任何裁判站位 → 不顯示
-    // res.judges.forEach(j => {
-    
-    sortedJudges.forEach(j => {
-      const uid = String(j.user_id);
-
-      if (occupiedIds.has(uid)) return;
-
-      const card = document.createElement('div');
-      card.className = 'judge-card';
-      card.textContent = j.name;
-      card.onclick = () => assignJudge(j);
-
-      list.appendChild(card);
-    });
-
-    if (!list.children.length) {
-      list.innerHTML = `<div class="empty">目前無可指派裁判</div>`;
-    }
   });
+
+};
+
+function renderJudgeList(judges, game){
+
+  const container =
+    document.getElementById('judgeList');
+
+  if(!container){
+    return;
+  }
+
+  const occupiedIds = new Set();
+
+  if(game.positions){
+
+    Object.values(game.positions).forEach(pos => {
+
+      if(
+        pos.assigned &&
+        pos.assigned.id
+      ){
+
+        occupiedIds.add(
+          String(pos.assigned.id)
+        );
+
+      }
+
+      if(
+        Array.isArray(pos.preferred)
+      ){
+
+        pos.preferred.forEach(user => {
+
+          if(user.id){
+
+            occupiedIds.add(
+              String(user.id)
+            );
+
+          }
+
+        });
+
+      }
+
+    });
+
+  }
+
+  const levelPriority = {
+    A:3,
+    B:2,
+    C:1
+  };
+
+  const available = judges
+
+    .filter(j =>
+      !occupiedIds.has(
+        String(j.user_id)
+      )
+    )
+
+    .sort((a,b)=>{
+
+      const scoreA =
+        levelPriority[
+          (a.level || '').toUpperCase()
+        ] || 0;
+
+      const scoreB =
+        levelPriority[
+          (b.level || '').toUpperCase()
+        ] || 0;
+
+      if(scoreA !== scoreB){
+
+        return scoreB - scoreA;
+
+      }
+
+      return (a.name || '')
+        .localeCompare(
+          b.name || '',
+          'zh-Hant'
+        );
+
+    });
+
+  currentJudgeList = available;
+
+  if(!available.length){
+
+    container.innerHTML = `
+      <div class="text-center py-6 text-slate-400">
+        目前無可指派裁判
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML = available.map(j => `
+
+    <button
+      onclick="assignJudgeById('${j.user_id}')"
+      class="
+      w-full
+      flex
+      items-center
+      justify-between
+      p-3
+      bg-slate-50
+      hover:bg-brand-50
+      border
+      border-slate-200
+      rounded-xl
+      transition
+      ">
+
+      <div class="text-left">
+
+        <div class="font-bold text-sm">
+          ${j.name}
+        </div>
+
+        <div class="text-xs text-slate-400">
+          ${j.level || '未分級'} 級裁判
+        </div>
+
+      </div>
+
+      <div class="text-brand-600 font-bold">
+        指派
+      </div>
+
+    </button>
+
+  `).join('');
+
+}
+
+window.assignJudgeById = function(userId){
+
+  const judge =
+    currentJudgeList.find(
+      j =>
+        String(j.user_id) ===
+        String(userId)
+    );
+
+  if(!judge){
+    return;
+  }
+
+  assignJudge(judge);
+
 };
 
 /* 改成掛在 window */
-window.closeJudgeModal = function () {
-  const modal = document.getElementById('judgeModal');
-  const list = document.getElementById('judgeList');
+window.closeJudgeModal = function(){
 
-  modal.classList.add('hidden');
-  list.innerHTML = '';
+  const modal =
+    document.getElementById(
+      'assignModal'
+    );
+
+  if(modal){
+
+    modal.classList.add(
+      'hidden'
+    );
+
+  }
+
   currentAssignContext = null;
+  currentJudgeList = [];
+
 };
 
-window.handleModalBackdrop = function (e) {
-  if (e.target.id === 'judgeModal') {
+window.handleModalBackdrop = function(e){
+  if(e.target.id === 'assignModal'){
     closeJudgeModal();
   }
 };
 
+
 function assignJudge(judge) {
   if (!currentAssignContext) return;
 
-  const modal = document.getElementById('judgeModal');
-  const loading = document.getElementById('judgeLoading');
+  const modal = document.getElementById('assignModal');
 
   // ✅ 立刻給使用者回饋
   showAssignMessage('⏳ 指派中，請稍候…');
 
   // ✅ 防止連續點擊
   modal.style.pointerEvents = 'none';
-  if (loading) loading.style.display = 'block';
 
   callApi({
     action: 'assignJudgeToPosition_admin',
@@ -1223,7 +1412,6 @@ function assignJudge(judge) {
   }, res => {
 
     modal.style.pointerEvents = 'auto';
-    if (loading) loading.style.display = 'none';
 
     /* =========================
      * ❌ 1️⃣ 明確失敗（後端規則擋）
@@ -1283,7 +1471,21 @@ window.logout = function () {
 // 取消指派功能
 function cancelJudgeAssignment(gameId, role){
 
-  if (!confirm('確定取消此裁判指派？')) {
+  const game =
+    allGames.find(
+      g => String(g.game_id) === String(gameId)
+    );
+
+  if(game?.is_locked){
+
+    showAssignMessage(
+      '🔒 此賽事已鎖定'
+    );
+
+    return;
+  }
+
+  if(!confirm('確定取消此裁判指派？')){
     return;
   }
 
@@ -1293,16 +1495,26 @@ function cancelJudgeAssignment(gameId, role){
     role:role
   }, res => {
 
-    if (!res || res.result !== 'ok'){
+    if(
+      !res ||
+      res.result !== 'ok'
+    ){
+
       showAssignMessage(
         `❌ ${res?.message || '取消失敗'}`
       );
+
       return;
     }
 
-    showAssignMessage('✅ 已取消指派');
+    showAssignMessage(
+      '✅ 已取消指派'
+    );
+
     loadGames();
+
   });
+
 }
 
 // 取消裁判報名人員
@@ -1311,6 +1523,20 @@ function cancelJudgeSignup(
   role,
   userId
 ){
+
+  const game =
+    allGames.find(
+      g => String(g.game_id) === String(gameId)
+    );
+
+  if(game?.is_locked){
+
+    showAssignMessage(
+      '🔒 此賽事已鎖定'
+    );
+
+    return;
+  }
 
   if(!confirm('確定取消此人報名？')){
     return;
