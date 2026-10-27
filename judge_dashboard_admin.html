@@ -329,7 +329,11 @@
       <div id="judge-kpi"
            class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       
-        <div class="bg-white rounded-2xl border border-slate-200 p-4">
+        <div
+          id="kpiAllCard"
+          onclick="setKpiFilter('ALL')"
+          class="bg-white rounded-2xl border border-slate-200 p-4 cursor-pointer hover:shadow-md transition">
+          
           <div class="text-xs text-slate-500">年度需求賽事</div>
           <div id="kpiWeekGames"  
                class="text-3xl font-black">
@@ -337,7 +341,11 @@
           </div>
         </div>
       
-        <div class="bg-white rounded-2xl border border-slate-200 p-4">
+        <div
+          id="kpiVacancyCard"
+          onclick="setKpiFilter('VACANCY')"
+          class="bg-white rounded-2xl border border-slate-200 p-4 cursor-pointer hover:shadow-md transition">
+
           <div class="text-xs text-slate-500">裁判缺額</div>
           <div id="kpiJudgeVacancy"
                class="text-3xl font-black text-rose-600">
@@ -345,7 +353,11 @@
           </div>
         </div>
       
-        <div class="bg-white rounded-2xl border border-slate-200 p-4">
+        <div
+          id="kpiAssignedCard"
+          onclick="setKpiFilter('ASSIGNED')"
+          class="bg-white rounded-2xl border border-slate-200 p-4 cursor-pointer hover:shadow-md transition">
+          
           <div class="text-xs text-slate-500">完成報名或指派</div>
           <div id="kpiAssigned"
                class="text-3xl font-black text-emerald-600">
@@ -353,7 +365,11 @@
           </div>
         </div>
       
-        <div class="bg-white rounded-2xl border border-slate-200 p-4">
+        <div
+          id="kpiPendingCard"
+          onclick="setKpiFilter('PENDING')"
+          class="bg-white rounded-2xl border border-slate-200 p-4 cursor-pointer hover:shadow-md transition">
+          
           <div class="text-xs text-slate-500">待補賽事</div>
           <div id="kpiPending"
                class="text-3xl font-black text-amber-500">
