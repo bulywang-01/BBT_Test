@@ -946,10 +946,10 @@ function openJudgePage(gameId){
 /*********************************************************
  * 裁判指派
  *********************************************************/
-function openRecordAssignment(gameId, role){
+function openJudgeAssignment(gameId, role){
 
   location.href =
-    `record_dashboard_admin.html?gameId=${gameId}&role=${encodeURIComponent(role)}`;
+    `judge_dashboard_admin.html?gameId=${gameId}&role=${encodeURIComponent(role)}`;
 
 }
 
