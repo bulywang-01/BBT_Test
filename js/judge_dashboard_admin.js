@@ -814,43 +814,35 @@ function renderPosCell(game, role){
 /* =========================
  * 啟動
  * ========================= */
-document.addEventListener(
-  'DOMContentLoaded',
-  () => {
+const btn =
+  document.getElementById('mobileMenuBtn');
 
-    console.log(
-      'judge dashboard start'
-    );
+const sidebar =
+  document.getElementById('sidebar');
 
-    loadGames();
+const overlay =
+  document.getElementById('sidebarOverlay');
 
-    const btn =
-      document.getElementById(
-        'mobileMenuBtn'
-      );
+if(btn && sidebar && overlay){
 
-    const sidebar =
-      document.getElementById(
-        'sidebar'
-      );
+  btn.addEventListener('click', () => {
 
-    if(btn && sidebar){
+    sidebar.classList.toggle('mobile-open');
+    overlay.classList.toggle('hidden');
 
-      btn.addEventListener(
-        'click',
-        () => {
+  });
 
-          sidebar.classList.toggle(
-            'mobile-open'
-          );
+  overlay.addEventListener('click', () => {
 
-        }
-      );
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.add('hidden');
 
-    }
+  });
 
-  }
-);
+  document.getElementById('sidebarUserName').textContent = session.name || '';
+  document.getElementById('sidebarUserRole').textContent = session.role || '';
+
+}
 
 
 let currentAssignContext = null;
