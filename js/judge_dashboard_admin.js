@@ -462,16 +462,6 @@ function render(){
           new Date(a.replace(/\//g,'-')) -
           new Date(b.replace(/\//g,'-'))
       );
-  
-  const grouped =
-    groupGames(filteredGames);
-
-  const dates =
-    Object.keys(grouped).sort(
-      (a,b)=>
-        new Date(a.replace(/\//g,'-')) -
-        new Date(b.replace(/\//g,'-'))
-    );
 
   box.innerHTML = dates.map(date => {
 
