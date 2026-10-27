@@ -946,22 +946,28 @@ function openJudgePage(gameId){
 /*********************************************************
  * 裁判指派
  *********************************************************/
-function openJudgeAssignment(gameId, role){
+window.openJudgeAssignment = function(
+  gameId,
+  role
+){
 
   location.href =
     `judge_dashboard_admin.html?gameId=${gameId}&role=${encodeURIComponent(role)}`;
 
-}
+};
 
 /*********************************************************
  * 紀錄指派
  *********************************************************/
-function openRecordAssignment(gameId, role){
+window.openRecordAssignment = function(
+  gameId,
+  role
+){
 
   location.href =
-    `record_dashboard_admin.html?gameId=${gameId}&role=${role}`;
+    `record_dashboard_admin.html?gameId=${gameId}&role=${encodeURIComponent(role)}`;
 
-}
+};
 
 /*********************************************************
  * 複製場次代號
@@ -1092,14 +1098,26 @@ window.addEventListener('resize', () => {
  *********************************************************/
 function focusGameFromUrl(){
 
-  const {
-    gameId,
-    role
-  } = getUrlParams();
+  if(autoAssignOpened){
+    return;
+  }
+
+  const params =
+    new URLSearchParams(
+      location.search
+    );
+
+  const gameId =
+    params.get('gameId');
+
+  const role =
+    params.get('role');
 
   if(!gameId){
     return;
   }
+
+  autoAssignOpened = true;
 
   setTimeout(()=>{
 
@@ -1108,28 +1126,26 @@ function focusGameFromUrl(){
         `game-${gameId}`
       );
 
-    if(!card){
-      return;
-    }
+    if(card){
 
-    card.scrollIntoView({
-      behavior:'smooth',
-      block:'center'
-    });
+      card.scrollIntoView({
+        behavior:'smooth',
+        block:'center'
+      });
 
-    card.classList.add(
-      'ring-4',
-      'ring-amber-400'
-    );
-
-    setTimeout(()=>{
-
-      card.classList.remove(
+      card.classList.add(
         'ring-4',
         'ring-amber-400'
       );
 
-    },3000);
+      setTimeout(()=>{
+        card.classList.remove(
+          'ring-4',
+          'ring-amber-400'
+        );
+      },3000);
+
+    }
 
     if(role){
 
@@ -1139,6 +1155,12 @@ function focusGameFromUrl(){
       );
 
     }
+
+    history.replaceState(
+      {},
+      '',
+      location.pathname
+    );
 
   },300);
 
