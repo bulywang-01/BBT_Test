@@ -430,6 +430,39 @@ function render(){
   
   });
   
+  /* =========================
+   * 沒有符合資料
+   * ========================= */
+  if(filteredGames.length === 0){
+  
+    box.innerHTML = `
+      <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center">
+  
+        <div class="text-lg font-black text-slate-700">
+          本日期沒有裁判賽事
+        </div>
+  
+        <div class="text-sm text-slate-400 mt-2">
+          請切換其他日期
+        </div>
+  
+      </div>
+    `;
+  
+    return;
+  }
+  
+  const grouped =
+    groupGames(filteredGames);
+  
+  const dates =
+    Object.keys(grouped)
+      .sort(
+        (a,b)=>
+          new Date(a.replace(/\//g,'-')) -
+          new Date(b.replace(/\//g,'-'))
+      );
+  
   const grouped =
     groupGames(filteredGames);
 
@@ -582,7 +615,7 @@ function renderGameCard(game){
 
         ? `
 
-          <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-${Math.min(activeRoles.length,4)} gap-3">
+          <div class="p-3 space-y-2">
 
             ${activeRoles
               .map(role =>
@@ -659,56 +692,59 @@ function renderPosCell(game, role){
     `;
   }
 
-  /* 已指派 */
+/* 已指派 */
 
-  if(pos.assigned){
+if(pos.assigned){
 
-    return `
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
+  return `
+    <div class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
 
-        <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between gap-2">
 
-          <span class="text-xs font-black text-slate-700">
+        <div class="flex items-center gap-3 min-w-0 flex-1">
+
+          <span
+            class="text-xs font-black text-slate-600 w-14 shrink-0">
             ${roleMap[role]}
           </span>
 
-          <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
-            已確認
+          <span
+            class="font-bold text-slate-900 truncate">
+            ${pos.assigned.name || '未命名'}
+          </span>
+
+          <span
+            class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+            ✓
           </span>
 
         </div>
 
-        <div>
+        <div class="flex items-center gap-1 shrink-0">
 
-          <div class="font-black text-base text-slate-900 mb-2">
-            ${pos.assigned.name || '未命名'}
-          </div>
+          <button
+            onclick="openAssignJudge('${game.game_id}','${role}')"
+            class="bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold px-3 py-1 rounded-lg">
 
-          <div class="flex gap-1">
+            更換
 
-            <button
-              onclick="openAssignJudge('${game.game_id}','${role}')"
-              class="flex-1 bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold py-1.5 rounded-lg">
+          </button>
 
-              更換
+          <button
+            onclick="cancelJudgeAssignment('${game.game_id}','${role}')"
+            class="bg-rose-500 hover:bg-rose-600 text-white text-[11px] font-bold px-3 py-1 rounded-lg">
 
-            </button>
+            刪除
 
-            <button
-              onclick="cancelJudgeAssignment('${game.game_id}','${role}')"
-              class="flex-1 bg-rose-500 hover:bg-rose-600 text-white text-[11px] font-bold py-1.5 rounded-lg">
-
-              刪除
-
-            </button>
-
-          </div>
+          </button>
 
         </div>
 
       </div>
-    `;
-  }
+
+    </div>
+  `;
+}
 
   /* 已有人報名但尚未指派 */
 
