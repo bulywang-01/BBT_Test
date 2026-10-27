@@ -915,6 +915,17 @@
     <span id="toast-msg">操作成功</span>
   </div>
 
+
+  <!-- 快速指派 -->
+  <div id="quickAssignModal" class="fixed inset-0 z-50 hidden bg-black/40 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg">
+      <div class="p-4 border-b">
+        <h3 id="quickAssignTitle" class="font-bold text-lg"></h3>
+      </div>
+     <div id="quickAssignList" class="max-h-[500px] overflow-y-auto p-4"></div>
+    </div>
+  </div>
+    
   <script>
     // Initialize Lucide Icons
     lucide.createIcons();
@@ -951,6 +962,7 @@
         toast.classList.add('translate-y-20', 'opacity-0');
       }, 3000);
     }
+    
   </script>
 </body>
 </html>
