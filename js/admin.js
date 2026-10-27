@@ -44,12 +44,8 @@ function formatGameTime(time){
 /* 管理頁登入驗證 */
 function guardAdminPage(){
 
-  const session =
-    JSON.parse(
-      localStorage.getItem(
-        'session_user'
-      ) || '{}'
-    );
+  const session = JSON.parse(localStorage.getItem('session_user') || '{}');
+  const CURRENT_USER_ID = session.user_id || '';
 
   if (!session.user_id){
 
