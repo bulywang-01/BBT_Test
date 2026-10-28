@@ -1334,6 +1334,47 @@ function renderStaffStats(data){
         ? '✅ 已補齊'
         : `🚨 缺 ${recordVacancy} 席`;
   }
+
+  setText(
+    'judgeTotalRequired',
+    s.judgeSummary?.required || 0
+  );
+  
+  setText(
+    'judgeTotalAssigned',
+    s.judgeSummary?.assigned || 0
+  );
+  
+  setText(
+    'judgeTotalSignup',
+    s.judgeSummary?.signup || 0
+  );
+  
+  setText(
+    'judgeTotalVacancy',
+    s.judgeSummary?.vacancy || 0
+  );
+  
+  setText(
+    'recordTotalRequired',
+    s.recordSummary?.required || 0
+  );
+  
+  setText(
+    'recordTotalAssigned',
+    s.recordSummary?.assigned || 0
+  );
+  
+  setText(
+    'recordTotalSignup',
+    s.recordSummary?.signup || 0
+  );
+  
+  setText(
+    'recordTotalVacancy',
+    s.recordSummary?.vacancy || 0
+  );
+    
 }
 
 function formatStat(stat){
@@ -1351,6 +1392,51 @@ function formatStat(stat){
 
 }
 
+function vacancyCell(v){
+
+  if(v <= 0){
+
+    return `
+      <span class="
+        px-2 py-0.5
+        rounded-full
+        bg-emerald-100
+        text-emerald-700
+        text-xs font-bold">
+        0
+      </span>
+    `;
+
+  }
+
+  if(v <= 3){
+
+    return `
+      <span class="
+        px-2 py-0.5
+        rounded-full
+        bg-amber-100
+        text-amber-700
+        text-xs font-bold">
+        ${v}
+      </span>
+    `;
+
+  }
+
+  return `
+    <span class="
+      px-2 py-0.5
+      rounded-full
+      bg-rose-100
+      text-rose-700
+      text-xs font-bold">
+      ${v}
+    </span>
+  `;
+}
+
+
 function buildRow(name, stat){
 
   stat = stat || {};
@@ -1358,18 +1444,60 @@ function buildRow(name, stat){
   const vacancy =
     Number(stat.vacancy || 0);
 
-  let vacancyClass =
-    'text-emerald-500';
+  let vacancyBadge = '';
 
-  if(vacancy > 0){
-    vacancyClass =
-      'text-rose-500';
+  if(vacancy === 0){
+
+    vacancyBadge = `
+      <span class="
+        inline-flex items-center justify-center
+        min-w-[28px]
+        px-2 py-0.5
+        rounded-full
+        bg-emerald-100
+        text-emerald-700
+        text-xs font-bold">
+        0
+      </span>
+    `;
+
+  }else if(vacancy <= 3){
+
+    vacancyBadge = `
+      <span class="
+        inline-flex items-center justify-center
+        min-w-[28px]
+        px-2 py-0.5
+        rounded-full
+        bg-amber-100
+        text-amber-700
+        text-xs font-bold">
+        ${vacancy}
+      </span>
+    `;
+
+  }else{
+
+    vacancyBadge = `
+      <span class="
+        inline-flex items-center justify-center
+        min-w-[28px]
+        px-2 py-0.5
+        rounded-full
+        bg-rose-100
+        text-rose-700
+        text-xs font-bold">
+        ${vacancy}
+      </span>
+    `;
+
   }
 
   return `
-    <tr>
 
-      <td class="py-1 font-semibold">
+    <tr class="hover:bg-black/5">
+
+      <td class="py-1.5 font-semibold">
         ${name}
       </td>
 
@@ -1385,11 +1513,11 @@ function buildRow(name, stat){
         ${stat.signup || 0}
       </td>
 
-      <td class="text-center font-bold ${vacancyClass}">
-        ${vacancy}
+      <td class="text-center">
+        ${vacancyBadge}
       </td>
 
     </tr>
-  `;
 
+  `;
 }
