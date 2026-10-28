@@ -245,7 +245,6 @@ function renderDashboard(data){
   renderVacancyGames(data);
   // ✅ Sidebar
   renderSidebar(data);
-  renderSignupStats(data);   // 報名統計
 
   // ✅ Lucide Icons 重新渲染
   if(window.lucide){
@@ -254,25 +253,6 @@ function renderDashboard(data){
 
 }
 
-/*********************************************************
- * 本週人力狀況統計
- *********************************************************/
-function renderSignupStats(data){
-
-  const stats =
-    data.signupStats || {};
-
-  setText(
-    'judgeSignupAssign',
-    `${stats.judgeSignupCount || 0} / ${stats.judgeAssignedCount || 0}`
-  );
-
-  setText(
-    'recordSignupAssign',
-    `${stats.recordSignupCount || 0} / ${stats.recordAssignedCount || 0}`
-  );
-
-}
 
 /*********************************************************
  * Alert 區塊
@@ -310,17 +290,26 @@ function renderAlerts(data){
     document.getElementById(
       'recordStatusTag'
     );
-
+  
   const text =
     document.getElementById(
       'recordStatusText'
     );
-
+  
   const badge =
     document.getElementById(
       'recordStatusBadge'
     );
+  
+  if(
+    !tag ||
+    !text ||
+    !badge
+  ){
+    return;
+  }
 
+  /*
   if(recordCount === 0){
   
     tag.textContent =
@@ -341,6 +330,7 @@ function renderAlerts(data){
       '<i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>缺額';
   
   }
+  */
 
 }
 
@@ -1221,6 +1211,15 @@ function focusGameFromUrl(){
 // 統計各席位個別數字
 function renderStaffStats(data){
 
+  console.log(
+    'staffStats',
+    JSON.stringify(
+      data.staffStats,
+      null,
+      2
+    )
+  );
+  
   const s =
     data.staffStats || {};
 
