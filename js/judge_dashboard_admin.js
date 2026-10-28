@@ -1433,20 +1433,35 @@ function assignJudge(judge) {
     showAssignMessage(
       '✅ 指派完成'
     );
-
+    
     closeJudgeModal();
-
-    /* ✅ 防止 Dashboard 帶來的 URL 再次開窗 */
+    
     history.replaceState(
       {},
       '',
       location.pathname
     );
-
-    /* ✅ 防止 focusGameFromUrl 再開一次 */
+    
     autoAssignOpened = true;
-
-    /* ✅ 重整資料 */
+    
+    /* Dashboard 點進來 */
+    if (
+      sessionStorage.getItem(
+        'returnToDashboard'
+      ) === 'Y'
+    ){
+    
+      sessionStorage.removeItem(
+        'returnToDashboard'
+      );
+    
+      location.href =
+        'admin_dashboard.html';
+    
+      return;
+    }
+    
+    /* 正常裁判頁使用 */
     loadGames();
 
   });
