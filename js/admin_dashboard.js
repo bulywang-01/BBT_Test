@@ -240,6 +240,7 @@ function renderDashboard(data){
   renderMatchStats(data);
   // ✅ 人員 KPI
   renderPeopleStats(data);
+  renderStaffStats(data);  // 個別 KPI
   // ✅ 缺額賽事
   renderVacancyGames(data);
   // ✅ Sidebar
@@ -1214,5 +1215,89 @@ function focusGameFromUrl(){
     );
 
   },300);
+
+}
+
+// 統計各席位個別數字
+function renderStaffStats(data){
+
+  const s =
+    data.staffStats || {};
+
+  const judge =
+    s.judge || {};
+
+  const record =
+    s.record || {};
+
+  setText(
+    'judgePUStats',
+    formatStat(judge.PU)
+  );
+
+  setText(
+    'judgeU1Stats',
+    formatStat(judge.U1)
+  );
+
+  setText(
+    'judgeU2Stats',
+    formatStat(judge.U2)
+  );
+
+  setText(
+    'judgeU3Stats',
+    formatStat(judge.U3)
+  );
+
+  setText(
+    'recordMainStats',
+    formatStat(
+      record.REC_MAIN
+    )
+  );
+
+  setText(
+    'recordTraineeStats',
+    formatStat(
+      record.REC_TRAINEE
+    )
+  );
+
+  setText(
+    'recordVideoStats',
+    formatStat(
+      record.REC_VIDEO
+    )
+  );
+
+  setText(
+    'judgeSummaryStats',
+    formatStat(
+      s.judgeSummary
+    )
+  );
+
+  setText(
+    'recordSummaryStats',
+    formatStat(
+      s.recordSummary
+    )
+  );
+
+}
+
+function formatStat(stat){
+
+  if(!stat){
+    return '0/0/0/0';
+  }
+
+  return [
+    stat.required || 0,
+    stat.assigned || 0,
+    stat.signup || 0,
+    stat.vacancy || 0
+  ].join('/');
 
 }
