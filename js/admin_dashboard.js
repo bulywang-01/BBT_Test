@@ -1581,6 +1581,16 @@ function buildRow(name, stat){
 // 本週班表狀態清單
 function renderWeeklyDutyBoard(data){
 
+  const title =
+    document.getElementById(
+      'weeklyBoardTitle'
+    );
+
+  if(title){
+    title.textContent =
+      getBoardTitle();
+  }
+
   const board =
     document.getElementById(
       'weeklyDutyBoard'
@@ -1618,6 +1628,7 @@ function renderWeeklyDutyBoard(data){
     });
 
   board.innerHTML =
+
     sortedGames.map(g => {
 
       const missingJudge =
@@ -1628,42 +1639,63 @@ function renderWeeklyDutyBoard(data){
         (g.missingRecord || [])
           .map(x => x.code);
 
-      const judgeHtml =
-        (g.missingJudge || [])
-          .map(x => {
+      const judgeBadges = [
+        { code:'PU', label:'主' },
+        { code:'U1', label:'一' },
+        { code:'U2', label:'二' },
+        { code:'U3', label:'三' }
+      ]
+      .filter(pos => {
 
-            const map = {
-              PU : '主',
-              U1 : '一',
-              U2 : '二',
-              U3 : '三'
-            };
+        return (
+          missingJudge.includes(pos.code)
+          ||
+          pos.code === 'PU'
+        );
 
-            return `
-              <span class="text-rose-400 font-bold">
-                ${map[x.code] || x.name}✕
-              </span>
-            `;
+      })
+      .map(pos => {
 
-          }).join(' ');
+        return buildDutyBadge(
+          pos.label,
+          missingJudge.includes(pos.code)
+        );
 
-      const recordHtml =
-        (g.missingRecord || [])
-          .map(x => {
+      })
+      .join('');
 
-            const map = {
-              REC_MAIN : '紀',
-              REC_TRAINEE : '實',
-              REC_VIDEO : '影'
-            };
+      const recordBadges = [
+        {
+          code:'REC_MAIN',
+          label:'紀'
+        },
+        {
+          code:'REC_TRAINEE',
+          label:'實'
+        },
+        {
+          code:'REC_VIDEO',
+          label:'影'
+        }
+      ]
+      .filter(pos => {
 
-            return `
-              <span class="text-rose-400 font-bold">
-                ${map[x.code] || x.name}✕
-              </span>
-            `;
+        return (
+          missingRecord.includes(pos.code)
+          ||
+          pos.code === 'REC_MAIN'
+        );
 
-          }).join(' ');
+      })
+      .map(pos => {
+
+        return buildDutyBadge(
+          pos.label,
+          missingRecord.includes(pos.code)
+        );
+
+      })
+      .join('');
 
       return `
 
@@ -1675,52 +1707,47 @@ function renderWeeklyDutyBoard(data){
 
           <div class="
             flex
-            justify-between
             items-center
+            gap-2
             text-xs
           ">
 
-            <div class="flex items-center">
+            <span class="
+              text-white
+              font-bold
+              w-[42px]
+            ">
+              ${g.time || ''}
+            </span>
 
-              <span class="
-                text-slate-300
-                w-[48px]
-              ">
-                ${g.time || ''}
-              </span>
+            <span class="
+              text-white
+              font-bold
+            ">
+              ${g.game_code || ''}
+            </span>
 
-              <span class="
-                text-white
-                font-bold
-                w-[70px]
-              ">
-                ${g.game_code || ''}
-              </span>
-
-              <span class="
-                text-slate-400
-                truncate
-              ">
-                ${g.field || ''}
-              </span>
-
-            </div>
+            <span class="
+              text-slate-400
+              truncate
+            ">
+              ${g.field || ''}
+            </span>
 
           </div>
 
           <div class="
-            mt-1
-            ml-[48px]
-            text-[11px]
+            mt-2
             flex
             flex-wrap
-            gap-x-3
-            gap-y-1
+            gap-1
           ">
 
-            ${judgeHtml}
+            ${judgeBadges}
 
-            ${recordHtml}
+            <span class="mx-1"></span>
+
+            ${recordBadges}
 
           </div>
 
@@ -1730,4 +1757,45 @@ function renderWeeklyDutyBoard(data){
 
     }).join('');
 
+}
+
+// 前端日期顯示
+function getBoardTitle() {
+
+  const games =
+    window._dashboardData?.vacancyGames || [];
+
+  if (!games.length) {
+    return '本週待補派看板';
+  }
+
+  const firstDate =
+    games
+      .map(g => g.date)
+      .filter(Boolean)
+      .sort()[0];
+
+  return `本週（${firstDate}）待補派看板`;
+}
+
+// 席位改燈號
+function buildDutyBadge(name, missing){
+
+  return `
+    <span class="
+      inline-flex
+      items-center
+      justify-center
+      px-2
+      py-0.5
+      rounded-md
+      text-[10px]
+      font-black
+      ${missing
+        ? 'bg-rose-500 text-yellow-200'
+        : 'bg-emerald-400 text-black'}
+    ">
+      ${name}
+    </span>
+  `;
 }
