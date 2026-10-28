@@ -1596,7 +1596,21 @@ function renderWeeklyDutyBoard(data){
   }
 
   const games =
-    data.vacancyGames || [];
+    (data.vacancyGames || []).map(v => {
+  
+      const fullGame =
+        (data.games || []).find(
+          g =>
+            String(g.game_id) ===
+            String(v.game_id)
+        ) || {};
+  
+      return {
+        ...fullGame,
+        ...v
+      };
+  
+    });
 
   if(!games.length){
 
@@ -1634,49 +1648,100 @@ function renderWeeklyDutyBoard(data){
         (g.missingRecord || [])
           .map(x => x.code);
 
-      const judgeBadges = [
+      const judgePositions = (() => {
       
-        { code:'PU', label:'主' },
-        { code:'U1', label:'一' },
-        { code:'U2', label:'二' },
-        { code:'U3', label:'三' }
+        switch(Number(g.umpire_count || 0)){
       
-      ]
-      .map(pos => {
+          case 1:
+            return [
+              { code:'PU', label:'主' }
+            ];
       
-        return buildDutyBadge(
-          pos.label,
-          missingJudge.includes(pos.code)
-        );
+          case 2:
+            return [
+              { code:'PU', label:'主' },
+              { code:'U1', label:'一' }
+            ];
       
-      })
-      .join('');
+          case 3:
+            return [
+              { code:'PU', label:'主' },
+              { code:'U1', label:'一' },
+              { code:'U3', label:'三' }
+            ];
       
-      const recordBadges = [
+          case 4:
+            return [
+              { code:'PU', label:'主' },
+              { code:'U1', label:'一' },
+              { code:'U2', label:'二' },
+              { code:'U3', label:'三' }
+            ];
+      
+          default:
+            return [
+              { code:'PU', label:'主' }
+            ];
+        }
+      
+      })();
+      
+      const judgeBadges =
+        judgePositions
+          .map(pos => {
+      
+            return buildDutyBadge(
+              pos.label,
+              missingJudge.includes(pos.code)
+            );
+      
+          })
+          .join('');
+      
+      const recordPositions = [
       
         {
           code:'REC_MAIN',
           label:'紀'
-        },
-        {
-          code:'REC_TRAINEE',
-          label:'實'
-        },
-        {
-          code:'REC_VIDEO',
-          label:'影'
         }
       
-      ]
-      .map(pos => {
+      ];
       
-        return buildDutyBadge(
-          pos.label,
-          missingRecord.includes(pos.code)
-        );
+      if(
+        (g.missingRecord || [])
+          .some(x =>
+            x.code === 'REC_TRAINEE'
+          )
+      ){
+        recordPositions.push({
+          code:'REC_TRAINEE',
+          label:'實'
+        });
+      }
       
-      })
-      .join('');
+      if(
+        (g.missingRecord || [])
+          .some(x =>
+            x.code === 'REC_VIDEO'
+          )
+      ){
+        recordPositions.push({
+          code:'REC_VIDEO',
+          label:'影'
+        });
+      }
+      
+      const recordBadges =
+        recordPositions
+          .map(pos => {
+      
+            return buildDutyBadge(
+              pos.label,
+              missingRecord.includes(pos.code)
+            );
+      
+          })
+          .join('');
 
       return `
       
@@ -1737,6 +1802,83 @@ function renderWeeklyDutyBoard(data){
 
 }
 
+// 顯示裁判需求
+function getJudgePositions(count){
+
+  switch(Number(count || 0)){
+
+    case 1:
+      return [
+        { code:'PU', label:'主' }
+      ];
+
+    case 2:
+      return [
+        { code:'PU', label:'主' },
+        { code:'U1', label:'一' }
+      ];
+
+    case 3:
+      return [
+        { code:'PU', label:'主' },
+        { code:'U1', label:'一' },
+        { code:'U3', label:'三' }
+      ];
+
+    case 4:
+      return [
+        { code:'PU', label:'主' },
+        { code:'U1', label:'一' },
+        { code:'U2', label:'二' },
+        { code:'U3', label:'三' }
+      ];
+
+    default:
+      return [
+        { code:'PU', label:'主' }
+      ];
+  }
+
+}
+
+// 紀錄組需求
+function getRecordPositions(game){
+
+  const positions = [
+    {
+      code:'REC_MAIN',
+      label:'紀'
+    }
+  ];
+
+  if(
+    game.need_trainee ||
+    game.record_count >= 2
+  ){
+
+    positions.push({
+      code:'REC_TRAINEE',
+      label:'實'
+    });
+
+  }
+
+  if(
+    game.need_video ||
+    game.record_count >= 3
+  ){
+
+    positions.push({
+      code:'REC_VIDEO',
+      label:'影'
+    });
+
+  }
+
+  return positions;
+
+}
+
 // 前端日期顯示
 function getBoardTitle() {
 
@@ -1757,15 +1899,18 @@ function getBoardTitle() {
 }
 
 // 席位改燈號
-function buildDutyBadge(name, missing){
+function buildDutyBadge(
+  name,
+  missing
+){
 
   return `
     <span class="
       inline-flex
       items-center
       justify-center
-      w-5
-      h-5
+      w-4
+      h-4
       rounded
       text-[10px]
       leading-none
