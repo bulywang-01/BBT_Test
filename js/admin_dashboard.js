@@ -1581,8 +1581,9 @@ function buildRow(name, stat){
 // 本週班表狀態清單
 function renderWeeklyDutyBoard(data){
 
-console.log(
-  'weeklyDutyBoard sample',
+window._weeklyDutyData = data;
+
+console.dir(
   data.vacancyGames?.[0]
 );
   
