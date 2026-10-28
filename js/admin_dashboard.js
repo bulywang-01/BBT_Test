@@ -1648,9 +1648,21 @@ function renderWeeklyDutyBoard(data){
         (g.missingRecord || [])
           .map(x => x.code);
 
+      const fullGame =
+        (data.games || []).find(
+          x =>
+            String(x.game_id) ===
+            String(g.game_id)
+        ) || {};
+      
+      const umpireCount =
+        Number(
+          fullGame.umpire_count || 0
+        );
+      
       const judgePositions = (() => {
       
-        switch(Number(g.umpire_count || 0)){
+        switch(umpireCount){
       
           case 1:
             return [
@@ -1679,8 +1691,13 @@ function renderWeeklyDutyBoard(data){
             ];
       
           default:
+      
+            // BBT 預設 3 人制
+      
             return [
-              { code:'PU', label:'主' }
+              { code:'PU', label:'主' },
+              { code:'U1', label:'一' },
+              { code:'U3', label:'三' }
             ];
         }
       
