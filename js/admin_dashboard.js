@@ -816,26 +816,31 @@ function renderVacancyCards(games){
         <!-- 聯賽 + 場次 -->
 
         <div class="flex justify-between items-start">
-
+        
           <div>
-
-            <div class="text-xl font-black text-brand-700">
-
+        
+            <div class="text-lg font-black text-brand-700">
               ${g.tournament || ''}
-
             </div>
-
+        
             <div class="text-sm text-slate-500 mt-1">
-
               ${g.game_code || ''}
-              ・
-              ${g.date || ''}
-              ${g.time || ''}
-
             </div>
-
+        
           </div>
-
+        
+          <div class="text-right">
+        
+            <div class="text-sm font-bold text-slate-900">
+              ${g.date || ''}
+            </div>
+        
+            <div class="text-xs text-slate-500">
+              ${g.time || ''}
+            </div>
+        
+          </div>
+        
         </div>
 
         <!-- 對戰 -->
