@@ -321,9 +321,6 @@ function renderAlerts(data){
     tag.textContent =
       '需補紀錄';
   
-    text.textContent =
-      `（尚有 ${recordCount} 場）`;
-  
     badge.innerHTML =
       '<i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>缺額';
   
@@ -686,11 +683,6 @@ function renderVacancyTable(games){
             ${recordBadges}
 
           </div>
-
-        </td>
-
-        <!-- 操作 -->
-        <td class="py-3 px-4 text-right">
 
         </td>
 
