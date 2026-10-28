@@ -245,6 +245,7 @@ function renderDashboard(data){
   renderVacancyGames(data);
   // ✅ Sidebar
   renderSidebar(data);
+  renderWeeklyDutyBoard(data);  // 本週班表狀態清單
 
   // ✅ Lucide Icons 重新渲染
   if(window.lucide){
@@ -1575,4 +1576,122 @@ function buildRow(name, stat){
     </tr>
 
   `;
+}
+
+// 本週班表狀態清單
+function renderWeeklyDutyBoard(data){
+
+  const board =
+    document.getElementById(
+      'weeklyDutyBoard'
+    );
+
+  if(!board){
+    return;
+  }
+
+  const games =
+    data.vacancyGames || [];
+
+  if(!games.length){
+
+    board.innerHTML = `
+      <div class="text-emerald-400">
+        ✅ 本週無缺額賽事
+      </div>
+    `;
+
+    return;
+  }
+
+  const sortedGames =
+    [...games].sort((a,b)=>{
+
+      const aDt =
+        new Date(
+          `${a.date} ${a.time}`
+        );
+
+      const bDt =
+        new Date(
+          `${b.date} ${b.time}`
+        );
+
+      return aDt - bDt;
+
+    });
+
+  board.innerHTML =
+    sortedGames
+      .map(g=>{
+
+        const judgeMissing =
+          (g.missingJudge || []).length > 0;
+
+        const recordMissing =
+          (g.missingRecord || []).length > 0;
+
+        return `
+
+          <div class="
+            flex
+            items-center
+            justify-between
+            py-1
+            border-b
+            border-white/5
+          ">
+
+            <div class="flex-1 truncate">
+
+              <span class="text-slate-300">
+
+                ${g.date}
+                ${g.time}
+
+              </span>
+
+              <span class="ml-2 font-bold text-white">
+
+                ${g.game_code || ''}
+
+              </span>
+
+              <span class="ml-2 text-slate-400">
+
+                ${g.field || ''}
+
+              </span>
+
+            </div>
+
+            <div class="ml-3 shrink-0">
+
+              <span class="
+                text-xs font-bold
+                ${judgeMissing ? 'text-rose-400' : 'text-emerald-400'}
+              ">
+                裁${judgeMissing ? '✕' : '✓'}
+              </span>
+
+              <span class="mx-1 text-slate-600">
+                |
+              </span>
+
+              <span class="
+                text-xs font-bold
+                ${recordMissing ? 'text-rose-400' : 'text-emerald-400'}
+              ">
+                記${recordMissing ? '✕' : '✓'}
+              </span>
+
+            </div>
+
+          </div>
+
+        `;
+
+      })
+      .join('');
+
 }
