@@ -425,51 +425,66 @@
     
       </div>
     
-      <!-- 本週急需補人職位 -->
-      <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-4 shadow-md relative overflow-hidden flex flex-col justify-between">
+      <!-- 本週人力狀況 -->
+      <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-5 shadow-xl">
       
-        <div class="flex items-start justify-between">
+        <div class="flex items-center justify-between">
       
           <div>
+            <div class="text-xs font-black text-amber-400">
+              本週人力狀況
+            </div>
       
-            <span class="text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-md border border-amber-500/30">
-              急需補人
-            </span>
-      
-            <h3 class="text-sm font-bold text-slate-200 mt-1">
-              本週急需補人職位
-            </h3>
-      
+            <div class="text-lg font-black text-white mt-1">
+              報名 / 指派
+            </div>
           </div>
       
-          <div class="p-2.5 bg-amber-500 text-slate-950 rounded-xl shadow">
-            <i data-lucide="user-x" class="w-5 h-5"></i>
+          <div class="w-10 h-10 rounded-2xl bg-amber-400 flex items-center justify-center">
+            <i data-lucide="users-round" class="w-5 h-5 text-slate-900"></i>
           </div>
       
         </div>
       
-        <div class="mt-3 flex items-baseline justify-between">
+        <div class="mt-5 space-y-3">
       
-          <div class="flex items-end gap-1">
+          <div class="flex justify-between items-center">
       
-            <span
-              id="alertPendingCount"
-              class="text-3xl font-black text-amber-400">
-              -
+            <span class="text-sm text-slate-300">
+              裁判組
             </span>
       
             <span
-              class="text-base font-bold text-slate-300 mb-1">
-              個
+              id="judgeSignupAssign"
+              class="font-black text-white text-lg">
+      
+              0 / 0
+      
             </span>
       
           </div>
       
-          <button class="bg-slate-500 cursor-default text-white text-xs font-black px-3 py-1.5 rounded-xl">
-          
-            追蹤中
-          
-          </button>
+          <div class="flex justify-between items-center">
+      
+            <span class="text-sm text-slate-300">
+              紀錄組
+            </span>
+      
+            <span
+              id="recordSignupAssign"
+              class="font-black text-white text-lg">
+      
+              0 / 0
+      
+            </span>
+      
+          </div>
+      
+        </div>
+      
+        <div class="mt-4 text-[11px] text-slate-400">
+      
+          報名人數 / 指派人數
       
         </div>
       
