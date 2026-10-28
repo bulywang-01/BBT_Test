@@ -323,35 +323,52 @@
     <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
     
       <!-- 裁判人力 -->
-      <div class="bg-gradient-to-br from-rose-500 to-rose-600 text-white rounded-2xl p-4 shadow-md">
+      <div class="bg-white border border-rose-200 rounded-2xl p-4 shadow-sm">
     
         <div class="flex items-center justify-between mb-3">
     
           <div>
-            <div class="text-sm font-black">
+    
+            <div class="text-sm font-black text-rose-600">
               裁判人力
             </div>
     
-            <div class="text-xs text-rose-100">
+            <div class="text-xs text-slate-500">
               本週待派遣賽事
             </div>
+    
           </div>
     
-          <i data-lucide="flag" class="w-6 h-6"></i>
+          <i data-lucide="flag"
+             class="w-5 h-5 text-rose-600"></i>
     
         </div>
     
-        <table class="w-full text-[13px]">
+        <table class="w-full text-[14px]">
     
           <thead>
     
-            <tr class="border-b border-white/20">
+            <tr class="border-b border-slate-200">
     
-              <th class="text-left py-1">職位</th>
-              <th class="text-center py-1">應</th>
-              <th class="text-center py-1">派</th>
-              <th class="text-center py-1">報</th>
-              <th class="text-center py-1">缺</th>
+              <th class="text-left py-1.5 font-bold">
+                職位
+              </th>
+    
+              <th class="text-center py-1.5">
+                應
+              </th>
+    
+              <th class="text-center py-1.5">
+                派
+              </th>
+    
+              <th class="text-center py-1.5">
+                報
+              </th>
+    
+              <th class="text-center py-1.5">
+                缺
+              </th>
     
             </tr>
     
@@ -362,25 +379,29 @@
     
           <tfoot>
     
-            <tr class="border-t border-white/20 font-bold">
+            <tr class="border-t border-slate-200 bg-slate-50 font-black">
     
-              <td class="pt-2">
+              <td class="py-2">
                 總計
               </td>
     
-              <td class="text-center pt-2" id="judgeTotalRequired">
+              <td id="judgeTotalRequired"
+                  class="text-center">
                 0
               </td>
     
-              <td class="text-center pt-2" id="judgeTotalAssigned">
+              <td id="judgeTotalAssigned"
+                  class="text-center">
                 0
               </td>
     
-              <td class="text-center pt-2" id="judgeTotalSignup">
+              <td id="judgeTotalSignup"
+                  class="text-center">
                 0
               </td>
     
-              <td class="text-center pt-2" id="judgeTotalVacancy">
+              <td id="judgeTotalVacancy"
+                  class="text-center text-rose-600">
                 0
               </td>
     
@@ -410,21 +431,35 @@
           </div>
     
           <i data-lucide="clipboard-list"
-             class="w-6 h-6 text-emerald-600"></i>
+             class="w-5 h-5 text-emerald-600"></i>
     
         </div>
     
-        <table class="w-full text-[13px]">
+        <table class="w-full text-[14px]">
     
           <thead>
     
             <tr class="border-b border-slate-200">
     
-              <th class="text-left py-1">職位</th>
-              <th class="text-center py-1">應</th>
-              <th class="text-center py-1">派</th>
-              <th class="text-center py-1">報</th>
-              <th class="text-center py-1">缺</th>
+              <th class="text-left py-1.5 font-bold">
+                職位
+              </th>
+    
+              <th class="text-center py-1.5">
+                應
+              </th>
+    
+              <th class="text-center py-1.5">
+                派
+              </th>
+    
+              <th class="text-center py-1.5">
+                報
+              </th>
+    
+              <th class="text-center py-1.5">
+                缺
+              </th>
     
             </tr>
     
@@ -435,25 +470,29 @@
     
           <tfoot>
     
-            <tr class="border-t border-slate-200 font-bold">
+            <tr class="border-t border-slate-200 bg-slate-50 font-black">
     
-              <td class="pt-2">
+              <td class="py-2">
                 總計
               </td>
     
-              <td class="text-center pt-2" id="recordTotalRequired">
+              <td id="recordTotalRequired"
+                  class="text-center">
                 0
               </td>
     
-              <td class="text-center pt-2" id="recordTotalAssigned">
+              <td id="recordTotalAssigned"
+                  class="text-center">
                 0
               </td>
     
-              <td class="text-center pt-2" id="recordTotalSignup">
+              <td id="recordTotalSignup"
+                  class="text-center">
                 0
               </td>
     
-              <td class="text-center pt-2 text-rose-600" id="recordTotalVacancy">
+              <td id="recordTotalVacancy"
+                  class="text-center text-rose-600">
                 0
               </td>
     
@@ -466,32 +505,34 @@
       </div>
     
       <!-- 人力總覽 -->
-      <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-5 shadow-xl text-white">
+      <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-4 shadow-xl text-white">
     
         <div class="flex items-center justify-between">
     
           <div>
     
-            <div class="text-xs font-black text-amber-400">
+            <div class="text-sm font-black text-amber-400">
               本週人力總覽
             </div>
     
-            <div class="text-sm text-slate-400">
+            <div class="text-xs text-slate-400">
               補派進度監控
             </div>
     
           </div>
     
           <i data-lucide="users-round"
-             class="w-7 h-7 text-amber-400"></i>
+             class="w-5 h-5 text-amber-400"></i>
     
         </div>
     
-        <div class="mt-5 space-y-3">
+        <div class="mt-4 space-y-3">
     
           <div class="flex items-center justify-between">
     
-            <span>裁判</span>
+            <span class="text-sm">
+              裁判
+            </span>
     
             <span id="judgeStatusBadge"
                   class="px-3 py-1 rounded-full text-xs font-bold">
@@ -502,7 +543,9 @@
     
           <div class="flex items-center justify-between">
     
-            <span>紀錄</span>
+            <span class="text-sm">
+              紀錄
+            </span>
     
             <span id="recordStatusBadge2"
                   class="px-3 py-1 rounded-full text-xs font-bold">
@@ -513,20 +556,20 @@
     
         </div>
     
-        <div class="mt-5 pt-5 border-t border-white/10 text-center">
+        <div class="mt-4 pt-4 border-t border-white/10 text-center">
     
           <div class="text-xs text-slate-400">
             總缺額
           </div>
     
           <div id="totalVacancy"
-               class="text-5xl font-black text-rose-400">
+               class="text-6xl font-black text-rose-400 leading-none mt-2">
             0
           </div>
     
         </div>
     
-        <div class="mt-5">
+        <div class="mt-4">
     
           <div class="flex justify-between text-xs mb-1">
     
