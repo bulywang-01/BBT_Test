@@ -1211,78 +1211,55 @@ function focusGameFromUrl(){
 // 統計各席位個別數字
 function renderStaffStats(data){
 
-  console.log(
-    'staffStats',
-    JSON.stringify(
-      data.staffStats,
-      null,
-      2
-    )
-  );
-  
-  const s =
-    data.staffStats || {};
+  const s = data.staffStats || {};
 
-  const judge =
-    s.judge || {};
+  const judge = s.judge || {};
+  const record = s.record || {};
 
-  const record =
-    s.record || {};
+  const judgeTable =
+    document.getElementById(
+      'judgeStaffTable'
+    );
 
-  setText(
-    'judgePUStats',
-    formatStat(judge.PU)
-  );
+  if(judgeTable){
 
-  setText(
-    'judgeU1Stats',
-    formatStat(judge.U1)
-  );
+    judgeTable.innerHTML = `
+      ${buildRow('主審', judge.PU)}
+      ${buildRow('一壘', judge.U1)}
+      ${buildRow('二壘', judge.U2)}
+      ${buildRow('三壘', judge.U3)}
+    `;
 
-  setText(
-    'judgeU2Stats',
-    formatStat(judge.U2)
-  );
+  }
 
-  setText(
-    'judgeU3Stats',
-    formatStat(judge.U3)
-  );
+  const recordTable =
+    document.getElementById(
+      'recordStaffTable'
+    );
 
-  setText(
-    'recordMainStats',
-    formatStat(
-      record.REC_MAIN
-    )
-  );
+  if(recordTable){
 
-  setText(
-    'recordTraineeStats',
-    formatStat(
-      record.REC_TRAINEE
-    )
-  );
+    recordTable.innerHTML = `
+      ${buildRow('紀錄', record.REC_MAIN)}
+      ${buildRow('見習', record.REC_TRAINEE)}
+      ${buildRow('影像', record.REC_VIDEO)}
+    `;
 
-  setText(
-    'recordVideoStats',
-    formatStat(
-      record.REC_VIDEO
-    )
-  );
+  }
 
-  setText(
-    'judgeSummaryStats',
-    formatStat(
-      s.judgeSummary
-    )
-  );
+  const summary =
+    document.getElementById(
+      'summaryStaffTable'
+    );
 
-  setText(
-    'recordSummaryStats',
-    formatStat(
-      s.recordSummary
-    )
-  );
+  if(summary){
+
+    summary.innerHTML = `
+      ${buildRow('裁判', s.judgeSummary)}
+      ${buildRow('紀錄', s.recordSummary)}
+    `;
+
+  }
 
 }
 
@@ -1298,5 +1275,39 @@ function formatStat(stat){
     stat.signup || 0,
     stat.vacancy || 0
   ].join('/');
+
+}
+
+function buildRow(name, stat){
+
+  stat = stat || {};
+
+  return `
+    <div class="grid grid-cols-5 gap-1">
+
+      <div>${name}</div>
+
+      <div class="text-center">
+        ${stat.required || 0}
+      </div>
+
+      <div class="text-center">
+        ${stat.assigned || 0}
+      </div>
+
+      <div class="text-center">
+        ${stat.signup || 0}
+      </div>
+
+      <div class="text-center font-bold ${
+        (stat.vacancy || 0) > 0
+          ? 'text-rose-500'
+          : ''
+      }">
+        ${stat.vacancy || 0}
+      </div>
+
+    </div>
+  `;
 
 }
