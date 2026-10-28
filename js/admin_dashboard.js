@@ -273,7 +273,7 @@ function renderAlerts(data){
     alerts.recordShortageGames || 0;
 
   const pendingCount =
-    alerts.pendingConfirm || 0;
+    alerts.noSignupCount || 0;
 
   setText(
     'alertJudgeCount',
@@ -306,27 +306,27 @@ function renderAlerts(data){
     );
 
   if(recordCount === 0){
-
+  
     tag.textContent =
-      '人力補齊';
-
+      '紀錄補齊';
+  
     text.textContent =
-      '（本週名額皆滿）';
-
+      '（本週皆已完成派遣）';
+  
     badge.innerHTML =
       '<i data-lucide="shield-check" class="w-3.5 h-3.5"></i>正常';
-
+  
   }else{
-
+  
     tag.textContent =
-      '需補人力';
-
+      '需補紀錄';
+  
     text.textContent =
-      `（尚缺 ${recordCount} 位）`;
-
+      `（尚有 ${recordCount} 場）`;
+  
     badge.innerHTML =
       '<i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>缺額';
-
+  
   }
 
 }
@@ -357,9 +357,9 @@ function renderSidebar(data){
   );
 
   setText(
-    'sidebarPendingConfirm',
-    alerts.pendingConfirm > 0
-      ? `${alerts.pendingConfirm} 待簽`
+    'sidebarnoSignupCount',
+    alerts.noSignupCount > 0
+      ? `${alerts.noSignupCount} 待簽`
       : ''
   );
 
