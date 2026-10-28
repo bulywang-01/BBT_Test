@@ -759,83 +759,154 @@ function renderVacancyCards(games){
 
     const judgeBadges =
       (g.missingJudge || [])
-        .map(x => `
-          <button
-            onclick="openJudgeAssignment('${g.game_id}','${x.code}')"
-            class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 hover:bg-rose-200 px-2 py-1 text-[11px] font-bold text-rose-700">
-    
-            ${x.name}
-    
-          </button>
-        `).join('');
-    
+      .map(x => `
+
+        <button
+          onclick="openJudgeAssignment('${g.game_id}','${x.code}')"
+          class="
+            px-2.5
+            py-1
+            text-xs
+            font-bold
+            rounded-lg
+            border
+            border-rose-200
+            bg-rose-50
+            text-rose-700
+          ">
+
+          ${x.name}
+
+        </button>
+
+      `)
+      .join('');
+
     const recordBadges =
       (g.missingRecord || [])
-        .map(x => `
-          <button
-            onclick="openRecordAssignment('${g.game_id}','${x.code}')"
-            class="inline-flex items-center rounded-lg border border-amber-200 bg-amber-100 hover:bg-amber-200 px-2 py-1 text-[11px] font-bold text-amber-700">
-    
-            ${x.name}
-    
-          </button>
-        `).join('');
+      .map(x => `
+
+        <button
+          onclick="openRecordAssignment('${g.game_id}','${x.code}')"
+          class="
+            px-2.5
+            py-1
+            text-xs
+            font-bold
+            rounded-lg
+            border
+            border-amber-200
+            bg-amber-50
+            text-amber-700
+          ">
+
+          ${x.name}
+
+        </button>
+
+      `)
+      .join('');
 
     return `
-    
-      <div class="border-b border-slate-200 p-4">
-    
-        <div class="flex items-center justify-between">
-    
-          <div class="font-bold text-brand-700">
-            ${g.tournament || ''}
+
+      <div
+        id="game-${g.game_id}"
+        class="p-4 border-b border-slate-200">
+
+        <!-- 聯賽 + 場次 -->
+
+        <div class="flex justify-between items-start">
+
+          <div>
+
+            <div class="text-xl font-black text-brand-700">
+
+              ${g.tournament || ''}
+
+            </div>
+
+            <div class="text-sm text-slate-500 mt-1">
+
+              ${g.game_code || ''}
+              ・
+              ${g.date || ''}
+              ${g.time || ''}
+
+            </div>
+
           </div>
-    
-          <div class="text-xs text-slate-500">
-            ${g.game_code || ''}
-          </div>
-    
+
         </div>
-    
-        <div class="mt-3 flex items-center justify-between">
-    
-          <div class="font-semibold text-slate-900">
-            ${g.date || ''} ${g.time || ''}
-          </div>
-    
-          <div class="font-bold text-slate-900 text-right">
+
+        <!-- 對戰 -->
+
+        <div class="mt-4">
+
+          <div class="text-2xl font-black text-slate-900">
+
             ${g.away_team || ''}
+
             <span class="text-slate-400 px-1">
+
               VS
+
             </span>
+
             ${g.home_team || ''}
+
           </div>
-    
+
         </div>
-    
-        <div class="mt-1 text-sm text-slate-500">
-          📍 ${g.field || ''}
+
+        <!-- 球場 -->
+
+        <div class="mt-2 flex items-center text-slate-500">
+
+          <i data-lucide="map-pin"
+             class="w-4 h-4 mr-1">
+          </i>
+
+          <span class="text-sm">
+
+            ${g.field || ''}
+
+          </span>
+
         </div>
-    
-        <div class="mt-3 flex flex-wrap gap-1">
-          ${judgeBadges}
-          ${recordBadges}
+
+        <!-- 缺額 -->
+
+        <div class="mt-4">
+
+          <div class="
+            text-xs
+            font-bold
+            text-slate-500
+            mb-2">
+
+            待派遣職位
+
+          </div>
+
+          <div class="
+            flex
+            flex-wrap
+            gap-2">
+
+            ${judgeBadges}
+            ${recordBadges}
+
+          </div>
+
         </div>
-    
-        <button
-          class="mt-3 w-full bg-brand-600 hover:bg-brand-700 text-white py-2 rounded-lg text-sm font-bold"
-          onclick="openAssignment('${g.game_id}')">
-    
-          快速指派
-    
-        </button>
-    
+
       </div>
-    
+
     `;
 
   }).join('');
 
+  lucide.createIcons();
 }
 
 
