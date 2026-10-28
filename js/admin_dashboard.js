@@ -1698,61 +1698,58 @@ function renderWeeklyDutyBoard(data){
       .join('');
 
       return `
-
+      
         <div class="
+          flex
+          items-center
+          gap-2
           py-2
           border-b
           border-white/10
+          text-sm
         ">
-
-          <div class="
-            flex
-            items-center
-            gap-2
-            text-xs
+      
+          <span class="
+            text-white
+            font-black
+            w-[48px]
+            shrink-0
           ">
-
-            <span class="
-              text-white
-              font-bold
-              w-[42px]
-            ">
-              ${g.time || ''}
-            </span>
-
-            <span class="
-              text-white
-              font-bold
-            ">
-              ${g.game_code || ''}
-            </span>
-
-            <span class="
-              text-slate-400
-              truncate
-            ">
-              ${g.field || ''}
-            </span>
-
-          </div>
-
+            ${g.time || ''}
+          </span>
+      
+          <span class="
+            text-white
+            font-black
+            shrink-0
+          ">
+            ${g.game_code || ''}
+          </span>
+      
+          <span class="
+            text-slate-400
+            flex-1
+            truncate
+          ">
+            ${g.field || ''}
+          </span>
+      
           <div class="
-            mt-2
             flex
             flex-wrap
             gap-1
+            justify-end
+            shrink-0
           ">
-
+      
             ${judgeBadges}
-
-            <span class="mx-1"></span>
-
+      
             ${recordBadges}
-
+      
           </div>
-
+      
         </div>
-
+      
       `;
 
     }).join('');
@@ -1779,23 +1776,30 @@ function getBoardTitle() {
 }
 
 // 席位改燈號
-function buildDutyBadge(name, missing){
+function buildDutyBadge(
+  name,
+  missing
+){
 
   return `
     <span class="
       inline-flex
       items-center
       justify-center
+      min-w-[30px]
+      h-7
       px-2
-      py-0.5
       rounded-md
-      text-[10px]
+      text-xs
       font-black
-      ${missing
-        ? 'bg-rose-500 text-yellow-200'
-        : 'bg-emerald-400 text-black'}
+      ${
+        missing
+          ? 'bg-rose-500 text-yellow-200'
+          : 'bg-emerald-400 text-black'
+      }
     ">
       ${name}
     </span>
   `;
 }
+
