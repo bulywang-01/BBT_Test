@@ -1260,7 +1260,80 @@ function renderStaffStats(data){
     `;
 
   }
-
+  
+  const judgeVacancy =
+    s.judgeSummary?.vacancy || 0;
+  
+  const recordVacancy =
+    s.recordSummary?.vacancy || 0;
+  
+  const totalVacancy =
+    judgeVacancy + recordVacancy;
+  
+  setText(
+    'totalVacancy',
+    totalVacancy
+  );
+  
+  const required =
+    (s.judgeSummary?.required || 0)
+    +
+    (s.recordSummary?.required || 0);
+  
+  const assigned =
+    (s.judgeSummary?.assigned || 0)
+    +
+    (s.recordSummary?.assigned || 0);
+  
+  const fillRate =
+    required
+      ? Math.round(
+          assigned / required * 100
+        )
+      : 0;
+  
+  setText(
+    'staffFillRate',
+    `${fillRate}%`
+  );
+  
+  const bar =
+    document.getElementById(
+      'staffFillRateBar'
+    );
+  
+  if(bar){
+  
+    bar.style.width =
+      `${fillRate}%`;
+  
+  }
+  
+  const judgeBadge =
+    document.getElementById(
+      'judgeStatusBadge'
+    );
+  
+  if(judgeBadge){
+  
+    judgeBadge.textContent =
+      judgeVacancy === 0
+        ? '✅ 已補齊'
+        : `缺 ${judgeVacancy} 席`;
+  
+  }
+  
+  const recordBadge =
+    document.getElementById(
+      'recordStatusBadge2'
+    );
+  
+  if(recordBadge){
+    recordBadge.textContent =
+      recordVacancy === 0
+        ? '✅ 已補齊'
+        : `🚨 缺 ${recordVacancy} 席`;
+  }
 }
 
 function formatStat(stat){
