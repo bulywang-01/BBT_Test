@@ -318,81 +318,143 @@
     <main class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 max-w-7xl w-full mx-auto">
 
     <!-- =====================================================
-         🚨 即時告警區
+         🚨 即時統計區
     ===================================================== -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
     
-      <!-- 裁判人力統計KPI -->
-      <div class="bg-gradient-to-br from-rose-500 to-rose-600 text-white rounded-2xl p-4 shadow-md shadow-rose-500/20">
-      
+      <!-- 裁判人力 -->
+      <div class="bg-gradient-to-br from-rose-500 to-rose-600 text-white rounded-2xl p-4 shadow-md">
+    
         <div class="flex items-center justify-between mb-3">
           <div>
             <div class="text-xs font-black bg-black/20 inline-block px-2 py-1 rounded">
               裁判人力
             </div>
-            <div class="text-sm mt-1 font-semibold">
-              本週 Status=0
+            <div class="text-xs text-rose-100 mt-1">
+              本週未完賽（Status=0）
             </div>
           </div>
-      
+    
           <i data-lucide="flag" class="w-6 h-6"></i>
         </div>
-      
-        <div class="mt-2 text-xs">
-        
-          <div class="grid grid-cols-5 gap-1 font-bold border-b border-white/20 pb-1 mb-1">
-            <div></div>
-            <div class="text-center">應</div>
-            <div class="text-center">派</div>
-            <div class="text-center">報</div>
-            <div class="text-center">缺</div>
-          </div>
-        
-          <div id="judgeStaffTable"></div>
-        
-        </div>
-      
+    
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="border-b border-white/20">
+              <th class="text-left py-1">職位</th>
+              <th class="text-center py-1">應</th>
+              <th class="text-center py-1">派</th>
+              <th class="text-center py-1">報</th>
+              <th class="text-center py-1">缺</th>
+            </tr>
+          </thead>
+    
+          <tbody id="judgeStaffTable">
+          </tbody>
+        </table>
+    
       </div>
     
-      <!-- 紀錄缺額統計KPI -->
-      <div class="bg-white border-2 border-emerald-200 rounded-2xl p-4 shadow-sm">
-      
+      <!-- 紀錄人力 -->
+      <div class="bg-white border border-emerald-200 rounded-2xl p-4 shadow-sm">
+    
         <div class="flex items-center justify-between mb-3">
+    
           <div>
             <div class="text-xs font-black text-emerald-600">
               紀錄人力
             </div>
-      
-            <div class="text-sm text-slate-500">
-              本週 Status=0
+    
+            <div class="text-xs text-slate-500 mt-1">
+              本週未完賽（Status=0）
             </div>
           </div>
-      
+    
           <i data-lucide="clipboard-list"
              class="w-6 h-6 text-emerald-600"></i>
+    
         </div>
-      
-        <div class="mt-2 text-xs">
-        
-          <div class="grid grid-cols-5 gap-1 font-bold border-b border-slate-200 pb-1 mb-1">
-            <div></div>
-            <div class="text-center">應</div>
-            <div class="text-center">派</div>
-            <div class="text-center">報</div>
-            <div class="text-center">缺</div>
-          </div>
-        
-          <div id="recordStaffTable"></div>
-        
-        </div>
-      
+    
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="border-b border-slate-200">
+              <th class="text-left py-1">職位</th>
+              <th class="text-center py-1">應</th>
+              <th class="text-center py-1">派</th>
+              <th class="text-center py-1">報</th>
+              <th class="text-center py-1">缺</th>
+            </tr>
+          </thead>
+    
+          <tbody id="recordStaffTable">
+          </tbody>
+        </table>
+    
       </div>
     
-      <!-- KPI總覽 -->
-      <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-5 shadow-xl">
+      <!-- 人力總覽 -->
+      <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-5 shadow-xl text-white">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-xs font-black text-amber-400">
+              本週人力總覽
+            </div>
+            <div class="text-xl font-black">
+              Overview
+            </div>
+          </div>
+          <i data-lucide="users-round" class="w-7 h-7 text-amber-400"></i>
+        </div>
       
-        <div id="summaryStaffTable"
-             class="mt-2 text-sm space-y-1">
+        <div class="mt-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <span>裁判</span>
+            <span id="judgeStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300">
+              已補齊
+            </span>
+          </div>
+      
+          <div class="flex items-center justify-between">
+      
+            <span>紀錄</span>
+      
+            <span id="recordStatusBadge2" class="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300">
+              缺額
+            </span>
+      
+          </div>
+      
+          <div class="pt-3 border-t border-white/10">
+            <div class="flex justify-between">
+              <span>總缺額</span>
+              <span id="totalVacancy" class="text-2xl font-black text-rose-400">
+                0
+              </span>
+            </div>
+          </div>
+          <div>
+      
+            <div class="flex justify-between text-xs mb-1">
+      
+              <span>補派完成率</span>
+      
+              <span id="staffFillRate">
+                0%
+              </span>
+      
+            </div>
+      
+            <div class="w-full h-2 rounded-full bg-white/10">
+      
+              <div id="staffFillRateBar"
+                   class="h-2 rounded-full bg-amber-400"
+                   style="width:0%">
+              </div>
+      
+            </div>
+      
+          </div>
+      
         </div>
       
       </div>
