@@ -1305,13 +1305,7 @@ function renderPosCell(game, role){
    * 完全缺額
    * ========================= */
   return `
-    <div class="
-      bg-rose-50
-      border
-      border-rose-300
-      rounded-xl
-      px-3
-      py-2">
+    <div class="bg-rose-50 border border-rose-300 rounded-xl px-3 py-2">
 
       <div class="
         position-row
@@ -1388,43 +1382,6 @@ function renderPosCell(game, role){
 
 }
 
-  /* =========================
-   * 完全缺額
-   * ========================= */
-  return `
-    <div class="bg-rose-50 border border-rose-300 rounded-xl px-3 py-2">
-
-      <div class="position-row flex items-center justify-between gap-2">
-
-        <div class="flex items-center gap-3 flex-1">
-
-          <span class="text-xs font-black text-rose-700 w-14 shrink-0">
-            ${roleMap[role]}
-          </span>
-
-          <span class="font-bold text-rose-600">
-            缺額
-          </span>
-
-          <span class="text-[10px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded">
-            尚未指派
-          </span>
-
-        </div>
-
-        <button
-          onclick="openRecordModal('${game.game_id}','${role}')"
-          class="bg-brand-600 hover:bg-brand-700 text-white text-[11px] font-bold px-3 py-1 rounded-lg shrink-0">
-
-          指派
-
-        </button>
-
-      </div>
-
-    </div>
-  `;
-}
 
 /* =========================
  * 啟動
