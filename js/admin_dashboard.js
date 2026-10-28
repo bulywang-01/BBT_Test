@@ -257,6 +257,22 @@ function renderDashboard(data){
 
 }
 
+/*********************************************************
+ * 本週人力狀況統計
+ *********************************************************/
+function renderSignupStats(data){
+
+  setText(
+    'judgeSignupAssign',
+    `${data.judge_signup_count || 0} / ${data.judge_assigned_count || 0}`
+  );
+
+  setText(
+    'recordSignupAssign',
+    `${data.record_signup_count || 0} / ${data.record_assigned_count || 0}`
+  );
+
+}
 
 /*********************************************************
  * Alert 區塊
