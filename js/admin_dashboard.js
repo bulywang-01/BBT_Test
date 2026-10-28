@@ -234,21 +234,17 @@ function renderDashboard(data){
 
   // ✅ 保存 Dashboard 資料
   window._dashboardData = data;
-
   // ✅ Alert
   renderAlerts(data);
-
   // ✅ 賽事 KPI
   renderMatchStats(data);
-
   // ✅ 人員 KPI
   renderPeopleStats(data);
-
   // ✅ 缺額賽事
   renderVacancyGames(data);
-
   // ✅ Sidebar
   renderSidebar(data);
+  renderSignupStats(data);   // 報名統計
 
   // ✅ Lucide Icons 重新渲染
   if(window.lucide){
@@ -262,14 +258,17 @@ function renderDashboard(data){
  *********************************************************/
 function renderSignupStats(data){
 
+  const stats =
+    data.signupStats || {};
+
   setText(
     'judgeSignupAssign',
-    `${data.judge_signup_count || 0} / ${data.judge_assigned_count || 0}`
+    `${stats.judgeSignupCount || 0} / ${stats.judgeAssignedCount || 0}`
   );
 
   setText(
     'recordSignupAssign',
-    `${data.record_signup_count || 0} / ${data.record_assigned_count || 0}`
+    `${stats.recordSignupCount || 0} / ${stats.recordAssignedCount || 0}`
   );
 
 }
