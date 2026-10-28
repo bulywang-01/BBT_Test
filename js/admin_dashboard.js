@@ -813,70 +813,44 @@ function renderVacancyCards(games){
         id="game-${g.game_id}"
         class="p-4 border-b border-slate-200">
 
-        <!-- 聯賽 + 場次 -->
+        <!-- 比賽資訊 -->
 
         <div class="flex justify-between items-start">
         
           <div>
         
-            <div class="text-lg font-black text-brand-700">
-              ${g.tournament || ''}
+            <div class="text-base font-black text-slate-900">
+              🕒 ${g.date || ''} ${g.time || ''}
             </div>
         
-            <div class="text-sm text-slate-500 mt-1">
-              ${g.game_code || ''}
+            <div class="text-sm text-slate-600 mt-1">
+              📍 ${g.field || ''}
             </div>
         
           </div>
         
           <div class="text-right">
         
-            <div class="text-sm font-bold text-slate-900">
-              ${g.date || ''}
-            </div>
-        
             <div class="text-xs text-slate-500">
-              ${g.time || ''}
+              ${g.tournament || ''}
+            </div>
+        
+            <div class="text-xs text-slate-400">
+              ${g.game_code || ''}
             </div>
         
           </div>
         
         </div>
-
-        <!-- 對戰 -->
-
-        <div class="mt-4">
-
-          <div class="text-2xl font-black text-slate-900">
-
-            ${g.away_team || ''}
-
-            <span class="text-slate-400 px-1">
-
-              VS
-
-            </span>
-
-            ${g.home_team || ''}
-
-          </div>
-
-        </div>
-
-        <!-- 球場 -->
-
-        <div class="mt-2 flex items-center text-slate-500">
-
-          <i data-lucide="map-pin"
-             class="w-4 h-4 mr-1">
-          </i>
-
-          <span class="text-sm">
-
-            ${g.field || ''}
-
+        
+        <div class="mt-3 text-sm font-semibold text-slate-700">
+        
+          ${g.away_team || ''}
+          <span class="text-slate-400 px-1">
+            VS
           </span>
-
+          ${g.home_team || ''}
+        
         </div>
 
         <!-- 缺額 -->
