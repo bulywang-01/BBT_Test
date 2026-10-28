@@ -547,7 +547,7 @@ function renderVacancyTable(games){
 
   if(countBox){
     countBox.textContent =
-      `共 ${games.length} 場急需補人`;
+      `共 ${games.length} 場待完成派遣`;
   }
 
   if(footer){
@@ -559,29 +559,72 @@ function renderVacancyTable(games){
 
   const judgeBadges =
     (g.missingJudge || [])
-      .map(x => `
-        <button
-          onclick="openJudgeAssignment('${g.game_id}','${x.code}')"
-          class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 hover:bg-rose-200 px-2 py-1 text-[11px] font-bold text-rose-700 mr-1 mb-1 transition">
+      .map(x => {
   
-          ${x.name}
+        const count = x.signupCount || 0;
   
-        </button>
-      `)
+        let colorClass =
+          'border-rose-200 bg-rose-100 text-rose-700';
+  
+        if (count > 0 && count < 3) {
+  
+          colorClass =
+            'border-amber-200 bg-amber-100 text-amber-700';
+  
+        } else if (count >= 3) {
+  
+          colorClass =
+            'border-emerald-200 bg-emerald-100 text-emerald-700';
+  
+        }
+  
+        return `
+          <button
+            onclick="openJudgeAssignment('${g.game_id}','${x.code}')"
+            class="inline-flex items-center rounded-lg border ${colorClass} hover:opacity-80 px-2 py-1 text-[11px] font-bold mr-1 mb-1 transition">
+  
+            ${x.name}(${count})
+  
+          </button>
+        `;
+  
+      })
       .join('');
 
   const recordBadges =
     (g.missingRecord || [])
-      .map(x => `
-        <button
-          onclick="openRecordAssignment('${g.game_id}','${x.code}')"
-          class="inline-flex items-center rounded-lg border border-amber-200 bg-amber-100 hover:bg-amber-200 px-2 py-1 text-[11px] font-bold text-amber-700 mr-1 mb-1 transition">
+      .map(x => {
   
-          ${x.name}
+        const count = x.signupCount || 0;
   
-        </button>
-      `)
+        let colorClass =
+          'border-rose-200 bg-rose-100 text-rose-700';
+  
+        if (count > 0 && count < 3) {
+  
+          colorClass =
+            'border-amber-200 bg-amber-100 text-amber-700';
+  
+        } else if (count >= 3) {
+  
+          colorClass =
+            'border-emerald-200 bg-emerald-100 text-emerald-700';
+  
+        }
+  
+        return `
+          <button
+            onclick="openRecordAssignment('${g.game_id}','${x.code}')"
+            class="inline-flex items-center rounded-lg border ${colorClass} hover:opacity-80 px-2 py-1 text-[11px] font-bold mr-1 mb-1 transition">
+  
+            ${x.name}(${count})
+  
+          </button>
+        `;
+  
+      })
       .join('');
+
 
     return `
 
@@ -711,7 +754,7 @@ function renderVacancyCards(games){
 
   if(countBox){
     countBox.textContent =
-      `共 ${games.length} 場急需補人`;
+      `共 ${games.length} 場待完成派遣`;
   }
 
   container.innerHTML = games.map(g => {
