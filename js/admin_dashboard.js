@@ -1497,7 +1497,7 @@ function buildRow(name, stat){
 
     <tr class="hover:bg-black/5">
 
-      <td class="py-1.5 font-semibold">
+      <td class="py-1 font-semibold">
         ${name}
       </td>
 
