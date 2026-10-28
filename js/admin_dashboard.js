@@ -561,7 +561,7 @@ function renderVacancyTable(games){
     (g.missingJudge || [])
       .map(x => `
         <button
-          onclick="openAssignJudge('${g.game_id}','${x.code}')"
+          onclick="openJudgeAssignment('${g.game_id}','${x.code}')"
           class="inline-flex items-center rounded-lg border border-rose-200 bg-rose-100 hover:bg-rose-200 px-2 py-1 text-[11px] font-bold text-rose-700 mr-1 mb-1 transition">
   
           ${x.name}
@@ -946,10 +946,16 @@ window.openJudgeAssignment = function(
   role
 ){
 
+  sessionStorage.setItem(
+    'returnToDashboard',
+    'Y'
+  );
+
   location.href =
     `judge_dashboard_admin.html?gameId=${gameId}&role=${encodeURIComponent(role)}`;
 
 };
+
 
 /*********************************************************
  * 紀錄指派
