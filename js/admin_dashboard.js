@@ -209,11 +209,6 @@ function loadDashboard(){
  *********************************************************/
 function renderDashboard(data){
 
-  console.log(
-    'Dashboard Data',
-    data
-  );
-
   if(
     !data ||
     data.result !== 'ok'
@@ -1581,12 +1576,6 @@ function buildRow(name, stat){
 // 本週班表狀態清單
 function renderWeeklyDutyBoard(data){
 
-window._weeklyDutyData = data;
-
-console.dir(
-  data.vacancyGames?.[0]
-);
-  
   const title =
     document.getElementById(
       'weeklyBoardTitle'
@@ -1646,31 +1635,25 @@ console.dir(
           .map(x => x.code);
 
       const judgeBadges = [
+      
         { code:'PU', label:'主' },
         { code:'U1', label:'一' },
         { code:'U2', label:'二' },
         { code:'U3', label:'三' }
+      
       ]
-      .filter(pos => {
-
-        return (
-          missingJudge.includes(pos.code)
-          ||
-          pos.code === 'PU'
-        );
-
-      })
       .map(pos => {
-
+      
         return buildDutyBadge(
           pos.label,
           missingJudge.includes(pos.code)
         );
-
+      
       })
       .join('');
-
+      
       const recordBadges = [
+      
         {
           code:'REC_MAIN',
           label:'紀'
@@ -1683,23 +1666,15 @@ console.dir(
           code:'REC_VIDEO',
           label:'影'
         }
+      
       ]
-      .filter(pos => {
-
-        return (
-          missingRecord.includes(pos.code)
-          ||
-          pos.code === 'REC_MAIN'
-        );
-
-      })
       .map(pos => {
-
+      
         return buildDutyBadge(
           pos.label,
           missingRecord.includes(pos.code)
         );
-
+      
       })
       .join('');
 
@@ -1782,21 +1757,18 @@ function getBoardTitle() {
 }
 
 // 席位改燈號
-function buildDutyBadge(
-  name,
-  missing
-){
+function buildDutyBadge(name, missing){
 
   return `
     <span class="
       inline-flex
       items-center
       justify-center
-      min-w-[22px]
+      w-5
       h-5
-      px-1
       rounded
-      text-[11px]
+      text-[10px]
+      leading-none
       font-black
       ${
         missing
