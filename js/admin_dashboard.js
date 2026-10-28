@@ -1056,6 +1056,11 @@ window.openRecordAssignment = function(
   role
 ){
 
+  sessionStorage.setItem(
+    'returnToDashboard',
+    'Y'
+  );
+
   location.href =
     `record_dashboard_admin.html?gameId=${gameId}&role=${encodeURIComponent(role)}`;
 
