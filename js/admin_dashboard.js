@@ -1282,32 +1282,41 @@ function buildRow(name, stat){
 
   stat = stat || {};
 
+  const vacancy =
+    Number(stat.vacancy || 0);
+
+  let vacancyClass =
+    'text-emerald-500';
+
+  if(vacancy > 0){
+    vacancyClass =
+      'text-rose-500';
+  }
+
   return `
-    <div class="grid grid-cols-5 gap-1">
+    <tr>
 
-      <div>${name}</div>
+      <td class="py-1 font-semibold">
+        ${name}
+      </td>
 
-      <div class="text-center">
+      <td class="text-center">
         ${stat.required || 0}
-      </div>
+      </td>
 
-      <div class="text-center">
+      <td class="text-center">
         ${stat.assigned || 0}
-      </div>
+      </td>
 
-      <div class="text-center">
+      <td class="text-center">
         ${stat.signup || 0}
-      </div>
+      </td>
 
-      <div class="text-center font-bold ${
-        (stat.vacancy || 0) > 0
-          ? 'text-rose-500'
-          : ''
-      }">
-        ${stat.vacancy || 0}
-      </div>
+      <td class="text-center font-bold ${vacancyClass}">
+        ${vacancy}
+      </td>
 
-    </div>
+    </tr>
   `;
 
 }
