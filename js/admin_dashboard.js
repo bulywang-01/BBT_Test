@@ -1784,13 +1784,14 @@ function renderWeeklyDutyBoard(data){
           <span class="
             text-white
             font-black
+            w-[78px]
             shrink-0
           ">
             ${g.game_code || ''}
           </span>
       
           <span class="
-            text-slate-400
+            text-slate-300
             flex-1
             truncate
           ">
