@@ -1596,7 +1596,7 @@ function renderWeeklyDutyBoard(data){
   if(!games.length){
 
     board.innerHTML = `
-      <div class="text-emerald-400">
+      <div class="text-emerald-400 text-sm">
         ✅ 本週無缺額賽事
       </div>
     `;
@@ -1607,91 +1607,127 @@ function renderWeeklyDutyBoard(data){
   const sortedGames =
     [...games].sort((a,b)=>{
 
-      const aDt =
-        new Date(
-          `${a.date} ${a.time}`
-        );
+      const aTime =
+        `${a.date || ''} ${a.time || ''}`;
 
-      const bDt =
-        new Date(
-          `${b.date} ${b.time}`
-        );
+      const bTime =
+        `${b.date || ''} ${b.time || ''}`;
 
-      return aDt - bDt;
+      return aTime.localeCompare(bTime);
 
     });
 
   board.innerHTML =
-    sortedGames
-      .map(g=>{
+    sortedGames.map(g => {
 
-        const judgeMissing =
-          (g.missingJudge || []).length > 0;
+      const missingJudge =
+        (g.missingJudge || [])
+          .map(x => x.code);
 
-        const recordMissing =
-          (g.missingRecord || []).length > 0;
+      const missingRecord =
+        (g.missingRecord || [])
+          .map(x => x.code);
 
-        return `
+      const judgeHtml =
+        (g.missingJudge || [])
+          .map(x => {
+
+            const map = {
+              PU : '主',
+              U1 : '一',
+              U2 : '二',
+              U3 : '三'
+            };
+
+            return `
+              <span class="text-rose-400 font-bold">
+                ${map[x.code] || x.name}✕
+              </span>
+            `;
+
+          }).join(' ');
+
+      const recordHtml =
+        (g.missingRecord || [])
+          .map(x => {
+
+            const map = {
+              REC_MAIN : '紀',
+              REC_TRAINEE : '實',
+              REC_VIDEO : '影'
+            };
+
+            return `
+              <span class="text-rose-400 font-bold">
+                ${map[x.code] || x.name}✕
+              </span>
+            `;
+
+          }).join(' ');
+
+      return `
+
+        <div class="
+          py-2
+          border-b
+          border-white/10
+        ">
 
           <div class="
             flex
-            items-center
             justify-between
-            py-1
-            border-b
-            border-white/5
+            items-center
+            text-xs
           ">
 
-            <div class="flex-1 truncate">
+            <div class="flex items-center">
 
-              <span class="text-slate-300">
-
-                ${g.date}
-                ${g.time}
-
+              <span class="
+                text-slate-300
+                w-[48px]
+              ">
+                ${g.time || ''}
               </span>
 
-              <span class="ml-2 font-bold text-white">
-
+              <span class="
+                text-white
+                font-bold
+                w-[70px]
+              ">
                 ${g.game_code || ''}
-
               </span>
 
-              <span class="ml-2 text-slate-400">
-
+              <span class="
+                text-slate-400
+                truncate
+              ">
                 ${g.field || ''}
-
-              </span>
-
-            </div>
-
-            <div class="ml-3 shrink-0">
-
-              <span class="
-                text-xs font-bold
-                ${judgeMissing ? 'text-rose-400' : 'text-emerald-400'}
-              ">
-                裁${judgeMissing ? '✕' : '✓'}
-              </span>
-
-              <span class="mx-1 text-slate-600">
-                |
-              </span>
-
-              <span class="
-                text-xs font-bold
-                ${recordMissing ? 'text-rose-400' : 'text-emerald-400'}
-              ">
-                記${recordMissing ? '✕' : '✓'}
               </span>
 
             </div>
 
           </div>
 
-        `;
+          <div class="
+            mt-1
+            ml-[48px]
+            text-[11px]
+            flex
+            flex-wrap
+            gap-x-3
+            gap-y-1
+          ">
 
-      })
-      .join('');
+            ${judgeHtml}
+
+            ${recordHtml}
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join('');
 
 }
