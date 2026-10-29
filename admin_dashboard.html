@@ -323,192 +323,197 @@
     ===================================================== -->
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-4">
     
-      <!-- 裁判人力 -->
-      <div class="lg:col-span-2 bg-white border border-rose-200 rounded-2xl p-4 shadow-sm h-full">
+      <!-- 左側 -->
+      <div class="lg:col-span-3 flex flex-col gap-4">
     
-        <div class="flex items-center justify-between mb-3">
-    
-          <div>
-    
-            <div class="text-sm font-black text-rose-600">
-              本週裁判人力
+          <!-- 裁判人力 -->
+        <div class="bg-white border border-rose-200 rounded-2xl p-4 shadow-sm">
+      
+          <div class="flex items-center justify-between mb-3">
+      
+            <div>
+      
+              <div class="text-sm font-black text-rose-600">
+                本週裁判人力
+              </div>
+      
+              <div class="text-xs text-slate-500">
+                本週待派遣賽事
+              </div>
+      
             </div>
-    
-            <div class="text-xs text-slate-500">
-              本週待派遣賽事
-            </div>
-    
+      
+            <i data-lucide="flag"
+               class="w-5 h-5 text-rose-600"></i>
+      
           </div>
-    
-          <i data-lucide="flag"
-             class="w-5 h-5 text-rose-600"></i>
-    
+      
+          <table class="w-full text-[14px]">
+      
+            <thead>
+      
+              <tr class="border-b border-slate-200">
+      
+                <th class="text-left py-1.5 font-bold">
+                  職位
+                </th>
+      
+                <th class="text-center py-1.5">
+                  應派
+                </th>
+      
+                <th class="text-center py-1.5">
+                  指派
+                </th>
+      
+                <th class="text-center py-1.5">
+                  報名
+                </th>
+      
+                <th class="text-center py-1.5">
+                  缺額
+                </th>
+      
+              </tr>
+      
+            </thead>
+      
+            <tbody id="judgeStaffTable">
+            </tbody>
+      
+            <tfoot>
+      
+              <tr class="border-t border-slate-200 bg-slate-50 font-black">
+      
+                <td class="py-2">
+                  總計
+                </td>
+      
+                <td id="judgeTotalRequired"
+                    class="text-center">
+                  0
+                </td>
+      
+                <td id="judgeTotalAssigned"
+                    class="text-center">
+                  0
+                </td>
+      
+                <td id="judgeTotalSignup"
+                    class="text-center">
+                  0
+                </td>
+      
+                <td id="judgeTotalVacancy"
+                    class="text-center text-rose-600">
+                  0
+                </td>
+      
+              </tr>
+      
+            </tfoot>
+      
+          </table>
+      
         </div>
-    
-        <table class="w-full text-[14px]">
-    
-          <thead>
-    
-            <tr class="border-b border-slate-200">
-    
-              <th class="text-left py-1.5 font-bold">
-                職位
-              </th>
-    
-              <th class="text-center py-1.5">
-                應派
-              </th>
-    
-              <th class="text-center py-1.5">
-                指派
-              </th>
-    
-              <th class="text-center py-1.5">
-                報名
-              </th>
-    
-              <th class="text-center py-1.5">
-                缺額
-              </th>
-    
-            </tr>
-    
-          </thead>
-    
-          <tbody id="judgeStaffTable">
-          </tbody>
-    
-          <tfoot>
-    
-            <tr class="border-t border-slate-200 bg-slate-50 font-black">
-    
-              <td class="py-2">
-                總計
-              </td>
-    
-              <td id="judgeTotalRequired"
-                  class="text-center">
-                0
-              </td>
-    
-              <td id="judgeTotalAssigned"
-                  class="text-center">
-                0
-              </td>
-    
-              <td id="judgeTotalSignup"
-                  class="text-center">
-                0
-              </td>
-    
-              <td id="judgeTotalVacancy"
-                  class="text-center text-rose-600">
-                0
-              </td>
-    
-            </tr>
-    
-          </tfoot>
-    
-        </table>
-    
-      </div>
-    
-      <!-- 紀錄人力 -->
-      <div class="lg:col-span-2 bg-white border border-emerald-200 rounded-2xl p-4 shadow-sm h-full">
-    
-        <div class="flex items-center justify-between mb-3">
-    
-          <div>
-    
-            <div class="text-sm font-black text-emerald-600">
-              本週紀錄人力
+      
+        <!-- 紀錄人力 -->
+        <div class="bg-white border border-emerald-200 rounded-2xl p-4 shadow-sm">
+      
+          <div class="flex items-center justify-between mb-3">
+      
+            <div>
+      
+              <div class="text-sm font-black text-emerald-600">
+                本週紀錄人力
+              </div>
+      
+              <div class="text-xs text-slate-500">
+                本週待派遣賽事
+              </div>
+      
             </div>
-    
-            <div class="text-xs text-slate-500">
-              本週待派遣賽事
-            </div>
-    
+      
+            <i data-lucide="clipboard-list"
+               class="w-5 h-5 text-emerald-600"></i>
+      
           </div>
-    
-          <i data-lucide="clipboard-list"
-             class="w-5 h-5 text-emerald-600"></i>
-    
+      
+          <table class="w-full text-[14px]">
+      
+            <thead>
+      
+              <tr class="border-b border-slate-200">
+      
+                <th class="text-left py-1.5 font-bold">
+                  職位
+                </th>
+      
+                <th class="text-center py-1.5">
+                  應派
+                </th>
+      
+                <th class="text-center py-1.5">
+                  指派
+                </th>
+      
+                <th class="text-center py-1.5">
+                  報名
+                </th>
+      
+                <th class="text-center py-1.5">
+                  缺額
+                </th>
+      
+              </tr>
+      
+            </thead>
+      
+            <tbody id="recordStaffTable">
+            </tbody>
+      
+            <tfoot>
+      
+              <tr class="border-t border-slate-200 bg-slate-50 font-black">
+      
+                <td class="py-2">
+                  總計
+                </td>
+      
+                <td id="recordTotalRequired"
+                    class="text-center">
+                  0
+                </td>
+      
+                <td id="recordTotalAssigned"
+                    class="text-center">
+                  0
+                </td>
+      
+                <td id="recordTotalSignup"
+                    class="text-center">
+                  0
+                </td>
+      
+                <td id="recordTotalVacancy"
+                    class="text-center text-rose-600">
+                  0
+                </td>
+      
+              </tr>
+      
+            </tfoot>
+      
+          </table>
+      
         </div>
-    
-        <table class="w-full text-[14px]">
-    
-          <thead>
-    
-            <tr class="border-b border-slate-200">
-    
-              <th class="text-left py-1.5 font-bold">
-                職位
-              </th>
-    
-              <th class="text-center py-1.5">
-                應派
-              </th>
-    
-              <th class="text-center py-1.5">
-                指派
-              </th>
-    
-              <th class="text-center py-1.5">
-                報名
-              </th>
-    
-              <th class="text-center py-1.5">
-                缺額
-              </th>
-    
-            </tr>
-    
-          </thead>
-    
-          <tbody id="recordStaffTable">
-          </tbody>
-    
-          <tfoot>
-    
-            <tr class="border-t border-slate-200 bg-slate-50 font-black">
-    
-              <td class="py-2">
-                總計
-              </td>
-    
-              <td id="recordTotalRequired"
-                  class="text-center">
-                0
-              </td>
-    
-              <td id="recordTotalAssigned"
-                  class="text-center">
-                0
-              </td>
-    
-              <td id="recordTotalSignup"
-                  class="text-center">
-                0
-              </td>
-    
-              <td id="recordTotalVacancy"
-                  class="text-center text-rose-600">
-                0
-              </td>
-    
-            </tr>
-    
-          </tfoot>
-    
-        </table>
-    
+
       </div>
     
       <!-- 本週派遣班表 -->
       <div
         class="
-          lg:col-span-8
+          lg:col-span-9
           bg-gradient-to-r
           from-slate-900
           to-slate-800
@@ -523,96 +528,70 @@
       >
       
         <!-- 第一列 -->
-        <div
-          class="
-            flex
-            items-center
-            justify-between
-            pb-3
-            mb-3
-            border-b
-            border-white/10
-          "
-        >
-      
-          <div>
-      
-            <div
-              id="weeklyBoardTitle"
-              class="
-                text-lg
-                font-black
-                text-amber-400
-              "
-            >
-              本週派遣班表
-            </div>
-      
-            <div
-              class="
-                mt-1
-                flex
-                items-center
-                gap-6
-                text-xs
-              "
-            >
-      
-              <span>
-      
-                尚缺席位：
-      
-                <span
-                  id="totalVacancy"
-                  class="
-                    font-black
-                    text-rose-400
-                  "
-                >
-                  0
-                </span>
-      
-              </span>
-      
-              <span>
-      
-                完成率：
-      
-                <span
-                  id="staffFillRate"
-                  class="
-                    font-black
-                    text-amber-300
-                  "
-                >
-                  0%
-                </span>
-      
-              </span>
-      
-            </div>
-      
+        <div class="flex items-center justify-between gap-6 pb-3 mb-3 border-b border-white/10">
+        
+          <div
+            id="weeklyBoardTitle"
+            class="
+              text-lg
+              font-black
+              text-amber-400
+            "
+          >
+            本週派遣班表
           </div>
-      
+        
           <div
             class="
               flex
               items-center
-              gap-3
+              gap-5
+              text-xs
             "
           >
-      
-            <div class="w-32">
-      
+        
+            <span>
+        
+              尚缺席位：
+        
+              <span
+                id="totalVacancy"
+                class="
+                  font-black
+                  text-rose-400
+                "
+              >
+                0
+              </span>
+        
+            </span>
+        
+            <span>
+        
+              完成率：
+        
+              <span
+                id="staffFillRate"
+                class="
+                  font-black
+                  text-amber-300
+                "
+              >
+                0%
+              </span>
+        
+            </span>
+        
+            <div class="w-28">
+        
               <div
                 class="
-                  w-full
                   h-2
                   rounded-full
                   bg-white/10
                 "
               >
-      
+        
                 <div
                   id="staffFillRateBar"
                   class="
@@ -621,23 +600,20 @@
                     bg-amber-400
                   "
                   style="width:0%"
-                >
-                </div>
-      
+                ></div>
+        
               </div>
-      
+        
             </div>
-      
+        
             <button
               onclick="showRosterPreview()"
               class="
                 px-3
                 py-1.5
                 rounded-lg
-      
                 bg-amber-500
                 hover:bg-amber-400
-      
                 text-slate-900
                 text-xs
                 font-black
@@ -645,9 +621,9 @@
             >
               📋下載班表
             </button>
-      
+        
           </div>
-      
+        
         </div>
       
         <!-- 班表主體 -->
