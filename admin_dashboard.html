@@ -505,150 +505,169 @@
     
       </div>
     
-      <!-- 本週出勤看板 -->
-      <div class="lg:col-span-8 bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-4 shadow-xl text-white h-full flex flex-col">
+      <!-- 本週派遣班表 -->
+      <div
+        class="
+          lg:col-span-8
+          bg-gradient-to-r
+          from-slate-900
+          to-slate-800
+          rounded-2xl
+          p-4
+          shadow-xl
+          text-white
+          h-full
+          flex
+          flex-col
+        "
+      >
       
-        <div class="flex items-center justify-between mb-3">
-        
-          <div>
-        
-            <div id="weeklyBoardTitle"
-                 class="text-sm font-black text-amber-400">
-              本週派遣班表
-            </div>
-        
-          </div>
-        
-          <div class="flex items-center gap-2">
-          
-            <button
-              onclick="showRosterPreview()"
-              class="
-                px-2 py-1
-                rounded-lg
-                bg-amber-500
-                hover:bg-amber-400
-                text-slate-900
-                text-xs
-                font-black
-              ">
-              📋下載班表
-            </button>
-          
-            <i data-lucide="calendar-clock"
-               class="w-5 h-5 text-amber-400">
-            </i>
-          
-          </div>
-      
-        <!-- 班表內容 -->
-      
-        <div id="weeklyDutyBoard" class="flex-1 min-h-0 overflow-auto">      
-          <div class="text-slate-400">
-            載入中...
-          </div>
-        </div>
-      
-        <div class="flex items-center justify-between mb-2">
-        
-          <div>
-        
-            <div
-              id="weeklyBoardTitle"
-              class="text-sm font-black text-amber-400"
-            >
-              本週派遣班表
-            </div>
-        
-          </div>
-        
-          <div class="flex items-center gap-2">
-        
-            <button
-              onclick="showRosterPreview()"
-              class="
-                px-2 py-1
-                rounded-lg
-                bg-amber-500
-                text-slate-900
-                text-xs
-                font-black
-              "
-            >
-              📋下載
-            </button>
-        
-          </div>
-        
-        </div>
-        
+        <!-- 第一列 -->
         <div
           class="
             flex
             items-center
             justify-between
-            text-xs
+            pb-3
+            mb-3
             border-b
             border-white/10
-            pb-2
-            mb-3
           "
         >
-        
-          <div class="flex items-center gap-4">
-        
-            <span>
-              尚缺席位：
-              <span
-                id="totalVacancy"
-                class="font-black text-rose-400"
-              >
-                0
-              </span>
-            </span>
-        
-            <span>
-              完成率：
-              <span
-                id="staffFillRate"
-                class="font-black text-amber-300"
-              >
-                0%
-              </span>
-            </span>
-        
-          </div>
-        
-          <div class="w-32">
-        
+      
+          <div>
+      
             <div
+              id="weeklyBoardTitle"
               class="
-                w-full
-                h-2
-                rounded-full
-                bg-white/10
+                text-lg
+                font-black
+                text-amber-400
               "
             >
-        
+              本週派遣班表
+            </div>
+      
+            <div
+              class="
+                mt-1
+                flex
+                items-center
+                gap-6
+                text-xs
+              "
+            >
+      
+              <span>
+      
+                尚缺席位：
+      
+                <span
+                  id="totalVacancy"
+                  class="
+                    font-black
+                    text-rose-400
+                  "
+                >
+                  0
+                </span>
+      
+              </span>
+      
+              <span>
+      
+                完成率：
+      
+                <span
+                  id="staffFillRate"
+                  class="
+                    font-black
+                    text-amber-300
+                  "
+                >
+                  0%
+                </span>
+      
+              </span>
+      
+            </div>
+      
+          </div>
+      
+          <div
+            class="
+              flex
+              items-center
+              gap-3
+            "
+          >
+      
+            <div class="w-32">
+      
               <div
-                id="staffFillRateBar"
                 class="
+                  w-full
                   h-2
                   rounded-full
-                  bg-amber-400
+                  bg-white/10
                 "
-                style="width:0%"
-              ></div>
-        
+              >
+      
+                <div
+                  id="staffFillRateBar"
+                  class="
+                    h-2
+                    rounded-full
+                    bg-amber-400
+                  "
+                  style="width:0%"
+                >
+                </div>
+      
+              </div>
+      
             </div>
-        
+      
+            <button
+              onclick="showRosterPreview()"
+              class="
+                px-3
+                py-1.5
+                rounded-lg
+      
+                bg-amber-500
+                hover:bg-amber-400
+      
+                text-slate-900
+                text-xs
+                font-black
+              "
+            >
+              📋下載班表
+            </button>
+      
           </div>
-        
+      
+        </div>
+      
+        <!-- 班表主體 -->
+      
+        <div
+          id="weeklyDutyBoard"
+          class="
+            flex-1
+            overflow-auto
+            min-h-0
+          "
+        >
+      
+          <div class="text-slate-400">
+            載入中...
+          </div>
+      
         </div>
       
       </div>
-
-    </div>
     </section>
 
     <!-- =====================================================
