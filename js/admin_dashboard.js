@@ -1612,7 +1612,7 @@ function renderWeeklyDutyBoard(data){
 
     board.innerHTML = `
       <div class="text-emerald-400 text-sm">
-        ✅ 本週無缺額賽事
+        ✅ 本週無待派遣賽事
       </div>
     `;
 
@@ -1626,167 +1626,267 @@ function renderWeeklyDutyBoard(data){
   const sortedGames =
     [...games].sort((a,b)=>{
 
-      const aTime =
+      const aKey =
         `${a.date || ''} ${a.time || ''}`;
 
-      const bTime =
+      const bKey =
         `${b.date || ''} ${b.time || ''}`;
 
-      return aTime.localeCompare(bTime);
+      return aKey.localeCompare(bKey);
 
     });
 
-  board.innerHTML =
-    sortedGames.map(g => {
+  function getJudge(roleObj){
 
-      const badges = [];
+    if(!roleObj){
+      return '-';
+    }
 
-      badges.push(
-        dutyBadge(
-          '主',
-          getDutyName(g,'PU')
-        )
-      );
+    if(typeof roleObj === 'string'){
+      return roleObj.substring(0,1);
+    }
 
-      badges.push(
-        dutyBadge(
-          '一',
-          getDutyName(g,'U1')
-        )
-      );
+    if(roleObj.name){
+      return roleObj.name.substring(0,1);
+    }
 
-      if(
-        Number(g.umpire_count) >= 4
-      ){
+    return '-';
 
-        badges.push(
-          dutyBadge(
-            '二',
-            getDutyName(g,'U2')
-          )
-        );
+  }
 
-      }
+  function getRecord(roleObj){
 
-      if(
-        Number(g.umpire_count) >= 3
-      ){
+    if(!roleObj){
+      return '-';
+    }
 
-        badges.push(
-          dutyBadge(
-            '三',
-            getDutyName(g,'U3')
-          )
-        );
+    if(typeof roleObj === 'string'){
+      return roleObj.substring(0,1);
+    }
 
-      }
+    if(roleObj.name){
+      return roleObj.name.substring(0,1);
+    }
 
-      badges.push(
-        dutyBadge(
-          '紀',
-          getDutyName(
-            g,
-            'REC_MAIN'
-          )
-        )
-      );
+    return '-';
 
-      badges.push(
-        dutyBadge(
-          '實',
-          getDutyName(
-            g,
-            'REC_TRAINEE'
-          )
-        )
-      );
+  }
 
-      badges.push(
-        dutyBadge(
-          '影',
-          getDutyName(
-            g,
-            'REC_VIDEO'
-          )
-        )
-      );
+  // ===== 手機版 =====
 
-      return `
+  if(isMobile){
 
-        <div
-          class="
-            py-2
-            border-b
-            border-white/10
-          "
-        >
+    board.innerHTML =
+      sortedGames.map(g => {
+
+        return `
 
           <div
             class="
-              flex
-              items-center
-              gap-2
+              py-2
+              border-b
+              border-white/10
             "
           >
 
-            <span
+            <div
               class="
                 text-white
-                font-black
-                w-[42px]
-                shrink-0
+                font-bold
+                text-xs
               "
             >
               ${g.time || ''}
-            </span>
+              ${g.field || ''}
+            </div>
 
-            ${
-              isMobile
-                ? ''
-                : `
-                <span
-                  class="
-                    text-white
-                    font-black
-                    w-[75px]
-                    shrink-0
-                  "
-                >
-                  ${g.game_code || ''}
-                </span>
-                `
-            }
-
-            <span
+            <div
               class="
+                mt-1
+                text-[11px]
                 text-slate-300
-                flex-1
-                truncate
               "
             >
-              ${g.field || ''}
-            </span>
+              主${getJudge(g.judges?.PU)}
+              一${getJudge(g.judges?.U1)}
+
+              ${
+                Number(g.umpire_count) >= 3
+                ? ` 三${getJudge(g.judges?.U3)}`
+                : ''
+              }
+
+              ${
+                Number(g.umpire_count) >= 4
+                ? ` 二${getJudge(g.judges?.U2)}`
+                : ''
+              }
+
+              紀${getRecord(g.records?.REC_MAIN)}
+              實${getRecord(g.records?.REC_TRAINEE)}
+              影${getRecord(g.records?.REC_VIDEO)}
+            </div>
 
           </div>
 
-          <div
-            class="
-              mt-1
-              flex
-              flex-wrap
-              gap-1
-            "
-          >
+        `;
 
-            ${badges.join('')}
+      }).join('');
 
-          </div>
+    return;
 
-        </div>
+  }
+
+  // ===== 桌機版 =====
+
+  const rows =
+    sortedGames.map(g => {
+
+      return `
+
+        <tr
+          class="
+            border-b
+            border-white/10
+            hover:bg-white/5
+          "
+        >
+
+          <td class="py-2 px-2 whitespace-nowrap">
+            ${g.time || ''}
+          </td>
+
+          <td class="py-2 px-2 whitespace-nowrap">
+            ${g.game_code || ''}
+          </td>
+
+          <td class="py-2 px-2 whitespace-nowrap">
+            ${g.field || ''}
+          </td>
+
+          <td class="py-2 px-2 text-center">
+            ${getJudge(g.judges?.PU)}
+          </td>
+
+          <td class="py-2 px-2 text-center">
+            ${getJudge(g.judges?.U1)}
+          </td>
+
+          <td class="py-2 px-2 text-center">
+            ${
+              Number(g.umpire_count) >= 4
+              ? getJudge(g.judges?.U2)
+              : '-'
+            }
+          </td>
+
+          <td class="py-2 px-2 text-center">
+            ${
+              Number(g.umpire_count) >= 3
+              ? getJudge(g.judges?.U3)
+              : '-'
+            }
+          </td>
+
+          <td class="py-2 px-2 text-center">
+            ${getRecord(g.records?.REC_MAIN)}
+          </td>
+
+          <td class="py-2 px-2 text-center">
+            ${getRecord(g.records?.REC_TRAINEE)}
+          </td>
+
+          <td class="py-2 px-2 text-center">
+            ${getRecord(g.records?.REC_VIDEO)}
+          </td>
+
+        </tr>
 
       `;
 
     }).join('');
+
+  board.innerHTML = `
+
+    <div
+      class="
+        overflow-x-auto
+      "
+    >
+
+      <table
+        class="
+          w-full
+          text-xs
+          text-white
+        "
+      >
+
+        <thead>
+
+          <tr
+            class="
+              border-b
+              border-white/20
+              text-amber-300
+            "
+          >
+
+            <th class="text-left py-2 px-2">
+              時間
+            </th>
+
+            <th class="text-left py-2 px-2">
+              場次
+            </th>
+
+            <th class="text-left py-2 px-2">
+              場地
+            </th>
+
+            <th class="py-2 px-2">
+              主
+            </th>
+
+            <th class="py-2 px-2">
+              一
+            </th>
+
+            <th class="py-2 px-2">
+              二
+            </th>
+
+            <th class="py-2 px-2">
+              三
+            </th>
+
+            <th class="py-2 px-2">
+              紀
+            </th>
+
+            <th class="py-2 px-2">
+              實
+            </th>
+
+            <th class="py-2 px-2">
+              影
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          ${rows}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  `;
 
 }
 
