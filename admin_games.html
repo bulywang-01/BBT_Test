@@ -515,7 +515,7 @@
   
 </head>
 
-<body class="h-full antialiased text-slate-800 flex overflow-hidden">
+<body class="bg-slate-100">
 
 <div class="flex min-h-screen">
 
@@ -2879,5 +2879,44 @@ function saveRow(id){
   </div>
 </div>
 
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Toggle Sidebar on Mobile
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    }
+
+    // Modal Control
+    function showModal(title) {
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('admin-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('admin-modal').classList.add('hidden');
+    }
+
+    function assignReferee(matchInfo, role) {
+      document.getElementById('modal-title').innerText = `指派 ${role} - ${matchInfo}`;
+      document.getElementById('admin-modal').classList.remove('hidden');
+    }
+
+    // Toast Notification logic
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+    
+  </script>
+  
 </body>
 </html>
