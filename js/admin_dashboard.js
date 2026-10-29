@@ -2163,60 +2163,119 @@ function buildRosterHtml(isPreview = true){
   const date =
     games[0]?.date || '';
 
-  const fieldGroups = {};
-
-  games.forEach(game => {
-
-    const field =
-      game.field || '未設定場地';
-
-    const category =
-      game.category || '未分類';
-
-    if(!fieldGroups[field]){
-      fieldGroups[field] = {};
-    }
-
-    if(!fieldGroups[field][category]){
-      fieldGroups[field][category] = [];
-    }
-
-    fieldGroups[field][category].push(game);
-
-  });
-
-  const renderName = value => {
-
-    if(
-      value === '缺' ||
-      !value
-    ){
-      return `
-        <span style="
-          color:#dc2626;
-          font-weight:800;
-        ">
-          缺
-        </span>
-      `;
-    }
-
-    if(value === '-'){
-      return '-';
-    }
-
-    return `
-      <span style="
-        font-weight:600;
-      ">
-        ${value}
-      </span>
-    `;
-  };
-
   let rows = '';
-
-  Object.keys(fieldGroups).forEach(field => {
+  
+  games
+    .sort((a,b)=> {
+  
+      const aKey =
+        `${a.date || ''} ${a.time || ''}`;
+  
+      const bKey =
+        `${b.date || ''} ${b.time || ''}`;
+  
+      return aKey.localeCompare(bKey);
+  
+    })
+    .forEach(game => {
+  
+      rows += `
+  
+        <tr>
+  
+          <td style="
+            border:1px solid #cbd5e1;
+            padding:8px;
+            text-align:center;
+            white-space:nowrap;
+          ">
+            ${game.time || ''}
+          </td>
+  
+          <td style="
+            border:1px solid #cbd5e1;
+            padding:8px;
+            text-align:center;
+            font-weight:700;
+            color:#1d4ed8;
+            white-space:nowrap;
+          ">
+            ${game.game_code || ''}
+          </td>
+  
+          <td style="
+            border:1px solid #cbd5e1;
+            padding:8px;
+            background:#f8fafc;
+            font-weight:700;
+            white-space:nowrap;
+          ">
+            ${game.category || ''}
+          </td>
+  
+          <td style="
+            border:1px solid #cbd5e1;
+            padding:8px;
+            text-align:center;
+            font-weight:600;
+            min-width:220px;
+          ">
+            ${game.away_team || ''}
+            VS
+            ${game.home_team || ''}
+          </td>
+  
+          <td style="
+            border:1px solid #cbd5e1;
+            padding:8px;
+            white-space:nowrap;
+            background:#f8fafc;
+            font-weight:700;
+          ">
+            ${game.field || ''}
+          </td>
+  
+          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
+            ${renderName(getJudgeName(game,'PU') || '缺')}
+          </td>
+  
+          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
+            ${renderName(getJudgeName(game,'U1') || '缺')}
+          </td>
+  
+          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
+            ${
+              Number(game.umpire_count) >= 4
+                ? renderName(getJudgeName(game,'U2') || '缺')
+                : '-'
+            }
+          </td>
+  
+          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
+            ${
+              Number(game.umpire_count) >= 3
+                ? renderName(getJudgeName(game,'U3') || '缺')
+                : '-'
+            }
+          </td>
+  
+          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
+            ${renderName(getRecordName(game,'REC_MAIN') || '缺')}
+          </td>
+  
+          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
+            ${renderName(getRecordName(game,'REC_TRAINEE') || '缺')}
+          </td>
+  
+          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
+            ${renderName(getRecordName(game,'REC_VIDEO') || '缺')}
+          </td>
+  
+        </tr>
+  
+      `;
+  
+    });
 
     const categories =
       fieldGroups[field];
@@ -2421,28 +2480,38 @@ function buildRosterHtml(isPreview = true){
 
         <thead>
 
-          <tr
-            style="
-              background:#e2e8f0;
-              font-weight:800;
-            "
-          >
-
-            <th style="border:1px solid #cbd5e1;padding:10px;">場地</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">組別</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">時間</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">對戰</th>
-
-            <th style="border:1px solid #cbd5e1;padding:10px;">主審</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">一壘</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">二壘</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">三壘</th>
-
-            <th style="border:1px solid #cbd5e1;padding:10px;">紀錄</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">實習</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">影像</th>
-
-          </tr>
+      <tr
+        style="
+          background:#e2e8f0;
+          font-weight:800;
+        "
+      >
+      
+        <th style="border:1px solid #cbd5e1;padding:10px;">時間</th>
+      
+        <th style="border:1px solid #cbd5e1;padding:10px;">場次</th>
+      
+        <th style="border:1px solid #cbd5e1;padding:10px;">組別</th>
+      
+        <th style="border:1px solid #cbd5e1;padding:10px;">對戰</th>
+      
+        <th style="border:1px solid #cbd5e1;padding:10px;">場地</th>
+      
+        <th style="border:1px solid #cbd5e1;padding:10px;">主審</th>
+      
+        <th style="border:1px solid #cbd5e1;padding:10px;">一壘</th>
+      
+        <th style="border:1px solid #cbd5e1;padding:10px;">二壘</th>
+      
+        <th style="border:1px solid #cbd5e1;padding:10px;">三壘</th>
+      
+        <th style="border:1px solid #cbd5e1;padding:10px;">紀錄</th>
+      
+        <th style="border:1px solid #cbd5e1;padding:10px;">實習</th>
+      
+        <th style="border:1px solid #cbd5e1;padding:10px;">影像</th>
+      
+      </tr>
 
         </thead>
 
