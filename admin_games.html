@@ -515,10 +515,16 @@
   
 </head>
 
-<body class="bg-slate-100">
+<body class="h-full antialiased text-slate-800 flex overflow-hidden">
 
 <div class="flex min-h-screen">
 
+<!-- Mobile Overlay -->
+<div id="sidebar-overlay"
+     onclick="toggleSidebar()"
+     class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity">
+</div>
+  
   <!-- Sidebar -->
   <aside id="sidebar"
     class="fixed lg:static inset-y-0 left-0 w-64
