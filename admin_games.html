@@ -1840,48 +1840,66 @@ function renderGames(list){
             </td>
 
             <td>
-
-              <div style="
-                display:flex;
-                gap:4px;
-                justify-content:center;
-                flex-wrap:wrap;
-              ">
-
-                <button
-                  onclick="editRow(${g.game_id})"
-                  title="修改">
-                  ✏️
-                </button>
-
-                <button
-                  onclick="
-                    location.href=
-                    'judge_dashboard_admin.html?gameId=${g.game_id}'
-                  "
-                  title="裁判派遣">
-                  ⚖️
-                </button>
-
-                <button
-                  onclick="
-                    location.href=
-                    'record_dashboard_admin.html?gameId=${g.game_id}'
-                  "
-                  title="紀錄派遣">
-                  📝
-                </button>
-
-                <button
-                  onclick="
-                    deleteGame(${g.game_id})
-                  "
-                  title="刪除">
-                  🗑️
-                </button>
-
-              </div>
-
+            
+              ${
+                Number(g.status) === 4 || statusText(g.status,g) === '已結束'
+            
+                ? `
+                  <span style="
+                    color:#94a3b8;
+                    font-size:12px;
+                    font-weight:600;
+                  ">
+                    已結案
+                  </span>
+                  `
+            
+                : `
+            
+                  <div style="
+                    display:flex;
+                    gap:4px;
+                    justify-content:center;
+                    flex-wrap:wrap;
+                  ">
+            
+                    <button
+                      onclick="editRow(${g.game_id})"
+                      title="修改">
+                      ✏️
+                    </button>
+            
+                    <button
+                      onclick="
+                        location.href=
+                        'judge_dashboard_admin.html?gameId=${g.game_id}'
+                      "
+                      title="裁判派遣">
+                      ⚖️
+                    </button>
+            
+                    <button
+                      onclick="
+                        location.href=
+                        'record_dashboard_admin.html?gameId=${g.game_id}'
+                      "
+                      title="紀錄派遣">
+                      📝
+                    </button>
+            
+                    <button
+                      onclick="
+                        deleteGame(${g.game_id})
+                      "
+                      title="刪除">
+                      🗑️
+                    </button>
+            
+                  </div>
+            
+                  `
+              }
+            
             </td>
 
           </tr>
