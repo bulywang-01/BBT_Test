@@ -1612,7 +1612,7 @@ function renderWeeklyDutyBoard(data){
 
     board.innerHTML = `
       <div class="text-emerald-400 text-sm">
-        ✅ 本週無待派遣賽事
+        ✅ 本週無賽事
       </div>
     `;
 
@@ -2346,7 +2346,7 @@ function buildRosterHtml(isPreview = true){
             font-weight:900;
           "
         >
-          BBT 裁判暨紀錄派遣表
+          BBT 裁判暨紀錄班表
         </div>
 
         <div
