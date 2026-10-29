@@ -1636,6 +1636,7 @@ function renderWeeklyDutyBoard(data){
 
     });
 
+  // 顯示姓名
   function shortName(obj){
   
     if(!obj){
@@ -1643,7 +1644,7 @@ function renderWeeklyDutyBoard(data){
     }
   
     if(typeof obj === 'string'){
-      return obj.substring(0,2);
+      return obj;
     }
   
     if(obj.name){
@@ -1651,6 +1652,7 @@ function renderWeeklyDutyBoard(data){
     }
   
     return '-';
+  
   }
 
   // ==========================
@@ -1873,40 +1875,40 @@ function renderWeeklyDutyBoard(data){
                   "
                 >
 
-                  <th class="text-left py-1.5 px-2">
-                    時間
+                  <th class="w-[70px]">
+                  時間
                   </th>
-
-                  <th class="text-left py-1.5 px-2">
-                    場次
+                  
+                  <th class="w-[90px]">
+                  場次
                   </th>
-
-                  <th class="py-1 px-1">
-                    主
+                  
+                  <th class="w-[130px]">
+                  主審
                   </th>
-
-                  <th class="py-1 px-1">
-                    一
+                  
+                  <th class="w-[130px]">
+                  一壘
                   </th>
-
-                  <th class="py-1 px-1">
-                    二
+                  
+                  <th class="w-[130px]">
+                  二壘
                   </th>
-
-                  <th class="py-1 px-1">
-                    三
+                  
+                  <th class="w-[130px]">
+                  三壘
                   </th>
-
-                  <th class="py-1 px-1">
-                    紀
+                  
+                  <th class="w-[150px]">
+                  紀錄
                   </th>
-
-                  <th class="py-1 px-1">
-                    實
+                  
+                  <th class="w-[120px]">
+                  實習
                   </th>
-
-                  <th class="py-1 px-1">
-                    影
+                  
+                  <th class="w-[120px]">
+                  影像
                   </th>
 
                 </tr>
