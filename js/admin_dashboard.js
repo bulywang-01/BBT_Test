@@ -2094,19 +2094,32 @@ function buildDutyBadge(
 // 產生班表資料
 function buildRosterData(){
 
-console.log(
-  '_dashboardData',
-  window._dashboardData
-);
+  console.log(
+    '_dashboardData',
+    window._dashboardData
+  );
 
   const data =
     window._dashboardData || {};
 
-  return (
-    data.games ||
-    data.vacancyGames ||
-    []
-  );
+  // 優先抓完整賽事
+  if(
+    Array.isArray(data.games) &&
+    data.games.length
+  ){
+    return data.games;
+  }
+
+  // 次選抓本週班表資料
+  if(
+    Array.isArray(data.weeklyGames) &&
+    data.weeklyGames.length
+  ){
+    return data.weeklyGames;
+  }
+
+  // 最後才退回缺額賽事
+  return data.vacancyGames || [];
 
 }
 
@@ -2241,31 +2254,39 @@ function buildRosterHtml(){
           </td>
 
           <td class="border p-2">
-            ${game.PU_name || ''}
+            ${getJudgeName(game,'PU') || '缺'}
           </td>
-
+          
           <td class="border p-2">
-            ${game.U1_name || ''}
+            ${getJudgeName(game,'U1') || '缺'}
           </td>
-
+          
           <td class="border p-2">
-            ${game.U2_name || ''}
+            ${
+              Number(game.umpire_count) >= 4
+                ? (getJudgeName(game,'U2') || '缺')
+                : '-'
+            }
           </td>
-
+          
           <td class="border p-2">
-            ${game.U3_name || ''}
+            ${
+              Number(game.umpire_count) >= 3
+                ? (getJudgeName(game,'U3') || '缺')
+                : '-'
+            }
           </td>
-
+          
           <td class="border p-2">
-            ${game.REC_MAIN_name || ''}
+            ${getRecordName(game,'REC_MAIN') || '缺'}
           </td>
-
+          
           <td class="border p-2">
-            ${game.REC_TRAINEE_name || ''}
+            ${getRecordName(game,'REC_TRAINEE') || '缺'}
           </td>
-
+          
           <td class="border p-2">
-            ${game.REC_VIDEO_name || ''}
+            ${getRecordName(game,'REC_VIDEO') || '缺'}
           </td>
 
         </tr>`;
@@ -2481,31 +2502,37 @@ function closeRosterPreview(){
 
 }
 
-function getJudgeName(
-  game,
-  role
-){
+function getJudgeName(game, role){
 
-  return (
-    game?.judges?.[role]?.name ||
-    game?.judges?.[role] ||
-    ''
-  );
+  const v = game?.judges?.[role];
 
+  if(typeof v === 'string'){
+    return v;
+  }
+
+  if(v?.name){
+    return v.name;
+  }
+
+  return '';
 }
 
-function getRecordName(
-  game,
-  role
-){
 
-  return (
-    game?.records?.[role]?.name ||
-    game?.records?.[role] ||
-    ''
-  );
+function getRecordName(game, role){
 
+  const v = game?.records?.[role];
+
+  if(typeof v === 'string'){
+    return v;
+  }
+
+  if(v?.name){
+    return v.name;
+  }
+
+  return '';
 }
+
 
 function buildRosterBadge(
   title,
