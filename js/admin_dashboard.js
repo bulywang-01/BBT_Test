@@ -2128,7 +2128,7 @@ function buildRosterData(){
 function showRosterPreview(){
 
   const html =
-    buildRosterHtml();
+    buildRosterHtml(true);
 
   document.getElementById(
     'rosterPrintArea'
@@ -2144,9 +2144,12 @@ function showRosterPreview(){
 }
 
 // 產生班表資料 - 關閉視窗
-function buildRosterHtml(){
+function buildRosterHtml(isPreview = true){
 
   const games = buildRosterData();
+  const tableWidth = isPreview
+    ? '100%'
+    : '1400px';
 
   if(!games.length){
     return `
@@ -2302,9 +2305,7 @@ function buildRosterHtml(){
       <div
         id="rosterExportBlock"
         class="bg-white p-6 text-black"
-        style="
-          width:1400px;
-        "
+        style="width:${tableWidth};"
       >
 
       <div
@@ -2414,6 +2415,7 @@ function buildRosterHtml(){
 // 產出班表資料 - 
 async function exportRosterImage(){
 
+  const html = buildRosterHtml(false);
   const target =
     document.getElementById(
       'rosterExportBlock'
