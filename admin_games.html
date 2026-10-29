@@ -383,7 +383,134 @@
     margin-top:6px;
     color:#64748b;
   }
+
+  /* =====================================================
+     Mobile Support
+  ===================================================== */
   
+  .desktop-table{
+    display:block;
+  }
+  
+  .mobile-game-list{
+    display:none;
+  }
+  
+  .mobile-game-card{
+    background:#fff;
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:10px;
+    border:1px solid #e2e8f0;
+    box-shadow:0 2px 8px rgba(0,0,0,.05);
+  }
+  
+  .mobile-game-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  
+  .game-code{
+    color:#2563eb;
+    font-size:18px;
+    font-weight:900;
+  }
+  
+  .mobile-game-time{
+    font-weight:700;
+  }
+  
+  .mobile-game-field,
+  .mobile-game-category{
+    margin-top:4px;
+    color:#64748b;
+    font-size:13px;
+  }
+  
+  .mobile-game-teams{
+    margin-top:10px;
+    font-weight:700;
+    line-height:1.5;
+  }
+  
+  .mobile-game-meta{
+    display:flex;
+    gap:12px;
+    margin-top:10px;
+    color:#475569;
+    font-size:13px;
+  }
+  
+  .mobile-game-actions{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+  }
+  
+  .mobile-game-actions button{
+    flex:1;
+    height:38px;
+    border:none;
+    border-radius:10px;
+    background:#f1f5f9;
+    cursor:pointer;
+  }
+  
+  .mobile-game-close{
+    margin-top:12px;
+    color:#94a3b8;
+    font-weight:700;
+  }
+  
+  /* =====================================================
+     Responsive
+  ===================================================== */
+  
+  @media(max-width:768px){
+  
+    /* KPI 4欄改 2欄 */
+  
+    .game-kpi-grid{
+      grid-template-columns:repeat(2,1fr);
+    }
+  
+    .main{
+      padding:12px;
+    }
+  
+    .page-title{
+      font-size:28px;
+    }
+  
+    .page-subtitle{
+      font-size:13px;
+    }
+  
+    .filter-bar{
+      flex-direction:column;
+      align-items:flex-start;
+      gap:10px;
+    }
+  
+    .desktop-table{
+      display:none;
+    }
+  
+    .mobile-game-list{
+      display:block;
+    }
+  
+    .panel{
+      padding:12px;
+    }
+  
+    .tournament-title{
+      font-size:16px;
+    }
+  
+  }
   </style>
   
 </head>
@@ -1701,19 +1828,27 @@ function renderGames(list){
         <div class="tournament-block">
 
           <div class="tournament-title">
-            📁 ${tournament}
+          
+            <span>
+              📁 ${tournament}
+            </span>
+          
             <span style="
               float:right;
-              font-size:13px;
+              font-size:14px;
+              font-weight:700;
               opacity:.85;
             ">
               ${groups[tournament].length} 場
             </span>
+          
           </div>
 
           <div class="panel">
-
-            <table class="styled-table">
+          
+            <div class="desktop-table">
+          
+              <table class="styled-table">
 
               <thead>
 
@@ -1937,7 +2072,110 @@ function renderGames(list){
 
           </div>
 
+          <div class="mobile-game-list">
+
+            ${
+              groups[tournament].map(g => `
+
+                <div class="mobile-game-card">
+
+                  <div class="mobile-game-header">
+
+                    <span class="game-code">
+                      ${g.game_code || '-'}
+                    </span>
+
+                    <span class="
+                      status-badge
+                      status-${g.status || 0}
+                    ">
+                      ${statusText(g.status,g)}
+                    </span>
+
+                  </div>
+
+                  <div class="mobile-game-time">
+                    🕒 ${g._date || '-'} ${g._time || '-'}
+                  </div>
+
+                  <div class="mobile-game-field">
+                    📍 ${g.field || '-'}
+                  </div>
+
+                  <div class="mobile-game-category">
+                    🏆 ${g.tournament || '-'}
+                    ${g.category ? `｜${g.category}` : ''}
+                  </div>
+
+                  <div class="mobile-game-teams">
+                    ${g.away_team || ''}
+                    VS
+                    ${g.home_team || ''}
+                  </div>
+
+                  <div class="mobile-game-meta">
+
+                    <span>
+                      ⚖️ ${g.umpire_count || 0}席
+                    </span>
+
+                    <span>
+                      ⏱ ${g.duration || 0}分
+                    </span>
+
+                  </div>
+
+                  ${
+                    Number(g.status) === 4 ||
+                    statusText(g.status,g) === '已結束'
+
+                    ? `
+
+                      <div class="mobile-game-close">
+                        已結案
+                      </div>
+
+                    `
+
+                    : `
+
+                      <div class="mobile-game-actions">
+
+                        <button
+                          onclick="editRow(${g.game_id})">
+                          ✏️
+                        </button>
+
+                        <button
+                          onclick="location.href='judge_dashboard_admin.html?gameId=${g.game_id}'">
+                          ⚖️
+                        </button>
+
+                        <button
+                          onclick="location.href='record_dashboard_admin.html?gameId=${g.game_id}'">
+                          📝
+                        </button>
+
+                        <button
+                          onclick="deleteGame(${g.game_id})">
+                          🗑️
+                        </button>
+
+                      </div>
+
+                    `
+                  }
+
+                </div>
+
+              `).join('')
+            }
+
+          </div>
+
         </div>
+
+      </div>
 
       `;
 
