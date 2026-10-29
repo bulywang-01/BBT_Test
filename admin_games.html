@@ -748,10 +748,12 @@ function loadGames(){
       game_id: Number(g.game_id),   // ✅ 關鍵
       status: Number(g.status || 0)
     }));
+
+    window._games = games;
     
-      renderGameKPI(games);
-      renderGames(games);
-      hideLoading();
+    renderGameKPI(games);
+    renderGames(games);
+    hideLoading();
   });
 }
 
@@ -1982,78 +1984,126 @@ function validateGame(data){
 // 編輯功能
 function editRow(id){
 
-  const tr = document.getElementById('row_' + id);
-  const cells = tr.children;
+  const tr =
+    document.getElementById(
+      'row_' + id
+    );
 
-  const game_code = cells[0].textContent.trim();
-  const date      = cells[1].textContent.trim();
-  const time      = cells[2].textContent.trim();
-  const duration  = cells[3].textContent.trim();
-  const tournament= cells[4].textContent.trim();
-  const field     = cells[5].textContent.trim();
-  const category  = cells[6].textContent.trim();
-  const teams     = cells[7].textContent.trim();
-  const umpire    = cells[8].textContent.trim();
-  const status    = cells[9].textContent.trim();
+  const game =
+    window._games.find(
+      g =>
+        Number(g.game_id)
+        ===
+        Number(id)
+    );
 
-  function parseStatus(text){
-    if (text.includes('延賽')) return 1;
-    if (text.includes('停賽')) return 2;
-    if (text.includes('暫存')) return 3;
-    return 0;
-    }
-  
-  const [away, home] = teams.split(' vs ');
+  if(!game){
+    showToast('找不到賽事');
+    return;
+  }
+
+  const parseStatus =
+    Number(game.status || 0);
 
   tr.innerHTML = `
-    <td><input id="e_code_${id}" value="${game_code}"></td>
-    <td><input type="date" id="e_date_${id}" value="${date !== '-' ? date.replace(/\//g,'-') : ''}"></td>
-    <td><input type="time" id="e_time_${id}" value="${time !== '-' ? normalizeTime(time) : ''}"></td>
 
     <td>
-      <input type="number" min="0" max="300"
-        id="e_duration_${id}"
-        value="${duration !== '-' ? duration : ''}">
+      <input
+        id="e_code_${id}"
+        value="${game.game_code || ''}">
     </td>
 
     <td>
-      <input id="e_tournament_${id}"
-        value="${tournament !== '-' ? tournament : ''}">
-    </td>
-
-    <td><input id="e_field_${id}" value="${field}"></td>
-
-    <td>
-      <input id="e_category_${id}"
-        value="${category !== '-' ? category : ''}">
+      <input
+        type="date"
+        id="e_date_${id}"
+        value="${game.date || ''}">
     </td>
 
     <td>
-      <input style="width:45%" id="e_away_${id}" value="${away || ''}">
+      <input
+        type="time"
+        id="e_time_${id}"
+        value="${game.time || ''}">
+    </td>
+
+    <td>
+      <input
+        id="e_category_${id}"
+        value="${game.category || ''}">
+    </td>
+
+    <td>
+      <input
+        id="e_field_${id}"
+        value="${game.field || ''}">
+    </td>
+
+    <td>
+
+      <input
+        style="width:45%"
+        id="e_away_${id}"
+        value="${game.away_team || ''}">
+
       vs
-      <input style="width:45%" id="e_home_${id}" value="${home || ''}">
+
+      <input
+        style="width:45%"
+        id="e_home_${id}"
+        value="${game.home_team || ''}">
+
     </td>
 
     <td>
-      <input type="number" min="0" max="4"
+
+      <input
+        type="number"
+        min="0"
+        max="4"
         id="e_umpire_${id}"
-        value="${umpire !== '-' ? umpire : 0}">
+        value="${game.umpire_count || 0}">
+
     </td>
 
     <td>
+
       <select id="e_status_${id}">
-        <option value="0" ${parseStatus(status)===0?'selected':''}>正常</option>
-        <option value="1" ${parseStatus(status)===1?'selected':''}>延賽</option>
-        <option value="2" ${parseStatus(status)===2?'selected':''}>停賽</option>
-        <option value="3" ${parseStatus(status)===3?'selected':''}>暫存</option>
+
+        <option value="0" ${parseStatus===0?'selected':''}>
+          正常
+        </option>
+
+        <option value="1" ${parseStatus===1?'selected':''}>
+          延賽
+        </option>
+
+        <option value="2" ${parseStatus===2?'selected':''}>
+          停賽
+        </option>
+
+        <option value="3" ${parseStatus===3?'selected':''}>
+          暫存
+        </option>
+
       </select>
+
     </td>
 
-    <td colspan="2">
-      <button onclick="saveRow(${id})">✅ 儲存</button>
-      <button onclick="loadGames()">❌ 取消</button>
+    <td>
+
+      <button onclick="saveRow(${id})">
+        ✅
+      </button>
+
+      <button onclick="loadGames()">
+        ❌
+      </button>
+
     </td>
+
   `;
+
 }
 
 // 編輯後儲存
