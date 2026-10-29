@@ -2149,7 +2149,7 @@ function buildRosterHtml(isPreview = true){
 
   const tableWidth =
     isPreview
-      ? '100%'
+      ? '1100px'
       : '1100px';
 
   if(!games.length){
@@ -2237,7 +2237,7 @@ function buildRosterHtml(isPreview = true){
           ${game.category || ''}
         </td>
 
-        <td class="c-match">
+        <td class="c-match" style="text-align:center;">
           ${game.away_team || ''}
           VS
           ${game.home_team || ''}
@@ -2247,15 +2247,15 @@ function buildRosterHtml(isPreview = true){
           ${game.field || ''}
         </td>
 
-        <td class="c-duty">
+        <td class="c-duty" style="text-align:center;">
           ${renderName(getJudgeName(game,'PU'))}
         </td>
 
-        <td class="c-duty">
+        <td class="c-duty" style="text-align:center;">
           ${renderName(getJudgeName(game,'U1'))}
         </td>
 
-        <td class="c-duty">
+        <td class="c-duty" style="text-align:center;">
           ${
             Number(game.umpire_count) >= 4
               ? renderName(
@@ -2265,7 +2265,7 @@ function buildRosterHtml(isPreview = true){
           }
         </td>
 
-        <td class="c-duty">
+        <td class="c-duty" style="text-align:center;">
           ${
             Number(game.umpire_count) >= 3
               ? renderName(
@@ -2275,7 +2275,7 @@ function buildRosterHtml(isPreview = true){
           }
         </td>
 
-        <td class="c-duty">
+        <td class="c-duty" style="text-align:center;">
           ${renderName(
             getRecordName(
               game,
@@ -2284,7 +2284,7 @@ function buildRosterHtml(isPreview = true){
           )}
         </td>
 
-        <td class="c-duty">
+        <td class="c-duty" style="text-align:center;">
           ${renderName(
             getRecordName(
               game,
@@ -2293,7 +2293,7 @@ function buildRosterHtml(isPreview = true){
           )}
         </td>
 
-        <td class="c-duty">
+        <td class="c-duty" style="text-align:center;">
           ${renderName(
             getRecordName(
               game,
@@ -2309,21 +2309,22 @@ function buildRosterHtml(isPreview = true){
 
   return `
 
-  <div
-    id="rosterExportBlock"
-    style="
-      width:${tableWidth};
-      background:#fff;
-      color:#000;
-      padding:24px;
-      box-sizing:border-box;
-    "
-  >
+    <div
+      id="rosterExportBlock"
+      style="
+        width:${tableWidth};
+        background:#fff;
+        color:#000;
+        padding:24px;
+        margin:0 auto;
+      "
+    >
 
     <div
       style="
         display:flex;
         align-items:center;
+        justify-content:center;
         gap:20px;
         margin-bottom:24px;
       "
