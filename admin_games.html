@@ -1431,21 +1431,28 @@ function renderGames(list){
             </td>
 
             <td>
-
+            
               <div style="
                 font-weight:700;
                 color:#0f172a;
               ">
-                ${g.category || '-'}
+                ${g.tournament || '-'}
               </div>
-
+            
               <div style="
                 font-size:12px;
                 color:#64748b;
               ">
+                ${g.category || '-'}
+              </div>
+            
+              <div style="
+                font-size:12px;
+                color:#94a3b8;
+              ">
                 ${g.field || '-'}
               </div>
-
+            
             </td>
 
             <td style="
@@ -2169,7 +2176,6 @@ function editRow(id){
   `;
 }
 
-// 編輯後儲存
 function saveRow(id){
 
   const data = {
@@ -2184,6 +2190,14 @@ function saveRow(id){
 
     time:
       document.getElementById(`e_time_${id}`)?.value || '',
+
+    duration:
+      Number(
+        document.getElementById(`e_duration_${id}`)?.value || 0
+      ),
+
+    tournament:
+      document.getElementById(`e_tournament_${id}`)?.value || '',
 
     field:
       document.getElementById(`e_field_${id}`)?.value || '',
@@ -2205,14 +2219,10 @@ function saveRow(id){
     status:
       Number(
         document.getElementById(`e_status_${id}`)?.value || 0
-      ),
-
-    // 暫時給預設值，避免 API 缺欄位
-    duration: 0,
-
-    tournament: ''
-
+      )
   };
+
+  console.log('SAVE DATA=', data);
 
   showSaving('儲存中...');
 
