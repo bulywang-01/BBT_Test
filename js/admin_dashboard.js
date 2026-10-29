@@ -1597,19 +1597,19 @@ function renderWeeklyDutyBoard(data){
 
   const games =
     (data.vacancyGames || []).map(v => {
-  
+
       const fullGame =
         (data.games || []).find(
           g =>
             String(g.game_id) ===
             String(v.game_id)
         ) || {};
-  
+
       return {
         ...fullGame,
         ...v
       };
-  
+
     });
 
   if(!games.length){
@@ -1622,6 +1622,9 @@ function renderWeeklyDutyBoard(data){
 
     return;
   }
+
+  const isMobile =
+    window.innerWidth < 768;
 
   const sortedGames =
     [...games].sort((a,b)=>{
@@ -1648,40 +1651,33 @@ function renderWeeklyDutyBoard(data){
         (g.missingRecord || [])
           .map(x => x.code);
 
-      const fullGame =
-        (data.games || []).find(
-          x =>
-            String(x.game_id) ===
-            String(g.game_id)
-        ) || {};
-      
       const umpireCount =
         Number(
-          fullGame.umpire_count || 0
+          g.umpire_count || 0
         );
-      
+
       const judgePositions = (() => {
-      
+
         switch(umpireCount){
-      
+
           case 1:
             return [
               { code:'PU', label:'主' }
             ];
-      
+
           case 2:
             return [
               { code:'PU', label:'主' },
               { code:'U1', label:'一' }
             ];
-      
+
           case 3:
             return [
               { code:'PU', label:'主' },
               { code:'U1', label:'一' },
               { code:'U3', label:'三' }
             ];
-      
+
           case 4:
             return [
               { code:'PU', label:'主' },
@@ -1689,41 +1685,39 @@ function renderWeeklyDutyBoard(data){
               { code:'U2', label:'二' },
               { code:'U3', label:'三' }
             ];
-      
+
           default:
-      
-            // BBT 預設 3 人制
-      
+
             return [
               { code:'PU', label:'主' },
               { code:'U1', label:'一' },
               { code:'U3', label:'三' }
             ];
         }
-      
+
       })();
-      
+
       const judgeBadges =
         judgePositions
           .map(pos => {
-      
+
             return buildDutyBadge(
               pos.label,
               missingJudge.includes(pos.code)
             );
-      
+
           })
           .join('');
-      
+
       const recordPositions = [
-      
+
         {
           code:'REC_MAIN',
           label:'紀'
         }
-      
+
       ];
-      
+
       if(
         (g.missingRecord || [])
           .some(x =>
@@ -1735,7 +1729,7 @@ function renderWeeklyDutyBoard(data){
           label:'實'
         });
       }
-      
+
       if(
         (g.missingRecord || [])
           .some(x =>
@@ -1747,21 +1741,21 @@ function renderWeeklyDutyBoard(data){
           label:'影'
         });
       }
-      
+
       const recordBadges =
         recordPositions
           .map(pos => {
-      
+
             return buildDutyBadge(
               pos.label,
               missingRecord.includes(pos.code)
             );
-      
+
           })
           .join('');
 
       return `
-      
+
         <div class="
           flex
           items-center
@@ -1771,25 +1765,31 @@ function renderWeeklyDutyBoard(data){
           border-white/10
           text-sm
         ">
-      
+
           <span class="
             text-white
             font-black
-            w-[48px]
+            w-[42px]
             shrink-0
           ">
             ${g.time || ''}
           </span>
-      
-          <span class="
-            text-white
-            font-black
-            w-[78px]
-            shrink-0
-          ">
-            ${g.game_code || ''}
-          </span>
-      
+
+          ${
+            isMobile
+              ? ''
+              : `
+                <span class="
+                  text-white
+                  font-black
+                  w-[78px]
+                  shrink-0
+                ">
+                  ${g.game_code || ''}
+                </span>
+              `
+          }
+
           <span class="
             text-slate-300
             flex-1
@@ -1797,7 +1797,7 @@ function renderWeeklyDutyBoard(data){
           ">
             ${g.field || ''}
           </span>
-      
+
           <div class="
             flex
             flex-wrap
@@ -1805,15 +1805,15 @@ function renderWeeklyDutyBoard(data){
             justify-end
             shrink-0
           ">
-      
+
             ${judgeBadges}
-      
+
             ${recordBadges}
-      
+
           </div>
-      
+
         </div>
-      
+
       `;
 
     }).join('');
@@ -1927,10 +1927,10 @@ function buildDutyBadge(
       inline-flex
       items-center
       justify-center
-      w-4
-      h-4
+      w-[15px]
+      h-[15px]
       rounded
-      text-[10px]
+      text-[9px]
       leading-none
       font-black
       ${
@@ -1944,3 +1944,389 @@ function buildDutyBadge(
   `;
 }
 
+// 產生班表資料
+function buildRosterData(){
+
+  return (
+    window._dashboardData?.games || []
+  )
+  .filter(g => Number(g.status) === 0)
+  .sort((a,b)=>{
+
+    const fieldCompare =
+      String(a.field || '')
+        .localeCompare(
+          String(b.field || '')
+        );
+
+    if(fieldCompare !== 0){
+      return fieldCompare;
+    }
+
+    return String(a.time || '')
+      .localeCompare(
+        String(b.time || '')
+      );
+
+  });
+
+}
+
+
+// 產生班表資料 - 預覽
+function showRosterPreview(){
+
+  const html =
+    buildRosterHtml();
+
+  document.getElementById(
+    'rosterPrintArea'
+  ).innerHTML = html;
+
+  document
+    .getElementById(
+      'rosterPreviewModal'
+    )
+    .classList
+    .remove('hidden');
+
+}
+
+// 產生班表資料 - 關閉視窗
+function buildRosterHtml(){
+
+  const games = buildRosterData();
+
+  if(!games.length){
+    return `
+      <div class="p-10 text-center">
+        無賽事資料
+      </div>
+    `;
+  }
+
+  const date = games[0]?.date || '';
+
+  // 場地 → 組別 分組
+  const fieldGroups = {};
+
+  games.forEach(game => {
+
+    const field =
+      game.field || '未設定場地';
+
+    const category =
+      game.category || '未分類';
+
+    if(!fieldGroups[field]){
+      fieldGroups[field] = {};
+    }
+
+    if(!fieldGroups[field][category]){
+      fieldGroups[field][category] = [];
+    }
+
+    fieldGroups[field][category]
+      .push(game);
+
+  });
+
+  let rows = '';
+
+  Object.keys(fieldGroups).forEach(field => {
+
+    const categories =
+      fieldGroups[field];
+
+    const fieldRowCount =
+      Object.values(categories)
+        .reduce(
+          (sum, arr) => sum + arr.length,
+          0
+        );
+
+    let fieldRendered = false;
+
+    Object.keys(categories).forEach(category => {
+
+      const games = categories[category];
+
+      const categoryRowCount =
+        games.length;
+
+      let categoryRendered = false;
+
+      games.forEach(game => {
+
+        rows += `<tr>`;
+
+        // 場地 rowspan
+        if(!fieldRendered){
+
+          rows += `
+            <td
+              rowspan="${fieldRowCount}"
+              class="border p-2 font-bold align-top bg-slate-50"
+            >
+              ${field}
+            </td>
+          `;
+
+          fieldRendered = true;
+        }
+
+        // 組別 rowspan
+        if(!categoryRendered){
+
+          rows += `
+            <td
+              rowspan="${categoryRowCount}"
+              class="border p-2 font-bold align-top bg-slate-50"
+            >
+              ${category}
+            </td>
+          `;
+
+          categoryRendered = true;
+        }
+
+        rows += `
+
+          <td class="border p-2 text-center">
+            ${game.time || ''}
+          </td>
+
+          <td class="border p-2">
+            ${game.away_team || ''}
+            VS
+            ${game.home_team || ''}
+          </td>
+
+          <td class="border p-2">
+            ${game.PU_name || ''}
+          </td>
+
+          <td class="border p-2">
+            ${game.U1_name || ''}
+          </td>
+
+          <td class="border p-2">
+            ${game.U2_name || ''}
+          </td>
+
+          <td class="border p-2">
+            ${game.U3_name || ''}
+          </td>
+
+          <td class="border p-2">
+            ${game.REC_MAIN_name || ''}
+          </td>
+
+          <td class="border p-2">
+            ${game.REC_TRAINEE_name || ''}
+          </td>
+
+          <td class="border p-2">
+            ${game.REC_VIDEO_name || ''}
+          </td>
+
+        </tr>`;
+
+      });
+
+    });
+
+  });
+
+  return `
+
+    <div
+      id="rosterExportBlock"
+      class="bg-white p-8 text-black"
+      style="
+        width:1800px;
+      ">
+
+      <div
+        style="
+          display:flex;
+          align-items:center;
+          margin-bottom:20px;
+        ">
+
+        <img
+          src="img/bbtlogo.png"
+          alt="BBT Logo"
+          style="
+            width:100px;
+            height:auto;
+            margin-right:20px;
+          "
+        >
+
+        <div>
+
+          <div
+            style="
+              font-size:30px;
+              font-weight:900;
+            ">
+            BBT 裁判暨紀錄派遣表
+          </div>
+
+          <div
+            style="
+              font-size:18px;
+              margin-top:4px;
+            ">
+            日期：${date}
+          </div>
+
+        </div>
+
+      </div>
+
+      <table
+        style="
+          width:100%;
+          border-collapse:collapse;
+          font-size:13px;
+        ">
+
+        <thead>
+
+          <tr
+            style="
+              background:#f1f5f9;
+            ">
+
+            <th class="border p-2">場地</th>
+            <th class="border p-2">組別</th>
+            <th class="border p-2">時間</th>
+            <th class="border p-2">對戰</th>
+
+            <th class="border p-2">主審</th>
+            <th class="border p-2">一壘</th>
+            <th class="border p-2">二壘</th>
+            <th class="border p-2">三壘</th>
+
+            <th class="border p-2">紀錄</th>
+            <th class="border p-2">實習</th>
+            <th class="border p-2">影像</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          ${rows}
+
+        </tbody>
+
+      </table>
+
+      <div
+        style="
+          margin-top:25px;
+          font-size:14px;
+          line-height:2;
+        ">
+
+        <strong>
+          備註：
+        </strong>
+        <br>
+
+        以上排班若有任何問題，再麻煩立即提出。
+        <br>
+
+        並請於開賽前提前至少半小時到場，謝謝。
+
+      </div>
+
+    </div>
+
+  `;
+}
+
+// 產出班表資料 - 
+async function exportRosterImage(){
+
+  const target =
+    document.getElementById(
+      'rosterExportBlock'
+    );
+
+  if(!target){
+    return;
+  }
+
+  showToast('產生圖檔中...');
+
+  const canvas =
+    await html2canvas(
+      target,
+      {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      }
+    );
+
+  const link =
+    document.createElement('a');
+
+  const date =
+    buildRosterData()[0]?.date
+      ?.replaceAll('/','-')
+      || 'roster';
+
+  link.download =
+    `BBT派遣表_${date}.png`;
+
+  link.href =
+    canvas.toDataURL(
+      'image/png'
+    );
+
+  link.click();
+
+  showToast('班表圖檔已下載');
+
+}
+
+// 產生班表資料 - 列印功能
+function printRoster(){
+
+  const content =
+    document.getElementById(
+      'rosterExportBlock'
+    ).innerHTML;
+
+  const win =
+    window.open(
+      '',
+      '_blank'
+    );
+
+  win.document.write(`
+    <html>
+      <head>
+        <title>
+          BBT派遣表
+        </title>
+      </head>
+      <body>
+        ${content}
+      </body>
+    </html>
+  `);
+
+  win.document.close();
+
+  setTimeout(()=>{
+    win.print();
+  },500);
+
+}
