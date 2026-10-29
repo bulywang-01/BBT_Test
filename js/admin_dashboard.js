@@ -2150,7 +2150,7 @@ function buildRosterHtml(isPreview = true){
   const tableWidth =
     isPreview
       ? '100%'
-      : '1400px';
+      : '1100px';
 
   if(!games.length){
     return `
@@ -2233,7 +2233,7 @@ function buildRosterHtml(isPreview = true){
           ${game.game_code || ''}
         </td>
 
-        <td class="c-category">
+        <td class="c-category" style="text-align:center;">
           ${game.category || ''}
         </td>
 
@@ -2243,7 +2243,7 @@ function buildRosterHtml(isPreview = true){
           ${game.home_team || ''}
         </td>
 
-        <td class="c-field">
+        <td class="c-field" style="text-align:center;">
           ${game.field || ''}
         </td>
 
@@ -2329,8 +2329,7 @@ function buildRosterHtml(isPreview = true){
       "
     >
 
-      <img
-        src="img/bbtlogo.png"
+      <img src="img/bbtlogo.png"
         alt="BBT"
         style="
           width:90px;
@@ -2366,7 +2365,8 @@ function buildRosterHtml(isPreview = true){
 
     <table
       style="
-        width:100%;
+        width:auto;
+        margin:0 auto;
         border-collapse:collapse;
         table-layout:fixed;
         font-size:14px;
@@ -2382,29 +2382,20 @@ function buildRosterHtml(isPreview = true){
           "
         >
 
-          <th style="width:60px;border:1px solid #cbd5e1;padding:10px;">時間</th>
-
-          <th style="width:80px;border:1px solid #cbd5e1;padding:10px;">場次</th>
-
-          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">組別</th>
-
-          <th style="width:280px;border:1px solid #cbd5e1;padding:10px;">對戰</th>
-
-          <th style="width:120px;border:1px solid #cbd5e1;padding:10px;">場地</th>
-
-          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">主審</th>
-
-          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">一壘</th>
-
-          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">二壘</th>
-
-          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">三壘</th>
-
-          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">紀錄</th>
-
-          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">實習</th>
-
-          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">影像</th>
+          <th style="width:60px;">時間</th>
+          <th style="width:80px;">場次</th>
+          <th style="width:80px;">組別</th>
+          <th style="width:220px;">對戰</th>
+          <th style="width:110px;">場地</th>
+          
+          <th style="width:75px;">主審</th>
+          <th style="width:75px;">一壘</th>
+          <th style="width:75px;">二壘</th>
+          <th style="width:75px;">三壘</th>
+          
+          <th style="width:75px;">紀錄</th>
+          <th style="width:75px;">實習</th>
+          <th style="width:75px;">影像</th>
 
         </tr>
 
