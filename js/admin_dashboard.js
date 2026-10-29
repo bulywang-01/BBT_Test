@@ -2299,12 +2299,13 @@ function buildRosterHtml(){
 
   return `
 
-    <div
-      id="rosterExportBlock"
-      class="bg-white p-8 text-black"
-      style="
-        width:1800px;
-      ">
+      <div
+        id="rosterExportBlock"
+        class="bg-white p-6 text-black"
+        style="
+          width:1400px;
+        "
+      >
 
       <div
         style="
@@ -2349,8 +2350,9 @@ function buildRosterHtml(){
         style="
           width:100%;
           border-collapse:collapse;
-          font-size:13px;
-        ">
+          font-size:12px;
+        "
+      >
 
         <thead>
 
