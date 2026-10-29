@@ -1297,14 +1297,12 @@ function filterGames(list){
 
 function renderGames(list){
 
-  // 日期時間整理
   const rawList = list.map(g => ({
     ...g,
     _date : g.date || '',
     _time : g.time || ''
   }));
 
-  // 排序
   rawList.sort((a,b)=>{
 
     const ta = a.tournament || '';
@@ -1323,11 +1321,13 @@ function renderGames(list){
 
   });
 
-  // 篩選
-  const filtered = filterGames(rawList);
+  const filtered =
+    filterGames(rawList);
 
   const container =
-    document.getElementById('tableArea');
+    document.getElementById(
+      'tableArea'
+    );
 
   container.innerHTML = '';
 
@@ -1342,7 +1342,6 @@ function renderGames(list){
     return;
   }
 
-  // Tournament 分組
   const groups = {};
 
   filtered.forEach(g => {
@@ -1392,6 +1391,8 @@ function renderGames(list){
 
                   <th>裁判數</th>
 
+                  <th>時長</th>
+
                   <th>狀態</th>
 
                   <th>操作</th>
@@ -1411,12 +1412,14 @@ function renderGames(list){
           <tr id="row_${g.game_id}">
 
             <td>
+
               <span style="
                 font-weight:900;
                 color:#2563eb;
               ">
                 ${g.game_code || ''}
               </span>
+
             </td>
 
             <td>
@@ -1453,7 +1456,6 @@ function renderGames(list){
 
               <span style="
                 color:#94a3b8;
-                font-size:12px;
                 margin:0 4px;
               ">
                 VS
@@ -1472,6 +1474,19 @@ function renderGames(list){
               </span>
 
               席
+
+            </td>
+
+            <td>
+
+              <span style="
+                color:#ea580c;
+                font-weight:700;
+              ">
+                ${g.duration || 0}
+              </span>
+
+              分
 
             </td>
 
@@ -1499,8 +1514,7 @@ function renderGames(list){
 
                 <button
                   onclick="editRow(${g.game_id})"
-                  title="修改"
-                >
+                  title="修改">
                   ✏️
                 </button>
 
@@ -1509,8 +1523,7 @@ function renderGames(list){
                     location.href=
                     'judge_dashboard_admin.html?gameId=${g.game_id}'
                   "
-                  title="裁判派遣"
-                >
+                  title="裁判派遣">
                   ⚖️
                 </button>
 
@@ -1519,8 +1532,7 @@ function renderGames(list){
                     location.href=
                     'record_dashboard_admin.html?gameId=${g.game_id}'
                   "
-                  title="紀錄派遣"
-                >
+                  title="紀錄派遣">
                   📝
                 </button>
 
@@ -1528,8 +1540,7 @@ function renderGames(list){
                   onclick="
                     deleteGame(${g.game_id})
                   "
-                  title="刪除"
-                >
+                  title="刪除">
                   🗑️
                 </button>
 
