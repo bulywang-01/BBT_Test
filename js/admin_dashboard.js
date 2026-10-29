@@ -811,7 +811,7 @@ function renderVacancyCards(games){
 
         <!-- 比賽資訊 -->
 
-        <div class="flex justify-between items-start">
+        <div class="flex items-center gap-2 items-start">
         
           <div>
         
@@ -1755,68 +1755,159 @@ function renderWeeklyDutyBoard(data){
           .join('');
 
       return `
-
-        <div class="
-          flex
-          items-center
-          gap-2
-          py-2
-          border-b
-          border-white/10
-          text-sm
-        ">
-
-          <span class="
-            text-white
-            font-black
-            w-[42px]
-            shrink-0
-          ">
-            ${g.time || ''}
-          </span>
-
-          ${
-            isMobile
-              ? ''
-              : `
-                <span class="
-                  text-white
-                  font-black
-                  w-[78px]
-                  shrink-0
-                ">
-                  ${g.game_code || ''}
-                </span>
-              `
-          }
-
-          <span class="
-            text-slate-300
-            flex-1
-            truncate
-          ">
-            ${g.field || ''}
-          </span>
-
-          <div class="
-            flex
-            flex-wrap
-            gap-1
-            justify-end
-            shrink-0
-          ">
-
-            ${judgeBadges}
-
-            ${recordBadges}
-
-          </div>
-
-        </div>
-
+      
+      <div
+       class="
+         py-2
+         border-b
+         border-white/10
+       "
+      >
+      
+       <div
+         class="
+           flex
+           items-center
+           gap-2
+         "
+       >
+      
+         <span
+           class="
+             text-white
+             font-black
+             w-[42px]
+             shrink-0
+           "
+         >
+           ${g.time || ''}
+         </span>
+      
+         ${
+           isMobile
+             ? ''
+             : `
+             <span
+               class="
+                 text-white
+                 font-black
+                 w-[75px]
+                 shrink-0
+               "
+             >
+               ${g.game_code || ''}
+             </span>
+             `
+         }
+      
+         <span
+           class="
+             text-slate-300
+             flex-1
+             truncate
+           "
+         >
+           ${g.field || ''}
+         </span>
+      
+       </div>
+      
+       <div
+         class="
+           mt-1
+           flex
+           flex-wrap
+           gap-1
+         "
+       >
+      
+         ${dutyBadge('主', getDutyName(g,'PU'))}
+         ${dutyBadge('一', getDutyName(g,'U1'))}
+      
+         ${
+           Number(g.umpire_count) >= 4
+             ? dutyBadge('二', getDutyName(g,'U2'))
+             : ''
+         }
+      
+         ${
+           Number(g.umpire_count) >= 3
+             ? dutyBadge('三', getDutyName(g,'U3'))
+             : ''
+         }
+      
+         ${dutyBadge('紀', getDutyName(g,'REC_MAIN'))}
+         ${dutyBadge('實', getDutyName(g,'REC_TRAINEE'))}
+         ${dutyBadge('影', getDutyName(g,'REC_VIDEO'))}
+      
+       </div>
+      
+      </div>
+      
       `;
 
     }).join('');
+
+}
+
+function shortName(name){
+
+  if(!name){
+    return '缺';
+  }
+
+  return String(name)
+    .trim()
+    .substring(0,1);
+
+}
+
+function dutyBadge(
+  title,
+  name
+){
+
+  const missing =
+    !name;
+
+  return `
+    <span
+      class="
+        inline-flex
+        items-center
+        px-1.5
+        py-0.5
+        rounded
+        text-[10px]
+        font-black
+        ${
+          missing
+            ? 'bg-rose-500 text-white'
+            : 'bg-emerald-400 text-black'
+        }
+      "
+    >
+      ${title}${shortName(name)}
+    </span>
+  `;
+
+}
+
+function getDutyName(
+  game,
+  roleCode
+){
+
+  const assignments =
+    game.assignments || [];
+
+  const duty =
+    assignments.find(
+      x =>
+        x.role_code === roleCode
+    );
+
+  return duty?.name || '';
 
 }
 
