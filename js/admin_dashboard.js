@@ -209,6 +209,11 @@ function loadDashboard(){
  *********************************************************/
 function renderDashboard(data){
 
+console.log(
+  'GAME SAMPLE',
+  data.games?.[0]
+);
+  
   if(
     !data ||
     data.result !== 'ok'
