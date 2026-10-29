@@ -1647,7 +1647,7 @@ function renderWeeklyDutyBoard(data){
     }
   
     if(obj.name){
-      return obj.name.substring(0,2);
+      return obj.name;
     }
   
     return '-';
@@ -1780,15 +1780,15 @@ function renderWeeklyDutyBoard(data){
                   ${g.game_code || ''}
                 </td>
 
-                <td class="text-center px-1">
+                <td class="text-center px-2">
                   ${shortName(g.judges?.PU)}
                 </td>
 
-                <td class="text-center px-1">
+                <td class="text-center px-2">
                   ${shortName(g.judges?.U1)}
                 </td>
 
-                <td class="text-center px-1">
+                <td class="text-center px-2">
                   ${
                     Number(g.umpire_count) >= 4
                     ? shortName(g.judges?.U2)
@@ -1796,7 +1796,7 @@ function renderWeeklyDutyBoard(data){
                   }
                 </td>
 
-                <td class="text-center px-1">
+                <td class="text-center px-2">
                   ${
                     Number(g.umpire_count) >= 3
                     ? shortName(g.judges?.U3)
@@ -1804,15 +1804,15 @@ function renderWeeklyDutyBoard(data){
                   }
                 </td>
 
-                <td class="text-center px-1">
+                <td class="text-center px-2">
                   ${shortName(g.records?.REC_MAIN)}
                 </td>
 
-                <td class="text-center px-1">
+                <td class="text-center px-2">
                   ${shortName(g.records?.REC_TRAINEE)}
                 </td>
 
-                <td class="text-center px-1">
+                <td class="text-center px-2">
                   ${shortName(g.records?.REC_VIDEO)}
                 </td>
 
@@ -1829,13 +1829,27 @@ function renderWeeklyDutyBoard(data){
 
             <div
               class="
+                sticky
+                top-0
+                z-10
+            
+                bg-slate-900
+            
                 text-amber-300
                 font-black
+            
                 text-sm
-                py-1
-                border-b
-                border-amber-500/30
+            
+                py-2
+                px-2
+            
+                rounded-md
+            
+                border-l-4
+                border-amber-400
+            
                 mb-1
+                mt-2
               "
             >
               【${field}】
@@ -1859,11 +1873,11 @@ function renderWeeklyDutyBoard(data){
                   "
                 >
 
-                  <th class="text-left py-1 px-1">
+                  <th class="text-left py-1.5 px-2">
                     時間
                   </th>
 
-                  <th class="text-left py-1 px-1">
+                  <th class="text-left py-1.5 px-2">
                     場次
                   </th>
 
