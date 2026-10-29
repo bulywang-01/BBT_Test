@@ -666,7 +666,7 @@ function renderVacancyTable(games){
           <div class="font-bold text-slate-900">
             ${g.away_team || ''}
             <span class="mx-1 text-slate-400">
-              VS
+              vs
             </span>
             ${g.home_team || ''}
           </div>
@@ -848,7 +848,7 @@ function renderVacancyCards(games){
         
           ${g.away_team || ''}
           <span class="text-slate-400 px-1">
-            VS
+            vs
           </span>
           ${g.home_team || ''}
         
@@ -949,7 +949,7 @@ function openAssignment(gameId){
 
         <div class="text-base font-bold text-slate-900">
           ${game.away_team}
-          VS
+          vs
           ${game.home_team}
         </div>
 
@@ -2255,7 +2255,7 @@ function buildRosterHtml(isPreview = true){
                   padding:4px;
                 ">
                   ${game.away_team || ''}
-                  VS
+                  vs
                   ${game.home_team || ''}
                 </td>
 
