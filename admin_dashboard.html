@@ -574,7 +574,7 @@
       >
       
         <!-- 第一列 -->
-        <div class="flex items-center justify-between gap-6 pb-3 mb-3 border-b border-white/10">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pb-3 mb-3 border-b border-white/10">
         
           <div
             id="weeklyBoardTitle"
@@ -590,9 +590,12 @@
           <div
             class="
               flex
+              flex-wrap
               items-center
-              gap-5
+              gap-3
               text-xs
+              w-full
+              md:w-auto
             "
           >
         
@@ -655,8 +658,10 @@
             <button
               onclick="showRosterPreview()"
               class="
+                w-full
+                md:w-auto
                 px-3
-                py-1.5
+                py-2
                 rounded-lg
                 bg-amber-500
                 hover:bg-amber-400
@@ -665,7 +670,7 @@
                 font-black
               "
             >
-              📋下載班表
+              📋 下載班表
             </button>
         
           </div>
