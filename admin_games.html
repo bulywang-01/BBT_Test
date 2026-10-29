@@ -1981,7 +1981,6 @@ function validateGame(data){
   return '';
 }
 
-// 編輯功能
 function editRow(id){
 
   const tr =
@@ -1992,9 +1991,7 @@ function editRow(id){
   const game =
     window._games.find(
       g =>
-        Number(g.game_id)
-        ===
-        Number(id)
+        Number(g.game_id) === Number(id)
     );
 
   if(!game){
@@ -2029,14 +2026,29 @@ function editRow(id){
 
     <td>
       <input
-        id="e_category_${id}"
-        value="${game.category || ''}">
+        type="number"
+        min="0"
+        max="300"
+        id="e_duration_${id}"
+        value="${game.duration || 0}">
+    </td>
+
+    <td>
+      <input
+        id="e_tournament_${id}"
+        value="${game.tournament || ''}">
     </td>
 
     <td>
       <input
         id="e_field_${id}"
         value="${game.field || ''}">
+    </td>
+
+    <td>
+      <input
+        id="e_category_${id}"
+        value="${game.category || ''}">
     </td>
 
     <td>
@@ -2070,19 +2082,23 @@ function editRow(id){
 
       <select id="e_status_${id}">
 
-        <option value="0" ${parseStatus===0?'selected':''}>
+        <option value="0"
+          ${parseStatus===0?'selected':''}>
           正常
         </option>
 
-        <option value="1" ${parseStatus===1?'selected':''}>
+        <option value="1"
+          ${parseStatus===1?'selected':''}>
           延賽
         </option>
 
-        <option value="2" ${parseStatus===2?'selected':''}>
+        <option value="2"
+          ${parseStatus===2?'selected':''}>
           停賽
         </option>
 
-        <option value="3" ${parseStatus===3?'selected':''}>
+        <option value="3"
+          ${parseStatus===3?'selected':''}>
           暫存
         </option>
 
@@ -2113,44 +2129,75 @@ function saveRow(id){
     action: 'updateGameFull',
     game_id: id,
 
-    game_code: document.getElementById(`e_code_${id}`).value,
-    date: document.getElementById(`e_date_${id}`).value,
-    time: document.getElementById(`e_time_${id}`).value,
-    duration: Number(document.getElementById(`e_duration_${id}`).value),
-    tournament: document.getElementById(`e_tournament_${id}`).value,
-    field: document.getElementById(`e_field_${id}`).value,
-    category: document.getElementById(`e_category_${id}`).value,
-    away_team: document.getElementById(`e_away_${id}`).value,
-    home_team: document.getElementById(`e_home_${id}`).value,
-    umpire_count: Number(document.getElementById(`e_umpire_${id}`).value),
-    status: Number(document.getElementById(`e_status_${id}`).value)
+    game_code:
+      document.getElementById(`e_code_${id}`)?.value || '',
+
+    date:
+      document.getElementById(`e_date_${id}`)?.value || '',
+
+    time:
+      document.getElementById(`e_time_${id}`)?.value || '',
+
+    field:
+      document.getElementById(`e_field_${id}`)?.value || '',
+
+    category:
+      document.getElementById(`e_category_${id}`)?.value || '',
+
+    away_team:
+      document.getElementById(`e_away_${id}`)?.value || '',
+
+    home_team:
+      document.getElementById(`e_home_${id}`)?.value || '',
+
+    umpire_count:
+      Number(
+        document.getElementById(`e_umpire_${id}`)?.value || 0
+      ),
+
+    status:
+      Number(
+        document.getElementById(`e_status_${id}`)?.value || 0
+      ),
+
+    // 暫時給預設值，避免 API 缺欄位
+    duration: 0,
+
+    tournament: ''
+
   };
 
   showSaving('儲存中...');
 
   callApi(data, function(res){
-  
-    console.log('update res=', res); // ✅ 建議保留（debug用）
-  
+
     hideSaving();
-  
+
     const ok =
       res === 'ok' ||
       res?.result === 'ok';
-  
-    if (ok){
+
+    if(ok){
+
       showToast('✅ 已儲存');
-  
+
       setTimeout(()=>{
-        location.reload();
-      }, 300);
-  
-    } else {
+        loadGames();
+      },300);
+
+    }else{
+
       showToast('❌ 儲存失敗');
-      console.warn('API回傳錯誤', res);
+
+      console.warn(
+        'API回傳錯誤',
+        res
+      );
+
     }
-  
+
   });
+
 }
   
 </script>
