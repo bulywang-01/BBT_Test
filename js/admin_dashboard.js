@@ -1578,7 +1578,6 @@ function buildRow(name, stat){
   `;
 }
 
-// 本週班表狀態清單
 function renderWeeklyDutyBoard(data){
 
   const title =
@@ -1587,8 +1586,14 @@ function renderWeeklyDutyBoard(data){
     );
 
   if(title){
+
     title.textContent =
-      getBoardTitle();
+      getBoardTitle()
+        .replace(
+          '待補派看板',
+          '派遣班表'
+        );
+
   }
 
   const board =
@@ -1601,21 +1606,7 @@ function renderWeeklyDutyBoard(data){
   }
 
   const games =
-    (data.vacancyGames || []).map(v => {
-
-      const fullGame =
-        (data.games || []).find(
-          g =>
-            String(g.game_id) ===
-            String(v.game_id)
-        ) || {};
-
-      return {
-        ...fullGame,
-        ...v
-      };
-
-    });
+    data.vacancyGames || [];
 
   if(!games.length){
 
@@ -1626,6 +1617,7 @@ function renderWeeklyDutyBoard(data){
     `;
 
     return;
+
   }
 
   const isMobile =
@@ -1645,210 +1637,153 @@ function renderWeeklyDutyBoard(data){
     });
 
   board.innerHTML =
-
     sortedGames.map(g => {
 
-      const missingJudge =
-        (g.missingJudge || [])
-          .map(x => x.code);
+      const badges = [];
 
-      const missingRecord =
-        (g.missingRecord || [])
-          .map(x => x.code);
+      badges.push(
+        dutyBadge(
+          '主',
+          getDutyName(g,'PU')
+        )
+      );
 
-      const umpireCount =
-        Number(
-          g.umpire_count || 0
+      badges.push(
+        dutyBadge(
+          '一',
+          getDutyName(g,'U1')
+        )
+      );
+
+      if(
+        Number(g.umpire_count) >= 4
+      ){
+
+        badges.push(
+          dutyBadge(
+            '二',
+            getDutyName(g,'U2')
+          )
         );
 
-      const judgePositions = (() => {
-
-        switch(umpireCount){
-
-          case 1:
-            return [
-              { code:'PU', label:'主' }
-            ];
-
-          case 2:
-            return [
-              { code:'PU', label:'主' },
-              { code:'U1', label:'一' }
-            ];
-
-          case 3:
-            return [
-              { code:'PU', label:'主' },
-              { code:'U1', label:'一' },
-              { code:'U3', label:'三' }
-            ];
-
-          case 4:
-            return [
-              { code:'PU', label:'主' },
-              { code:'U1', label:'一' },
-              { code:'U2', label:'二' },
-              { code:'U3', label:'三' }
-            ];
-
-          default:
-
-            return [
-              { code:'PU', label:'主' },
-              { code:'U1', label:'一' },
-              { code:'U3', label:'三' }
-            ];
-        }
-
-      })();
-
-      const judgeBadges =
-        judgePositions
-          .map(pos => {
-
-            return buildDutyBadge(
-              pos.label,
-              missingJudge.includes(pos.code)
-            );
-
-          })
-          .join('');
-
-      const recordPositions = [
-
-        {
-          code:'REC_MAIN',
-          label:'紀'
-        }
-
-      ];
-
-      if(
-        (g.missingRecord || [])
-          .some(x =>
-            x.code === 'REC_TRAINEE'
-          )
-      ){
-        recordPositions.push({
-          code:'REC_TRAINEE',
-          label:'實'
-        });
       }
 
       if(
-        (g.missingRecord || [])
-          .some(x =>
-            x.code === 'REC_VIDEO'
-          )
+        Number(g.umpire_count) >= 3
       ){
-        recordPositions.push({
-          code:'REC_VIDEO',
-          label:'影'
-        });
+
+        badges.push(
+          dutyBadge(
+            '三',
+            getDutyName(g,'U3')
+          )
+        );
+
       }
 
-      const recordBadges =
-        recordPositions
-          .map(pos => {
+      badges.push(
+        dutyBadge(
+          '紀',
+          getDutyName(
+            g,
+            'REC_MAIN'
+          )
+        )
+      );
 
-            return buildDutyBadge(
-              pos.label,
-              missingRecord.includes(pos.code)
-            );
+      badges.push(
+        dutyBadge(
+          '實',
+          getDutyName(
+            g,
+            'REC_TRAINEE'
+          )
+        )
+      );
 
-          })
-          .join('');
+      badges.push(
+        dutyBadge(
+          '影',
+          getDutyName(
+            g,
+            'REC_VIDEO'
+          )
+        )
+      );
 
       return `
-      
-      <div
-       class="
-         py-2
-         border-b
-         border-white/10
-       "
-      >
-      
-       <div
-         class="
-           flex
-           items-center
-           gap-2
-         "
-       >
-      
-         <span
-           class="
-             text-white
-             font-black
-             w-[42px]
-             shrink-0
-           "
-         >
-           ${g.time || ''}
-         </span>
-      
-         ${
-           isMobile
-             ? ''
-             : `
-             <span
-               class="
-                 text-white
-                 font-black
-                 w-[75px]
-                 shrink-0
-               "
-             >
-               ${g.game_code || ''}
-             </span>
-             `
-         }
-      
-         <span
-           class="
-             text-slate-300
-             flex-1
-             truncate
-           "
-         >
-           ${g.field || ''}
-         </span>
-      
-       </div>
-      
-       <div
-         class="
-           mt-1
-           flex
-           flex-wrap
-           gap-1
-         "
-       >
-      
-         ${dutyBadge('主', getDutyName(g,'PU'))}
-         ${dutyBadge('一', getDutyName(g,'U1'))}
-      
-         ${
-           Number(g.umpire_count) >= 4
-             ? dutyBadge('二', getDutyName(g,'U2'))
-             : ''
-         }
-      
-         ${
-           Number(g.umpire_count) >= 3
-             ? dutyBadge('三', getDutyName(g,'U3'))
-             : ''
-         }
-      
-         ${dutyBadge('紀', getDutyName(g,'REC_MAIN'))}
-         ${dutyBadge('實', getDutyName(g,'REC_TRAINEE'))}
-         ${dutyBadge('影', getDutyName(g,'REC_VIDEO'))}
-      
-       </div>
-      
-      </div>
-      
+
+        <div
+          class="
+            py-2
+            border-b
+            border-white/10
+          "
+        >
+
+          <div
+            class="
+              flex
+              items-center
+              gap-2
+            "
+          >
+
+            <span
+              class="
+                text-white
+                font-black
+                w-[42px]
+                shrink-0
+              "
+            >
+              ${g.time || ''}
+            </span>
+
+            ${
+              isMobile
+                ? ''
+                : `
+                <span
+                  class="
+                    text-white
+                    font-black
+                    w-[75px]
+                    shrink-0
+                  "
+                >
+                  ${g.game_code || ''}
+                </span>
+                `
+            }
+
+            <span
+              class="
+                text-slate-300
+                flex-1
+                truncate
+              "
+            >
+              ${g.field || ''}
+            </span>
+
+          </div>
+
+          <div
+            class="
+              mt-1
+              flex
+              flex-wrap
+              gap-1
+            "
+          >
+
+            ${badges.join('')}
+
+          </div>
+
+        </div>
+
       `;
 
     }).join('');
@@ -2427,5 +2362,62 @@ function closeRosterPreview(){
     )
     ?.classList
     .add('hidden');
+
+}
+
+function getJudgeName(
+  game,
+  role
+){
+
+  return (
+    game?.judges?.[role]?.name ||
+    game?.judges?.[role] ||
+    ''
+  );
+
+}
+
+function getRecordName(
+  game,
+  role
+){
+
+  return (
+    game?.records?.[role]?.name ||
+    game?.records?.[role] ||
+    ''
+  );
+
+}
+
+function buildRosterBadge(
+  title,
+  name
+){
+
+  const hasName =
+    Boolean(name);
+
+  return `
+    <span
+      class="
+        inline-flex
+        items-center
+        px-1.5
+        py-0.5
+        rounded
+        text-[10px]
+        font-black
+        ${
+          hasName
+            ? 'bg-emerald-400 text-black'
+            : 'bg-rose-500 text-white'
+        }
+      "
+    >
+      ${title}${hasName ? name.substring(0,1) : '缺'}
+    </span>
+  `;
 
 }
