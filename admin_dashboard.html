@@ -11,6 +11,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <!-- ✅ 你原本就有的 JS（一定要） -->
   <script src="js/auth.js"></script>
@@ -521,13 +522,27 @@
               依開賽時間排序
             </div>
       
+          <div class="flex items-center gap-2">
+          
+            <button
+              onclick="showRosterPreview()"
+              class="
+                px-2 py-1
+                rounded-lg
+                bg-amber-500
+                hover:bg-amber-400
+                text-slate-900
+                text-xs
+                font-black
+              ">
+              📋班表
+            </button>
+          
+            <i data-lucide="calendar-clock"
+               class="w-5 h-5 text-amber-400">
+            </i>
+          
           </div>
-      
-          <i data-lucide="calendar-clock"
-             class="w-5 h-5 text-amber-400">
-          </i>
-      
-        </div>
       
         <!-- 班表內容 -->
       
@@ -1069,5 +1084,68 @@
     }
     
   </script>
+
+        <div id="rosterPreviewModal"
+        class="
+          fixed inset-0
+          z-[999]
+          hidden
+          bg-black/60
+          p-4
+          overflow-auto
+        ">
+      
+        <div
+          class="
+            mx-auto
+            bg-white
+            rounded-2xl
+            shadow-xl
+            max-w-7xl
+            p-6
+          ">
+      
+          <div class="flex justify-between mb-4">
+      
+            <div class="font-black text-xl">
+              BBT 裁判暨紀錄派遣表
+            </div>
+      
+            <div class="flex gap-2">
+      
+              <button
+                onclick="exportRosterImage()"
+                class="
+                  px-3 py-2
+                  rounded-lg
+                  bg-emerald-600
+                  text-white
+                  text-sm
+                  font-bold
+                ">
+                下載PNG
+              </button>
+      
+              <button
+                onclick="closeRosterPreview()"
+                class="
+                  px-3 py-2
+                  rounded-lg
+                  bg-slate-300
+                  text-sm
+                ">
+                關閉
+              </button>
+      
+            </div>
+      
+          </div>
+      
+          <div id="rosterPrintArea"></div>
+      
+        </div>
+      
+      </div>
+              
 </body>
 </html>
