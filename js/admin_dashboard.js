@@ -1947,28 +1947,19 @@ function buildDutyBadge(
 // 產生班表資料
 function buildRosterData(){
 
+console.log(
+  '_dashboardData',
+  window._dashboardData
+);
+
+  const data =
+    window._dashboardData || {};
+
   return (
-    window._dashboardData?.games || []
-  )
-  .filter(g => Number(g.status) === 0)
-  .sort((a,b)=>{
-
-    const fieldCompare =
-      String(a.field || '')
-        .localeCompare(
-          String(b.field || '')
-        );
-
-    if(fieldCompare !== 0){
-      return fieldCompare;
-    }
-
-    return String(a.time || '')
-      .localeCompare(
-        String(b.time || '')
-      );
-
-  });
+    data.games ||
+    data.vacancyGames ||
+    []
+  );
 
 }
 
@@ -2283,7 +2274,7 @@ async function exportRosterImage(){
       || 'roster';
 
   link.download =
-    `BBT派遣表_${date}.png`;
+    `BBT聯盟裁判／紀錄班表_${date}.png`;
 
   link.href =
     canvas.toDataURL(
@@ -2314,7 +2305,7 @@ function printRoster(){
     <html>
       <head>
         <title>
-          BBT派遣表
+          BBT聯盟裁判／紀錄班表
         </title>
       </head>
       <body>
@@ -2328,5 +2319,17 @@ function printRoster(){
   setTimeout(()=>{
     win.print();
   },500);
+
+}
+
+// 產生班表資料 - 關閉視窗
+function closeRosterPreview(){
+
+  document
+    .getElementById(
+      'rosterPreviewModal'
+    )
+    ?.classList
+    .add('hidden');
 
 }
