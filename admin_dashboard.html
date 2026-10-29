@@ -321,10 +321,10 @@
     <!-- =====================================================
          🚨 本週人力狀況
     ===================================================== -->
-    <section class="grid grid-cols-1 lg:grid-cols-10 gap-4">
+    <section class="grid grid-cols-1 lg:grid-cols-10 gap-4 items-stretch">
     
       <!-- 裁判人力 -->
-      <div class="lg:col-span-3 bg-white border border-rose-200 rounded-2xl p-4 shadow-sm">
+      <div class="lg:col-span-1 bg-white border border-rose-200 rounded-2xl p-4 shadow-sm h-full">
     
         <div class="flex items-center justify-between mb-3">
     
@@ -415,7 +415,7 @@
       </div>
     
       <!-- 紀錄人力 -->
-      <div class="lg:col-span-3 bg-white border border-emerald-200 rounded-2xl p-4 shadow-sm">
+      <div class="lg:col-span-1 bg-white border border-emerald-200 rounded-2xl p-4 shadow-sm h-full">
     
         <div class="flex items-center justify-between mb-3">
     
@@ -506,7 +506,7 @@
       </div>
     
       <!-- 本週出勤看板 -->
-      <div class="lg:col-span-4 bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-4 shadow-xl text-white">
+      <div class="lg:col-span-2 bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-4 shadow-xl text-white h-full">
       
         <div class="flex items-center justify-between mb-3">
       
@@ -549,10 +549,11 @@
         <div
           id="weeklyDutyBoard"
           class="
+            flex-1
+            min-h-0
             text-xs
             font-medium
             space-y-1
-            max-h-[260px]
             overflow-y-auto
             pr-1
           "
