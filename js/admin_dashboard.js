@@ -1636,43 +1636,27 @@ function renderWeeklyDutyBoard(data){
 
     });
 
-  function getJudge(roleObj){
+  function shortName(obj){
 
-    if(!roleObj){
+    if(!obj){
       return '-';
     }
 
-    if(typeof roleObj === 'string'){
-      return roleObj.substring(0,1);
+    if(typeof obj === 'string'){
+      return obj.substring(0,1);
     }
 
-    if(roleObj.name){
-      return roleObj.name.substring(0,1);
+    if(obj.name){
+      return obj.name.substring(0,1);
     }
 
     return '-';
 
   }
 
-  function getRecord(roleObj){
-
-    if(!roleObj){
-      return '-';
-    }
-
-    if(typeof roleObj === 'string'){
-      return roleObj.substring(0,1);
-    }
-
-    if(roleObj.name){
-      return roleObj.name.substring(0,1);
-    }
-
-    return '-';
-
-  }
-
-  // ===== 手機版 =====
+  // ==========================
+  // 手機版
+  // ==========================
 
   if(isMobile){
 
@@ -1696,7 +1680,7 @@ function renderWeeklyDutyBoard(data){
                 text-xs
               "
             >
-              ${g.time || ''}
+              ${g.time || ''}　
               ${g.field || ''}
             </div>
 
@@ -1707,24 +1691,26 @@ function renderWeeklyDutyBoard(data){
                 text-slate-300
               "
             >
-              主${getJudge(g.judges?.PU)}
-              一${getJudge(g.judges?.U1)}
 
-              ${
-                Number(g.umpire_count) >= 3
-                ? ` 三${getJudge(g.judges?.U3)}`
-                : ''
-              }
+              主${shortName(g.judges?.PU)}
+              一${shortName(g.judges?.U1)}
 
               ${
                 Number(g.umpire_count) >= 4
-                ? ` 二${getJudge(g.judges?.U2)}`
+                ? ` 二${shortName(g.judges?.U2)}`
                 : ''
               }
 
-              紀${getRecord(g.records?.REC_MAIN)}
-              實${getRecord(g.records?.REC_TRAINEE)}
-              影${getRecord(g.records?.REC_VIDEO)}
+              ${
+                Number(g.umpire_count) >= 3
+                ? ` 三${shortName(g.judges?.U3)}`
+                : ''
+              }
+
+              紀${shortName(g.records?.REC_MAIN)}
+              實${shortName(g.records?.REC_TRAINEE)}
+              影${shortName(g.records?.REC_VIDEO)}
+
             </div>
 
           </div>
@@ -1737,156 +1723,197 @@ function renderWeeklyDutyBoard(data){
 
   }
 
-  // ===== 桌機版 =====
+  // ==========================
+  // 桌機版
+  // ==========================
 
-  const rows =
-    sortedGames.map(g => {
+  const fieldGroups = {};
 
-      return `
+  sortedGames.forEach(g => {
 
-        <tr
-          class="
-            border-b
-            border-white/10
-            hover:bg-white/5
-          "
-        >
+    const field =
+      g.field || '未設定場地';
 
-          <td class="py-2 px-2 whitespace-nowrap">
-            ${g.time || ''}
-          </td>
+    if(!fieldGroups[field]){
+      fieldGroups[field] = [];
+    }
 
-          <td class="py-2 px-2 whitespace-nowrap">
-            ${g.game_code || ''}
-          </td>
+    fieldGroups[field].push(g);
 
-          <td class="py-2 px-2 whitespace-nowrap">
-            ${g.field || ''}
-          </td>
+  });
 
-          <td class="py-2 px-2 text-center">
-            ${getJudge(g.judges?.PU)}
-          </td>
+  board.innerHTML =
+    Object.entries(fieldGroups)
+      .map(([field,fieldGames]) => {
 
-          <td class="py-2 px-2 text-center">
-            ${getJudge(g.judges?.U1)}
-          </td>
+        const rows =
+          fieldGames.map(g => {
 
-          <td class="py-2 px-2 text-center">
-            ${
-              Number(g.umpire_count) >= 4
-              ? getJudge(g.judges?.U2)
-              : '-'
-            }
-          </td>
+            return `
 
-          <td class="py-2 px-2 text-center">
-            ${
-              Number(g.umpire_count) >= 3
-              ? getJudge(g.judges?.U3)
-              : '-'
-            }
-          </td>
+              <tr
+                class="
+                  border-b
+                  border-white/10
+                  hover:bg-white/5
+                "
+              >
 
-          <td class="py-2 px-2 text-center">
-            ${getRecord(g.records?.REC_MAIN)}
-          </td>
+                <td
+                  class="
+                    py-1.5
+                    px-1
+                    whitespace-nowrap
+                  "
+                >
+                  ${g.time || ''}
+                </td>
 
-          <td class="py-2 px-2 text-center">
-            ${getRecord(g.records?.REC_TRAINEE)}
-          </td>
+                <td
+                  class="
+                    py-1.5
+                    px-1
+                    text-amber-300
+                    font-bold
+                    whitespace-nowrap
+                  "
+                >
+                  ${g.game_code || ''}
+                </td>
 
-          <td class="py-2 px-2 text-center">
-            ${getRecord(g.records?.REC_VIDEO)}
-          </td>
+                <td class="text-center px-1">
+                  ${shortName(g.judges?.PU)}
+                </td>
 
-        </tr>
+                <td class="text-center px-1">
+                  ${shortName(g.judges?.U1)}
+                </td>
 
-      `;
+                <td class="text-center px-1">
+                  ${
+                    Number(g.umpire_count) >= 4
+                    ? shortName(g.judges?.U2)
+                    : '-'
+                  }
+                </td>
 
-    }).join('');
+                <td class="text-center px-1">
+                  ${
+                    Number(g.umpire_count) >= 3
+                    ? shortName(g.judges?.U3)
+                    : '-'
+                  }
+                </td>
 
-  board.innerHTML = `
+                <td class="text-center px-1">
+                  ${shortName(g.records?.REC_MAIN)}
+                </td>
 
-    <div
-      class="
-        overflow-x-auto
-      "
-    >
+                <td class="text-center px-1">
+                  ${shortName(g.records?.REC_TRAINEE)}
+                </td>
 
-      <table
-        class="
-          w-full
-          text-xs
-          text-white
-        "
-      >
+                <td class="text-center px-1">
+                  ${shortName(g.records?.REC_VIDEO)}
+                </td>
 
-        <thead>
+              </tr>
 
-          <tr
-            class="
-              border-b
-              border-white/20
-              text-amber-300
-            "
-          >
+            `;
 
-            <th class="text-left py-2 px-2">
-              時間
-            </th>
+          })
+          .join('');
 
-            <th class="text-left py-2 px-2">
-              場次
-            </th>
+        return `
 
-            <th class="text-left py-2 px-2">
-              場地
-            </th>
+          <div class="mb-3">
 
-            <th class="py-2 px-2">
-              主
-            </th>
+            <div
+              class="
+                text-amber-300
+                font-black
+                text-sm
+                py-1
+                border-b
+                border-amber-500/30
+                mb-1
+              "
+            >
+              【${field}】
+            </div>
 
-            <th class="py-2 px-2">
-              一
-            </th>
+            <table
+              class="
+                w-full
+                text-[11px]
+                text-white
+              "
+            >
 
-            <th class="py-2 px-2">
-              二
-            </th>
+              <thead>
 
-            <th class="py-2 px-2">
-              三
-            </th>
+                <tr
+                  class="
+                    text-slate-400
+                    border-b
+                    border-white/10
+                  "
+                >
 
-            <th class="py-2 px-2">
-              紀
-            </th>
+                  <th class="text-left py-1 px-1">
+                    時間
+                  </th>
 
-            <th class="py-2 px-2">
-              實
-            </th>
+                  <th class="text-left py-1 px-1">
+                    場次
+                  </th>
 
-            <th class="py-2 px-2">
-              影
-            </th>
+                  <th class="py-1 px-1">
+                    主
+                  </th>
 
-          </tr>
+                  <th class="py-1 px-1">
+                    一
+                  </th>
 
-        </thead>
+                  <th class="py-1 px-1">
+                    二
+                  </th>
 
-        <tbody>
+                  <th class="py-1 px-1">
+                    三
+                  </th>
 
-          ${rows}
+                  <th class="py-1 px-1">
+                    紀
+                  </th>
 
-        </tbody>
+                  <th class="py-1 px-1">
+                    實
+                  </th>
 
-      </table>
+                  <th class="py-1 px-1">
+                    影
+                  </th>
 
-    </div>
+                </tr>
 
-  `;
+              </thead>
+
+              <tbody>
+
+                ${rows}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        `;
+
+      })
+      .join('');
 
 }
 
