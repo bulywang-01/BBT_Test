@@ -1637,21 +1637,20 @@ function renderWeeklyDutyBoard(data){
     });
 
   function shortName(obj){
-
+  
     if(!obj){
       return '-';
     }
-
+  
     if(typeof obj === 'string'){
-      return obj.substring(0,1);
+      return obj.substring(0,2);
     }
-
+  
     if(obj.name){
-      return obj.name.substring(0,1);
+      return obj.name.substring(0,2);
     }
-
+  
     return '-';
-
   }
 
   // ==========================
