@@ -506,22 +506,23 @@
       </div>
     
       <!-- 本週出勤看板 -->
-      <div class="lg:col-span-6 bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-4 shadow-xl text-white h-full">
+      <div class="lg:col-span-6 bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-4 shadow-xl text-white h-full flex flex-col">
       
         <div class="flex items-center justify-between mb-3">
-      
+        
           <div>
-      
-            <div id="weeklyBoardTitle" class="text-sm font-black text-amber-400">
-            
+        
+            <div id="weeklyBoardTitle"
+                 class="text-sm font-black text-amber-400">
               本週派遣班表
-            
             </div>
-            
+        
             <div class="text-xs text-slate-400">
               依場地／時間排序
             </div>
-      
+        
+          </div>
+        
           <div class="flex items-center gap-2">
           
             <button
@@ -546,23 +547,10 @@
       
         <!-- 班表內容 -->
       
-        <div
-          id="weeklyDutyBoard"
-          class="
-            flex-1
-            min-h-0
-            text-xs
-            font-medium
-            space-y-1
-            overflow-y-auto
-            pr-1
-          "
-        >
-      
+        <div id="weeklyDutyBoard" class="flex-1 min-h-0 overflow-auto">      
           <div class="text-slate-400">
             載入中...
           </div>
-      
         </div>
       
         <div class="mt-4 pt-3 border-t border-white/10">
