@@ -60,7 +60,53 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #94a3b8;
     }
+
+    /* 桌機缺額紅底黃字 */
+    .vacancy-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:32px;
+      padding:2px 8px;
+      border-radius:999px;
+      background:#dc2626;
+      color:#facc15;
+      font-weight:700;
+      font-size:12px;
+    }
+    
+    .assigned-name{
+      color:#fde047;
+      font-weight:600;
+    }
+
+    /*手機版*/
+    .mobile-duty{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:6px;
+    }
+    
+    .duty-ok{
+      background:#16a34a;
+      color:#fff;
+      border-radius:999px;
+      padding:2px 8px;
+      font-size:11px;
+      font-weight:700;
+    }
+    
+    .duty-miss{
+      background:#dc2626;
+      color:#facc15;
+      border-radius:999px;
+      padding:2px 8px;
+      font-size:11px;
+      font-weight:700;
+    }
   </style>
+  
 </head>
 <body class="h-full antialiased text-slate-800 flex overflow-hidden">
 
