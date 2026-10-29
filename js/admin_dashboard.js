@@ -2178,10 +2178,6 @@ function buildRosterHtml(isPreview = true){
 
     }
 
-    if(value === '-'){
-      return '-';
-    }
-
     return `
       <span style="
         font-weight:600;
@@ -2197,243 +2193,266 @@ function buildRosterHtml(isPreview = true){
   games
     .sort((a,b)=>{
 
-      const aKey =
-        `${a.date || ''} ${a.time || ''}`;
+      const fieldComp =
+        (a.field || '')
+          .localeCompare(
+            b.field || ''
+          );
 
-      const bKey =
-        `${b.date || ''} ${b.time || ''}`;
+      if(fieldComp !== 0){
+        return fieldComp;
+      }
 
-      return aKey.localeCompare(bKey);
+      const categoryComp =
+        (a.category || '')
+          .localeCompare(
+            b.category || ''
+          );
+
+      if(categoryComp !== 0){
+        return categoryComp;
+      }
+
+      return (
+        a.time || ''
+      ).localeCompare(
+        b.time || ''
+      );
 
     })
     .forEach(game => {
 
       rows += `
+      <tr>
 
-        <tr>
+        <td class="c-time">
+          ${game.time || ''}
+        </td>
 
-          <td style="
-            border:1px solid #cbd5e1;
-            padding:8px;
-            text-align:center;
-            white-space:nowrap;
-          ">
-            ${game.time || ''}
-          </td>
+        <td class="c-code">
+          ${game.game_code || ''}
+        </td>
 
-          <td style="
-            border:1px solid #cbd5e1;
-            padding:8px;
-            text-align:center;
-            font-weight:800;
-            color:#2563eb;
-            white-space:nowrap;
-          ">
-            ${game.game_code || ''}
-          </td>
+        <td class="c-category">
+          ${game.category || ''}
+        </td>
 
-          <td style="
-            border:1px solid #cbd5e1;
-            padding:8px;
-            text-align:center;
-            background:#f8fafc;
-            font-weight:700;
-            white-space:nowrap;
-          ">
-            ${game.category || ''}
-          </td>
+        <td class="c-match">
+          ${game.away_team || ''}
+          VS
+          ${game.home_team || ''}
+        </td>
 
-          <td style="
-            border:1px solid #cbd5e1;
-            padding:8px;
-            text-align:center;
-            min-width:220px;
-            font-weight:600;
-          ">
-            ${game.away_team || ''}
-            VS
-            ${game.home_team || ''}
-          </td>
+        <td class="c-field">
+          ${game.field || ''}
+        </td>
 
-          <td style="
-            border:1px solid #cbd5e1;
-            padding:8px;
-            background:#f8fafc;
-            font-weight:700;
-            white-space:nowrap;
-          ">
-            ${game.field || ''}
-          </td>
+        <td class="c-duty">
+          ${renderName(getJudgeName(game,'PU'))}
+        </td>
 
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
-            ${renderName(getJudgeName(game,'PU') || '缺')}
-          </td>
+        <td class="c-duty">
+          ${renderName(getJudgeName(game,'U1'))}
+        </td>
 
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
-            ${renderName(getJudgeName(game,'U1') || '缺')}
-          </td>
+        <td class="c-duty">
+          ${
+            Number(game.umpire_count) >= 4
+              ? renderName(
+                  getJudgeName(game,'U2')
+                )
+              : '-'
+          }
+        </td>
 
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
-            ${
-              Number(game.umpire_count) >= 4
-                ? renderName(getJudgeName(game,'U2') || '缺')
-                : '-'
-            }
-          </td>
+        <td class="c-duty">
+          ${
+            Number(game.umpire_count) >= 3
+              ? renderName(
+                  getJudgeName(game,'U3')
+                )
+              : '-'
+          }
+        </td>
 
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
-            ${
-              Number(game.umpire_count) >= 3
-                ? renderName(getJudgeName(game,'U3') || '缺')
-                : '-'
-            }
-          </td>
+        <td class="c-duty">
+          ${renderName(
+            getRecordName(
+              game,
+              'REC_MAIN'
+            )
+          )}
+        </td>
 
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
-            ${renderName(getRecordName(game,'REC_MAIN') || '缺')}
-          </td>
+        <td class="c-duty">
+          ${renderName(
+            getRecordName(
+              game,
+              'REC_TRAINEE'
+            )
+          )}
+        </td>
 
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
-            ${renderName(getRecordName(game,'REC_TRAINEE') || '缺')}
-          </td>
+        <td class="c-duty">
+          ${renderName(
+            getRecordName(
+              game,
+              'REC_VIDEO'
+            )
+          )}
+        </td>
 
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
-            ${renderName(getRecordName(game,'REC_VIDEO') || '缺')}
-          </td>
-
-        </tr>
-
+      </tr>
       `;
 
     });
 
   return `
 
+  <div
+    id="rosterExportBlock"
+    style="
+      width:${tableWidth};
+      background:#fff;
+      color:#000;
+      padding:24px;
+      box-sizing:border-box;
+    "
+  >
+
     <div
-      id="rosterExportBlock"
       style="
-        width:${tableWidth};
-        background:#ffffff;
-        color:#000;
-        padding:24px;
+        display:flex;
+        align-items:center;
+        gap:20px;
+        margin-bottom:24px;
       "
     >
 
-      <div
+      <img
+        src="img/bbtlogo.png"
+        alt="BBT"
         style="
-          display:flex;
-          align-items:center;
-          margin-bottom:24px;
+          width:90px;
+          height:auto;
         "
       >
 
-        img/bbtlogo.png
-
-        <div>
-
-          <div
-            style="
-              font-size:34px;
-              font-weight:900;
-              line-height:1.2;
-            "
-          >
-            BBT 裁判暨紀錄派遣表
-          </div>
-
-          <div
-            style="
-              margin-top:8px;
-              font-size:20px;
-              font-weight:600;
-              color:#334155;
-            "
-          >
-            日期：${date}
-          </div>
-
-        </div>
-
-      </div>
-
-      <table
-        style="
-          width:100%;
-          border-collapse:collapse;
-          font-size:14px;
-        "
-      >
-
-        <thead>
-
-          <tr
-            style="
-              background:#e2e8f0;
-              font-weight:800;
-            "
-          >
-
-            <th style="border:1px solid #cbd5e1;padding:10px;">時間</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">場次</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">組別</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">對戰</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">場地</th>
-
-            <th style="border:1px solid #cbd5e1;padding:10px;">主審</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">一壘</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">二壘</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">三壘</th>
-
-            <th style="border:1px solid #cbd5e1;padding:10px;">紀錄</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">實習</th>
-            <th style="border:1px solid #cbd5e1;padding:10px;">影像</th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-          ${rows}
-        </tbody>
-
-      </table>
-
-      <div
-        style="
-          margin-top:30px;
-          font-size:14px;
-          line-height:2;
-          color:#475569;
-        "
-      >
+      <div>
 
         <div
           style="
-            font-weight:800;
-            margin-bottom:8px;
+            font-size:34px;
+            font-weight:900;
           "
         >
-          注意事項
+          BBT 裁判暨紀錄派遣表
         </div>
 
-        <div>
-          1. 如有無法出席情形，請立即通知聯盟調度。
-        </div>
-
-        <div>
-          2. 請於比賽開始前 30 分鐘完成報到。
-        </div>
-
-        <div>
-          3. 如遇天候因素，以聯盟公告為準。
+        <div
+          style="
+            margin-top:6px;
+            font-size:20px;
+            font-weight:600;
+            color:#475569;
+          "
+        >
+          日期：${date}
         </div>
 
       </div>
 
     </div>
 
-  `;
+    <table
+      style="
+        width:100%;
+        border-collapse:collapse;
+        table-layout:fixed;
+        font-size:14px;
+      "
+    >
 
+      <thead>
+
+        <tr
+          style="
+            background:#e2e8f0;
+            font-weight:800;
+          "
+        >
+
+          <th style="width:60px;border:1px solid #cbd5e1;padding:10px;">時間</th>
+
+          <th style="width:80px;border:1px solid #cbd5e1;padding:10px;">場次</th>
+
+          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">組別</th>
+
+          <th style="width:280px;border:1px solid #cbd5e1;padding:10px;">對戰</th>
+
+          <th style="width:120px;border:1px solid #cbd5e1;padding:10px;">場地</th>
+
+          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">主審</th>
+
+          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">一壘</th>
+
+          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">二壘</th>
+
+          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">三壘</th>
+
+          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">紀錄</th>
+
+          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">實習</th>
+
+          <th style="width:90px;border:1px solid #cbd5e1;padding:10px;">影像</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        ${rows}
+
+      </tbody>
+
+    </table>
+
+    <div
+      style="
+        margin-top:28px;
+        color:#475569;
+        line-height:2;
+        font-size:14px;
+      "
+    >
+
+      <div
+        style="
+          font-weight:800;
+          margin-bottom:8px;
+        "
+      >
+        注意事項
+      </div>
+
+      <div>
+        1. 如有無法出席情形，請立即通知聯盟調度。
+      </div>
+
+      <div>
+        2. 請於開賽前 30 分鐘完成報到。
+      </div>
+
+      <div>
+        3. 如遇天候因素，以聯盟公告為準。
+      </div>
+
+    </div>
+
+  </div>
+
+  `;
 }
 
 // 產出班表資料 - 
