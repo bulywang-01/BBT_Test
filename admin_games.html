@@ -17,13 +17,20 @@
   .main{
     padding:20px;
   }
+
+  .body{
+    background:#eef2f7;
+  }
+
   
   .panel{
     background:#fff;
-    padding:12px;
-    border-radius:6px;
-    box-shadow:0 1px 4px rgba(0,0,0,.08);
-    margin-bottom:16px;
+    padding:18px;
+    border-radius:16px;
+    box-shadow:
+      0 4px 12px rgba(15,23,42,.08);
+    margin-bottom:18px;
+    border:1px solid #e2e8f0;
   }
   
   .month-title{
@@ -176,14 +183,17 @@
      Styled Table
   ===================================================== */
   
-  .styled-table{
-    font-size:13px;
+  .styled-table th{
+    background:#f8fafc;
+    color:#334155;
+    border-bottom:2px solid #e2e8f0;
   }
   
   .styled-table th,
   .styled-table td{
     padding:4px 6px;
     line-height:1.4;
+    border-color:#f1f5f9;
   }
   
   .styled-table th{
@@ -279,9 +289,11 @@
   
   .game-kpi-card{
     background:#fff;
-    border-radius:12px;
-    padding:16px;
-    box-shadow:0 1px 4px rgba(0,0,0,.08);
+    border-radius:16px;
+    padding:20px;
+    border:1px solid #e2e8f0;
+    box-shadow:
+      0 4px 10px rgba(15,23,42,.05);
   }
   
   .game-kpi-label{
@@ -291,7 +303,7 @@
   
   .game-kpi-value{
     margin-top:6px;
-    font-size:30px;
+    font-size:42px;
     font-weight:900;
   }
   
@@ -321,13 +333,19 @@
   }
   
   .tournament-title{
-    background:#0f172a;
-    color:#fff;
-    padding:10px 14px;
-    border-radius:10px;
+    background:
+      linear-gradient(
+        90deg,
+        #07142d,
+        #1e3a8a
+      );
+    color:white;
+    padding:14px 18px;
+    border-radius:16px;
     font-size:18px;
-    font-weight:800;
-    margin-bottom:8px;
+    font-weight:900;
+    box-shadow:
+      0 4px 12px rgba(15,23,42,.25);
   }
   
   
@@ -339,18 +357,18 @@
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:18px;
+    margin-bottom:24px;
   }
   
   .page-title{
-    font-size:32px;
+    font-size:34px;
     font-weight:900;
     color:#0f172a;
   }
   
   .page-subtitle{
-    margin-top:4px;
     font-size:14px;
+    margin-top:6px;
     color:#64748b;
   }
   
