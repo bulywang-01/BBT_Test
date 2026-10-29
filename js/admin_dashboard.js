@@ -2145,7 +2145,7 @@ function showRosterPreview(){
 
 function buildRosterHtml(isPreview = true){
 
-  const games = buildRosterData();
+  const games = [...buildRosterData()];
 
   const tableWidth =
     isPreview
@@ -2163,26 +2163,55 @@ function buildRosterHtml(isPreview = true){
   const date =
     games[0]?.date || '';
 
+  function renderName(value){
+
+    if(!value || value === '缺'){
+
+      return `
+        <span style="
+          color:#dc2626;
+          font-weight:800;
+        ">
+          缺
+        </span>
+      `;
+
+    }
+
+    if(value === '-'){
+      return '-';
+    }
+
+    return `
+      <span style="
+        font-weight:600;
+      ">
+        ${value}
+      </span>
+    `;
+
+  }
+
   let rows = '';
-  
+
   games
-    .sort((a,b)=> {
-  
+    .sort((a,b)=>{
+
       const aKey =
         `${a.date || ''} ${a.time || ''}`;
-  
+
       const bKey =
         `${b.date || ''} ${b.time || ''}`;
-  
+
       return aKey.localeCompare(bKey);
-  
+
     })
     .forEach(game => {
-  
+
       rows += `
-  
+
         <tr>
-  
+
           <td style="
             border:1px solid #cbd5e1;
             padding:8px;
@@ -2191,58 +2220,59 @@ function buildRosterHtml(isPreview = true){
           ">
             ${game.time || ''}
           </td>
-  
+
           <td style="
             border:1px solid #cbd5e1;
             padding:8px;
             text-align:center;
-            font-weight:700;
-            color:#1d4ed8;
+            font-weight:800;
+            color:#2563eb;
             white-space:nowrap;
           ">
             ${game.game_code || ''}
           </td>
-  
+
           <td style="
             border:1px solid #cbd5e1;
             padding:8px;
+            text-align:center;
             background:#f8fafc;
             font-weight:700;
             white-space:nowrap;
           ">
             ${game.category || ''}
           </td>
-  
+
           <td style="
             border:1px solid #cbd5e1;
             padding:8px;
             text-align:center;
-            font-weight:600;
             min-width:220px;
+            font-weight:600;
           ">
             ${game.away_team || ''}
             VS
             ${game.home_team || ''}
           </td>
-  
+
           <td style="
             border:1px solid #cbd5e1;
             padding:8px;
-            white-space:nowrap;
             background:#f8fafc;
             font-weight:700;
+            white-space:nowrap;
           ">
             ${game.field || ''}
           </td>
-  
+
           <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
             ${renderName(getJudgeName(game,'PU') || '缺')}
           </td>
-  
+
           <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
             ${renderName(getJudgeName(game,'U1') || '缺')}
           </td>
-  
+
           <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
             ${
               Number(game.umpire_count) >= 4
@@ -2250,7 +2280,7 @@ function buildRosterHtml(isPreview = true){
                 : '-'
             }
           </td>
-  
+
           <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
             ${
               Number(game.umpire_count) >= 3
@@ -2258,162 +2288,24 @@ function buildRosterHtml(isPreview = true){
                 : '-'
             }
           </td>
-  
+
           <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
             ${renderName(getRecordName(game,'REC_MAIN') || '缺')}
           </td>
-  
+
           <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
             ${renderName(getRecordName(game,'REC_TRAINEE') || '缺')}
           </td>
-  
+
           <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
             ${renderName(getRecordName(game,'REC_VIDEO') || '缺')}
           </td>
-  
+
         </tr>
-  
+
       `;
-  
-    });
-
-    const categories =
-      fieldGroups[field];
-
-    const fieldRowCount =
-      Object.values(categories)
-        .reduce(
-          (sum,arr)=>sum+arr.length,
-          0
-        );
-
-    let fieldRendered = false;
-
-    Object.keys(categories).forEach(category => {
-
-      const games =
-        categories[category];
-
-      const categoryRowCount =
-        games.length;
-
-      let categoryRendered = false;
-
-      games.forEach(game => {
-
-        rows += '<tr>';
-
-        if(!fieldRendered){
-
-          rows += `
-            <td
-              rowspan="${fieldRowCount}"
-              style="
-                border:1px solid #cbd5e1;
-                padding:10px;
-                background:#f8fafc;
-                font-weight:700;
-                vertical-align:top;
-              "
-            >
-              ${field}
-            </td>
-          `;
-
-          fieldRendered = true;
-
-        }
-
-        if(!categoryRendered){
-
-          rows += `
-            <td
-              rowspan="${categoryRowCount}"
-              style="
-                border:1px solid #cbd5e1;
-                padding:10px;
-                background:#f8fafc;
-                font-weight:700;
-                vertical-align:top;
-              "
-            >
-              ${category}
-            </td>
-          `;
-
-          categoryRendered = true;
-
-        }
-
-        rows += `
-
-          <td
-            style="
-              border:1px solid #cbd5e1;
-              padding:8px;
-              text-align:center;
-            "
-          >
-            ${game.time || ''}
-          </td>
-
-          <td
-            style="
-              border:1px solid #cbd5e1;
-              padding:8px;
-              text-align:center;
-              font-weight:600;
-            "
-          >
-            ${game.away_team || ''}
-            VS
-            ${game.home_team || ''}
-          </td>
-
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
-            ${renderName(getJudgeName(game,'PU') || '缺')}
-          </td>
-
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
-            ${renderName(getJudgeName(game,'U1') || '缺')}
-          </td>
-
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
-            ${
-              Number(game.umpire_count) >= 4
-                ? renderName(getJudgeName(game,'U2') || '缺')
-                : '-'
-            }
-          </td>
-
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
-            ${
-              Number(game.umpire_count) >= 3
-                ? renderName(getJudgeName(game,'U3') || '缺')
-                : '-'
-            }
-          </td>
-
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
-            ${renderName(getRecordName(game,'REC_MAIN') || '缺')}
-          </td>
-
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
-            ${renderName(getRecordName(game,'REC_TRAINEE') || '缺')}
-          </td>
-
-          <td style="border:1px solid #cbd5e1;padding:8px;text-align:center;">
-            ${renderName(getRecordName(game,'REC_VIDEO') || '缺')}
-          </td>
-
-        </tr>
-        `;
-
-      });
 
     });
-
-  });
 
   return `
 
@@ -2435,13 +2327,7 @@ function buildRosterHtml(isPreview = true){
         "
       >
 
-        <img
-          src="img/bbtlogo.png"
-          style="
-            width:90px;
-            margin-right:20px;
-          "
-        >
+        img/bbtlogo.png
 
         <div>
 
@@ -2480,38 +2366,29 @@ function buildRosterHtml(isPreview = true){
 
         <thead>
 
-      <tr
-        style="
-          background:#e2e8f0;
-          font-weight:800;
-        "
-      >
-      
-        <th style="border:1px solid #cbd5e1;padding:10px;">時間</th>
-      
-        <th style="border:1px solid #cbd5e1;padding:10px;">場次</th>
-      
-        <th style="border:1px solid #cbd5e1;padding:10px;">組別</th>
-      
-        <th style="border:1px solid #cbd5e1;padding:10px;">對戰</th>
-      
-        <th style="border:1px solid #cbd5e1;padding:10px;">場地</th>
-      
-        <th style="border:1px solid #cbd5e1;padding:10px;">主審</th>
-      
-        <th style="border:1px solid #cbd5e1;padding:10px;">一壘</th>
-      
-        <th style="border:1px solid #cbd5e1;padding:10px;">二壘</th>
-      
-        <th style="border:1px solid #cbd5e1;padding:10px;">三壘</th>
-      
-        <th style="border:1px solid #cbd5e1;padding:10px;">紀錄</th>
-      
-        <th style="border:1px solid #cbd5e1;padding:10px;">實習</th>
-      
-        <th style="border:1px solid #cbd5e1;padding:10px;">影像</th>
-      
-      </tr>
+          <tr
+            style="
+              background:#e2e8f0;
+              font-weight:800;
+            "
+          >
+
+            <th style="border:1px solid #cbd5e1;padding:10px;">時間</th>
+            <th style="border:1px solid #cbd5e1;padding:10px;">場次</th>
+            <th style="border:1px solid #cbd5e1;padding:10px;">組別</th>
+            <th style="border:1px solid #cbd5e1;padding:10px;">對戰</th>
+            <th style="border:1px solid #cbd5e1;padding:10px;">場地</th>
+
+            <th style="border:1px solid #cbd5e1;padding:10px;">主審</th>
+            <th style="border:1px solid #cbd5e1;padding:10px;">一壘</th>
+            <th style="border:1px solid #cbd5e1;padding:10px;">二壘</th>
+            <th style="border:1px solid #cbd5e1;padding:10px;">三壘</th>
+
+            <th style="border:1px solid #cbd5e1;padding:10px;">紀錄</th>
+            <th style="border:1px solid #cbd5e1;padding:10px;">實習</th>
+            <th style="border:1px solid #cbd5e1;padding:10px;">影像</th>
+
+          </tr>
 
         </thead>
 
@@ -2526,7 +2403,7 @@ function buildRosterHtml(isPreview = true){
           margin-top:30px;
           font-size:14px;
           line-height:2;
-          color:#334155;
+          color:#475569;
         "
       >
 
@@ -2554,7 +2431,9 @@ function buildRosterHtml(isPreview = true){
       </div>
 
     </div>
+
   `;
+
 }
 
 // 產出班表資料 - 
