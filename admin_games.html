@@ -262,10 +262,10 @@
   
   .status-badge{
     display:inline-block;
-    padding:2px 8px;
-    border-radius:10px;
+    padding:4px 10px;
+    border-radius:999px;
     font-size:12px;
-    font-weight:600;
+    font-weight:700;
   }
   
   .status-0{
@@ -282,7 +282,11 @@
     background:#e5e7eb;
     color:#374151;
   }
-  
+
+  .status-4{
+    background:#e2e8f0;
+    color:#475569;
+  }
   
   /* =====================================================
      KPI Cards
@@ -1698,6 +1702,13 @@ function renderGames(list){
 
           <div class="tournament-title">
             📁 ${tournament}
+            <span style="
+              float:right;
+              font-size:13px;
+              opacity:.85;
+            ">
+              ${groups[tournament].length} 場
+            </span>
           </div>
 
           <div class="panel">
@@ -1738,7 +1749,17 @@ function renderGames(list){
 
         html += `
 
-          <tr id="row_${g.game_id}">
+          <tr
+            id="row_${g.game_id}"
+            style="
+              ${
+                Number(g.status) === 4 ||
+                statusText(g.status,g) === '已結束'
+                ? 'opacity:.55;'
+                : ''
+              }
+            "
+          >
 
             <td>
 
