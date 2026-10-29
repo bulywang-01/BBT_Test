@@ -1685,34 +1685,7 @@ function renderWeeklyDutyBoard(data){
               ${g.field || ''}
             </div>
 
-            <div
-              class="
-                mt-1
-                text-[11px]
-                text-slate-300
-              "
-            >
-
-              主${shortName(g.judges?.PU)}
-              一${shortName(g.judges?.U1)}
-
-              ${
-                Number(g.umpire_count) >= 4
-                ? ` 二${shortName(g.judges?.U2)}`
-                : ''
-              }
-
-              ${
-                Number(g.umpire_count) >= 3
-                ? ` 三${shortName(g.judges?.U3)}`
-                : ''
-              }
-
-              紀${shortName(g.records?.REC_MAIN)}
-              實${shortName(g.records?.REC_TRAINEE)}
-              影${shortName(g.records?.REC_VIDEO)}
-
-            </div>
+            ${renderMobileDuty(g)}
 
           </div>
 
@@ -1783,40 +1756,41 @@ function renderWeeklyDutyBoard(data){
                 </td>
 
                 <td class="text-center px-2">
-                  ${shortName(g.judges?.PU)}
+                  ${renderDutyCell(g.judges?.PU)}
                 </td>
-
+                
                 <td class="text-center px-2">
-                  ${shortName(g.judges?.U1)}
+                  ${renderDutyCell(g.judges?.U1)}
                 </td>
-
+                
                 <td class="text-center px-2">
                   ${
                     Number(g.umpire_count) >= 4
-                    ? shortName(g.judges?.U2)
-                    : '-'
+                      ? renderDutyCell(g.judges?.U2)
+                      : ''
                   }
                 </td>
-
+                
                 <td class="text-center px-2">
                   ${
                     Number(g.umpire_count) >= 3
-                    ? shortName(g.judges?.U3)
-                    : '-'
+                      ? renderDutyCell(g.judges?.U3)
+                      : ''
                   }
                 </td>
-
+                
                 <td class="text-center px-2">
-                  ${shortName(g.records?.REC_MAIN)}
+                  ${renderDutyCell(g.records?.REC_MAIN)}
+                </td>
+                
+                <td class="text-center px-2">
+                  ${renderDutyCell(g.records?.REC_TRAINEE)}
+                </td>
+                
+                <td class="text-center px-2">
+                  ${renderDutyCell(g.records?.REC_VIDEO)}
                 </td>
 
-                <td class="text-center px-2">
-                  ${shortName(g.records?.REC_TRAINEE)}
-                </td>
-
-                <td class="text-center px-2">
-                  ${shortName(g.records?.REC_VIDEO)}
-                </td>
 
               </tr>
 
@@ -2562,4 +2536,99 @@ function buildRosterBadge(
     </span>
   `;
 
+}
+
+// 統一席位
+function getDutyStatus(value){
+  if(!value || value === '-' || value === ''){
+    return false;
+  }
+  return true;
+}
+
+// 缺額呈現
+function renderDutyCell(value){
+
+  let name = '';
+
+  if(typeof value === 'string'){
+    name = value;
+  }else if(value?.name){
+    name = value.name;
+  }
+
+  if(name){
+
+    return `
+      <span class="text-amber-300 font-semibold">
+        ${name}
+      </span>
+    `;
+
+  }
+
+  return `
+    <span class="
+      inline-flex
+      items-center
+      justify-center
+      px-2
+      py-0.5
+      rounded
+      bg-red-600
+      text-yellow-200
+      text-[10px]
+      font-black
+    ">
+      缺
+    </span>
+  `;
+}
+
+// Badge Renderer - 手機版
+function renderMobileDuty(game){
+
+  const items = [
+    ['主', game.judges?.PU],
+    ['一', game.judges?.U1]
+  ];
+
+  if(Number(game.umpire_count) >= 4){
+    items.push(['二', game.judges?.U2]);
+  }
+
+  if(Number(game.umpire_count) >= 3){
+    items.push(['三', game.judges?.U3]);
+  }
+
+  items.push(
+    ['記', game.records?.REC_MAIN],
+    ['實', game.records?.REC_TRAINEE],
+    ['影', game.records?.REC_VIDEO]
+  );
+
+  return `
+    <div class="flex flex-wrap gap-1 mt-2">
+
+      ${items.map(([label,val])=>`
+
+        <span class="
+          px-2
+          py-0.5
+          rounded
+          text-[10px]
+          font-black
+          ${
+            val
+              ? 'bg-emerald-500 text-white'
+              : 'bg-red-600 text-yellow-200'
+          }
+        ">
+          ${label}${val ? '✓' : '缺'}
+        </span>
+
+      `).join('')}
+
+    </div>
+  `;
 }
