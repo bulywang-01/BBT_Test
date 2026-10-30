@@ -906,6 +906,13 @@
   </div>
 </div>
 
+<!-- 新增這個工具列 -->
+<div class="panel">
+  <button onclick="toggleImportPanel()">
+    📥 匯入 Excel / CSV
+  </button>
+</div>
+    
 <div id="gamesContainer"></div>
 
 <!-- 匯入 -->
@@ -2450,6 +2457,10 @@ function renderCreateArea(){
           ✅送出
         </button>
 
+        <button onclick="toggleImportPanel()">
+          📥 批次匯入賽事
+        </button>
+
       </div>
 
     </div>
@@ -2464,7 +2475,20 @@ function renderCreateArea(){
 
 }
 
+// 批次匯入賽事
+function toggleImportPanel(){
 
+  const panel =
+    document.getElementById('importPanel');
+
+  if(!panel) return;
+
+  panel.style.display =
+    panel.style.display === 'block'
+      ? 'none'
+      : 'block';
+}
+  
 // 新增列（手機友善版）
 function addRow(){
 
