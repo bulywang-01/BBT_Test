@@ -756,9 +756,17 @@
 
       <div>
 
-        <h2 class="font-black text-slate-900 text-3xl sm:text-4xl tracking-tight">
-          🏟 賽事管理
+        <h2 class="font-black text-slate-900 text-base sm:text-lg tracking-tight">
+          BBT 聯盟出勤管理中心
         </h2>
+        
+        <div class="page-title">
+          🏟 賽事管理中心
+        </div>
+        
+        <div class="page-subtitle">
+          建立、維護、派遣與追蹤賽事
+        </div>
 
       </div>
 
@@ -1939,43 +1947,47 @@ function renderGames(list){
             <td>
             
               <div style="
-                font-weight:700;
-                color:#0f172a;
+                text-align:left;
+                line-height:1.8;
               ">
-                ${g.tournament || '-'}
-              </div>
             
-              <div style="
-                font-size:12px;
-                color:#64748b;
-              ">
-                ${g.category || '-'}
-              </div>
+                <div>
+                  <b>賽事：</b>
+                  ${g.tournament || '-'}
+                </div>
             
-              <div style="
-                font-size:12px;
-                color:#94a3b8;
-              ">
-                ${g.field || '-'}
+                <div>
+                  <b>組別：</b>
+                  ${g.category || '-'}
+                </div>
+            
+                <div>
+                  <b>場地：</b>
+                  ${g.field || '-'}
+                </div>
+            
               </div>
             
             </td>
 
-            <td style="
-              font-weight:600;
-            ">
-
-              ${g.away_team || ''}
-
-              <span style="
-                color:#94a3b8;
-                margin:0 4px;
+            <td>
+            
+              <div style="
+                text-align:left;
+                line-height:1.8;
+                font-weight:600;
               ">
-                VS
-              </span>
-
-              ${g.home_team || ''}
-
+            
+                <div>
+                  客：${g.away_team || '-'}
+                </div>
+            
+                <div>
+                  主：${g.home_team || '-'}
+                </div>
+            
+              </div>
+            
             </td>
 
             <td>
@@ -2119,19 +2131,35 @@ function renderGames(list){
                     🕒 ${g._date || '-'} ${g._time || '-'}
                   </div>
 
-                  <div class="mobile-game-field">
-                    📍 ${g.field || '-'}
+                  <div class="mobile-game-info">
+                  
+                    <div>
+                      <b>賽事：</b>
+                      ${g.tournament || '-'}
+                    </div>
+                  
+                    <div>
+                      <b>組別：</b>
+                      ${g.category || '-'}
+                    </div>
+                  
+                    <div>
+                      <b>場地：</b>
+                      ${g.field || '-'}
+                    </div>
+                  
                   </div>
-
-                  <div class="mobile-game-category">
-                    🏆 ${g.tournament || '-'}
-                    ${g.category ? `｜${g.category}` : ''}
-                  </div>
-
+                  
                   <div class="mobile-game-teams">
-                    ${g.away_team || ''}
-                    VS
-                    ${g.home_team || ''}
+                  
+                    <div>
+                      客：${g.away_team || '-'}
+                    </div>
+                  
+                    <div>
+                      主：${g.home_team || '-'}
+                    </div>
+                  
                   </div>
 
                   <div class="mobile-game-meta">
