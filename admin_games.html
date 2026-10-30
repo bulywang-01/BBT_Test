@@ -2,6 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>賽事管理</title>
   
   <!-- Tailwind CSS CDN -->
@@ -21,7 +22,8 @@
   /* =====================================================
      基礎版面
   ===================================================== */
-  
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    
   .main{
     padding:20px;
   }
@@ -515,7 +517,7 @@
   
 </head>
 
-<body class="bg-slate-100">
+<body class="bg-slate-100 antialiased text-slate-800">
 
 <div class="flex min-h-screen">
 
@@ -527,7 +529,7 @@
   
   <!-- Sidebar -->
   <aside id="sidebar"
-    class="fixed lg:static inset-y-0 left-0 w-72
+    class="fixed lg:static inset-y-0 left-0 w-64
            bg-slate-900 text-slate-300
            z-50 flex flex-col justify-between
            transform -translate-x-full
@@ -549,7 +551,7 @@
   
           <div>
   
-            <h1 class="font-black text-white text-lg tracking-wide">
+            <h1 class="font-black text-white text-base tracking-wide">
               BBT 管理中心
             </h1>
   
@@ -571,7 +573,7 @@
       </div>
   
       <!-- Navigation -->
-      <nav class="p-3.5 space-y-1 text-[14px] font-semibold overflow-y-auto max-h-[calc(100vh-140px)]">
+      <nav class="p-3.5 space-y-1 text-xs font-semibold overflow-y-auto max-h-[calc(100vh-140px)]">
   
         <!-- Dashboard -->
         <div class="text-[10px] text-slate-500 font-bold px-3 pt-2 pb-1 uppercase tracking-wider">
