@@ -462,10 +462,10 @@
   }
 
   .mobile-game-match{
-    font-size:16px;
+    font-size:18px;
     font-weight:900;
-    color:#0f172a;
-    margin-bottom:10px;
+    margin-top:6px;
+    margin-bottom:8px;
   }
     
   .mobile-game-actions{
@@ -485,6 +485,34 @@
     margin-top:12px;
     color:#94a3b8;
     font-weight:700;
+  }
+
+  .mobile-kpi-bar{
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+  
+    padding:12px;
+    margin-bottom:12px;
+  
+    background:#fff;
+    border-radius:14px;
+    border:1px solid #e2e8f0;
+  }
+  
+  .mobile-kpi-bar div{
+    text-align:center;
+  }
+  
+  .mobile-kpi-bar span{
+    display:block;
+    font-size:12px;
+    color:#64748b;
+  }
+  
+  .mobile-kpi-bar b{
+    font-size:24px;
+    font-weight:900;
   }
   
   /* =====================================================
@@ -516,9 +544,11 @@
     }
   
     .filter-bar{
-      flex-direction:column;
-      align-items:flex-start;
-      gap:10px;
+      display:flex;
+      flex-direction:row;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:12px;
     }
   
     .desktop-table{
@@ -823,29 +853,29 @@
   
   </div>
   
-   <div class="game-kpi-grid">
-   
-     <div class="game-kpi-card">
-       <div class="game-kpi-label">總賽事</div>
-       <div id="kpiTotalGames" class="game-kpi-value game-blue">-</div>
-     </div>
-   
-     <div class="game-kpi-card">
-       <div class="game-kpi-label">本週賽事</div>
-       <div id="kpiWeekGames" class="game-kpi-value game-green">-</div>
-     </div>
-   
-     <div class="game-kpi-card">
-       <div class="game-kpi-label">未完賽</div>
-       <div id="kpiPendingGames" class="game-kpi-value game-orange">-</div>
-     </div>
-   
-     <div class="game-kpi-card">
-       <div class="game-kpi-label">已完賽</div>
-       <div id="kpiFinishedGames" class="game-kpi-value game-purple">-</div>
-     </div>
-   
-   </div>
+  <div class="mobile-kpi-bar">
+  
+    <div>
+      <span>總</span>
+      <b id="mKpiTotalGames">-</b>
+    </div>
+  
+    <div>
+      <span>週</span>
+      <b id="mKpiWeekGames">-</b>
+    </div>
+  
+    <div>
+      <span>未</span>
+      <b id="mKpiPendingGames">-</b>
+    </div>
+  
+    <div>
+      <span>完</span>
+      <b id="mKpiFinishedGames">-</b>
+    </div>
+  
+  </div>
       
   <!-- 篩選 -->
   <div class="panel">
@@ -1223,42 +1253,45 @@ function renderGameKPI(games){
 
   games.forEach(g => {
 
-    const dt =
-      new Date(
-        `${g.date}T${g.time}`
-      );
+    const dt = new Date(
+      `${g.date}T${g.time}`
+    );
 
-    if(
-      isInThisWeekByDateStr(
-        g.date
-      )
-    ){
+    if (
+      isInThisWeekByDateStr(g.date)
+    ) {
       week++;
     }
 
-    if(dt < now){
+    if (dt < now) {
       finished++;
-    }else{
+    } else {
       pending++;
     }
 
   });
 
-  document.getElementById(
-    'kpiTotalGames'
-  ).textContent = total;
+  // 桌機 KPI
+  const k1 = document.getElementById('kpiTotalGames');
+  const k2 = document.getElementById('kpiWeekGames');
+  const k3 = document.getElementById('kpiPendingGames');
+  const k4 = document.getElementById('kpiFinishedGames');
 
-  document.getElementById(
-    'kpiWeekGames'
-  ).textContent = week;
+  if (k1) k1.textContent = total;
+  if (k2) k2.textContent = week;
+  if (k3) k3.textContent = pending;
+  if (k4) k4.textContent = finished;
 
-  document.getElementById(
-    'kpiPendingGames'
-  ).textContent = pending;
+  // 手機 KPI
+  const m1 = document.getElementById('mKpiTotalGames');
+  const m2 = document.getElementById('mKpiWeekGames');
+  const m3 = document.getElementById('mKpiPendingGames');
+  const m4 = document.getElementById('mKpiFinishedGames');
 
-  document.getElementById(
-    'kpiFinishedGames'
-  ).textContent = finished;
+  if (m1) m1.textContent = total;
+  if (m2) m2.textContent = week;
+  if (m3) m3.textContent = pending;
+  if (m4) m4.textContent = finished;
 }
    
 // 裁入賽事資料
@@ -2177,17 +2210,16 @@ function renderGames(list){
                 </div>
           
                 <div class="mobile-game-time">
-          
-                  🕒 ${g._date || '-'} ${g._time || '-'}
-          
+                
+                  🕒 ${g._date || '-'}
+                  ${g._time || '-'}
+                
                   （${g.duration || 0}分）
-          
-                </div>
-          
-                <div class="mobile-game-field">
-          
+                
+                  ｜
+                
                   📍 ${g.field || '-'}
-          
+                
                 </div>
           
                 <div class="mobile-game-match">
@@ -2389,25 +2421,49 @@ function saveAllNewRows(){
 // 新增
 function renderCreateArea(){
 
-  const box = document.getElementById('createArea') || document.createElement('div');
+  const box =
+    document.getElementById('createArea')
+    || document.createElement('div');
 
-  box.id = 'createArea';
-  box.className = 'panel';
+  box.id='createArea';
+  box.className='panel';
 
-  box.innerHTML = `
-    <div style="margin-bottom:8px;"><b>➕ 新增賽事</b></div>
+  box.innerHTML=`
+
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:8px;
+    ">
+
+      <b>➕ 新增賽事</b>
+
+      <div style="
+        display:flex;
+        gap:6px;
+      ">
+
+        <button onclick="addRow()">
+          ＋新增
+        </button>
+
+        <button onclick="saveAll()">
+          ✅送出
+        </button>
+
+      </div>
+
+    </div>
 
     <div id="newList"></div>
 
-    <div style="margin-top:8px;">
-      <button onclick="addRow()">＋ 新增一筆</button>
-      <button onclick="saveAll()" style="margin-left:10px;">
-        ✅ 批次送出
-      </button>
-    </div>
   `;
 
-  document.getElementById('gamesContainer').prepend(box);
+  document
+    .getElementById('gamesContainer')
+    .prepend(box);
+
 }
 
 
