@@ -2255,13 +2255,9 @@ function renderGames(list){
                     <div class="mobile-game-actions">
           
                       <button
-                        onclick="
-                          alert('edit');
-                          editRow(${g.game_id});
-                        ">
+                        onclick="editMobileGame(${g.game_id})">
                         ✏️
                       </button>
-
           
                       <button
                         onclick="
@@ -2837,29 +2833,6 @@ function editGameMobile(game){
 // 賽事編輯
 function editRow(id){
 
-  const tr =
-    document.getElementById(
-      'row_' + id
-    );
-
-  // 手機版
-  if(!tr){
-
-    const game =
-      window._games.find(
-        g => Number(g.game_id) === Number(id)
-      );
-
-    if(!game){
-      showToast('找不到賽事');
-      return;
-    }
-
-    editGameMobile(game);
-
-    return;
-  }
-
   const game =
     window._games.find(
       g =>
@@ -3254,6 +3227,148 @@ function saveRow(id){
         'API回傳錯誤',
         res
       );
+
+    }
+
+  });
+
+}
+
+// 手機版 - 賽事編輯
+// ============================
+// 手機版賽事編輯
+// ============================
+function editMobileGame(id){
+
+  const game = window._games.find(
+    g => Number(g.game_id) === Number(id)
+  );
+
+  if(!game){
+    alert('找不到賽事');
+    return;
+  }
+
+  const game_code =
+    prompt('場次', game.game_code || '');
+
+  if(game_code === null) return;
+
+  const tournament =
+    prompt('賽事名稱', game.tournament || '');
+
+  if(tournament === null) return;
+
+  const category =
+    prompt('組別', game.category || '');
+
+  if(category === null) return;
+
+  const field =
+    prompt('場地', game.field || '');
+
+  if(field === null) return;
+
+  const away_team =
+    prompt('客隊', game.away_team || '');
+
+  if(away_team === null) return;
+
+  const home_team =
+    prompt('主隊', game.home_team || '');
+
+  if(home_team === null) return;
+
+  const date =
+    prompt('日期(YYYY-MM-DD)', game.date || '');
+
+  if(date === null) return;
+
+  const time =
+    prompt('時間(HH:mm)', game.time || '');
+
+  if(time === null) return;
+
+  const duration =
+    prompt(
+      '比賽時間(分鐘)',
+      game.duration || 90
+    );
+
+  if(duration === null) return;
+
+  const umpire_count =
+    prompt(
+      '裁判數',
+      game.umpire_count || 0
+    );
+
+  if(umpire_count === null) return;
+
+  const status =
+    prompt(
+`狀態：
+0=正常
+1=延賽
+2=停賽
+3=暫存
+4=已完賽`,
+      game.status || 0
+    );
+
+  if(status === null) return;
+
+  showSaving('儲存中...');
+
+  callApi({
+
+    action:'updateGameFull',
+
+    game_id:id,
+
+    game_code,
+
+    tournament,
+
+    category,
+
+    field,
+
+    away_team,
+
+    home_team,
+
+    date,
+
+    time,
+
+    duration:Number(duration),
+
+    umpire_count:Number(umpire_count),
+
+    status:Number(status)
+
+  },function(res){
+
+    hideSaving();
+
+    const ok =
+      res === 'ok' ||
+      res?.result === 'ok';
+
+    if(ok){
+
+      showToast('✅ 已儲存');
+
+      setTimeout(()=>{
+        loadGames();
+      },300);
+
+    }else{
+
+      showToast('❌ 儲存失敗');
+
+      console.error(res);
 
     }
 
