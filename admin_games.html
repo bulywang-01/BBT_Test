@@ -1320,6 +1320,78 @@ function previewImport(){
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet, { defval:'' });
 
+    // ======================
+    // 先檢查 Excel 欄位格式
+    // ======================
+    
+    const requiredColumns = [
+      'date',
+      'time',
+      'duration',
+      'tournament',
+      'category',
+      'field',
+      'away_team',
+      'home_team',
+      'umpire_count',
+      'position_mode'
+    ];
+    
+    const firstRow = rows[0] || {};
+    
+    const missingColumns =
+      requiredColumns.filter(
+        col => !(col in firstRow)
+      );
+    
+    if (missingColumns.length){
+    
+      document.getElementById(
+        'importPreview'
+      ).innerHTML = `
+    
+        <div style="
+          background:#fef2f2;
+          border:1px solid #fecaca;
+          color:#b91c1c;
+          padding:16px;
+          border-radius:12px;
+        ">
+    
+          <div style="
+            font-weight:800;
+            margin-bottom:10px;
+          ">
+            ❌ Excel 格式錯誤
+          </div>
+    
+          <div style="margin-bottom:8px;">
+            缺少以下欄位：
+          </div>
+    
+          <ul style="
+            padding-left:20px;
+            line-height:1.8;
+          ">
+            ${missingColumns
+              .map(c => `<li>${c}</li>`)
+              .join('')}
+          </ul>
+    
+          <div style="
+            margin-top:12px;
+          ">
+            請下載範本後重新填寫。
+          </div>
+    
+        </div>
+    
+      `;
+    
+      hideLoading();
+      return;
+    }
+
     if (!rows.length) {
       document.getElementById('importPreview').innerHTML =
         '<div class="panel">⚠️ Excel 沒有資料</div>';
