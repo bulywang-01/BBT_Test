@@ -2659,7 +2659,6 @@ function validateGame(data){
   return '';
 }
 
-// 編輯
 function editRow(id){
 
   const tr =
@@ -2685,28 +2684,25 @@ function editRow(id){
 
     <td>
 
-      <input
-        id="e_code_${id}"
-        value="${game.game_code || ''}"
-        style="width:90px;">
+      <div style="
+        display:flex;
+        flex-direction:column;
+        gap:4px;
+      ">
 
-    </td>
+        <label style="
+          font-size:11px;
+          color:#64748b;
+          font-weight:700;
+        ">
+          場次
+        </label>
 
-    <td>
+        <input
+          id="e_code_${id}"
+          value="${game.game_code || ''}">
 
-      <input
-        type="date"
-        id="e_date_${id}"
-        value="${game.date || ''}">
-
-    </td>
-
-    <td>
-
-      <input
-        type="time"
-        id="e_time_${id}"
-        value="${game.time || ''}">
+      </div>
 
     </td>
 
@@ -2717,25 +2713,143 @@ function editRow(id){
         flex-direction:column;
         gap:4px;
       ">
+
+        <label style="
+          font-size:11px;
+          color:#64748b;
+          font-weight:700;
+        ">
+          日期
+        </label>
+
+        <input
+          type="date"
+          id="e_date_${id}"
+          value="${game.date || ''}">
+
+      </div>
+
+    </td>
+
+    <td>
+
+      <div style="
+        display:flex;
+        flex-direction:column;
+        gap:4px;
+      ">
+
+        <label style="
+          font-size:11px;
+          color:#64748b;
+          font-weight:700;
+        ">
+          時間
+        </label>
+
+        <input
+          type="time"
+          id="e_time_${id}"
+          value="${game.time || ''}">
+
+      </div>
+
+    </td>
+
+    <!-- 賽事資訊 -->
+
+    <td>
+
+      <div style="
+        display:flex;
+        flex-direction:column;
+        gap:4px;
+        text-align:left;
+      ">
+
+        <label style="
+          font-size:11px;
+          color:#64748b;
+          font-weight:700;
+        ">
+          賽事
+        </label>
 
         <input
           id="e_tournament_${id}"
-          value="${game.tournament || ''}"
-          placeholder="賽事名稱">
+          value="${game.tournament || ''}">
+
+        <label style="
+          font-size:11px;
+          color:#64748b;
+          font-weight:700;
+          margin-top:4px;
+        ">
+          組別
+        </label>
 
         <input
           id="e_category_${id}"
-          value="${game.category || ''}"
-          placeholder="組別">
+          value="${game.category || ''}">
+
+        <label style="
+          font-size:11px;
+          color:#64748b;
+          font-weight:700;
+          margin-top:4px;
+        ">
+          場地
+        </label>
 
         <input
           id="e_field_${id}"
-          value="${game.field || ''}"
-          placeholder="場地">
+          value="${game.field || ''}">
 
       </div>
 
     </td>
+
+    <!-- 對戰 -->
+
+    <td>
+
+      <div style="
+        display:flex;
+        flex-direction:column;
+        gap:4px;
+        text-align:left;
+      ">
+
+        <label style="
+          font-size:11px;
+          color:#64748b;
+          font-weight:700;
+        ">
+          客隊
+        </label>
+
+        <input
+          id="e_away_${id}"
+          value="${game.away_team || ''}">
+
+        <label style="
+          font-size:11px;
+          color:#64748b;
+          font-weight:700;
+          margin-top:4px;
+        ">
+          主隊
+        </label>
+
+        <input
+          id="e_home_${id}"
+          value="${game.home_team || ''}">
+
+      </div>
+
+    </td>
+
+    <!-- 裁判數 -->
 
     <td>
 
@@ -2745,78 +2859,105 @@ function editRow(id){
         gap:4px;
       ">
 
-        <input
-          id="e_away_${id}"
-          value="${game.away_team || ''}"
-          placeholder="客隊">
+        <label style="
+          font-size:11px;
+          color:#64748b;
+          font-weight:700;
+        ">
+          裁判數
+        </label>
 
         <input
-          id="e_home_${id}"
-          value="${game.home_team || ''}"
-          placeholder="主隊">
+          type="number"
+          min="0"
+          max="4"
+          id="e_umpire_${id}"
+          value="${game.umpire_count || 0}">
 
       </div>
 
     </td>
 
+    <!-- 時長 -->
+
     <td>
 
-      <input
-        type="number"
-        min="0"
-        max="4"
-        id="e_umpire_${id}"
-        value="${game.umpire_count || 0}"
-        style="width:70px;">
-
       <div style="
-        margin-top:4px;
+        display:flex;
+        flex-direction:column;
+        gap:4px;
       ">
+
+        <label style="
+          font-size:11px;
+          color:#64748b;
+          font-weight:700;
+        ">
+          時長(分鐘)
+        </label>
 
         <input
           type="number"
           min="0"
           max="300"
           id="e_duration_${id}"
-          value="${game.duration || 0}"
-          style="width:70px;">
+          value="${game.duration || 0}">
 
       </div>
 
     </td>
 
+    <!-- 狀態 -->
+
     <td>
 
-      <select
-        id="e_status_${id}">
+      <div style="
+        display:flex;
+        flex-direction:column;
+        gap:4px;
+      ">
 
-        <option
-          value="0"
-          ${parseStatus===0?'selected':''}>
-          正常
-        </option>
+        <label style="
+          font-size:11px;
+          color:#64748b;
+          font-weight:700;
+        ">
+          狀態
+        </label>
 
-        <option
-          value="1"
-          ${parseStatus===1?'selected':''}>
-          延賽
-        </option>
+        <select id="e_status_${id}">
 
-        <option
-          value="2"
-          ${parseStatus===2?'selected':''}>
-          停賽
-        </option>
+          <option
+            value="0"
+            ${parseStatus===0?'selected':''}>
+            正常
+          </option>
 
-        <option
-          value="3"
-          ${parseStatus===3?'selected':''}>
-          暫存
-        </option>
+          <option
+            value="1"
+            ${parseStatus===1?'selected':''}>
+            延賽
+          </option>
 
-      </select>
+          <option
+            value="2"
+            ${parseStatus===2?'selected':''}>
+            停賽
+          </option>
+
+          <option
+            value="3"
+            ${parseStatus===3?'selected':''}>
+            暫存
+          </option>
+
+        </select>
+
+      </div>
 
     </td>
+
+    <!-- 操作 -->
 
     <td>
 
@@ -2842,6 +2983,7 @@ function editRow(id){
     </td>
 
   `;
+
 }
 
 function saveRow(id){
