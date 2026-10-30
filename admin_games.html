@@ -513,7 +513,13 @@
     font-size:24px;
     font-weight:900;
   }
-  
+
+  #importPreview{
+    max-height:300px;
+    overflow:auto;
+    border-radius:12px;
+  }
+
   /* =====================================================
      Responsive
   ===================================================== */
@@ -906,12 +912,6 @@
   </div>
 </div>
 
-<!-- 新增這個工具列 -->
-<div class="panel">
-  <button onclick="toggleImportPanel()">
-    📥 匯入 Excel / CSV
-  </button>
-</div>
 
 <div id="gamesContainer"></div>
 
@@ -2410,28 +2410,50 @@ function renderCreateArea(){
       "
     >
 
-      <h3 style="margin-bottom:12px;font-weight:700;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    
+      <div style="font-size:18px;font-weight:800;color:#0f172a;">
         📥 批次匯入賽事
-      </h3>
+      </div>
+    
+      <a href="TestExportData.xlsx" download style="color:#2563eb;font-weight:700;text-decoration:none;">
+        📄 範本下載
+      </a>
+    
+    </div>
 
+    <div style="
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-bottom:12px;
+      flex-wrap:wrap;
+    ">
+    
       <input
         type="file"
         id="importFile"
         accept=".xlsx"
-        style="margin-bottom:10px;"
-      >
-
+        style="
+          width:auto;
+          border:1px solid #cbd5e1;
+          padding:6px;
+          border-radius:8px;
+          background:#fff;
+        ">
+    
       <button onclick="previewImport()">
-        預覽資料
+        📄 預覽資料
       </button>
-
+    
       <button
         id="confirmImportBtn"
-        style="display:none;margin-left:8px;"
-        onclick="confirmImport()"
-      >
-        確認匯入
+        style="display:none;"
+        onclick="confirmImport()">
+        ✅ 確認匯入
       </button>
+    
+    </div>
 
       <div id="importPreview" style="margin-top:12px;">
       </div>
