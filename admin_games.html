@@ -2255,8 +2255,14 @@ function renderGames(list){
                     <div class="mobile-game-actions">
           
                       <button
-                        onclick="editRow(${g.game_id})"
-                        title="修改">
+                        onclick="
+                          if(window.innerWidth <= 768){
+                            location.href=
+                            'admin_games.html?editGameId=${g.game_id}';
+                          }else{
+                            editRow(${g.game_id});
+                          }
+                        ">
                         ✏️
                       </button>
           
