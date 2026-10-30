@@ -225,15 +225,6 @@
   
   
   /* =====================================================
-     Import
-  ===================================================== */
-  
-  #importPanel{
-    display:none;
-  }
-  
-  
-  /* =====================================================
      New Game
   ===================================================== */
   
@@ -2438,6 +2429,8 @@ function saveAllNewRows(){
 // 新增區
 function renderCreateArea(){
 
+  const isMobile = window.innerWidth <= 768;
+
   const box =
     document.getElementById('createArea')
     || document.createElement('div');
@@ -2472,100 +2465,109 @@ function renderCreateArea(){
           ✅送出
         </button>
 
-        <button onclick="toggleImportPanel()">
-          📥 批次匯入賽事
-        </button>
+        ${
+          !isMobile
+          ? `
+            <button onclick="toggleImportPanel()">
+              📥 批次匯入
+            </button>
+          `
+          : ''
+        }
 
       </div>
 
     </div>
 
-    <!-- 匯入區 -->
-    <div
-      id="importPanel"
-      style="
-        display:none;
-        margin-bottom:12px;
-        padding:12px;
-        background:#f8fafc;
-        border:1px solid #e2e8f0;
-        border-radius:12px;
-      "
-    >
+    ${
+      !isMobile
+      ? `
 
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-    
-      <div style="font-size:18px;font-weight:800;color:#0f172a;">
-        📥 批次匯入賽事
-      </div>
-    
-      <a href="TestExportData.xlsx" download style="color:#2563eb;font-weight:700;text-decoration:none;">
-        📄 範本下載
-      </a>
-    
-    </div>
-
-    <div style="
-      display:flex;
-      gap:8px;
-      align-items:center;
-      margin-bottom:12px;
-      flex-wrap:wrap;
-    ">
-    
-      <input
-        type="file"
-        id="importFile"
-        accept=".xlsx"
+      <div
+        id="importPanel"
         style="
-          width:auto;
-          border:1px solid #cbd5e1;
-          padding:6px;
-          border-radius:8px;
-          background:#fff;
-        ">
-    
-      <button onclick="previewImport()">
-        📄 預覽資料
-      </button>
-    
-      <button
-        id="confirmImportBtn"
-        style="display:none;"
-        onclick="confirmImport()">
-        ✅ 確認匯入
-      </button>
-    
-    </div>
-
-      <div id="importPreview" style="margin-top:12px;">
-      </div>
-
-      <div style="
-        margin-top:12px;
-        padding:10px;
-        background:#fff;
-        border-radius:8px;
-      ">
-
-        <a href="TestExportData.xlsx" download>
-          📄 下載範例檔
-        </a>
+          display:none;
+          margin-bottom:12px;
+          padding:16px;
+          background:#f8fafc;
+          border:1px solid #e2e8f0;
+          border-radius:12px;
+        "
+      >
 
         <div style="
-          margin-top:8px;
-          font-size:13px;
-          color:#64748b;
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          flex-wrap:wrap;
+          gap:8px;
+          margin-bottom:12px;
         ">
-          欄位格式：
-          date、time、duration、tournament、category、
-          field、away_team、home_team、
-          umpire_count、position_mode
+
+          <div style="
+            font-size:18px;
+            font-weight:800;
+            color:#0f172a;
+          ">
+            📥 批次匯入賽事
+          </div>
+
+          <a
+            href="TestExportData.xlsx"
+            download
+            style="
+              color:#2563eb;
+              font-weight:700;
+              text-decoration:none;
+            "
+          >
+            📄 範本下載
+          </a>
+
         </div>
+
+        <div style="
+          display:flex;
+          gap:8px;
+          flex-wrap:wrap;
+          align-items:center;
+          margin-bottom:12px;
+        ">
+
+          <input
+            type="file"
+            id="importFile"
+            accept=".xlsx"
+            style="
+              width:auto;
+              border:1px solid #cbd5e1;
+              padding:6px;
+              border-radius:8px;
+              background:#fff;
+            "
+          >
+
+          <button onclick="previewImport()">
+            📄 預覽資料
+          </button>
+
+          <button
+            id="confirmImportBtn"
+            style="display:none;"
+            onclick="confirmImport()"
+          >
+            ✅ 確認匯入
+          </button>
+
+        </div>
+
+        <div id="importPreview"></div>
 
       </div>
 
-    </div>
+      `
+      : ''
+    }
 
     <div id="newList"></div>
 
