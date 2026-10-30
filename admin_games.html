@@ -1562,43 +1562,44 @@ function saveSingleNewGame(idx) {
   
 // 匯入賽事資料
 // 確認匯入
-function confirmImport() {
+function confirmImport(){
 
-  if (!importRows || !importRows.length) {
-    alert('沒有可匯入的資料');
+  if (!importRows || !importRows.length){
+    alert('沒有可匯入資料');
     return;
   }
 
-  showLoading('賽事匯入中，請稍候…');
+  showSaving('匯入中...');
 
-  fetch(API_BASE, {
-    method: 'POST',
-    headers: {
-      // ✅ 注意：這一行一定要有
-      'Content-Type': 'text/plain;charset=utf-8'
-    },
-    body: JSON.stringify({
-      action: 'importGames',
-      rows: importRows
-    })
-  })
-  .then(res => res.text())
-  .then(t => {
-    hideLoading();
-    console.log('POST response =', t);
+  callApiAdminBatch({
 
-    if (t === 'ok') {
-      alert(`✅ 匯入成功 ${importRows.length} 筆`);
+    action:'importGames',
+
+    rows: JSON.stringify(importRows)
+
+  }, function(res){
+
+    hideSaving();
+
+    if(res && res.result === 'ok'){
+
+      showToast(
+        `✅ 已匯入 ${res.count} 筆`
+      );
+
       loadGames();
-    } else {
-      alert('❌ 匯入失敗（後端回傳：' + t + '）');
+
+    }else{
+
+      alert(
+        '❌ 匯入失敗\n' +
+        (res?.message || 'unknown error')
+      );
+
     }
-  })
-  .catch(err => {
-    hideLoading();
-    console.error(err);
-    alert('❌ POST 發生錯誤');
+
   });
+
 }
 
 function getGamesPost() {
