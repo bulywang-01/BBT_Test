@@ -432,9 +432,10 @@
   }
   
   .mobile-game-teams{
-    margin-top:10px;
-    font-weight:700;
-    line-height:1.5;
+    margin-top:8px;
+    font-size:16px;
+    font-weight:800;
+    line-height:1.6;
   }
   
   .mobile-game-meta{
@@ -442,7 +443,8 @@
     gap:12px;
     margin-top:10px;
     color:#475569;
-    font-size:13px;
+    font-size:14px;
+    font-weight:700;
   }
   
   .mobile-game-actions{
@@ -453,7 +455,7 @@
   
   .mobile-game-actions button{
     flex:1;
-    height:38px;
+    height:34px;
     border:none;
     border-radius:10px;
     background:#f1f5f9;
@@ -477,6 +479,10 @@
     .game-kpi-grid{
       grid-template-columns:repeat(2,1fr);
     }
+
+      .game-kpi-value{
+        font-size:28px;
+      }
   
     .main{
       padding:12px;
@@ -2145,23 +2151,16 @@ function renderGames(list){
                   <div class="mobile-game-time">
                     🕒 ${g._date || '-'} ${g._time || '-'}
                   </div>
-
-                  <div class="mobile-game-info">
                   
-                    <div>
-                      <b>賽事：</b>
-                      ${g.tournament || '-'}
-                    </div>
+                  <div class="mobile-game-field">
+                    📍 ${g.field || '-'}
+                  </div>
                   
-                    <div>
-                      <b>組別：</b>
-                      ${g.category || '-'}
-                    </div>
+                  <div class="mobile-game-league">
                   
-                    <div>
-                      <b>場地：</b>
-                      ${g.field || '-'}
-                    </div>
+                    ${g.tournament || '-'}
+                  
+                    ${g.category ? `｜${g.category}` : ''}
                   
                   </div>
                   
