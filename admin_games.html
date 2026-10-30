@@ -401,7 +401,7 @@
   .mobile-game-card{
     background:#fff;
     border-radius:14px;
-    padding:14px;
+    padding:12px;
     margin-bottom:10px;
     border:1px solid #e2e8f0;
     box-shadow:0 2px 8px rgba(0,0,0,.05);
@@ -411,7 +411,7 @@
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:8px;
+    margin-bottom:6px;
   }
   
   .game-code{
@@ -421,10 +421,17 @@
   }
   
   .mobile-game-time{
+    font-size:14px;
     font-weight:700;
+    margin-bottom:4px;
   }
   
-  .mobile-game-field,
+  .mobile-game-field{
+    font-size:14px;
+    color:#64748b;
+    margin-bottom:8px;
+  } 
+    
   .mobile-game-category{
     margin-top:4px;
     color:#64748b;
@@ -437,7 +444,14 @@
     font-weight:800;
     line-height:1.6;
   }
-  
+
+  .mobile-game-league{
+    font-size:13px;
+    color:#475569;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+    
   .mobile-game-meta{
     display:flex;
     gap:12px;
@@ -446,20 +460,25 @@
     font-size:14px;
     font-weight:700;
   }
-  
+
+  .mobile-game-match{
+    font-size:16px;
+    font-weight:900;
+    color:#0f172a;
+    margin-bottom:10px;
+  }
+    
   .mobile-game-actions{
-    display:flex;
-    gap:8px;
-    margin-top:12px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:6px;
   }
   
   .mobile-game-actions button{
-    flex:1;
     height:34px;
     border:none;
     border-radius:10px;
     background:#f1f5f9;
-    cursor:pointer;
   }
   
   .mobile-game-close{
@@ -2126,110 +2145,115 @@ function renderGames(list){
 
           </div>
 
-          <div class="mobile-game-list">
-
+          <div class="mobile-game-card">
+          
+            <div class="mobile-game-header">
+          
+              <span class="game-code">
+                ${g.game_code || '-'}
+              </span>
+          
+              <span class="
+                status-badge
+                status-${g.status || 0}
+              ">
+                ${statusText(g.status,g)}
+              </span>
+          
+            </div>
+          
+            <div class="mobile-game-league">
+          
+              ${g.tournament || '-'}
+          
+              ${g.category ? `｜${g.category}` : ''}
+          
+              ｜${g.umpire_count || 0}人制
+          
+            </div>
+          
+            <div class="mobile-game-time">
+          
+              🕒 ${g._date || '-'} ${g._time || '-'}
+          
+              （${g.duration || 0}分）
+          
+            </div>
+          
+            <div class="mobile-game-field">
+          
+              📍 ${g.field || '-'}
+          
+            </div>
+          
+            <div class="mobile-game-match">
+          
+              ${g.away_team || '-'}
+          
+              <span style="
+                color:#94a3b8;
+                margin:0 6px;
+              ">
+                vs
+              </span>
+          
+              ${g.home_team || '-'}
+          
+            </div>
+          
             ${
-              groups[tournament].map(g => `
-
-                <div class="mobile-game-card">
-
-                  <div class="mobile-game-header">
-
-                    <span class="game-code">
-                      ${g.game_code || '-'}
-                    </span>
-
-                    <span class="
-                      status-badge
-                      status-${g.status || 0}
-                    ">
-                      ${statusText(g.status,g)}
-                    </span>
-
-                  </div>
-
-                  <div class="mobile-game-time">
-                    🕒 ${g._date || '-'} ${g._time || '-'}
-                  </div>
-                  
-                  <div class="mobile-game-field">
-                    📍 ${g.field || '-'}
-                  </div>
-                  
-                  <div class="mobile-game-league">
-                  
-                    ${g.tournament || '-'}
-                  
-                    ${g.category ? `｜${g.category}` : ''}
-                  
-                  </div>
-                  
-                  <div class="mobile-game-teams">
-                  
-                    <div>
-                      客：${g.away_team || '-'}
-                    </div>
-                  
-                    <div>
-                      主：${g.home_team || '-'}
-                    </div>
-                  
-                  </div>
-
-                  <div class="mobile-game-meta">
-
-                    <span>
-                      ⚖️ ${g.umpire_count || 0}席
-                    </span>
-
-                    <span>
-                      ⏱ ${g.duration || 0}分
-                    </span>
-
-                  </div>
-
-                  ${
-                    Number(g.status) === 4 ||
-                    statusText(g.status,g) === '已結束'
-
-                    ? `
-
-                      <div class="mobile-game-close">
-                        已結案
-                      </div>
-
-                    `
-
-                    : `
-
-                      <div class="mobile-game-actions">
-
-                        <button
-                          onclick="editRow(${g.game_id})">
-                          ✏️
-                        </button>
-
-                        <button
-                          onclick="location.href='judge_dashboard_admin.html?gameId=${g.game_id}'">
-                          ⚖️
-                        </button>
-
-                        <button
-                          onclick="location.href='record_dashboard_admin.html?gameId=${g.game_id}'">
-                          📝
-                        </button>
-
-                        <button
-                          onclick="deleteGame(${g.game_id})">
-                          🗑️
-                        </button>
-
-                      </div>
-
-                    `
-                  }
-
+              Number(g.status) === 4 ||
+              statusText(g.status,g) === '已結束'
+          
+              ? `
+          
+                <div class="mobile-game-close">
+                  已結案
                 </div>
+          
+              `
+          
+              : `
+          
+                <div class="mobile-game-actions">
+          
+                  <button
+                    onclick="
+                      location.href=
+                      'edit_game.html?gameId=${g.game_id}'
+                    ">
+                    ✏️
+                  </button>
+          
+                  <button
+                    onclick="
+                      location.href=
+                      'judge_dashboard_admin.html?gameId=${g.game_id}'
+                    ">
+                    ⚖️
+                  </button>
+          
+                  <button
+                    onclick="
+                      location.href=
+                      'record_dashboard_admin.html?gameId=${g.game_id}'
+                    ">
+                    📝
+                  </button>
+          
+                  <button
+                    onclick="
+                      deleteGame(${g.game_id})
+                    ">
+                    🗑️
+                  </button>
+          
+                </div>
+          
+              `
+            }
+          
+          </div>
 
               `).join('')
             }
