@@ -1323,6 +1323,13 @@ function previewImport(){
     // ======================
     // 先檢查 Excel 欄位格式
     // ======================
+    const headers =
+      XLSX.utils.sheet_to_json(
+        sheet,
+        {
+          header:1
+        }
+      )[0] || [];
     
     const requiredColumns = [
       'date',
@@ -1337,14 +1344,12 @@ function previewImport(){
       'position_mode'
     ];
     
-    const firstRow = rows[0] || {};
-    
     const missingColumns =
       requiredColumns.filter(
-        col => !(col in firstRow)
+        col => !headers.includes(col)
       );
     
-    if (missingColumns.length){
+    if(missingColumns.length){
     
       document.getElementById(
         'importPreview'
@@ -1353,36 +1358,26 @@ function previewImport(){
         <div style="
           background:#fef2f2;
           border:1px solid #fecaca;
-          color:#b91c1c;
-          padding:16px;
           border-radius:12px;
+          padding:16px;
+          color:#b91c1c;
         ">
     
-          <div style="
-            font-weight:800;
-            margin-bottom:10px;
-          ">
-            ❌ Excel 格式錯誤
-          </div>
+          <b>
+            ❌ Excel格式錯誤
+          </b>
     
-          <div style="margin-bottom:8px;">
-            缺少以下欄位：
-          </div>
+          <br><br>
     
-          <ul style="
-            padding-left:20px;
-            line-height:1.8;
-          ">
-            ${missingColumns
-              .map(c => `<li>${c}</li>`)
-              .join('')}
+          缺少欄位：
+    
+          <ul>
+            ${
+              missingColumns
+                .map(x=>`<li>${x}</li>`)
+                .join('')
+            }
           </ul>
-    
-          <div style="
-            margin-top:12px;
-          ">
-            請下載範本後重新填寫。
-          </div>
     
         </div>
     
