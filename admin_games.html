@@ -2743,99 +2743,22 @@ function validateGame(data){
   return '';
 }
 
-// 手機版編輯資訊
-function editGameMobile(game){
-
-  const code =
-    prompt('場次', game.game_code || '');
-
-  if(code === null) return;
-
-  const tournament =
-    prompt('賽事名稱', game.tournament || '');
-
-  if(tournament === null) return;
-
-  const category =
-    prompt('組別', game.category || '');
-
-  if(category === null) return;
-
-  const field =
-    prompt('場地', game.field || '');
-
-  if(field === null) return;
-
-  const away =
-    prompt('客隊', game.away_team || '');
-
-  if(away === null) return;
-
-  const home =
-    prompt('主隊', game.home_team || '');
-
-  if(home === null) return;
-
-  showSaving('儲存中...');
-
-  callApi({
-
-    action:'updateGameFull',
-
-    game_id:game.game_id,
-
-    game_code:code,
-
-    tournament:tournament,
-
-    category:category,
-
-    field:field,
-
-    away_team:away,
-
-    home_team:home,
-
-    date:game.date,
-
-    time:game.time,
-
-    duration:Number(game.duration || 0),
-
-    umpire_count:Number(game.umpire_count || 0),
-
-    status:Number(game.status || 0)
-
-  },function(res){
-
-    hideSaving();
-
-    if(
-      res === 'ok' ||
-      res?.result === 'ok'
-    ){
-
-      showToast('✅ 已儲存');
-
-      loadGames();
-
-    }else{
-
-      showToast('❌ 儲存失敗');
-
-    }
-
-  });
-
-}
-
 // 賽事編輯
 function editRow(id){
 
+  const tr =
+    document.getElementById(
+      'row_' + id
+    );
+
+  if(!tr){
+    showToast('找不到列');
+    return;
+  }
+
   const game =
     window._games.find(
-      g =>
-        Number(g.game_id) === Number(id)
+      g => Number(g.game_id) === Number(id)
     );
 
   if(!game){
