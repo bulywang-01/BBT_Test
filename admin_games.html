@@ -1288,17 +1288,32 @@ let importRows=[]
 
 // 預覽
 const IMPORT_FIELDS = [
-  { key:'date',         label:'日期' },
-  { key:'time',         label:'時間' },
-  { key:'duration',     label:'分鐘' },
-  { key:'tournament',   label:'賽事名稱' },
-  { key:'category',     label:'組別' },
-  { key:'field',        label:'場地' },
-  { key:'away_team',    label:'客隊' },
-  { key:'home_team',    label:'主隊' },
+
+  { key:'game_code', label:'場次' },
+
+  { key:'date', label:'日期' },
+  { key:'time', label:'時間' },
+
+  { key:'duration', label:'分鐘' },
+
+  { key:'tournament', label:'賽事名稱' },
+  { key:'category', label:'組別' },
+
+  { key:'field', label:'場地' },
+
+  { key:'away_team', label:'客隊' },
+  { key:'home_team', label:'主隊' },
+
   { key:'umpire_count', label:'裁判數' },
-  { key:'position_mode',label:'站位方式' }
+
+  { key:'position_mode', label:'站位方式' },
+
+  { key:'league_type', label:'聯盟類型' },
+  { key:'tournament_type', label:'賽事類型' },
+  { key:'game_level', label:'層級' }
+
 ];
+
 
 // 匯入自建賽事資料
 function previewImport(){
