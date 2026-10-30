@@ -3293,16 +3293,6 @@ function saveRow(id){
       document.getElementById('modal-title').innerText = `指派 ${role} - ${matchInfo}`;
       document.getElementById('admin-modal').classList.remove('hidden');
     }
-
-    // Toast Notification logic
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      document.getElementById('toast-msg').innerText = msg;
-      toast.classList.remove('translate-y-20', 'opacity-0');
-      setTimeout(() => {
-        toast.classList.add('translate-y-20', 'opacity-0');
-      }, 3000);
-    }
     
   </script>
   
