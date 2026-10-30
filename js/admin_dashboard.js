@@ -1828,7 +1828,7 @@ function renderWeeklyDutyBoard(data){
                 mt-2
               "
             >
-              【${field}】
+              【${field}｜${games[0].tournament || '-'}】
             </div>
 
             <table
