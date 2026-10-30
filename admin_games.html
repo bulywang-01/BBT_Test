@@ -855,22 +855,22 @@
   <div class="mobile-kpi-bar">
   
     <div>
-      <span>總</span>
+      <span>總賽事</span>
       <b id="mKpiTotalGames">-</b>
     </div>
   
     <div>
-      <span>週</span>
+      <span>本週</span>
       <b id="mKpiWeekGames">-</b>
     </div>
   
     <div>
-      <span>未</span>
+      <span>未賽</span>
       <b id="mKpiPendingGames">-</b>
     </div>
   
     <div>
-      <span>完</span>
+      <span>完成</span>
       <b id="mKpiFinishedGames">-</b>
     </div>
   
@@ -2255,14 +2255,7 @@ function renderGames(list){
                     <div class="mobile-game-actions">
           
                       <button
-                        onclick="
-                          if(window.innerWidth <= 768){
-                            location.href=
-                            'admin_games.html?editGameId=${g.game_id}';
-                          }else{
-                            editRow(${g.game_id});
-                          }
-                        ">
+                        onclick="editRow(${g.game_id})">
                         ✏️
                       </button>
           
@@ -2751,12 +2744,117 @@ function validateGame(data){
   return '';
 }
 
+// 手機版編輯資訊
+function editGameMobile(game){
+
+  const code =
+    prompt('場次', game.game_code || '');
+
+  if(code === null) return;
+
+  const tournament =
+    prompt('賽事名稱', game.tournament || '');
+
+  if(tournament === null) return;
+
+  const category =
+    prompt('組別', game.category || '');
+
+  if(category === null) return;
+
+  const field =
+    prompt('場地', game.field || '');
+
+  if(field === null) return;
+
+  const away =
+    prompt('客隊', game.away_team || '');
+
+  if(away === null) return;
+
+  const home =
+    prompt('主隊', game.home_team || '');
+
+  if(home === null) return;
+
+  showSaving('儲存中...');
+
+  callApi({
+
+    action:'updateGameFull',
+
+    game_id:game.game_id,
+
+    game_code:code,
+
+    tournament:tournament,
+
+    category:category,
+
+    field:field,
+
+    away_team:away,
+
+    home_team:home,
+
+    date:game.date,
+
+    time:game.time,
+
+    duration:Number(game.duration || 0),
+
+    umpire_count:Number(game.umpire_count || 0),
+
+    status:Number(game.status || 0)
+
+  },function(res){
+
+    hideSaving();
+
+    if(
+      res === 'ok' ||
+      res?.result === 'ok'
+    ){
+
+      showToast('✅ 已儲存');
+
+      loadGames();
+
+    }else{
+
+      showToast('❌ 儲存失敗');
+
+    }
+
+  });
+
+}
+
+// 賽事編輯
 function editRow(id){
 
   const tr =
     document.getElementById(
       'row_' + id
     );
+
+  // 手機版
+  if(!tr){
+
+    const game =
+      window._games.find(
+        g => Number(g.game_id) === Number(id)
+      );
+
+    if(!game){
+      showToast('找不到賽事');
+      return;
+    }
+
+    editGameMobile(game);
+
+    return;
+  }
 
   const game =
     window._games.find(
