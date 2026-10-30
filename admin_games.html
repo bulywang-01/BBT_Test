@@ -912,80 +912,9 @@
     📥 匯入 Excel / CSV
   </button>
 </div>
-    
+
 <div id="gamesContainer"></div>
 
-<!-- 匯入 -->
-<div class="panel" id="importPanel">
-  <h3>📥 匯入賽事（Excel）</h3>
-  <input type="file" id="importFile" accept=".xlsx">
-  <button onclick="previewImport()">預覽</button>
-  <div id="importPreview"></div>
-  <button id="confirmImportBtn" style="display:none" onclick="confirmImport()">確認匯入</button>
-  <pre>
-    ✅ <a href="TestExportData.xlsx" download>下載範例檔（Excel）</a>
-    以下為範例說明，請利用 Excel 檔填入完整資料後再匯入，匯入前請先預覽內容，確認資料無誤後再執行匯入動作。
-    
-    ,time,duration,tournament,category,field,away_team,home_team,umpire_count,position_mode
-    2026-04-12,08:30,90,學齡盃,六年級,A球場,三峽,板橋,2,allow_select
-
-      <table class="styled-table table-auto">
-        <thead>
-          <tr>
-            <th>欄位名稱（英文）</th>
-            <th>欄位說明（中文）</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code></code></td>
-            <td>比賽日期（格式：YYYY-MM-DD）</td>
-          </tr>
-          <tr>
-            <td><code>time</code></td>
-            <td>比賽時間（24 小時制，格式：HH:mm）</td>
-          </tr>
-          <tr>
-            <td><code>duration</code></td>
-            <td>比賽時間長度（單位：分鐘）</td>
-          </tr>
-          <tr>
-            <td><code>tournament</code></td>
-            <td>賽事名稱（例如：學齡盃）</td>
-          </tr>
-          <tr>
-            <td><code>category</code></td>
-            <td>組別（例如：U12／大聯盟）</td>
-          </tr>
-          <tr>
-            <td><code>field</code></td>
-            <td>比賽場地（例如：A 球場）</td>
-          </tr>
-          <tr>
-            <td><code>away_team</code></td>
-            <td>客隊（三壘）名稱</td>
-          </tr>
-          <tr>
-            <td><code>home_team</code></td>
-            <td>主隊（一壘）名稱</td>
-          </tr>
-          <tr>
-            <td><code>umpire_count</code></td>
-            <td>裁判人數（請填數字，如：2，不需要請填 0）</td>
-          </tr>
-          <tr>
-            <td><code>position_mode</code></td>
-            <td>
-              裁判站位方式(輸入英文名稱)：<br>
-              <code>allow_select</code>＝自行選（請直接填這項）<br>
-              <code>auto_only</code>＝系統排
-            </td>
-          </tr>
-        </tbody>
-      </table>
-  </pre>
-</div>
-  
 </div>
 
 <div id="savingOverlay" style="
@@ -2423,23 +2352,25 @@ function saveAllNewRows(){
   next();
 }
 
-// 新增
+// 新增區
 function renderCreateArea(){
 
   const box =
     document.getElementById('createArea')
     || document.createElement('div');
 
-  box.id='createArea';
-  box.className='panel';
+  box.id = 'createArea';
+  box.className = 'panel';
 
-  box.innerHTML=`
+  box.innerHTML = `
 
     <div style="
       display:flex;
       justify-content:space-between;
       align-items:center;
-      margin-bottom:8px;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:12px;
     ">
 
       <b>➕ 新增賽事</b>
@@ -2447,6 +2378,7 @@ function renderCreateArea(){
       <div style="
         display:flex;
         gap:6px;
+        flex-wrap:wrap;
       ">
 
         <button onclick="addRow()">
@@ -2465,6 +2397,71 @@ function renderCreateArea(){
 
     </div>
 
+    <!-- 匯入區 -->
+    <div
+      id="importPanel"
+      style="
+        display:none;
+        margin-bottom:12px;
+        padding:12px;
+        background:#f8fafc;
+        border:1px solid #e2e8f0;
+        border-radius:12px;
+      "
+    >
+
+      <h3 style="margin-bottom:12px;font-weight:700;">
+        📥 批次匯入賽事
+      </h3>
+
+      <input
+        type="file"
+        id="importFile"
+        accept=".xlsx"
+        style="margin-bottom:10px;"
+      >
+
+      <button onclick="previewImport()">
+        預覽資料
+      </button>
+
+      <button
+        id="confirmImportBtn"
+        style="display:none;margin-left:8px;"
+        onclick="confirmImport()"
+      >
+        確認匯入
+      </button>
+
+      <div id="importPreview" style="margin-top:12px;">
+      </div>
+
+      <div style="
+        margin-top:12px;
+        padding:10px;
+        background:#fff;
+        border-radius:8px;
+      ">
+
+        <a href="TestExportData.xlsx" download>
+          📄 下載範例檔
+        </a>
+
+        <div style="
+          margin-top:8px;
+          font-size:13px;
+          color:#64748b;
+        ">
+          欄位格式：
+          date、time、duration、tournament、category、
+          field、away_team、home_team、
+          umpire_count、position_mode
+        </div>
+
+      </div>
+
+    </div>
+
     <div id="newList"></div>
 
   `;
@@ -2472,7 +2469,6 @@ function renderCreateArea(){
   document
     .getElementById('gamesContainer')
     .prepend(box);
-
 }
 
 // 批次匯入賽事
