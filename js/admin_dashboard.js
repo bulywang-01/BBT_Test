@@ -1625,15 +1625,33 @@ function renderWeeklyDutyBoard(data){
 
   const sortedGames =
     [...games].sort((a,b)=>{
-
-      const aKey =
-        `${a.date || ''} ${a.time || ''}`;
-
-      const bKey =
-        `${b.date || ''} ${b.time || ''}`;
-
-      return aKey.localeCompare(bKey);
-
+  
+      const cat =
+        (a.category || '')
+        .localeCompare(
+          b.category || ''
+        );
+  
+      if(cat !== 0){
+        return cat;
+      }
+  
+      const field =
+        (a.field || '')
+        .localeCompare(
+          b.field || ''
+        );
+  
+      if(field !== 0){
+        return field;
+      }
+  
+      return (
+        (a.time || '')
+      ).localeCompare(
+        b.time || ''
+      );
+  
     });
 
   // 顯示姓名
@@ -1828,7 +1846,45 @@ function renderWeeklyDutyBoard(data){
                 mt-2
               "
             >
-              【${field}｜${games[0].tournament || '-'}】
+
+              const firstGame = fieldGames[0];
+              
+              const tournaments = [
+                ...new Set(
+                  fieldGames
+                    .map(g => g.tournament)
+                    .filter(Boolean)
+                )
+              ];
+              
+              const categories = [
+                ...new Set(
+                  fieldGames
+                    .map(g => g.category)
+                    .filter(Boolean)
+                )
+              ];
+              
+              const tournamentText =
+                tournaments.length === 1
+                  ? tournaments[0]
+                  : '混合賽事';
+              
+              const categoryText =
+                categories.length === 1
+                  ? categories[0]
+                  : '混合組';
+
+              【${field}】
+
+              <div style="
+                font-size:11px;
+                color:#fbbf24;
+                margin-top:4px;
+              ">
+                🏆 ${tournamentText}｜${categoryText}
+              </div>
+              
             </div>
 
             <table
