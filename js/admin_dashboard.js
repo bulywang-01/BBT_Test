@@ -1734,86 +1734,215 @@ function renderWeeklyDutyBoard(data){
 
   });
 
-  board.innerHTML =
-    Object.entries(fieldGroups)
-      .map(([field,fieldGames]) => {
-
-        const rows =
-          fieldGames.map(g => {
-
+        board.innerHTML =
+        Object.entries(fieldGroups)
+          .map(([field, fieldGames]) => {
+      
+            const tournaments = [
+              ...new Set(
+                fieldGames
+                  .map(g => g.tournament)
+                  .filter(Boolean)
+              )
+            ];
+      
+            const categories = [
+              ...new Set(
+                fieldGames
+                  .map(g => g.category)
+                  .filter(Boolean)
+              )
+            ];
+      
+            const tournamentText =
+              tournaments.length === 1
+                ? tournaments[0]
+                : '混合賽事';
+      
+            const categoryText =
+              categories.length === 1
+                ? categories[0]
+                : '混合組';
+      
+            const rows =
+              fieldGames.map(g => {
+      
+                return `
+      
+                  <tr
+                    class="
+                      border-b
+                      border-white/10
+                      hover:bg-white/5
+                    "
+                  >
+      
+                    <td class="py-1.5 px-1 whitespace-nowrap">
+                      ${g.time || ''}
+                    </td>
+      
+                    <td class="
+                      py-1.5
+                      px-1
+                      text-amber-300
+                      font-bold
+                      whitespace-nowrap
+                    ">
+                      ${g.game_code || ''}
+                    </td>
+      
+                    <td class="text-center px-2">
+                      ${renderDutyCell(g.judges?.PU)}
+                    </td>
+      
+                    <td class="text-center px-2">
+                      ${renderDutyCell(g.judges?.U1)}
+                    </td>
+      
+                    <td class="text-center px-2">
+                      ${
+                        Number(g.umpire_count) >= 4
+                          ? renderDutyCell(g.judges?.U2)
+                          : ''
+                      }
+                    </td>
+      
+                    <td class="text-center px-2">
+                      ${
+                        Number(g.umpire_count) >= 3
+                          ? renderDutyCell(g.judges?.U3)
+                          : ''
+                      }
+                    </td>
+      
+                    <td class="text-center px-2">
+                      ${renderDutyCell(g.records?.REC_MAIN)}
+                    </td>
+      
+                    <td class="text-center px-2">
+                      ${renderDutyCell(g.records?.REC_TRAINEE)}
+                    </td>
+      
+                    <td class="text-center px-2">
+                      ${renderDutyCell(g.records?.REC_VIDEO)}
+                    </td>
+      
+                  </tr>
+      
+                `;
+      
+              }).join('');
+      
             return `
-
-              <tr
-                class="
-                  border-b
-                  border-white/10
-                  hover:bg-white/5
-                "
-              >
-
-                <td
+      
+              <div class="mb-3">
+      
+                <div
                   class="
-                    py-1.5
-                    px-1
-                    whitespace-nowrap
-                  "
-                >
-                  ${g.time || ''}
-                </td>
-
-                <td
-                  class="
-                    py-1.5
-                    px-1
+                    sticky
+                    top-0
+                    z-10
+                    bg-slate-900
                     text-amber-300
-                    font-bold
-                    whitespace-nowrap
+                    font-black
+                    text-sm
+                    py-2
+                    px-2
+                    rounded-md
+                    border-l-4
+                    border-amber-400
+                    mb-1
+                    mt-2
                   "
                 >
-                  ${g.game_code || ''}
-                </td>
-
-                <td class="text-center px-2">
-                  ${renderDutyCell(g.judges?.PU)}
-                </td>
-                
-                <td class="text-center px-2">
-                  ${renderDutyCell(g.judges?.U1)}
-                </td>
-                
-                <td class="text-center px-2">
-                  ${
-                    Number(g.umpire_count) >= 4
-                      ? renderDutyCell(g.judges?.U2)
-                      : ''
-                  }
-                </td>
-                
-                <td class="text-center px-2">
-                  ${
-                    Number(g.umpire_count) >= 3
-                      ? renderDutyCell(g.judges?.U3)
-                      : ''
-                  }
-                </td>
-                
-                <td class="text-center px-2">
-                  ${renderDutyCell(g.records?.REC_MAIN)}
-                </td>
-                
-                <td class="text-center px-2">
-                  ${renderDutyCell(g.records?.REC_TRAINEE)}
-                </td>
-                
-                <td class="text-center px-2">
-                  ${renderDutyCell(g.records?.REC_VIDEO)}
-                </td>
-
-
-              </tr>
-
+      
+                  <div>
+                    【${field}】
+                  </div>
+      
+                  <div
+                    style="
+                      font-size:11px;
+                      color:#fbbf24;
+                      margin-top:4px;
+                      font-weight:700;
+                    "
+                  >
+                    🏆 ${tournamentText}｜${categoryText}
+                  </div>
+      
+                </div>
+      
+                <table
+                  class="
+                    w-full
+                    text-[11px]
+                    text-white
+                  "
+                >
+      
+                  <thead>
+      
+                    <tr
+                      class="
+                        text-slate-400
+                        border-b
+                        border-white/10
+                      "
+                    >
+      
+                      <th class="w-[70px]">
+                        時間
+                      </th>
+      
+                      <th class="w-[90px]">
+                        場次
+                      </th>
+      
+                      <th class="w-[130px]">
+                        主審
+                      </th>
+      
+                      <th class="w-[130px]">
+                        一壘
+                      </th>
+      
+                      <th class="w-[130px]">
+                        二壘
+                      </th>
+      
+                      <th class="w-[130px]">
+                        三壘
+                      </th>
+      
+                      <th class="w-[150px]">
+                        紀錄
+                      </th>
+      
+                      <th class="w-[120px]">
+                        實習
+                      </th>
+      
+                      <th class="w-[120px]">
+                        影像
+                      </th>
+      
+                    </tr>
+      
+                  </thead>
+      
+                  <tbody>
+      
+                    ${rows}
+      
+                  </tbody>
+      
+                </table>
+      
+              </div>
+      
             `;
-
+      
           })
           .join('');
 
