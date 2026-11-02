@@ -1771,7 +1771,7 @@ function renderWeeklyDutyBoard(data){
                 ${
                   Number(g.umpire_count) >= 4
                     ? renderDutyCell(g.judges?.U2)
-                    : ''
+                    : '-'
                 }
               </td>
 
@@ -1779,7 +1779,7 @@ function renderWeeklyDutyBoard(data){
                 ${
                   Number(g.umpire_count) >= 3
                     ? renderDutyCell(g.judges?.U3)
-                    : ''
+                    : '-'
                 }
               </td>
 
@@ -2648,36 +2648,24 @@ function renderDutyCell(value){
 
   if(typeof value === 'string'){
     name = value;
-  }else if(value?.name){
+  }
+  else if(value?.name){
     name = value.name;
   }
 
   if(name){
 
     return `
-      <span class="text-amber-300 font-semibold">
+      <span class="
+        text-amber-300
+        font-semibold
+      ">
         ${name}
       </span>
     `;
-
   }
 
-  return `
-    <span class="
-      inline-flex
-      items-center
-      justify-center
-      px-2
-      py-0.5
-      rounded
-      bg-red-600
-      text-yellow-200
-      text-[10px]
-      font-black
-    ">
-      缺
-    </span>
-  `;
+  return '';
 }
 
 // Badge Renderer - 手機版
