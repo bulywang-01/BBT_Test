@@ -89,7 +89,7 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:6px;
+  margin-bottom:8px;
 }
 
 .kpi-title{
@@ -110,7 +110,8 @@ body{
 }
 
 .kpi-value{
-  font-size:28px;
+  font-size:26px;
+  line-height:1.1;
   font-weight:800;
   color:#0f172a;
 }
@@ -252,7 +253,7 @@ body{
 }
 
 .table-title{
-  font-size:16px;
+  font-size:18px;
   font-weight:800;
 }
 
@@ -380,6 +381,11 @@ body{
   color:#166534;
 }
 
+.status-active::before{
+  content:"●";
+  margin-right:4px;
+}
+
 .status-disable{
   background:#fee2e2;
   color:#991b1b;
@@ -411,7 +417,7 @@ body{
 }
 
 .action-btn{
-
+  font-size:15px;
   width:36px;
   height:36px;
   border:none;
@@ -421,7 +427,6 @@ body{
 }
 
 .action-btn:hover{
-
   transform:translateY(-1px);
 }
 
