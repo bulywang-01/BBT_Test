@@ -1853,16 +1853,33 @@ function runAutoAssign(){
 
   toast('建立中...','loading');
 
-  callApi({action:'autoCreateAssignment'}, res=>{
+  callApi({
+    action:'autoCreateAssignment'
+  }, res=>{
 
-    if (res.result === 'ok'){
-      toast(`✅ 已建立 ${res.created} 筆`);
+    console.log(
+      'autoCreateAssignment =',
+      res
+    );
+
+    if (
+      res &&
+      res.result === 'ok'
+    ){
+      toast(`✅ 已建立 ${res.created || 0} 筆`);
       load();
-    }else{
-      toast('❌ 建立失敗','error');
+      return;
     }
 
+    toast(
+      res?.message ||
+      JSON.stringify(res) ||
+      '建立失敗',
+      'error'
+    );
+
   });
+
 }
 
 // 年度統計
