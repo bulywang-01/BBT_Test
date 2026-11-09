@@ -388,11 +388,14 @@
     gap:6px;
     margin-bottom:14px;
   }
-  
+
   .role-badge{
-    padding:5px 10px;
+    display:inline-flex;
+    align-items:center;
+    height:28px;
+    padding:0 12px;
     border-radius:999px;
-    font-size:12px;
+    font-size:13px;
     font-weight:700;
   }
   
@@ -792,17 +795,19 @@
   <div id="header-container"></div>
 
   <!-- Title -->
-  <section class="page-header">
-
+  <section class="page-title-bar">
+  
     <div>
-      <h1>👤 人員中心</h1>
-      <p>管理裁判、紀錄與系統管理員資料</p>
+      <h1 class="page-title">
+        <i data-lucide="users"></i>
+        人員管理中心
+      </h1>
+  
+      <div class="page-desc">
+        建立、維護與管理系統使用者資料
+      </div>
     </div>
-
-    <button class="btn-primary">
-      ＋ 新增使用者
-    </button>
-
+  
   </section>
 
   <!-- KPI -->
@@ -811,25 +816,25 @@
     <div class="kpi-card">
       <div class="kpi-icon">👥</div>
       <div class="kpi-value">74</div>
-      <div class="kpi-label">總帳號</div>
+      <div class="kpi-label">總帳號數</div>
     </div>
 
     <div class="kpi-card">
       <div class="kpi-icon">🏅</div>
       <div class="kpi-value">41</div>
-      <div class="kpi-label">裁判人員</div>
+      <div class="kpi-label">裁判人數</div>
     </div>
 
     <div class="kpi-card">
       <div class="kpi-icon">📝</div>
       <div class="kpi-value">38</div>
-      <div class="kpi-label">紀錄人員</div>
+      <div class="kpi-label">紀錄人數</div>
     </div>
 
     <div class="kpi-card">
       <div class="kpi-icon">🚫</div>
       <div class="kpi-value">3</div>
-      <div class="kpi-label">停用帳號</div>
+      <div class="kpi-label">停用帳號數</div>
     </div>
 
   </section>
@@ -855,39 +860,52 @@
   </section>
 
   <!-- Tabs -->
-  <section class="tab-bar">
-
-    <button class="pill active">
-      全部
-      <span>74</span>
-    </button>
-
-    <button class="pill">
-      裁判
-      <span>41</span>
-    </button>
-
-    <button class="pill">
-      紀錄
-      <span>38</span>
-    </button>
-
-    <button class="pill">
-      裁判長
-      <span>1</span>
-    </button>
-
-    <button class="pill">
-      紀錄長
-      <span>1</span>
-    </button>
-
-    <button class="pill">
-      管理員
-      <span>1</span>
-    </button>
-
-  </section>
+  <div class="filter-card">
+  
+  <label>
+    <input type="radio"
+           name="roleFilter"
+           value="all"
+           checked>
+    全部
+  </label>
+  
+  <label>
+    <input type="radio"
+           name="roleFilter"
+           value="judge">
+    裁判
+  </label>
+  
+  <label>
+    <input type="radio"
+           name="roleFilter"
+           value="record">
+    紀錄
+  </label>
+  
+  <label>
+    <input type="radio"
+           name="roleFilter"
+           value="chief_judge">
+    裁判長
+  </label>
+  
+  <label>
+    <input type="radio"
+           name="roleFilter"
+           value="record_chief">
+    紀錄長
+  </label>
+  
+  <label>
+    <input type="radio"
+           name="roleFilter"
+           value="admin">
+    管理員
+  </label>
+  
+  </div>
 
   <!-- User Grid -->
 
@@ -1014,19 +1032,27 @@
 
           <td class="action-col">
 
-            <button class="action-btn">
+            <button
+              class="action-btn"
+              title="個人統計">
               📊
             </button>
-
-            <button class="action-btn">
+            
+            <button
+              class="action-btn"
+              title="編輯資料">
               ✏️
             </button>
-
-            <button class="action-btn">
+            
+            <button
+              class="action-btn"
+              title="重設密碼">
               🔑
             </button>
-
-            <button class="action-btn">
+            
+            <button
+              class="action-btn"
+              title="刪除使用者">
               🗑
             </button>
 
