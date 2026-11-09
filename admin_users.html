@@ -1,1072 +1,450 @@
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BBT 出勤系統 - 後端管理員控制台</title>
-
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
-  <!-- ✅ 你原本就有的 JS（一定要） -->
-  <script src="js/auth.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/admin_dashboard.js"></script>
-  <script src="js/judge_dashboard_admin.js"></script>
-
-  <link rel="stylesheet" href="css/admin_dashboard.css">
-  
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              800: '#1e40af',
-              900: '#1e3a8a',
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-  /*************************************************
-   *
-   * User Management Dashboard V2
-   * Version : 2.0
-   *
-   *************************************************/
-  
-  
-  /*************************************************
-   * 基本設定
-   *************************************************/
-  
-  *{
-    box-sizing:border-box;
-  }
-  
-  body{
-    margin:0;
-    padding:0;
-    background:#f8fafc;
-    font-family:
-      system-ui,
-      -apple-system,
-      BlinkMacSystemFont,
-      "Segoe UI",
-      sans-serif;
-    color:#0f172a;
-  }
-  
-  .hidden{
-    display:none !important;
-  }
-  
-  
-  /*************************************************
-   * 主容器
-   *************************************************/
-  
-  .page-container{
-    max-width:1400px;
-    margin:0 auto;
-    padding:20px;
-  }
-  
-  
-  /*************************************************
-   * 頁首
-   *************************************************/
-  
-  .page-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:16px;
-  
-    margin-bottom:24px;
-  }
-  
-  .page-title{
-    margin:0;
-    font-size:28px;
-    font-weight:800;
-  }
-  
-  .page-subtitle{
-    margin-top:4px;
-    color:#64748b;
-    font-size:14px;
-  }
-  
-  
-  /*************************************************
-   * 按鈕
-   *************************************************/
-  
-  .btn{
-    border:none;
-    cursor:pointer;
-    border-radius:12px;
-    transition:.2s;
-  }
-  
-  .btn:hover{
-    transform:translateY(-2px);
-  }
-  
-  .btn-primary{
-    background:#2563eb;
-    color:#fff;
-  
-    padding:10px 18px;
-    font-size:14px;
-    font-weight:700;
-  
-    box-shadow:
-      0 4px 12px rgba(37,99,235,.25);
-  }
-  
-  .btn-primary:hover{
-    background:#1d4ed8;
-  }
-  
-  .btn-success{
-    background:#16a34a;
-    color:#fff;
-  }
-  
-  .btn-danger{
-    background:#dc2626;
-    color:#fff;
-  }
-  
-  .btn-outline{
-    background:#fff;
-    border:1px solid #cbd5e1;
-  }
-  
-  
-  /*************************************************
-   * KPI 區
-   *************************************************/
-  
-  .kpi-grid{
-    display:grid;
-    grid-template-columns:
-      repeat(4,minmax(0,1fr));
-    gap:16px;
-    margin-bottom:24px;
-  }
-  
-  .kpi-card{
-    background:#fff;
-    border-radius:18px;
-    padding:18px;
-    box-shadow:
-      0 6px 20px rgba(15,23,42,.05);
-    transition:.25s;
-  }
-  
-  .kpi-card:hover{
-    transform:translateY(-2px);
-  }
-  
-  .kpi-card.total{
-    border-left:5px solid #2563eb;
-  }
-  
-  .kpi-card.judge{
-    border-left:5px solid #0ea5e9;
-  }
-  
-  .kpi-card.record{
-    border-left:5px solid #9333ea;
-  }
-  
-  .kpi-card.disable{
-    border-left:5px solid #dc2626;
-  }
-  
-  .kpi-icon{
-    font-size:24px;
-    margin-bottom:10px;
-  }
-  
-  .kpi-value{
-    font-size:30px;
-    font-weight:800;
-  }
-  
-  .kpi-label{
-    margin-top:4px;
-    color:#64748b;
-    font-size:13px;
-  }
-  
-  
-  /*************************************************
-   * 工具列
-   *************************************************/
-  
-  .toolbar{
-    display:flex;
-    gap:12px;
-    margin-bottom:20px;
-    align-items:center;
-  }
-  
-  .search-box{
-    flex:1;
-  }
-  
-  .search-input{
-    width:100%;
-    height:42px;
-    border:1px solid #cbd5e1;
-    border-radius:12px;
-    padding:0 14px;
-    background:#fff;
-  }
-  
-  .search-input:focus{
-    outline:none;
-    border-color:#2563eb;
-    box-shadow:
-      0 0 0 3px rgba(37,99,235,.12);
-  }
-  
-  .toolbar select{
-    min-width:140px;
-    height:42px;
-    border-radius:12px;
-    border:1px solid #cbd5e1;
-    background:#fff;
-    padding:0 12px;
-  }
-  
-  
-  /*************************************************
-   * Tabs
-   *************************************************/
-  
-  .tab-bar{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    margin-bottom:24px;
-  }
-  
-  .pill-tab{
-  
-    border:none;
-    background:#e2e8f0;
-    border-radius:999px;
-    padding:10px 18px;
-    cursor:pointer;
-    font-weight:700;
-    transition:.2s;
-  }
-  
-  .pill-tab:hover{
-    background:#cbd5e1;
-  }
-  
-  .pill-tab.active{
-    background:#2563eb;
-    color:#fff;
-  }
-  
-  .pill-tab span{
-    margin-left:6px;
-    opacity:.8;
-    font-size:12px;
-  }
-  
-  
-  /*************************************************
-   * USER CARD 區
-   *************************************************/
-  
-  .user-grid{
-    display:grid;
-    grid-template-columns:
-      repeat(auto-fill,minmax(320px,1fr));
-    gap:18px;
-  }
-  
-  
-  /*************************************************
-   * USER CARD
-   *************************************************/
-  
-  .user-card{
-    background:#fff;
-    border-radius:18px;
-    padding:18px;
-    box-shadow:
-      0 6px 20px rgba(15,23,42,.05);
-    transition:.25s;
-  }
-  
-  .user-card:hover{
-    transform:translateY(-2px);
-    box-shadow:
-      0 10px 25px rgba(0,0,0,.08);
-  }
-  
-  
-  /*************************************************
-   * Card Header
-   *************************************************/
-  
-  .card-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    margin-bottom:12px;
-  }
-  
-  .user-number{
-    font-size:13px;
-    color:#64748b;
-    font-weight:700;
-  }
-  
-  .user-name{
-    font-size:22px;
-    font-weight:800;
-    margin-top:2px;
-  }
-  
-  .user-account{
-    color:#94a3b8;
-    font-size:13px;
-    margin-top:2px;
-  }
-  
-  
-  /*************************************************
-   * 啟用狀態
-   *************************************************/
-  
-  .status-badge{
-    padding:4px 10px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:700;
-  }
-  
-  .status-active{
-    background:#dcfce7;
-    color:#166534;
-  }
-  
-  .status-disable{
-    background:#fee2e2;
-    color:#991b1b;
-  }
-  
-  
-  /*************************************************
-   * 身份 Badge
-   *************************************************/
-  
-  .role-badges{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px;
-    margin-bottom:14px;
-  }
-
-  .role-badge{
-    display:inline-flex;
-    align-items:center;
-    height:28px;
-    padding:0 12px;
-    border-radius:999px;
-    font-size:13px;
-    font-weight:700;
-  }
-  
-  .role-judge{
-    background:#dbeafe;
-    color:#1d4ed8;
-  }
-  
-  .role-chief-judge{
-    background:#fef3c7;
-    color:#92400e;
-  }
-  
-  .role-record{
-    background:#ede9fe;
-    color:#6d28d9;
-  }
-  
-  .role-record-chief{
-    background:#ddd6fe;
-    color:#5b21b6;
-  }
-  
-  .role-admin{
-    background:#fee2e2;
-    color:#991b1b;
-  }
-  
-  
-  /*************************************************
-   * 資訊區
-   *************************************************/
-  
-  .card-info{
-    border-top:1px solid #f1f5f9;
-    padding-top:12px;
-  }
-  
-  .info-row{
-    display:flex;
-    justify-content:space-between;
-    gap:12px;
-    margin-bottom:8px;
-    font-size:14px;
-  }
-  
-  .info-label{
-    color:#64748b;
-  }
-  
-  .info-value{
-    font-weight:600;
-  }
-  
-  
-  /*************************************************
-   * 等級 Badge
-   *************************************************/
-  
-  .level-badge{
-    display:inline-block;
-    padding:3px 8px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:700;
-  }
-  
-  .level-a{
-    background:#dbeafe;
-    color:#1d4ed8;
-  }
-  
-  .level-b{
-    background:#dcfce7;
-    color:#166534;
-  }
-  
-  .level-c{
-    background:#fef3c7;
-    color:#92400e;
-  }
-  
-  .level-n{
-    background:#e5e7eb;
-    color:#475569;
-  }
-  
-  
-  /*************************************************
-   * 卡片底部按鈕
-   *************************************************/
-  
-  .card-actions{
-    display:flex;
-    gap:8px;
-    margin-top:16px;
-  }
-  
-  .card-actions button{
-    flex:1;
-    height:38px;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
-    font-weight:700;
-  }
-  
-  .btn-stat{
-    background:#dbeafe;
-    color:#1d4ed8;
-  }
-  
-  .btn-edit{
-    background:#2563eb;
-    color:#fff;
-  }
-  
-  .btn-delete{
-    background:#dc2626;
-    color:#fff;
-  }
-  
-  
-  /*************************************************
-   * Modal
-   *************************************************/
-  
-  .modal{
-    position:fixed;
-    inset:0;
-    background:rgba(15,23,42,.45);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    z-index:9999;
-  }
-  
-  .modal.hidden{
-    display:none;
-  }
-  
-  .modal-content{
-    width:90%;
-    max-width:680px;
-    max-height:90vh;
-    overflow:auto;
-    background:#fff;
-    border-radius:20px;
-    padding:24px;
-  }
-  
-  
-  /*************************************************
-   * Modal Form
-   *************************************************/
-  
-  .form-grid{
-    display:grid;
-    gap:14px;
-  }
-  
-  .form-group{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-  }
-  
-  .form-group label{
-    font-size:13px;
-    font-weight:700;
-    color:#475569;
-  }
-  
-  .form-group input,
-  .form-group select{
-    height:42px;
-    border:1px solid #cbd5e1;
-    border-radius:10px;
-    padding:0 12px;
-  }
-  
-  .form-group input:focus,
-  .form-group select:focus{
-    outline:none;
-    border-color:#2563eb;
-    box-shadow:
-      0 0 0 3px rgba(37,99,235,.12);
-  }
-  
-  
-  /*************************************************
-   * Empty State
-   *************************************************/
-  
-  .empty-box{
-    background:#fff;
-    border-radius:18px;
-    padding:60px;
-    text-align:center;
-    color:#94a3b8;
-  }
-  
-  
-  /*************************************************
-   * 手機版
-   *************************************************/
-  
-  @media(max-width:768px){
-  
-    .page-container{
-      padding:14px;
-    }
-    
-    .page-header{
-      flex-direction:column;
-      align-items:flex-start;
-    }
-  
-    .kpi-grid{
-      grid-template-columns:
-        repeat(2,minmax(0,1fr));
-    }
-  
-    .toolbar{
-      flex-direction:column;
-      align-items:stretch;
-    }
-  
-    .tab-bar{
-      overflow-x:auto;
-      flex-wrap:nowrap;
-      padding-bottom:4px;
-    }
-  
-    .user-grid{
-      grid-template-columns:1fr;
-    }
-  
-    .user-name{
-      font-size:20px;
-    }
-  
-    .card-actions{
-      flex-direction:column;
-    }
-  
-    .card-actions button{
-      width:100%;
-    }
-  }
-
-
-  /*************************************************
-   * 工具列
-   *************************************************/
-  
-  .toolbar-action{
-  
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-  
-    margin-bottom:16px;
-  }
-  
-  .toolbar-left,
-  .toolbar-right{
-  
-    display:flex;
-    gap:10px;
-  }
-  
-  
-  /*************************************************
-   * Table Panel
-   *************************************************/
-  
-  .table-panel{
-    background:#ffffff;
-    border-radius:18px;
-    overflow:hidden;
-    box-shadow:
-      0 4px 14px rgba(15,23,42,.05);
-  }
-  
-  .table-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:14px 18px;
-    background:#0f172a;
-    color:#ffffff;
-  }
-  
-  .table-title{
-    font-weight:800;
-  }
-  
-  .table-count{
-    font-size:13px;
-    color:#cbd5e1;
-  }
-  
-  .table-wrapper{
-    overflow-x:auto;
-  }
-  
-  /*************************************************
-   * Table
-   *************************************************/
-  
-  .user-table{
-    width:100%;
-    border-collapse:collapse;
-  }
-  
-  .user-table thead{
-    background:#f8fafc;
-  }
-  
-  .user-table th{
-    padding:12px;
-    font-size:13px;
-    font-weight:700;
-    color:#475569;
-    text-align:left;
-    border-bottom:
-      1px solid #e2e8f0;
-  }
-  
-  .user-table td{
-    padding:14px 12px;
-    border-bottom:
-      1px solid #e2e8f0;
-    vertical-align:top;
-  }
-  .user-table tbody tr:hover{
-    background:#f8fafc;
-  }
-  
-  /*************************************************
-   * Table Name
-   *************************************************/
-  
-  .tb-name{
-    font-weight:700;
-    color:#0f172a;
-  }
-  
-  .tb-account{
-    font-size:12px;
-    margin-top:4px;
-    color:#64748b;
-  }
-  
-  /*************************************************
-   * Table Badge
-   *************************************************/
-  
-  .table-badges{
-    display:flex;
-    flex-wrap:wrap;
-    gap:4px;
-  }
-  
-  /*************************************************
-   * Action
-   *************************************************/
-  
-  .action-col{
-    white-space:nowrap;
-  }
-    
-  .action-btn{
-    border:none;
-    background:#f1f5f9;
-    width:34px;
-    height:34px;
-    border-radius:10px;
-    cursor:pointer;
-    transition:.2s;
-  }
-  
-  .action-btn:hover{
-    background:#dbeafe;
-    transform:translateY(-1px);
-  }
-  </style>
-  
-</head>
-
 <body>
+
+<div id="header-container"></div>
 
 <div class="page-container">
 
-  <!-- Header -->
-  <div id="header-container"></div>
+  <!-- ===================================================== -->
+  <!-- 標題 -->
+  <!-- ===================================================== -->
 
-  <!-- Title -->
   <section class="page-title-bar">
-  
+
     <div>
+
       <h1 class="page-title">
-        <i data-lucide="users"></i>
-        人員管理中心
+        👥 人員管理中心
       </h1>
-  
+
       <div class="page-desc">
         建立、維護與管理系統使用者資料
       </div>
+
     </div>
-  
+
   </section>
 
+
+  <!-- ===================================================== -->
   <!-- KPI -->
+  <!-- ===================================================== -->
+
   <section class="kpi-grid">
 
-    <div class="kpi-card">
-      <div class="kpi-icon">👥</div>
-      <div class="kpi-value">74</div>
-      <div class="kpi-label">總帳號數</div>
+    <div class="kpi-card total">
+
+      <div class="kpi-top">
+
+        <div class="kpi-title">
+          帳號總數
+        </div>
+
+        <div class="kpi-icon">
+          👥
+        </div>
+
+      </div>
+
+      <div class="kpi-value" id="kpiTotalUsers">
+        74
+      </div>
+
+      <div class="kpi-unit">
+        人
+      </div>
+
     </div>
 
-    <div class="kpi-card">
-      <div class="kpi-icon">🏅</div>
-      <div class="kpi-value">41</div>
-      <div class="kpi-label">裁判人數</div>
+
+    <div class="kpi-card judge">
+
+      <div class="kpi-top">
+
+        <div class="kpi-title">
+          裁判總人數
+        </div>
+
+        <div class="kpi-icon">
+          🏅
+        </div>
+
+      </div>
+
+      <div class="kpi-value" id="kpiJudgeUsers">
+        41
+      </div>
+
+      <div class="kpi-unit">
+        人
+      </div>
+
     </div>
 
-    <div class="kpi-card">
-      <div class="kpi-icon">📝</div>
-      <div class="kpi-value">38</div>
-      <div class="kpi-label">紀錄人數</div>
+
+    <div class="kpi-card record">
+
+      <div class="kpi-top">
+
+        <div class="kpi-title">
+          紀錄總人數
+        </div>
+
+        <div class="kpi-icon">
+          📝
+        </div>
+
+      </div>
+
+      <div class="kpi-value" id="kpiRecordUsers">
+        38
+      </div>
+
+      <div class="kpi-unit">
+        人
+      </div>
+
     </div>
 
-    <div class="kpi-card">
-      <div class="kpi-icon">🚫</div>
-      <div class="kpi-value">3</div>
-      <div class="kpi-label">停用帳號數</div>
+
+    <div class="kpi-card disable">
+
+      <div class="kpi-top">
+
+        <div class="kpi-title">
+          停用帳號數
+        </div>
+
+        <div class="kpi-icon">
+          🚫
+        </div>
+
+      </div>
+
+      <div class="kpi-value" id="kpiDisabledUsers">
+        3
+      </div>
+
+      <div class="kpi-unit">
+        人
+      </div>
+
     </div>
 
   </section>
 
-  <!-- Search -->
+
+  <!-- ===================================================== -->
+  <!-- 搜尋 -->
+  <!-- ===================================================== -->
+
   <section class="toolbar">
 
     <input
-      type="text"
-      placeholder="搜尋帳號、姓名、背號..."
+      id="txtSearch"
       class="search-input"
+      type="text"
+      placeholder="搜尋帳號、姓名、背號、Email..."
     >
 
-    <select>
-      <option>全部身份</option>
-      <option>裁判</option>
-      <option>紀錄</option>
-      <option>裁判長</option>
-      <option>紀錄長</option>
-      <option>管理員</option>
+    <select id="roleFilterSelect">
+
+      <option value="">
+        全部身份
+      </option>
+
+      <option value="judge">
+        裁判
+      </option>
+
+      <option value="record">
+        紀錄
+      </option>
+
+      <option value="chief_judge">
+        裁判長
+      </option>
+
+      <option value="record_chief">
+        紀錄長
+      </option>
+
+      <option value="admin">
+        管理員
+      </option>
+
     </select>
 
   </section>
 
-  <!-- Tabs -->
-  <div class="filter-card">
-  
-  <label>
-    <input type="radio"
-           name="roleFilter"
-           value="all"
-           checked>
-    全部
-  </label>
-  
-  <label>
-    <input type="radio"
-           name="roleFilter"
-           value="judge">
-    裁判
-  </label>
-  
-  <label>
-    <input type="radio"
-           name="roleFilter"
-           value="record">
-    紀錄
-  </label>
-  
-  <label>
-    <input type="radio"
-           name="roleFilter"
-           value="chief_judge">
-    裁判長
-  </label>
-  
-  <label>
-    <input type="radio"
-           name="roleFilter"
-           value="record_chief">
-    紀錄長
-  </label>
-  
-  <label>
-    <input type="radio"
-           name="roleFilter"
-           value="admin">
-    管理員
-  </label>
-  
-  </div>
 
-  <!-- User Grid -->
+  <!-- ===================================================== -->
+  <!-- 身份篩選 -->
+  <!-- ===================================================== -->
 
-<!-- 工具列 -->
-<section class="toolbar-action">
+  <section class="filter-card">
 
-  <div class="toolbar-left">
+    <label>
+      <input
+        type="radio"
+        name="roleFilter"
+        value="all"
+        checked
+      >
+      全部
+    </label>
 
-    <button class="btn-primary">
-      ＋ 新增使用者
-    </button>
+    <label>
+      <input
+        type="radio"
+        name="roleFilter"
+        value="judge"
+      >
+      裁判
+    </label>
 
-  </div>
+    <label>
+      <input
+        type="radio"
+        name="roleFilter"
+        value="record"
+      >
+      紀錄
+    </label>
 
-  <div class="toolbar-right">
+    <label>
+      <input
+        type="radio"
+        name="roleFilter"
+        value="chief_judge"
+      >
+      裁判長
+    </label>
 
-    <button class="btn-outline">
-      📥 匯入
-    </button>
+    <label>
+      <input
+        type="radio"
+        name="roleFilter"
+        value="record_chief"
+      >
+      紀錄長
+    </label>
 
-    <button class="btn-outline">
-      📤 匯出
-    </button>
+    <label>
+      <input
+        type="radio"
+        name="roleFilter"
+        value="admin"
+      >
+      管理員
+    </label>
 
-    <button class="btn-outline">
-      🔑 批次重設密碼
-    </button>
+  </section>
 
-  </div>
 
-</section>
+  <!-- ===================================================== -->
+  <!-- 功能列 -->
+  <!-- ===================================================== -->
 
-<!-- Table -->
+  <section class="toolbar-action">
 
-<section class="table-panel">
+    <div class="toolbar-left">
 
-  <div class="table-header">
+      <button
+        class="btn-primary"
+        onclick="openCreateUserModal()">
+        ＋ 新增使用者
+      </button>
 
-    <div class="table-title">
-      👥 使用者清單
     </div>
 
-    <div class="table-count">
-      共 74 筆
+    <div class="toolbar-right">
+
+      <button class="btn-outline">
+        📥 匯入
+      </button>
+
+      <button class="btn-outline">
+        📤 匯出
+      </button>
+
+      <button class="btn-outline">
+        🔑 批次重設密碼
+      </button>
+
     </div>
 
-  </div>
+  </section>
 
-  <div class="table-wrapper">
 
-    <table class="user-table">
+  <!-- ===================================================== -->
+  <!-- 使用者清單 -->
+  <!-- ===================================================== -->
 
-      <thead>
+  <section class="table-panel">
 
-        <tr>
+    <div class="table-header">
 
-          <th>背號</th>
-          <th>姓名</th>
-          <th>身份</th>
-          <th>證照</th>
-          <th>聯絡資訊</th>
-          <th>狀態</th>
-          <th>操作</th>
+      <div class="table-title">
+        👥 使用者清單
+      </div>
 
-        </tr>
+      <div
+        class="table-count"
+        id="tableCount">
+        共 74 筆
+      </div>
 
-      </thead>
+    </div>
 
-      <tbody>
+    <div class="table-wrapper">
 
-        <tr>
+      <table class="user-table">
 
-          <td>#35</td>
+        <thead>
 
-          <td>
+          <tr>
 
-            <div class="tb-name">
-              王韶文
-            </div>
+            <th>背號</th>
 
-            <div class="tb-account">
-              baseballamis
-            </div>
+            <th>姓名</th>
 
-          </td>
+            <th>身份</th>
 
-          <td>
+            <th>證照</th>
 
-            <div class="table-badges">
+            <th>年度出勤</th>
 
-              <span class="role-badge role-judge">
-                裁判
+            <th>聯絡資訊</th>
+
+            <th>狀態</th>
+
+            <th>操作</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="userTableBody">
+
+          <!-- renderUserTable() -->
+
+          <tr>
+
+            <td>#35</td>
+
+            <td>
+
+              <div class="tb-name">
+                王韶文
+              </div>
+
+              <div class="tb-account">
+                baseballamis
+              </div>
+
+            </td>
+
+            <td>
+
+              <div class="table-badges">
+
+                <span class="role-badge role-judge">
+                  裁判
+                </span>
+
+                <span class="role-badge role-record">
+                  紀錄
+                </span>
+
+              </div>
+
+            </td>
+
+            <td>
+
+              <div>
+                🏅 B級
+              </div>
+
+              <div>
+                📝 C級
+              </div>
+
+            </td>
+
+            <td>
+
+              <div class="attendance-cell">
+
+                <div class="attendance-count">
+                  32 場
+                </div>
+
+                <div class="attendance-rate">
+                  完成率 98%
+                </div>
+
+              </div>
+
+            </td>
+
+            <td>
+
+              <div>
+                📧 aaa@gmail.com
+              </div>
+
+              <div>
+                📱 0912345678
+              </div>
+
+            </td>
+
+            <td>
+
+              <span class="status-badge status-active">
+                啟用
               </span>
 
-              <span class="role-badge role-record">
-                紀錄
-              </span>
+            </td>
 
-            </div>
+            <td class="action-col">
 
-          </td>
+              <button
+                class="action-btn stat"
+                title="個人統計">
+                📊
+              </button>
 
-          <td>
+              <button
+                class="action-btn edit"
+                title="編輯資料">
+                ✏️
+              </button>
 
-            <div>🏅 B級</div>
-            <div>📝 C級</div>
+              <button
+                class="action-btn password"
+                title="重設密碼">
+                🔑
+              </button>
 
-          </td>
+              <button
+                class="action-btn delete"
+                title="刪除使用者">
+                🗑
+              </button>
 
-          <td>
+            </td>
 
-            <div>aaa@gmail.com</div>
-            <div>0912345678</div>
+          </tr>
 
-          </td>
+        </tbody>
 
-          <td>
+      </table>
 
-            <span class="status-badge status-active">
-              啟用
-            </span>
+    </div>
 
-          </td>
-
-          <td class="action-col">
-
-            <button
-              class="action-btn"
-              title="個人統計">
-              📊
-            </button>
-            
-            <button
-              class="action-btn"
-              title="編輯資料">
-              ✏️
-            </button>
-            
-            <button
-              class="action-btn"
-              title="重設密碼">
-              🔑
-            </button>
-            
-            <button
-              class="action-btn"
-              title="刪除使用者">
-              🗑
-            </button>
-
-          </td>
-
-        </tr>
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-</section>
+  </section>
 
 </div>
 
