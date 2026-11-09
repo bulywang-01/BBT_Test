@@ -643,6 +643,143 @@
       width:100%;
     }
   }
+
+
+  /*************************************************
+   * 工具列
+   *************************************************/
+  
+  .toolbar-action{
+  
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  
+    margin-bottom:16px;
+  }
+  
+  .toolbar-left,
+  .toolbar-right{
+  
+    display:flex;
+    gap:10px;
+  }
+  
+  
+  /*************************************************
+   * Table Panel
+   *************************************************/
+  
+  .table-panel{
+    background:#ffffff;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:
+      0 4px 14px rgba(15,23,42,.05);
+  }
+  
+  .table-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 18px;
+    background:#0f172a;
+    color:#ffffff;
+  }
+  
+  .table-title{
+    font-weight:800;
+  }
+  
+  .table-count{
+    font-size:13px;
+    color:#cbd5e1;
+  }
+  
+  .table-wrapper{
+    overflow-x:auto;
+  }
+  
+  /*************************************************
+   * Table
+   *************************************************/
+  
+  .user-table{
+    width:100%;
+    border-collapse:collapse;
+  }
+  
+  .user-table thead{
+    background:#f8fafc;
+  }
+  
+  .user-table th{
+    padding:12px;
+    font-size:13px;
+    font-weight:700;
+    color:#475569;
+    text-align:left;
+    border-bottom:
+      1px solid #e2e8f0;
+  }
+  
+  .user-table td{
+    padding:14px 12px;
+    border-bottom:
+      1px solid #e2e8f0;
+    vertical-align:top;
+  }
+  .user-table tbody tr:hover{
+    background:#f8fafc;
+  }
+  
+  /*************************************************
+   * Table Name
+   *************************************************/
+  
+  .tb-name{
+    font-weight:700;
+    color:#0f172a;
+  }
+  
+  .tb-account{
+    font-size:12px;
+    margin-top:4px;
+    color:#64748b;
+  }
+  
+  /*************************************************
+   * Table Badge
+   *************************************************/
+  
+  .table-badges{
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px;
+  }
+  
+  /*************************************************
+   * Action
+   *************************************************/
+  
+  .action-col{
+    white-space:nowrap;
+  }
+    
+  .action-btn{
+    border:none;
+    background:#f1f5f9;
+    width:34px;
+    height:34px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:.2s;
+  }
+  
+  .action-btn:hover{
+    background:#dbeafe;
+    transform:translateY(-1px);
+  }
   </style>
   
 </head>
@@ -754,82 +891,156 @@
 
   <!-- User Grid -->
 
-  <section class="user-grid">
+<!-- 工具列 -->
+<section class="toolbar-action">
 
-    <!-- User Card -->
+  <div class="toolbar-left">
 
-    <div class="user-card">
+    <button class="btn-primary">
+      ＋ 新增使用者
+    </button>
 
-      <div class="card-top">
+  </div>
 
-        <div>
+  <div class="toolbar-right">
 
-          <div class="user-no">
-            #35
-          </div>
+    <button class="btn-outline">
+      📥 匯入
+    </button>
 
-          <div class="user-name">
-            王韶文
-          </div>
+    <button class="btn-outline">
+      📤 匯出
+    </button>
 
-          <div class="user-account">
-            baseballamis
-          </div>
+    <button class="btn-outline">
+      🔑 批次重設密碼
+    </button>
 
-        </div>
+  </div>
 
-        <div class="status active">
-          啟用
-        </div>
+</section>
 
-      </div>
+<!-- Table -->
 
-      <div class="role-badges">
+<section class="table-panel">
 
-        <span class="badge judge">
-          裁判
-        </span>
+  <div class="table-header">
 
-        <span class="badge record">
-          紀錄
-        </span>
-
-      </div>
-
-      <div class="card-info">
-
-        <div>
-          裁判證：
-          B級
-        </div>
-
-        <div>
-          紀錄證：
-          C級
-        </div>
-
-        <div>
-          Email：
-          aaa@gmail.com
-        </div>
-
-      </div>
-
-      <div class="card-actions">
-
-        <button>
-          📊 統計
-        </button>
-
-        <button>
-          ✏️ 編輯
-        </button>
-
-      </div>
-
+    <div class="table-title">
+      👥 使用者清單
     </div>
 
-  </section>
+    <div class="table-count">
+      共 74 筆
+    </div>
+
+  </div>
+
+  <div class="table-wrapper">
+
+    <table class="user-table">
+
+      <thead>
+
+        <tr>
+
+          <th>背號</th>
+          <th>姓名</th>
+          <th>身份</th>
+          <th>證照</th>
+          <th>聯絡資訊</th>
+          <th>狀態</th>
+          <th>操作</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        <tr>
+
+          <td>#35</td>
+
+          <td>
+
+            <div class="tb-name">
+              王韶文
+            </div>
+
+            <div class="tb-account">
+              baseballamis
+            </div>
+
+          </td>
+
+          <td>
+
+            <div class="table-badges">
+
+              <span class="role-badge role-judge">
+                裁判
+              </span>
+
+              <span class="role-badge role-record">
+                紀錄
+              </span>
+
+            </div>
+
+          </td>
+
+          <td>
+
+            <div>🏅 B級</div>
+            <div>📝 C級</div>
+
+          </td>
+
+          <td>
+
+            <div>aaa@gmail.com</div>
+            <div>0912345678</div>
+
+          </td>
+
+          <td>
+
+            <span class="status-badge status-active">
+              啟用
+            </span>
+
+          </td>
+
+          <td class="action-col">
+
+            <button class="action-btn">
+              📊
+            </button>
+
+            <button class="action-btn">
+              ✏️
+            </button>
+
+            <button class="action-btn">
+              🔑
+            </button>
+
+            <button class="action-btn">
+              🗑
+            </button>
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</section>
 
 </div>
 
