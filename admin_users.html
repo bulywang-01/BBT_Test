@@ -704,7 +704,7 @@ body{
     
         <button
           class="btn-primary"
-          onclick="openCreateUser()">
+          onclick="openUserModal('create')">
     
           ＋ 新增使用者
     
@@ -747,6 +747,176 @@ body{
 
 </div>
 
+<!-- =========================
+     User Modal
+========================= -->
+
+<div
+  id="userModal"
+  class="modal hidden">
+
+  <div class="modal-content">
+
+    <div class="table-header">
+
+      <div
+        id="userModalTitle"
+        class="table-title">
+
+        使用者資料
+
+      </div>
+
+      <button
+        class="btn-outline"
+        onclick="closeUserModal()">
+
+        ✕
+
+      </button>
+
+    </div>
+
+    <div
+      style="
+        padding:20px;
+        display:grid;
+        gap:14px;
+      ">
+
+      <input
+        id="modalUsername"
+        type="text"
+        placeholder="帳號">
+
+      <input
+        id="modalName"
+        type="text"
+        placeholder="姓名">
+
+      <input
+        id="modalNote"
+        type="text"
+        placeholder="背號">
+
+      <input
+        id="modalEmail"
+        type="text"
+        placeholder="Email">
+
+      <input
+        id="modalPhone"
+        type="text"
+        placeholder="電話">
+
+      <div>
+
+        <strong>
+          身份
+        </strong>
+
+        <br><br>
+
+        <label>
+          <input
+            type="checkbox"
+            id="roleJudge">
+          裁判
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            id="roleChiefJudge">
+          裁判長
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            id="roleRecord">
+          紀錄
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            id="roleRecordChief">
+          紀錄長
+        </label>
+
+        <label>
+          <input
+            type="checkbox"
+            id="roleAdmin">
+          管理員
+        </label>
+
+      </div>
+
+      <div>
+
+        <strong>
+          裁判等級
+        </strong>
+
+        <select id="judgeLevel">
+          <option value="N">無</option>
+          <option value="C">C</option>
+          <option value="B">B</option>
+          <option value="A">A</option>
+        </select>
+
+      </div>
+
+      <div>
+
+        <strong>
+          紀錄等級
+        </strong>
+
+        <select id="recordLevel">
+          <option value="N">無</option>
+          <option value="C">C</option>
+          <option value="B">B</option>
+          <option value="A">A</option>
+        </select>
+
+      </div>
+
+    </div>
+
+    <div
+      style="
+        padding:16px;
+        border-top:1px solid #e5e7eb;
+        display:flex;
+        justify-content:flex-end;
+        gap:10px;
+      ">
+
+      <button
+        class="btn-outline"
+        onclick="closeUserModal()">
+
+        取消
+
+      </button>
+
+      <button
+        class="btn-primary"
+        onclick="saveUserModal()">
+
+        儲存
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
 </body>
 
 
@@ -764,6 +934,8 @@ let currentKeyword = '';
 let currentRoleFilter = 'all';
 let allUsers = [];
 let pendingUserUpdates = {};
+let currentModalMode = '';
+let currentModalUserId = '';
 
 /*********************************************************
  * 證照等級顯示
@@ -1596,33 +1768,57 @@ function resetPassword(userId){
  *********************************************************/
 function openEditUserModal(userId){
 
-  const user =
-    allUsers.find(
-      u => String(u.user_id) === String(userId)
-    );
-
-  if(!user){
-    showToast('找不到使用者','error');
-    return;
-  }
-
-  alert(
-`
-姓名：
-${user.name || '-'}
-
-帳號：
-${user.username || '-'}
-
-Email：
-${user.email || '-'}
-
-電話：
-${user.phone || '-'}
-`
+  openUserModal(
+    'edit',
+    userId
   );
 
 }
 
+/*********************************************************
+ * Open User Modal
+ *********************************************************/
+function openUserModal(
+  mode,
+  userId=''
+){
 
+  currentModalMode = mode;
+  currentModalUserId = userId;
+
+  document
+    .getElementById('userModal')
+    .classList
+    .remove('hidden');
+
+  const title =
+    document.getElementById(
+      'userModalTitle'
+    );
+
+  if(mode === 'create'){
+
+    title.textContent =
+      '新增使用者';
+
+  }else{
+
+    title.textContent =
+      '編輯使用者';
+
+  }
+
+}
+
+/*********************************************************
+ * Close User Modal
+ *********************************************************/
+function closeUserModal(){
+
+  document
+    .getElementById('userModal')
+    .classList
+    .add('hidden');
+
+}
 </script>
