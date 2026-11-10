@@ -1252,7 +1252,12 @@ function formatDateTime(v){
   );
 
 }
-  
+
+// 訊息
+function showLoading(msg='處理中...'){
+  showToast(msg,'warn');
+}
+
 // 讀取 Users
 function loadUsers(){
   callApi({action:'getUsers'}, res => {
@@ -1265,9 +1270,39 @@ function loadUsers(){
   });
 }
 
+/*********************************************************
+ * 統一判斷帳號是否啟用
+ *
+ * 支援：
+ * 1
+ * 0
+ * Y
+ * N
+ * true
+ * false
+ *********************************************************/
+function isUserActive(v){
+
+  if(
+    v === 1 ||
+    v === '1' ||
+    v === 'Y' ||
+    v === 'y' ||
+    v === true
+  ){
+    return true;
+  }
+
+  return false;
+
+}
+
 // 啟用 / 停用帳號
 // ===== 帳號狀態 =====
 function toggleActive(userId, checked) {
+
+  showLoading('更新帳號狀態中...');
+  
   callApi(
     {
       action: 'toggleUserActive',
@@ -1476,10 +1511,10 @@ function updateKpi(){
     }).length;
 
   const disabled =
-    allUsers.filter(u =>
-      Number(u.active || 0) === 0
+    allUsers.filter(
+      u => !isUserActive(u.active)
     ).length;
-
+  
   const setText = (id,val)=>{
 
     const el =
@@ -1625,12 +1660,12 @@ function renderUserTable(){
     }
 
     const activeClass =
-      Number(u.active || 0) === 1
+      isUserActive(u.active)
         ? 'status-active'
         : 'status-disable';
 
     const activeText =
-      Number(u.active || 0) === 1
+      isUserActive(u.active)
         ? '啟用'
         : '停用';
 
@@ -1787,7 +1822,7 @@ function renderUserTable(){
           onclick="
             toggleActive(
               '${u.user_id}',
-              ${Number(u.active||0)===0}
+              ${!isUserActive(u.active)}
             )">
           ⏻
         </button>
@@ -1896,6 +1931,8 @@ ${user.final_score || 0}
  *********************************************************/
 function resetPassword(userId){
 
+  showLoading('重設密碼中...');
+  
   if(
     !confirm(
       '確定重設此帳號密碼？'
@@ -2204,7 +2241,9 @@ function buildRoleString(){
  * Modal 儲存
  *********************************************************/
 function saveUserModal(){
-
+  
+  showLoading('資料儲存中...');
+  
   const username =
     document.getElementById(
       'modalUsername'
