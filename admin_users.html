@@ -1757,38 +1757,40 @@ function renderUserTable(){
           class="action-btn stat"
           title="個人統計"
           onclick="showUserStatistics('${u.user_id}')">
-        
           📊
-        
         </button>
 
         <button
           class="action-btn edit"
           title="編輯資料"
           onclick="openEditUserModal('${u.user_id}')">
-
           ✏️
-
         </button>
 
         <button
           class="action-btn password"
           title="重設密碼"
           onclick="resetPassword('${u.user_id}')">
-        
           🔑
-        
         </button>
 
         <button
           class="action-btn delete"
           title="刪除使用者"
           onclick="deleteUser('${u.user_id}','${u.username}')">
-
           🗑
-
         </button>
-
+        
+        <button
+          class="action-btn"
+          title="啟用停用"
+          onclick="
+            toggleActive(
+              '${u.user_id}',
+              ${Number(u.active||0)===0}
+            )">
+          ⏻
+        </button>
       </td>
 
     `;
@@ -2021,6 +2023,10 @@ function openUserModal(
       'roleAdmin'
     ).checked = false;
 
+    document.getElementById(
+      'modalUsername'
+    ).readOnly = false;
+    
     return;
 
   }
@@ -2123,6 +2129,9 @@ function openUserModal(
       'recordLevel'
     ).value = recordLv;
 
+    document.getElementById(
+      'modalUsername'
+    ).readOnly = true;
   }
 
 }
@@ -2308,15 +2317,82 @@ function saveUserModal(){
     return;
 
   }
-
+  
   // ======================
   // 編輯
   // ======================
 
-  showToast(
-    '編輯功能下一步製作',
-    'warn'
-  );
+  if(
+    currentModalMode === 'edit'
+  ){
+  
+    const updates = {
+  
+      note,
+      name,
+      email,
+      phone,
+      role,
+      level
+  
+    };
+  
+    const fields =
+      Object.entries(updates);
+  
+    let finished = 0;
+    let hasError = false;
+  
+    fields.forEach(([field,value])=>{
+  
+      callApi(
+        {
+          action:'updateUserField',
+          user_id:currentModalUserId,
+          field,
+          value
+        },
+        res => {
+  
+          if(
+            !res ||
+            res.result === 'error'
+          ){
+  
+            hasError = true;
+  
+            showToast(
+              res?.message ||
+              `更新 ${field} 失敗`,
+              'error'
+            );
+  
+          }
+  
+          finished++;
+  
+          if(
+            finished === fields.length &&
+            !hasError
+          ){
+  
+            showToast(
+              '更新成功',
+              'success'
+            );
+  
+            closeUserModal();
+  
+            loadUsers();
+  
+          }
+  
+        }
+      );
+  
+    });
+  
+  }
 
 }
   
