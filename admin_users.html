@@ -550,6 +550,7 @@ body{
   grid-template-columns:
     repeat(2,1fr);
   gap:14px;
+  align-items:start;
 }
 
 .modal-grid input,
@@ -618,7 +619,7 @@ body{
 
 .modal-role-section{
   grid-column:1 / span 2;
-  padding:14px;
+  padding:16px;
   border:1px solid #e5e7eb;
   border-radius:12px;
   background:#f8fafc;
@@ -631,16 +632,18 @@ body{
 }
 
 .role-checkbox-grid{
-  display:grid;
-  grid-template-columns:
-    repeat(3,minmax(0,1fr));
-  gap:10px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px 24px;
 }
 
 .role-checkbox-grid label{
   display:flex;
   align-items:center;
   gap:6px;
+  min-width:100px;
+  margin:0;
+  color:#334155;
 }
 
 .level-card{
@@ -656,6 +659,7 @@ body{
 }
 
 </style>
+
 <body>
 
 <div id="header-container"></div>
