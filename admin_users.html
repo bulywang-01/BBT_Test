@@ -634,14 +634,14 @@ body{
 .role-checkbox-grid{
   display:flex;
   flex-wrap:wrap;
-  gap:16px 24px;
+  gap:12px 24px;
 }
 
 .role-checkbox-grid label{
   display:flex;
   align-items:center;
   gap:6px;
-  min-width:100px;
+  white-space:nowrap;
   margin:0;
   color:#334155;
 }
@@ -1706,8 +1706,12 @@ function renderUserTable(){
   
       <td>
       
-        <div class="attendance-count">
+        <div
+          class="attendance-count"
+          style="color:${qualityColor}">
+        
           ${u.quality_score || 0}
+        
         </div>
       
         <div
