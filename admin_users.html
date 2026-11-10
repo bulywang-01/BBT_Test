@@ -1965,10 +1965,30 @@ function openUserModal(
     );
 
   if(mode === 'create'){
-
+  
+    document.getElementById(
+      'modalUsername'
+    ).value = '';
+  
+    document.getElementById(
+      'modalName'
+    ).value = '';
+  
+    document.getElementById(
+      'modalNote'
+    ).value = '';
+  
+    document.getElementById(
+      'modalEmail'
+    ).value = '';
+  
+    document.getElementById(
+      'modalPhone'
+    ).value = '';
+  
     title.textContent =
       '新增使用者';
-
+  
   }else{
 
     title.textContent =
@@ -1989,4 +2009,185 @@ function closeUserModal(){
     .add('hidden');
 
 }
+
+/*********************************************************
+ * 建立角色字串
+ *********************************************************/
+function buildRoleString(){
+
+  const roles = [];
+
+  if(
+    document.getElementById(
+      'roleJudge'
+    )?.checked
+  ){
+    roles.push('judge');
+  }
+
+  if(
+    document.getElementById(
+      'roleChiefJudge'
+    )?.checked
+  ){
+    roles.push('chief_judge');
+  }
+
+  if(
+    document.getElementById(
+      'roleRecord'
+    )?.checked
+  ){
+    roles.push('record');
+  }
+
+  if(
+    document.getElementById(
+      'roleRecordChief'
+    )?.checked
+  ){
+    roles.push('record_chief');
+  }
+
+  if(
+    document.getElementById(
+      'roleAdmin'
+    )?.checked
+  ){
+    roles.push('admin');
+  }
+
+  return roles.join(',');
+
+}
+
+/*********************************************************
+ * Modal 儲存
+ *********************************************************/
+function saveUserModal(){
+
+  const username =
+    document.getElementById(
+      'modalUsername'
+    ).value.trim();
+
+  const name =
+    document.getElementById(
+      'modalName'
+    ).value.trim();
+
+  const note =
+    document.getElementById(
+      'modalNote'
+    ).value.trim();
+
+  const email =
+    document.getElementById(
+      'modalEmail'
+    ).value.trim();
+
+  const phone =
+    document.getElementById(
+      'modalPhone'
+    ).value.trim();
+
+  const role =
+    buildRoleString();
+
+  const judgeLevel =
+    document.getElementById(
+      'judgeLevel'
+    ).value;
+
+  const recordLevel =
+    document.getElementById(
+      'recordLevel'
+    ).value;
+
+  const level =
+    `${judgeLevel},${recordLevel}`;
+
+  if(!username){
+
+    showToast(
+      '請輸入帳號',
+      'warn'
+    );
+
+    return;
+
+  }
+
+  if(!name){
+
+    showToast(
+      '請輸入姓名',
+      'warn'
+    );
+
+    return;
+
+  }
+
+  // ======================
+  // 新增
+  // ======================
+
+  if(
+    currentModalMode === 'create'
+  ){
+
+    callApi(
+      {
+        action:'createUser',
+        username,
+        name,
+        email
+      },
+      res => {
+
+        if(
+          !res ||
+          res.result === 'error'
+        ){
+
+          showToast(
+            res?.message || '新增失敗',
+            'error'
+          );
+
+          return;
+
+        }
+
+        // 如有其它欄位再補寫
+        // 第二階段再整合
+
+        showToast(
+          '新增成功',
+          'success'
+        );
+
+        closeUserModal();
+
+        loadUsers();
+
+      }
+    );
+
+    return;
+
+  }
+
+  // ======================
+  // 編輯
+  // ======================
+
+  showToast(
+    '編輯功能下一步製作',
+    'warn'
+  );
+
+}
+  
 </script>
