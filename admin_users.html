@@ -610,34 +610,6 @@ body{
       placeholder="搜尋帳號、姓名、背號、Email..."
     >
 
-    <select id="roleFilterSelect">
-
-      <option value="">
-        全部身份
-      </option>
-
-      <option value="judge">
-        裁判
-      </option>
-
-      <option value="record">
-        紀錄
-      </option>
-
-      <option value="chief_judge">
-        裁判長
-      </option>
-
-      <option value="record_chief">
-        紀錄長
-      </option>
-
-      <option value="admin">
-        管理員
-      </option>
-
-    </select>
-
   </section>
 
 
@@ -715,28 +687,26 @@ body{
 
       <button
         class="btn-primary"
-        onclick="openCreateUserModal()">
+        onclick="openCreateUser()">
         ＋ 新增使用者
       </button>
 
     </div>
 
+    <!-- 
     <div class="toolbar-right">
-
       <button class="btn-outline">
         📥 匯入
       </button>
-
       <button class="btn-outline">
         📤 匯出
       </button>
-
       <button class="btn-outline">
         🔑 批次重設密碼
       </button>
-
     </div>
-
+    -->
+    
   </section>
 
 
@@ -769,140 +739,21 @@ body{
           <tr>
 
             <th>背號</th>
-
             <th>姓名</th>
-
             <th>身份</th>
-
             <th>證照</th>
-
             <th>年度出勤</th>
-
+            <th>品質分數</th>
             <th>聯絡資訊</th>
-
             <th>狀態</th>
-
+            <th>最後登入</th>
             <th>操作</th>
 
           </tr>
 
         </thead>
 
-        <tbody id="userTableBody">
-
-          <!-- renderUserTable() -->
-
-          <tr>
-
-            <td>#35</td>
-
-            <td>
-
-              <div class="tb-name">
-                王韶文
-              </div>
-
-              <div class="tb-account">
-                baseballamis
-              </div>
-
-            </td>
-
-            <td>
-
-              <div class="table-badges">
-
-                <span class="role-badge role-judge">
-                  裁判
-                </span>
-
-                <span class="role-badge role-record">
-                  紀錄
-                </span>
-
-              </div>
-
-            </td>
-
-            <td>
-
-              <div>
-                🏅 B級
-              </div>
-
-              <div>
-                📝 C級
-              </div>
-
-            </td>
-
-            <td>
-
-              <div class="attendance-cell">
-
-                <div class="attendance-count">
-                  32 場
-                </div>
-
-                <div class="attendance-rate">
-                  完成率 98%
-                </div>
-
-              </div>
-
-            </td>
-
-            <td>
-
-              <div>
-                📧 aaa@gmail.com
-              </div>
-
-              <div>
-                📱 0912345678
-              </div>
-
-            </td>
-
-            <td>
-
-              <span class="status-badge status-active">
-                啟用
-              </span>
-
-            </td>
-
-            <td class="action-col">
-
-              <button
-                class="action-btn stat"
-                title="個人統計">
-                📊
-              </button>
-
-              <button
-                class="action-btn edit"
-                title="編輯資料">
-                ✏️
-              </button>
-
-              <button
-                class="action-btn password"
-                title="重設密碼">
-                🔑
-              </button>
-
-              <button
-                class="action-btn delete"
-                title="刪除使用者">
-                🗑
-              </button>
-
-            </td>
-
-          </tr>
-
-        </tbody>
+        <tbody id="userTableBody"></tbody>
 
       </table>
 
@@ -941,6 +792,9 @@ document.addEventListener(
   'DOMContentLoaded',
   ()=>{
 
+    loadHeader();
+    loadUsers();
+
     const txtSearch =
       document.getElementById(
         'txtSearch'
@@ -959,7 +813,7 @@ document.addEventListener(
       .querySelectorAll(
         'input[name="roleFilter"]'
       )
-      .forEach(r => {
+      .forEach(r=>{
 
         r.addEventListener(
           'change',
@@ -1018,6 +872,25 @@ document.addEventListener(
       .catch(err => console.error('Header 載入失敗', err));
   }
 
+// 日期時間格式正規化
+function formatDateTime(v){
+
+  if(!v){
+    return '-';
+  }
+
+  const d = new Date(v);
+
+  if(isNaN(d)){
+    return '-';
+  }
+
+  return d.toLocaleString(
+    'zh-TW'
+  );
+
+}
+  
 // 讀取 Users
 function loadUsers(){
   callApi({action:'getUsers'}, res => {
@@ -1422,32 +1295,49 @@ function renderUserTable(){
       </td>
 
       <td>
-
+      
         <div class="attendance-cell">
-
+      
           <div class="attendance-count">
             ${u.exp_total || 0} 場
           </div>
-
+      
           <div class="attendance-rate">
-            完成率
-            ${u.completed_rate || 0}%
+            完成率 ${u.completed_rate || 0}%
           </div>
-
+      
         </div>
-
+      
+      </td>
+  
+      <td>
+      
+        <div class="attendance-count">
+          ${u.quality_score || 0}
+        </div>
+      
+        <div
+          style="
+            font-size:12px;
+            color:#64748b;
+          ">
+      
+          評分 ${u.final_score || 0}
+      
+        </div>
+      
       </td>
 
       <td>
-
+      
         <div>
           📧 ${u.email || '-'}
         </div>
-
+      
         <div>
           📱 ${u.phone || '-'}
         </div>
-
+      
       </td>
 
       <td>
@@ -1457,20 +1347,27 @@ function renderUserTable(){
         </span>
 
       </td>
+      
+      <td>
+        ${formatDateTime(u.last_login)}
+      </td>
+
 
       <td class="action-col">
 
         <button
           class="action-btn stat"
-          title="個人統計">
-
+          title="個人統計"
+          onclick="showUserStatistics('${u.user_id}')">
+        
           📊
-
+        
         </button>
 
         <button
           class="action-btn edit"
-          title="編輯資料">
+          title="編輯資料"
+          onclick="openEditUserModal('${u.user_id}')">
 
           ✏️
 
@@ -1478,10 +1375,11 @@ function renderUserTable(){
 
         <button
           class="action-btn password"
-          title="重設密碼">
-
+          title="重設密碼"
+          onclick="resetPassword('${u.user_id}')">
+        
           🔑
-
+        
         </button>
 
         <button
@@ -1541,5 +1439,145 @@ function applyFilter(){
   renderUserTable();
 
 }
+
+
+/*********************************************************
+ * 個人統計
+ *********************************************************/
+function showUserStatistics(userId){
+
+  const user =
+    allUsers.find(
+      u => String(u.user_id) === String(userId)
+    );
+
+  if(!user){
+    showToast('找不到使用者','error');
+    return;
+  }
+
+  alert(
+`
+姓名：${user.name || '-'}
+
+帳號：${user.username || '-'}
+
+總經驗：
+${user.exp_total || 0}
+
+裁判經驗：
+${user.exp_judge || 0}
+
+紀錄經驗：
+${user.exp_record || 0}
+
+完成率：
+${user.completed_rate || 0}%
+
+遲到率：
+${user.late_rate || 0}%
+
+缺席率：
+${user.no_show_rate || 0}%
+
+品質分數：
+${user.quality_score || 0}
+
+總評分：
+${user.final_score || 0}
+`
+  );
+
+}
+
+
+/*********************************************************
+ * 重設密碼
+ *********************************************************/
+function resetPassword(userId){
+
+  if(
+    !confirm(
+      '確定重設此帳號密碼？'
+    )
+  ){
+    return;
+  }
+
+  callApi(
+    {
+      action:'changePassword',
+      user_id:userId,
+      new_password:'0000'
+    },
+    res => {
+
+      if(
+        !res ||
+        res.result === 'error'
+      ){
+        showToast(
+          res?.message || '重設失敗',
+          'error'
+        );
+        return;
+      }
+
+      showToast(
+        '密碼已重設為 0000',
+        'success'
+      );
+
+    }
+  );
+
+}
+
+/*********************************************************
+ * 編輯使用者
+ *********************************************************/
+function openEditUserModal(userId){
+
+  const user =
+    allUsers.find(
+      u => String(u.user_id) === String(userId)
+    );
+
+  if(!user){
+    showToast('找不到使用者','error');
+    return;
+  }
+
+  alert(
+`
+姓名：
+${user.name || '-'}
+
+帳號：
+${user.username || '-'}
+
+Email：
+${user.email || '-'}
+
+電話：
+${user.phone || '-'}
+`
+  );
+
+}
+
+/*********************************************************
+ * 證照等級顯示
+ *********************************************************/
+function displayLevel(v){
+
+  if(!v || v === 'N'){
+    return '無';
+  }
+
+  return v;
+
+}
+
 
 </script>
