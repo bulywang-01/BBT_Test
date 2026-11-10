@@ -1202,15 +1202,32 @@ function getFilteredUsers(){
 
 
 /*********************************************************
- * 證照等級顯示
+ * 拆解裁判 / 紀錄等級
+ *
+ * 儲存格式：
+ * A,B
+ * B,C
+ * N,N
  *********************************************************/
-function displayLevel(v){
+function splitLevel(level){
 
-  if(!v || v === 'N'){
-    return '無';
+  if(
+    !level ||
+    level === 'NONE'
+  ){
+    return ['N','N'];
   }
 
-  return v;
+  if(
+    !String(level).includes(',')
+  ){
+    return [
+      String(level),
+      'N'
+    ];
+  }
+
+  return String(level).split(',');
 
 }
 
