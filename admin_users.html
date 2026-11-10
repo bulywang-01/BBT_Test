@@ -611,6 +611,50 @@ body{
 
 }
 
+
+.full-row{
+  grid-column:1 / span 2;
+}
+
+.modal-role-section{
+  grid-column:1 / span 2;
+  padding:14px;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  background:#f8fafc;
+}
+
+.section-title{
+  font-size:14px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+
+.role-checkbox-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+
+.role-checkbox-grid label{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.level-card{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.level-card label{
+  font-size:13px;
+  font-weight:700;
+  color:#475569;
+}
+
 </style>
 <body>
 
@@ -857,20 +901,19 @@ body{
     <!-- =========================
          User Modal
     ========================= -->
-    
     <div
       id="userModal"
       class="modal hidden">
     
       <div class="modal-dialog">
     
-        <div class="table-header">
+        <div class="modal-header">
     
           <div
             id="userModalTitle"
             class="table-title">
     
-            使用者資料
+            新增使用者
     
           </div>
     
@@ -884,118 +927,131 @@ body{
     
         </div>
     
-          <div class="modal-body">
-          
-            <div class="modal-grid">
-        
-              <input
-                id="modalUsername"
-                type="text"
-                placeholder="帳號">
-        
-              <input
-                id="modalName"
-                type="text"
-                placeholder="姓名">
-        
-              <input
-                id="modalNote"
-                type="text"
-                placeholder="背號">
-        
-              <input
-                id="modalEmail"
-                type="text"
-                placeholder="Email">
-        
+        <div class="modal-body">
+    
+          <div class="modal-grid">
+    
+            <input
+              id="modalUsername"
+              type="text"
+              placeholder="帳號">
+    
+            <input
+              id="modalName"
+              type="text"
+              placeholder="姓名">
+    
+            <input
+              id="modalNote"
+              type="text"
+              placeholder="背號">
+    
+            <input
+              id="modalEmail"
+              type="text"
+              placeholder="Email">
+    
+            <div class="full-row">
+    
               <input
                 id="modalPhone"
                 type="text"
                 placeholder="電話">
-        
-              <div class="modal-role-box">        
-                <strong>
-                  身份
-                </strong>
-        
-                <br><br>
-        
+    
+            </div>
+    
+            <div class="modal-role-section">
+    
+              <div class="section-title">
+    
+                身份
+    
+              </div>
+    
+              <div class="role-checkbox-grid">
+    
                 <label>
                   <input
                     type="checkbox"
                     id="roleJudge">
                   裁判
                 </label>
-        
+    
                 <label>
                   <input
                     type="checkbox"
                     id="roleChiefJudge">
                   裁判長
                 </label>
-        
+    
                 <label>
                   <input
                     type="checkbox"
                     id="roleRecord">
                   紀錄
                 </label>
-        
+    
                 <label>
                   <input
                     type="checkbox"
                     id="roleRecordChief">
                   紀錄長
                 </label>
-        
+    
                 <label>
                   <input
                     type="checkbox"
                     id="roleAdmin">
                   管理員
                 </label>
-        
+    
               </div>
-        
-              <div>
-        
-                <strong>
-                  裁判等級
-                </strong>
-        
-                <select id="judgeLevel">
-                  <option value="N">無</option>
-                  <option value="C">C</option>
-                  <option value="B">B</option>
-                  <option value="A">A</option>
-                </select>
-        
-              </div>
-        
-              <div>
-        
-                <strong>
-                  紀錄等級
-                </strong>
-        
-                <select id="recordLevel">
-                  <option value="N">無</option>
-                  <option value="C">C</option>
-                  <option value="B">B</option>
-                  <option value="A">A</option>
-                </select>
-        
-              </div>
+    
             </div>
-          </div>    
-        <div
-          style="
-            padding:16px;
-            border-top:1px solid #e5e7eb;
-            display:flex;
-            justify-content:flex-end;
-            gap:10px;
-          ">
+    
+            <div class="level-card">
+    
+              <label>
+    
+                裁判等級
+    
+              </label>
+    
+              <select id="judgeLevel">
+    
+                <option value="N">無</option>
+                <option value="C">C級</option>
+                <option value="B">B級</option>
+                <option value="A">A級</option>
+    
+              </select>
+    
+            </div>
+    
+            <div class="level-card">
+    
+              <label>
+    
+                紀錄等級
+    
+              </label>
+    
+              <select id="recordLevel">
+    
+                <option value="N">無</option>
+                <option value="C">C級</option>
+                <option value="B">B級</option>
+                <option value="A">A級</option>
+    
+              </select>
+    
+            </div>
+    
+          </div>
+    
+        </div>
+    
+        <div class="modal-footer">
     
           <button
             class="btn-outline"
