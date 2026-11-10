@@ -1948,7 +1948,7 @@ function openEditUserModal(userId){
  *********************************************************/
 function openUserModal(
   mode,
-  userId=''
+  userId = ''
 ){
 
   currentModalMode = mode;
@@ -1964,39 +1964,169 @@ function openUserModal(
       'userModalTitle'
     );
 
+  // ======================
+  // 新增模式
+  // ======================
+
   if(mode === 'create'){
-  
+
+    title.textContent =
+      '新增使用者';
+
     document.getElementById(
       'modalUsername'
     ).value = '';
-  
+
     document.getElementById(
       'modalName'
     ).value = '';
-  
+
     document.getElementById(
       'modalNote'
     ).value = '';
-  
+
     document.getElementById(
       'modalEmail'
     ).value = '';
-  
+
     document.getElementById(
       'modalPhone'
     ).value = '';
-  
-    title.textContent =
-      '新增使用者';
-  
-  }else{
+
+    document.getElementById(
+      'judgeLevel'
+    ).value = 'N';
+
+    document.getElementById(
+      'recordLevel'
+    ).value = 'N';
+
+    document.getElementById(
+      'roleJudge'
+    ).checked = false;
+
+    document.getElementById(
+      'roleChiefJudge'
+    ).checked = false;
+
+    document.getElementById(
+      'roleRecord'
+    ).checked = false;
+
+    document.getElementById(
+      'roleRecordChief'
+    ).checked = false;
+
+    document.getElementById(
+      'roleAdmin'
+    ).checked = false;
+
+    return;
+
+  }
+
+  // ======================
+  // 編輯模式
+  // ======================
+
+  if(mode === 'edit'){
+
+    const user =
+      allUsers.find(
+        u =>
+          String(u.user_id) ===
+          String(userId)
+      );
+
+    if(!user){
+
+      showToast(
+        '找不到使用者',
+        'error'
+      );
+
+      return;
+
+    }
 
     title.textContent =
       '編輯使用者';
 
+    document.getElementById(
+      'modalUsername'
+    ).value =
+      user.username || '';
+
+    document.getElementById(
+      'modalName'
+    ).value =
+      user.name || '';
+
+    document.getElementById(
+      'modalNote'
+    ).value =
+      user.note || '';
+
+    document.getElementById(
+      'modalEmail'
+    ).value =
+      user.email || '';
+
+    document.getElementById(
+      'modalPhone'
+    ).value =
+      user.phone || '';
+
+    const roles =
+      String(user.role || '')
+        .split(',');
+
+    document.getElementById(
+      'roleJudge'
+    ).checked =
+      roles.includes('judge');
+
+    document.getElementById(
+      'roleChiefJudge'
+    ).checked =
+      roles.includes(
+        'chief_judge'
+      );
+
+    document.getElementById(
+      'roleRecord'
+    ).checked =
+      roles.includes('record');
+
+    document.getElementById(
+      'roleRecordChief'
+    ).checked =
+      roles.includes(
+        'record_chief'
+      );
+
+    document.getElementById(
+      'roleAdmin'
+    ).checked =
+      roles.includes('admin');
+
+    const [
+      judgeLv,
+      recordLv
+    ] = splitLevel(user.level);
+
+    document.getElementById(
+      'judgeLevel'
+    ).value = judgeLv;
+    
+    document.getElementById(
+      'recordLevel'
+    ).value = recordLv;
+
   }
 
 }
+
 
 /*********************************************************
  * Close User Modal
