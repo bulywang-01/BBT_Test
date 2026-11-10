@@ -923,7 +923,11 @@ function toggleActive(userId, checked) {
   );
 }
 
-// 暫存修改內容
+/*********************************************************
+ * 暫存修改內容
+ * V2 舊版 Inline Edit
+ * 保留供未來 Modal 編輯使用
+ *********************************************************/
 function markField(uid,key,val){
   
   console.log('[markField]', uid, key, val);
@@ -932,7 +936,11 @@ function markField(uid,key,val){
   pendingUserUpdates[uid][key]=val;
 }
 
-// 變更身份
+/*********************************************************
+ * 變更身份
+ * V2 舊版 Inline Edit
+ * 保留供未來 Modal 編輯使用
+ *********************************************************/
 function toggleRole(uid,role,on){
   
   console.log('[toggleRole]', uid, role, on);
@@ -947,8 +955,11 @@ function toggleRole(uid,role,on){
   pendingUserUpdates[uid].role=rStr;
 }
 
-// 裁判等級
-// 紀錄等級
+/*********************************************************
+ * 裁判及紀錄等級
+ * V2 舊版 Inline Edit
+ * 保留供未來 Modal 編輯使用
+ *********************************************************/
 function setLevel(uid, type, val) {
   const u = allUsers.find(x => x.user_id == uid);
   if (!u) return;
@@ -971,7 +982,11 @@ function setLevel(uid, type, val) {
   console.log('[setLevel merged]', uid, newLevel);
 }
   
-// 實際寫入 Users
+/*********************************************************
+ * 實際寫入 Users
+ * V2 舊版 Inline Edit
+ * 保留供未來 Modal 編輯使用
+ *********************************************************/
 function saveUser(uid) {
   console.log('✅ saveUser triggered:', uid);
 
@@ -1180,6 +1195,21 @@ function getFilteredUsers(){
   });
 
 }
+
+
+/*********************************************************
+ * 證照等級顯示
+ *********************************************************/
+function displayLevel(v){
+
+  if(!v || v === 'N'){
+    return '無';
+  }
+
+  return v;
+
+}
+
 
 /*********************************************************
  * User V3 主表格
@@ -1563,19 +1593,6 @@ ${user.email || '-'}
 ${user.phone || '-'}
 `
   );
-
-}
-
-/*********************************************************
- * 證照等級顯示
- *********************************************************/
-function displayLevel(v){
-
-  if(!v || v === 'N'){
-    return '無';
-  }
-
-  return v;
 
 }
 
