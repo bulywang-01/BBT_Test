@@ -68,14 +68,14 @@ body{
   display:grid;
   grid-template-columns:
     repeat(4,minmax(0,1fr));
-  gap:18px;
-  margin-bottom:20px;
+  gap:14px;
+  margin-bottom:14px;
 }
 
 .kpi-card{
   background:#fff;
   border-radius:16px;
-  padding:14px 16px;
+  padding:10px 14px;
   min-height:auto;      /* 不固定高度 */
   box-shadow:
     0 4px 10px rgba(15,23,42,.05);
@@ -161,14 +161,17 @@ body{
 /*************************************************
  * Filter
  *************************************************/
-
 .filter-card{
   background:#fff;
   border-radius:18px;
-  padding:14px 18px;
-  margin-bottom:18px;
+  padding:14px;
+  margin-bottom:14px;
   box-shadow:
     0 4px 12px rgba(15,23,42,.05);
+}
+
+.role-filters{
+  margin-top:10px;
 }
 
 .filter-card label{
@@ -596,23 +599,6 @@ body{
 
   </section>
 
-
-  <!-- ===================================================== -->
-  <!-- 搜尋 -->
-  <!-- ===================================================== -->
-
-  <section class="toolbar">
-
-    <input
-      id="txtSearch"
-      class="search-input"
-      type="text"
-      placeholder="搜尋帳號、姓名、背號、Email..."
-    >
-
-  </section>
-
-
   <!-- ===================================================== -->
   <!-- 身份篩選 -->
   <!-- ===================================================== -->
@@ -676,40 +662,6 @@ body{
 
   </section>
 
-
-  <!-- ===================================================== -->
-  <!-- 功能列 -->
-  <!-- ===================================================== -->
-
-  <section class="toolbar-action">
-
-    <div class="toolbar-left">
-
-      <button
-        class="btn-primary"
-        onclick="openCreateUser()">
-        ＋ 新增使用者
-      </button>
-
-    </div>
-
-    <!-- 
-    <div class="toolbar-right">
-      <button class="btn-outline">
-        📥 匯入
-      </button>
-      <button class="btn-outline">
-        📤 匯出
-      </button>
-      <button class="btn-outline">
-        🔑 批次重設密碼
-      </button>
-    </div>
-    -->
-    
-  </section>
-
-
   <!-- ===================================================== -->
   <!-- 使用者清單 -->
   <!-- ===================================================== -->
@@ -717,17 +669,23 @@ body{
   <section class="table-panel">
 
     <div class="table-header">
-
+    
       <div class="table-title">
         👥 使用者清單
       </div>
-
-      <div
-        class="table-count"
-        id="tableCount">
-        共 74 筆
+    
+      <div class="table-actions">
+    
+        <button
+          class="btn-primary"
+          onclick="openCreateUser()">
+    
+          ＋ 新增使用者
+    
+        </button>
+    
       </div>
-
+    
     </div>
 
     <div class="table-wrapper">
