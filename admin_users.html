@@ -583,7 +583,20 @@ body{
 }
 
 .modal-role-box label{
+  display:inline-flex;
+  align-items:center;
   margin-right:16px;
+  margin-bottom:8px;
+}
+
+.modal-close{
+  border:none;
+  width:36px;
+  height:36px;
+  border-radius:10px;
+  background:rgba(255,255,255,.15);
+  color:#fff;
+  cursor:pointer;
 }
 
 @media(max-width:768px){
@@ -849,7 +862,7 @@ body{
       id="userModal"
       class="modal hidden">
     
-      <div class="modal-content">
+      <div class="modal-dialog">
     
         <div class="table-header">
     
@@ -862,7 +875,7 @@ body{
           </div>
     
           <button
-            class="btn-outline"
+            class="modal-close"
             onclick="closeUserModal()">
     
             ✕
@@ -871,115 +884,110 @@ body{
     
         </div>
     
-        <div
-          style="
-            padding:20px;
-            display:grid;
-            gap:14px;
-          ">
-    
-          <input
-            id="modalUsername"
-            type="text"
-            placeholder="帳號">
-    
-          <input
-            id="modalName"
-            type="text"
-            placeholder="姓名">
-    
-          <input
-            id="modalNote"
-            type="text"
-            placeholder="背號">
-    
-          <input
-            id="modalEmail"
-            type="text"
-            placeholder="Email">
-    
-          <input
-            id="modalPhone"
-            type="text"
-            placeholder="電話">
-    
-          <div>
-    
-            <strong>
-              身份
-            </strong>
-    
-            <br><br>
-    
-            <label>
+          <div class="modal-body">
+          
+            <div class="modal-grid">
+        
               <input
-                type="checkbox"
-                id="roleJudge">
-              裁判
-            </label>
-    
-            <label>
+                id="modalUsername"
+                type="text"
+                placeholder="帳號">
+        
               <input
-                type="checkbox"
-                id="roleChiefJudge">
-              裁判長
-            </label>
-    
-            <label>
+                id="modalName"
+                type="text"
+                placeholder="姓名">
+        
               <input
-                type="checkbox"
-                id="roleRecord">
-              紀錄
-            </label>
-    
-            <label>
+                id="modalNote"
+                type="text"
+                placeholder="背號">
+        
               <input
-                type="checkbox"
-                id="roleRecordChief">
-              紀錄長
-            </label>
-    
-            <label>
+                id="modalEmail"
+                type="text"
+                placeholder="Email">
+        
               <input
-                type="checkbox"
-                id="roleAdmin">
-              管理員
-            </label>
-    
-          </div>
-    
-          <div>
-    
-            <strong>
-              裁判等級
-            </strong>
-    
-            <select id="judgeLevel">
-              <option value="N">無</option>
-              <option value="C">C</option>
-              <option value="B">B</option>
-              <option value="A">A</option>
-            </select>
-    
-          </div>
-    
-          <div>
-    
-            <strong>
-              紀錄等級
-            </strong>
-    
-            <select id="recordLevel">
-              <option value="N">無</option>
-              <option value="C">C</option>
-              <option value="B">B</option>
-              <option value="A">A</option>
-            </select>
-    
-          </div>
-    
-        </div>
-    
+                id="modalPhone"
+                type="text"
+                placeholder="電話">
+        
+              <div class="modal-role-box">        
+                <strong>
+                  身份
+                </strong>
+        
+                <br><br>
+        
+                <label>
+                  <input
+                    type="checkbox"
+                    id="roleJudge">
+                  裁判
+                </label>
+        
+                <label>
+                  <input
+                    type="checkbox"
+                    id="roleChiefJudge">
+                  裁判長
+                </label>
+        
+                <label>
+                  <input
+                    type="checkbox"
+                    id="roleRecord">
+                  紀錄
+                </label>
+        
+                <label>
+                  <input
+                    type="checkbox"
+                    id="roleRecordChief">
+                  紀錄長
+                </label>
+        
+                <label>
+                  <input
+                    type="checkbox"
+                    id="roleAdmin">
+                  管理員
+                </label>
+        
+              </div>
+        
+              <div>
+        
+                <strong>
+                  裁判等級
+                </strong>
+        
+                <select id="judgeLevel">
+                  <option value="N">無</option>
+                  <option value="C">C</option>
+                  <option value="B">B</option>
+                  <option value="A">A</option>
+                </select>
+        
+              </div>
+        
+              <div>
+        
+                <strong>
+                  紀錄等級
+                </strong>
+        
+                <select id="recordLevel">
+                  <option value="N">無</option>
+                  <option value="C">C</option>
+                  <option value="B">B</option>
+                  <option value="A">A</option>
+                </select>
+        
+              </div>
+            </div>
+          </div>    
         <div
           style="
             padding:16px;
