@@ -75,7 +75,7 @@ body{
 .kpi-card{
   background:#fff;
   border-radius:16px;
-  padding:10px 14px;
+  padding:8px 12px;
   min-height:auto;      /* 不固定高度 */
   box-shadow:
     0 4px 10px rgba(15,23,42,.05);
@@ -93,24 +93,24 @@ body{
 }
 
 .kpi-title{
-  font-size:13px;
+  font-size:12px;
   color:#64748b;
   font-weight:600;
 }
 
 .kpi-icon{
-  width:40px;
-  height:40px;
+  width:32px;
+  height:32px;
   border-radius:12px;
   display:flex;
   align-items:center;
   justify-content:center;
   background:#eff6ff;
-  font-size:20px;
+  font-size:16px;
 }
 
 .kpi-value{
-  font-size:22px;
+  font-size:20px;
   line-height:1.1;
   font-weight:800;
   color:#0f172a;
@@ -183,6 +183,20 @@ body{
   cursor:pointer;
   font-size:14px;
   color:#334155;
+}
+
+.filter-search-row{
+  margin-bottom:10px;
+}
+
+.role-filter-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+}
+
+.role-filter-row label{
+  margin:0;
 }
 
 /*************************************************
@@ -611,27 +625,67 @@ body{
   <!-- 身份篩選 -->
   <!-- ===================================================== -->
 
-<section class="filter-card">
-
-  <input
-    id="txtSearch"
-    class="search-input"
-    type="text"
-    placeholder="搜尋帳號、姓名、背號、Email..."
-  >
-
-  <div class="role-filter-row">
-
-    全部
-    裁判
-    紀錄
-    裁判長
-    紀錄長
-    管理員
-
-  </div>
-
-</section>
+  <section class="filter-card">
+  
+    <div class="filter-search-row">
+  
+      <input
+        id="txtSearch"
+        class="search-input"
+        type="text"
+        placeholder="搜尋帳號、姓名、背號、Email..."
+      >
+  
+    </div>
+  
+    <div class="role-filter-row">
+  
+      <label>
+        <input type="radio"
+               name="roleFilter"
+               value="all"
+               checked>
+        全部
+      </label>
+  
+      <label>
+        <input type="radio"
+               name="roleFilter"
+               value="judge">
+        裁判
+      </label>
+  
+      <label>
+        <input type="radio"
+               name="roleFilter"
+               value="record">
+        紀錄
+      </label>
+  
+      <label>
+        <input type="radio"
+               name="roleFilter"
+               value="chief_judge">
+        裁判長
+      </label>
+  
+      <label>
+        <input type="radio"
+               name="roleFilter"
+               value="record_chief">
+        紀錄長
+      </label>
+  
+      <label>
+        <input type="radio"
+               name="roleFilter"
+               value="admin">
+        管理員
+      </label>
+  
+    </div>
+  
+  </section>
 
 
   <!-- ===================================================== -->
@@ -1265,11 +1319,12 @@ function renderUserTable(){
     tr.innerHTML = `
 
       <td>
-        ${u.note || '-'}
+        <strong>
+          #${u.note || '-'}
+        </strong>
       </td>
 
       <td>
-
         <div class="tb-name">
           ${u.name || '-'}
         </div>
@@ -1277,15 +1332,12 @@ function renderUserTable(){
         <div class="tb-account">
           ${u.username || ''}
         </div>
-
       </td>
 
       <td>
-
         <div class="table-badges">
           ${roleBadges.join('')}
         </div>
-
       </td>
 
       <td>
