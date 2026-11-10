@@ -68,14 +68,14 @@ body{
   display:grid;
   grid-template-columns:
     repeat(4,minmax(0,1fr));
-  gap:14px;
-  margin-bottom:14px;
+  gap:12px;
+  margin-bottom:12px;
 }
 
 .kpi-card{
   background:#fff;
   border-radius:16px;
-  padding:12px 14px;
+  padding:10px 14px;
   min-height:auto;      /* 不固定高度 */
   box-shadow:
     0 4px 10px rgba(15,23,42,.05);
@@ -611,64 +611,28 @@ body{
   <!-- 身份篩選 -->
   <!-- ===================================================== -->
 
-  <section class="filter-card">
+<section class="filter-card">
 
-    <label>
-      <input
-        type="radio"
-        name="roleFilter"
-        value="all"
-        checked
-      >
-      全部
-    </label>
+  <input
+    id="txtSearch"
+    class="search-input"
+    type="text"
+    placeholder="搜尋帳號、姓名、背號、Email..."
+  >
 
-    <label>
-      <input
-        type="radio"
-        name="roleFilter"
-        value="judge"
-      >
-      裁判
-    </label>
+  <div class="role-filter-row">
 
-    <label>
-      <input
-        type="radio"
-        name="roleFilter"
-        value="record"
-      >
-      紀錄
-    </label>
+    全部
+    裁判
+    紀錄
+    裁判長
+    紀錄長
+    管理員
 
-    <label>
-      <input
-        type="radio"
-        name="roleFilter"
-        value="chief_judge"
-      >
-      裁判長
-    </label>
+  </div>
 
-    <label>
-      <input
-        type="radio"
-        name="roleFilter"
-        value="record_chief"
-      >
-      紀錄長
-    </label>
+</section>
 
-    <label>
-      <input
-        type="radio"
-        name="roleFilter"
-        value="admin"
-      >
-      管理員
-    </label>
-
-  </section>
 
   <!-- ===================================================== -->
   <!-- 使用者清單 -->
