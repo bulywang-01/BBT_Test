@@ -1485,14 +1485,42 @@ function hideLoading(){
 
 // 讀取 Users
 function loadUsers(){
-  callApi({action:'getUsers'}, res => {
-    if (!res || res.result === 'error') {
-      showToast(res?.message || '載入使用者失敗','error');
-      return;
+
+  callApi(
+    { action:'getUsers' },
+    res => {
+
+      console.log(
+        '[getUsers response]',
+        res
+      );
+
+      if (
+        !res ||
+        res.result === 'error'
+      ) {
+
+        showToast(
+          res?.message || '載入使用者失敗',
+          'error'
+        );
+
+        return;
+      }
+
+      allUsers =
+        res.users || [];
+
+      console.log(
+        '[first user]',
+        allUsers[0]
+      );
+
+      renderAll();
+
     }
-    allUsers = res.users || [];
-    renderAll();
-  });
+  );
+
 }
 
 /*********************************************************
