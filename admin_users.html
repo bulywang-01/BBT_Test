@@ -439,9 +439,9 @@ body{
 }
 
 .action-btn{
-  font-size:15px;
-  width:36px;
-  height:36px;
+  font-size:14px;
+  width:32px;
+  height:32px;
   border:none;
   border-radius:10px;
   cursor:pointer;
@@ -821,6 +821,8 @@ body{
   border-radius:999px;
   font-size:11px;
   font-weight:700;
+  min-width:42px;
+  justify-content:center;
 }
 
 .license-judge{
@@ -2150,7 +2152,7 @@ function renderUserTable(){
             <span
               class="license-badge license-judge">
       
-              ${judgeLv}級裁判
+              ${judgeLv}裁
       
             </span>
             `
@@ -2163,7 +2165,7 @@ function renderUserTable(){
             <span
               class="license-badge license-record">
       
-              ${recordLv}級紀錄
+              ${recordLv}紀
       
             </span>
             `
@@ -2221,11 +2223,11 @@ function renderUserTable(){
       <td>
       
         <div>
-          📧 ${u.email || '-'}
+          ${u.email || '-'}
         </div>
       
         <div>
-          📱 ${u.phone || '-'}
+          ${u.phone || '-'}
         </div>
       
       </td>
