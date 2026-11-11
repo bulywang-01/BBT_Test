@@ -2065,8 +2065,6 @@ function renderUserTable(){
         u.level || 'N,N'
       );
 
-    const qualificationBadges = buildQualificationBadges(u);
-
     const activeClass =
       isUserActive(u.active)
         ? 'status-active'
@@ -2082,6 +2080,8 @@ function renderUserTable(){
         ? 'power-on'
         : 'power-off';
     
+    const qualificationBadges = buildQualificationBadges(u);
+
     const quality =
         Number(u.quality_score || 0);
       
@@ -2133,40 +2133,24 @@ function renderUserTable(){
       </td>
 
       <td>
-        <div class="table-badges">
-          ${qualificationBadges}
+        <div class="stat-card">
+          <strong>
+            資格
+          </strong>
+        
+          <div
+            class="table-badges"
+            style="margin-top:8px;">
+            ${qualificationBadges}
+          </div>
         </div>
       </td>
 
       <td>
       
-        <div class="license-badges">
+        <div class="table-badges">
       
-          ${
-            judgeLv !== 'N'
-            ? `
-            <span
-              class="license-badge license-judge">
-      
-              ${judgeLv}裁
-      
-            </span>
-            `
-            : ''
-          }
-      
-          ${
-            recordLv !== 'N'
-            ? `
-            <span
-              class="license-badge license-record">
-      
-              ${recordLv}紀
-      
-            </span>
-            `
-            : ''
-          }
+          ${qualificationBadges}
       
         </div>
       
@@ -2232,11 +2216,6 @@ function renderUserTable(){
         </div>
       
       </td>
-      
-      <td class="last-login">
-        ${formatDateTime(u.last_login)}
-      </td>
-
 
       <td class="action-col">
       
@@ -2428,7 +2407,7 @@ function showUserStatistics(userId){
         
         <td>
         
-          <div class="table-badges">
+          <div class="stat-card">
             ${qualificationBadges}
           </div>
         
