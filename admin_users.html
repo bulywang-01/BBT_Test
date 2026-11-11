@@ -186,7 +186,9 @@ body{
 }
 
 .filter-search-row{
-  margin-bottom:10px;
+  margin-top:12px;
+  display:flex;
+  justify-content:flex-end;
 }
 
 .role-filter-row{
@@ -958,17 +960,6 @@ body{
 
   <section class="filter-card">
   
-    <div class="filter-search-row">
-  
-      <input
-        id="txtSearch"
-        class="search-input"
-        type="text"
-        placeholder="搜尋帳號、姓名、背號、Email..."
-      >
-  
-    </div>
-  
     <div class="role-filter-row">
   
       <label>
@@ -1015,7 +1006,18 @@ body{
       </label>
   
     </div>
+    
+    <div class="filter-search-row">
   
+      <input
+        id="txtSearch"
+        class="search-input"
+        type="text"
+        placeholder="搜尋帳號、姓名、背號、Email..."
+      >
+  
+    </div>
+    
   </section>
 
 
@@ -1057,12 +1059,10 @@ body{
 
             <th>背號</th>
             <th>姓名</th>
-            <th>身份</th>
-            <th>證照</th>
+            <th>資格</th>
             <th>年度出勤</th>
             <th>品質分數</th>
             <th>聯絡資訊</th>
-            <th>狀態</th>
             <th>最後登入</th>
             <th>操作</th>
 
@@ -2121,9 +2121,19 @@ function renderUserTable(){
     tr.innerHTML = `
 
       <td>
-        <strong>
-          #${u.note || '-'}
-        </strong>
+        <div>
+          <strong>
+            #${u.note || '-'}
+          </strong>
+        </div>
+      
+        <span
+          class="
+            status-badge
+            ${activeClass}
+          ">
+            ${activeText}
+        </span>
       </td>
 
       <td>
@@ -2433,35 +2443,15 @@ function showUserStatistics(userId){
 
         </div>
         
-        <div class="stat-card">
+        <td>
         
-          <strong>身份</strong>
+          <div class="table-badges">
         
-          <div style="
-            font-size:14px;
-            line-height:1.4;
-          ">
-        
-            ${displayRole(user.role)}
+            ${buildQualificationBadges(u)}
         
           </div>
         
-        </div>
-        
-        <div class="stat-card">
-        
-          <strong>證照</strong>
-        
-          <div style="
-            font-size:12px;
-            line-height:1.4;
-          ">
-        
-            ${displayLicense(user.level)}
-        
-          </div>
-        
-        </div>
+        </td>
 
         <div class="stat-card">
 
@@ -3384,4 +3374,111 @@ Email：${email || '-'}`;
 
 }
 
+/*********************************************************
+ * 身份 + 證照合併
+ *********************************************************/
+function buildQualificationBadges(user){
+
+  const badges = [];
+
+  const roles =
+    String(user.role || '')
+      .split(',');
+
+  const [
+    judgeLv,
+    recordLv
+  ] = splitLevel(
+    user.level || 'N,N'
+  );
+
+  if(roles.includes('judge')){
+
+    badges.push(
+      judgeLv !== 'N'
+      ? `
+      <span class="
+        role-badge
+        role-judge
+      ">
+        ${judgeLv}級裁判
+      </span>`
+      : `
+      <span class="
+        role-badge
+        role-judge
+      ">
+        裁判
+      </span>`
+    );
+
+  }
+
+  if(roles.includes('record')){
+
+    badges.push(
+      recordLv !== 'N'
+      ? `
+      <span class="
+        role-badge
+        role-record
+      ">
+        ${recordLv}級紀錄
+      </span>`
+      : `
+      <span class="
+        role-badge
+        role-record
+      ">
+        紀錄
+      </span>`
+    );
+
+  }
+
+  if(roles.includes('chief_judge')){
+
+    badges.push(
+      `
+      <span class="
+        role-badge
+        role-chief-judge
+      ">
+        裁判長
+      </span>`
+    );
+
+  }
+
+  if(roles.includes('record_chief')){
+
+    badges.push(
+      `
+      <span class="
+        role-badge
+        role-record-chief
+      ">
+        紀錄長
+      </span>`
+    );
+
+  }
+
+  if(roles.includes('admin')){
+
+    badges.push(
+      `
+      <span class="
+        role-badge
+        role-admin
+      ">
+        管理員
+      </span>`
+    );
+
+  }
+
+  return badges.join('');
+
+}
 </script>
