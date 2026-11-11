@@ -1,4 +1,25 @@
-<style>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>帳號管理</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  
+  <!-- 共用 CSS（一定要是單獨一行，必須有關閉 >） -->
+  <link rel="stylesheet" href="common.css">
+
+  <!-- 頁面內 CSS（一定只能在 <style> 裡） -->
+  
+  <style>
 
 /*************************************************
  * User Management V2 
@@ -170,6 +191,9 @@ body{
     0 4px 12px rgba(15,23,42,.05);
   overflow-x:auto;
   white-space:nowrap;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
 }
 
 .role-filters{
@@ -840,9 +864,284 @@ body{
 
 </style>
 
-<body>
+<body class="bg-slate-100 antialiased text-slate-800">
 
-<div id="header-container"></div>
+  <!-- Mobile Overlay -->
+  <div id="sidebar-overlay"
+       onclick="toggleSidebar()"
+       class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity">
+  </div>
+    
+    <!-- Sidebar -->
+    <aside id="sidebar"
+      class="fixed lg:static inset-y-0 left-0 w-64
+             bg-slate-900 text-slate-300
+             z-50 flex flex-col justify-between
+             transform -translate-x-full
+             lg:translate-x-0
+             transition-transform duration-300 ease-in-out
+             shrink-0 border-r border-slate-800
+             shadow-2xl lg:shadow-none">
+    
+      <div>
+    
+        <!-- Logo -->
+        <div class="h-16 flex items-center justify-between px-5 bg-slate-950 border-b border-slate-800">
+    
+          <div class="flex items-center space-x-3">
+    
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 text-white flex items-center justify-center shadow-md shadow-brand-500/20">
+              <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+    
+            <div>
+    
+              <h1 class="font-black text-white text-base tracking-wide">
+                BBT 管理中心
+              </h1>
+    
+              <p class="text-[14px] font-bold text-slate-400">
+                出勤與賽事後端控制台
+              </p>
+    
+            </div>
+    
+          </div>
+    
+          <button onclick="toggleSidebar()"
+                  class="lg:hidden text-slate-400 hover:text-white p-1">
+    
+            <i data-lucide="x" class="w-5 h-5"></i>
+    
+          </button>
+    
+        </div>
+    
+        <!-- Navigation -->
+        <nav class="p-3.5 space-y-1 text-xs font-semibold overflow-y-auto max-h-[calc(100vh-140px)]">
+    
+          <!-- Dashboard -->
+          <div class="text-[10px] text-slate-500 font-bold px-3 pt-2 pb-1 uppercase tracking-wider">
+            主控數據中心
+          </div>
+    
+          <a href="admin_dashboard.html"
+             class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-brand-600 text-white font-bold shadow-lg shadow-brand-600/30">
+    
+            <div class="flex items-center space-x-3">
+              <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+              <span>管理總覽</span>
+            </div>
+    
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+    
+          </a>
+    
+          <!-- 排班管理 -->
+    
+          <div class="text-[10px] text-slate-500 font-bold px-3 pt-4 pb-1 uppercase tracking-wider">
+            排班管理
+          </div>
+    
+          <a href="judge_dashboard_admin.html"
+             class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+    
+            <div class="flex items-center space-x-3">
+              <i data-lucide="flag" class="w-4 h-4"></i>
+              <span>裁判排班</span>
+            </div>
+    
+            <span id="sidebarJudgeShortage"
+                  class="text-[10px] text-rose-400">
+            </span>
+    
+          </a>
+    
+          <a href="record_dashboard_admin.html"
+             class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+    
+            <div class="flex items-center space-x-3">
+              <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+              <span>紀錄排班</span>
+            </div>
+    
+            <span id="sidebarRecordShortage"
+                  class="text-[10px] text-emerald-400">
+            </span>
+    
+          </a>
+    
+          <!-- 出勤管理 -->
+    
+          <div class="text-[10px] text-slate-500 font-bold px-3 pt-4 pb-1 uppercase tracking-wider">
+            出勤管理
+          </div>
+    
+          <a href="assignment_execution.html"
+             class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+    
+            <div class="flex items-center space-x-3">
+              <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+              <span>出勤確認</span>
+            </div>
+    
+            <span id="sidebarnoSignupCount"
+                  class="text-[10px] text-amber-400">
+            </span>
+    
+          </a>
+    
+          <!-- 系統管理 -->
+    
+          <div class="text-[10px] text-slate-500 font-bold px-3 pt-4 pb-1 uppercase tracking-wider">
+            系統管理
+          </div>
+    
+          <a href="admin_games.html"
+             class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-brand-600 text-white font-bold shadow-lg shadow-brand-600/30">
+          
+            <div class="flex items-center space-x-3">
+              <i data-lucide="calendar-range" class="w-4 h-4"></i>
+              <span>賽事管理</span>
+            </div>
+          
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          
+          </a>
+    
+          <a href="admin_users.html"
+             class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+    
+            <div class="flex items-center space-x-3">
+              <i data-lucide="users" class="w-4 h-4"></i>
+              <span>帳號管理</span>
+            </div>
+    
+            <span id="sidebarUserCount"
+                  class="text-[10px] text-slate-500">
+            </span>
+    
+          </a>
+    
+          <!-- 報表 -->
+    
+          <div class="text-[10px] text-slate-500 font-bold px-3 pt-4 pb-1 uppercase tracking-wider">
+            統計報表
+          </div>
+    
+          <a href="#"
+             onclick="openAnnualModal('judge')"
+             class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+    
+            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+            <span>裁判年度總表</span>
+    
+          </a>
+    
+          <a href="#"
+             onclick="openAnnualModal('record')"
+             class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+    
+            <i data-lucide="pie-chart" class="w-4 h-4"></i>
+            <span>紀錄年度總表</span>
+    
+          </a>
+    
+          <a href="report.html"
+             class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+    
+            <i data-lucide="file-bar-chart" class="w-4 h-4"></i>
+            <span>出勤報表</span>
+    
+          </a>
+    
+        </nav>
+    
+      </div>
+    
+      <!-- Footer -->
+    
+      <div class="p-3.5 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
+    
+        <div class="flex items-center space-x-3">
+    
+          <div id="sidebarAvatar" class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 font-black flex items-center justify-center text-sm">-</div>
+    
+          <div>
+            <div id="sidebarUserName" class="text-xs font-bold text-white">-</div>
+            <div id="sidebarUserRole" class="text-[10px] text-amber-400">-</div>
+          </div>
+    
+        </div>
+    
+        <button onclick="alert('登出')"
+                class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg">
+    
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+    
+        </button>
+    
+      </div>
+    
+  </aside>
+  
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+  
+    <!-- Top Navigation Header -->
+    <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20 shrink-0 shadow-sm">
+    
+        <div class="flex items-center space-x-3">
+      
+          <button
+            onclick="toggleSidebar()"
+            class="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition">
+      
+            <i data-lucide="menu" class="w-5 h-5"></i>
+      
+          </button>
+      
+          <h2 class="font-black text-slate-900 text-base sm:text-lg tracking-tight">
+            BBT 出勤管理中心
+          </h2>
+      
+        </div>
+  
+        <!-- Top Header Right Controls -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+  
+          <button onclick="showToast('已更新最新出勤數據！')" class="p-2 text-slate-500 hover:text-brand-600 hover:bg-slate-100 rounded-xl transition relative" title="重新整理數據">
+            <i data-lucide="refresh-cw" class="w-4.5 h-4.5"></i>
+          </button>
+  
+          <a href="index.html" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shadow-sm">
+            <i data-lucide="external-link" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>回首頁</span>
+          </a>
+        </div>
+      
+    </header>
+  
+    <div class="overflow-auto">
+  
+      <div class="main">
+  
+  
+    <div class="page-header">
+    
+      <div>
+    
+        <div class="page-title">
+          🏟 賽事管理中心
+        </div>
+    
+        <div class="page-subtitle">
+          建立、維護、派遣與追蹤賽事
+        </div>
+    
+      </div>
+    
+    </div>
 
 <div class="page-container">
 
@@ -1057,7 +1356,7 @@ body{
 
           <tr>
 
-            <th>背號</th>
+            <th>#</th>
             <th>姓名</th>
             <th>資格</th>
             <th>年度出勤</th>
@@ -2053,7 +2352,7 @@ function renderUserTable(){
         u.level || 'N,N'
       );
 
-    const roleBadges = [];
+    const qualificationBadges = buildQualificationBadges(u);
 
     if(roles.includes('judge')){
       roleBadges.push(
@@ -2439,7 +2738,7 @@ function showUserStatistics(userId){
         
           <div class="table-badges">
         
-            ${buildQualificationBadges(u)}
+            ${qualificationBadges}
         
           </div>
         
@@ -3375,7 +3674,7 @@ function buildQualificationBadges(user){
 
   const roles =
     String(user.role || '')
-      .split(',');
+    .split(',');
 
   const [
     judgeLv,
@@ -3384,88 +3683,122 @@ function buildQualificationBadges(user){
     user.level || 'N,N'
   );
 
+  // 裁判
+
   if(roles.includes('judge')){
 
     badges.push(
-      judgeLv !== 'N'
-      ? `
-      <span class="
-        role-badge
-        role-judge
-      ">
-        ${judgeLv}級裁判
-      </span>`
-      : `
-      <span class="
-        role-badge
-        role-judge
-      ">
-        裁判
-      </span>`
+      `
+      <span
+        class="
+          role-badge
+          role-judge
+        ">
+
+        ${
+          judgeLv !== 'N'
+          ? `${judgeLv}級裁判`
+          : '裁判'
+        }
+
+      </span>
+      `
     );
 
   }
+
+  // 紀錄
 
   if(roles.includes('record')){
 
     badges.push(
-      recordLv !== 'N'
-      ? `
-      <span class="
-        role-badge
-        role-record
-      ">
-        ${recordLv}級紀錄
-      </span>`
-      : `
-      <span class="
-        role-badge
-        role-record
-      ">
-        紀錄
-      </span>`
+      `
+      <span
+        class="
+          role-badge
+          role-record
+        ">
+
+        ${
+          recordLv !== 'N'
+          ? `${recordLv}級紀錄`
+          : '紀錄'
+        }
+
+      </span>
+      `
     );
 
   }
 
-  if(roles.includes('chief_judge')){
+  // 裁判長
+
+  if(
+    roles.includes(
+      'chief_judge'
+    )
+  ){
 
     badges.push(
       `
-      <span class="
-        role-badge
-        role-chief-judge
-      ">
+      <span
+        class="
+          role-badge
+          role-chief-judge
+        ">
+
         裁判長
-      </span>`
+
+      </span>
+      `
     );
 
   }
 
-  if(roles.includes('record_chief')){
+  // 紀錄長
+
+  if(
+    roles.includes(
+      'record_chief'
+    )
+  ){
 
     badges.push(
       `
-      <span class="
-        role-badge
-        role-record-chief
-      ">
+      <span
+        class="
+          role-badge
+          role-record-chief
+        ">
+
         紀錄長
-      </span>`
+
+      </span>
+      `
     );
 
   }
 
-  if(roles.includes('admin')){
+  // 管理員
+
+  if(
+    roles.includes(
+      'admin'
+    )
+  ){
 
     badges.push(
       `
-      <span class="
-        role-badge
-        role-admin
-      ">
+      <span
+        class="
+          role-badge
+          role-admin
+        ">
+
         管理員
-      </span>`
+
+      </span>
+      `
     );
 
   }
