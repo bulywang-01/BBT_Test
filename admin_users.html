@@ -729,6 +729,31 @@ body{
   font-weight:700;
 }
 
+/* 系統資訊 */
+.system-info-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(2,1fr);
+  gap:12px;
+}
+
+.system-info-item{
+  padding:12px;
+  background:#fff;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+}
+
+.system-info-label{
+  font-size:12px;
+  color:#64748b;
+}
+
+.system-info-value{
+  margin-top:6px;
+  font-size:18px;
+  font-weight:700;
+}
 </style>
 
 <body>
@@ -1119,7 +1144,16 @@ body{
               </select>
     
             </div>
-    
+
+            <div class="modal-role-section">
+              <div class="section-title">
+                系統資訊
+              </div>
+              <div id="userSystemInfo">
+                -
+              </div>
+            </div>
+            
           </div>
     
         </div>
@@ -2257,7 +2291,13 @@ function openUserModal(
     document.getElementById(
       'modalUsername'
     ).readOnly = false;
-    
+
+    document.getElementById(
+      'userSystemInfo'
+    ).innerHTML = `
+      尚未建立帳號
+    `;
+        
     return;
 
   }
@@ -2363,6 +2403,65 @@ function openUserModal(
     document.getElementById(
       'modalUsername'
     ).readOnly = true;
+
+    document.getElementById(
+      'userSystemInfo'
+    ).innerHTML = `
+    
+    <div class="system-info-grid">
+      <div class="system-info-item">
+        <div class="system-info-label">
+          帳號狀態
+        </div>
+        <div class="system-info-value">
+          ${
+            isUserActive(user.active)
+            ? '啟用'
+            : '停用'
+          }
+        </div>
+      </div>
+    
+      <div class="system-info-item">
+        <div class="system-info-label">
+          最後登入
+        </div>
+        <div class="system-info-value">
+          ${
+            formatDateTime(
+              user.last_login
+            )
+          }
+        </div>
+      </div>
+    
+      <div class="system-info-item">
+        <div class="system-info-label">
+          總經驗
+        </div>
+        <div class="system-info-value">
+          ${
+            user.exp_total || 0
+          }
+        </div>
+      </div>
+    
+      <div class="system-info-item">
+        <div class="system-info-label">
+          品質分數
+        </div>
+        <div class="system-info-value">
+          ${
+            user.quality_score || 0
+          }
+        </div>
+    
+      </div>
+    
+    </div>
+    
+    `;
+
   }
 
 }
