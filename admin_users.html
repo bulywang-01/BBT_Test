@@ -468,6 +468,16 @@ body{
   background:#fee2e2;
 }
 
+.action-btn.copy{
+  background:#e0f2fe;
+  color:#0369a1;
+}
+
+.action-btn.copy{
+  background:#dbeafe;
+  color:#1d4ed8;
+}
+  
 /*************************************************
  * RWD
  *************************************************/
@@ -985,15 +995,17 @@ body{
       </div>
     
       <div class="table-actions">
-    
+        <button
+          class="btn-outline"
+          onclick="exportUsers()">
+          📥 匯出CSV
+        </button>
+        
         <button
           class="btn-primary"
           onclick="openUserModal('create')">
-    
           ＋ 新增使用者
-    
         </button>
-    
       </div>
     
     </div>
@@ -1659,29 +1671,46 @@ function saveUser(uid) {
 
 // 刪除帳號
 function deleteUser(uid, username) {
-  if (!confirm(`確定要刪除使用者「${username}」？`)) return;
 
-  const currentUserId = localStorage.getItem('user_id') || '';
+  if (!confirm(`確定要刪除使用者「${username}」？`))
+    return;
+
+  showLoading('刪除帳號中...');
+
+  const currentUserId =
+    localStorage.getItem('user_id') || '';
 
   callApi(
     {
-      action: 'deleteUsers',          // ✅ 對齊後端
-      user_ids: uid,                  // ✅ 對齊後端（逗號字串）
-      current_user_id: currentUserId  // ✅ 後端需要
+      action:'deleteUsers',
+      user_ids:uid,
+      current_user_id:currentUserId
     },
-    function(res) {
+    function(res){
 
-      console.log('[deleteUsers response]', res);
+      hideLoading();
 
-      if (res && res.result === 'error') {
-        showToast(res.message || '刪除失敗','error');
+      if(
+        res &&
+        res.result === 'error'
+      ){
+        showToast(
+          res.message || '刪除失敗',
+          'error'
+        );
         return;
       }
 
-      showToast(res.message || '刪除成功','success');
+      showToast(
+        res.message || '刪除成功',
+        'success'
+      );
+
       loadUsers();
+
     }
   );
+
 }
 
 // 提示訊息
@@ -2025,6 +2054,17 @@ function renderUserTable(){
       <td class="action-col">
 
         <button
+          class="action-btn copy"
+          title="複製帳號資訊"
+          onclick="
+            copyUserInfo(
+              '${u.username || ''}',
+              '${u.email || ''}'
+            )">
+          📋
+        </button>
+
+        <button
           class="action-btn stat"
           title="個人統計"
           onclick="showUserStatistics('${u.user_id}')">
@@ -2134,6 +2174,26 @@ function showUserStatistics(userId){
 
   }
 
+  let qualityColor = '#64748b';
+
+  const quality =
+    Number(
+      user.quality_score || 0
+    );
+
+  if(quality >= 80){
+    qualityColor = '#16a34a';
+  }
+  else if(quality >= 60){
+    qualityColor = '#2563eb';
+  }
+  else if(quality >= 40){
+    qualityColor = '#f59e0b';
+  }
+  else{
+    qualityColor = '#dc2626';
+  }
+
   document
     .getElementById(
       'statisticsModal'
@@ -2151,12 +2211,45 @@ function showUserStatistics(userId){
 
         <div class="stat-card">
 
-          <h3>
-            ${user.name || '-'}
-          </h3>
+          <strong>姓名</strong>
 
-          <div>
+          <div style="
+            font-size:18px;
+          ">
+            ${user.name || '-'}
+          </div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <strong>帳號</strong>
+
+          <div style="
+            font-size:18px;
+          ">
             ${user.username || '-'}
+          </div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <strong>帳號狀態</strong>
+
+          <div style="
+            font-size:18px;
+            color:${
+              isUserActive(user.active)
+                ? '#16a34a'
+                : '#dc2626'
+            };
+          ">
+            ${
+              isUserActive(user.active)
+                ? '啟用'
+                : '停用'
+            }
           </div>
 
         </div>
@@ -2225,7 +2318,9 @@ function showUserStatistics(userId){
 
           <strong>品質分數</strong>
 
-          <div>
+          <div style="
+            color:${qualityColor};
+          ">
             ${user.quality_score || 0}
           </div>
 
@@ -2237,6 +2332,23 @@ function showUserStatistics(userId){
 
           <div>
             ${user.final_score || 0}
+          </div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <strong>最後登入</strong>
+
+          <div style="
+            font-size:14px;
+            line-height:1.4;
+          ">
+            ${
+              formatDateTime(
+                user.last_login
+              )
+            }
           </div>
 
         </div>
@@ -2678,6 +2790,8 @@ function saveUserModal(){
 
   if(!username){
 
+    hideLoading();
+    
     showToast(
       '請輸入帳號',
       'warn'
@@ -2689,6 +2803,8 @@ function saveUserModal(){
 
   if(!name){
 
+    hideLoading();
+    
     showToast(
       '請輸入姓名',
       'warn'
@@ -2850,4 +2966,227 @@ function closeStatisticsModal(){
     .add('hidden');
 
 }
+
+/*********************************************************
+ * 複製帳號資訊
+ *********************************************************/
+function copyUserInfo(
+  username,
+  email = ''
+){
+
+  const text =
+
+`帳號：${username}
+
+Email：${email || '-'}`;
+
+  navigator.clipboard
+    .writeText(text)
+    .then(()=>{
+
+      showToast(
+        '帳號資訊已複製',
+        'success'
+      );
+
+    })
+    .catch(()=>{
+
+      showToast(
+        '複製失敗',
+        'error'
+      );
+
+    });
+
+}
+
+/*********************************************************
+ * 匯出 Users CSV
+ *********************************************************/
+function exportUsers(){
+
+  if(
+    !allUsers ||
+    allUsers.length === 0
+  ){
+
+    showToast(
+      '沒有可匯出的資料',
+      'warn'
+    );
+
+    return;
+
+  }
+
+  const headers = [
+
+    '背號',
+    '帳號',
+    '姓名',
+    'Email',
+    '電話',
+    '身份',
+    '證照等級',
+    '帳號狀態',
+    '最後登入',
+    '總經驗',
+    '裁判經驗',
+    '紀錄經驗',
+    '完成率',
+    '遲到率',
+    '缺席率',
+    '品質分數',
+    '總評分'
+
+  ];
+
+  const rows = allUsers.map(u => [
+
+    u.note || '',
+    u.username || '',
+    u.name || '',
+    u.email || '',
+    u.phone || '',
+    u.role || '',
+    u.level || '',
+
+    isUserActive(u.active)
+      ? '啟用'
+      : '停用',
+
+    formatDateTime(
+      u.last_login
+    ),
+
+    u.exp_total || 0,
+    u.exp_judge || 0,
+    u.exp_record || 0,
+
+    `${u.completed_rate || 0}%`,
+    `${u.late_rate || 0}%`,
+    `${u.no_show_rate || 0}%`,
+
+    u.quality_score || 0,
+    u.final_score || 0
+
+  ]);
+
+  const csvRows = [
+
+    headers.join(','),
+
+    ...rows.map(row=>
+      row.map(v => {
+
+        const value =
+          String(v || '');
+
+        return `"${value.replace(/"/g,'""')}"`;
+
+      }).join(',')
+    )
+
+  ];
+
+  const csvContent =
+    '\uFEFF' +
+    csvRows.join('\n');
+
+  const blob =
+    new Blob(
+      [csvContent],
+      {
+        type:'text/csv;charset=utf-8;'
+      }
+    );
+
+  const link =
+    document.createElement('a');
+
+  const url =
+    URL.createObjectURL(blob);
+
+  link.href = url;
+
+  const today =
+    new Date();
+
+  const filename =
+    `Users_${
+      today.getFullYear()
+    }${
+      String(
+        today.getMonth()+1
+      ).padStart(2,'0')
+    }${
+      String(
+        today.getDate()
+      ).padStart(2,'0')
+    }.csv`;
+
+  link.download =
+    filename;
+
+  document.body.appendChild(
+    link
+  );
+
+  link.click();
+
+  document.body.removeChild(
+    link
+  );
+
+  URL.revokeObjectURL(
+    url
+  );
+
+  showToast(
+    '使用者資料匯出完成',
+    'success'
+  );
+
+}
+
+/*********************************************************
+ * 複製帳號資訊
+ *********************************************************/
+function copyUserInfo(
+  username,
+  email='',
+  name=''
+){
+
+  const text =
+
+`姓名：${name}
+
+帳號：${username}
+
+Email：${email || '-'}`;
+
+  navigator.clipboard
+    .writeText(text)
+    .then(()=>{
+
+      showToast(
+        '帳號資訊已複製',
+        'success'
+      );
+
+    })
+    .catch(()=>{
+
+      showToast(
+        '複製失敗',
+        'error'
+      );
+
+    });
+
+}
+
 </script>
