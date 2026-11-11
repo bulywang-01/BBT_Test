@@ -666,25 +666,30 @@ body{
 .toast{
   position:fixed;
   top:20px;
-  right:20px;
-  min-width:240px;
-  max-width:420px;
-  padding:12px 16px;
+  left:50%;
+  transform:
+    translateX(-50%)
+    translateY(-10px);
+  min-width:280px;
+  max-width:500px;
+  padding:12px 18px;
   border-radius:12px;
+  text-align:center;
   color:#fff;
   font-size:14px;
-  font-weight:600;
+  font-weight:700;
   box-shadow:
     0 10px 25px rgba(0,0,0,.15);
   opacity:0;
-  transform:translateY(-10px);
   transition:.25s;
   z-index:10000;
 }
 
 .toast.show{
   opacity:1;
-  transform:translateY(0);
+  transform:
+    translateX(-50%)
+    translateY(0);
 }
 
 .toast.success{
@@ -697,6 +702,31 @@ body{
 
 .toast.warn{
   background:#f59e0b;
+}
+
+/* 個人統計數據 */
+.stats-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(3,1fr);
+  gap:14px;
+}
+
+.stat-card{
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  border-radius:12px;
+  padding:14px;
+}
+
+.stat-card strong{
+  color:#64748b;
+}
+
+.stat-card div{
+  margin-top:8px;
+  font-size:22px;
+  font-weight:700;
 }
 
 </style>
@@ -943,9 +973,7 @@ body{
 
   </section>
 
-    <!-- =========================
-         User Modal
-    ========================= -->
+金
     <div
       id="userModal"
       class="modal hidden">
@@ -1121,6 +1149,45 @@ body{
     </div>
 
 </div>
+
+    <!-- =========================
+         個人統計 Model
+    ========================= -->
+  <div
+    id="statisticsModal"
+    class="modal hidden">
+  
+    <div
+      class="modal-dialog"
+      style="max-width:800px;">
+  
+      <div class="modal-header">
+  
+        <div class="table-title">
+  
+          📊 個人統計
+  
+        </div>
+  
+        <button
+          class="modal-close"
+          onclick="closeStatisticsModal()">
+  
+          ✕
+  
+        </button>
+  
+      </div>
+  
+      <div
+        id="statisticsContent"
+        class="modal-body">
+  
+      </div>
+  
+    </div>
+  
+  </div>
 
 </body>
 
@@ -1924,45 +1991,131 @@ function showUserStatistics(userId){
 
   const user =
     allUsers.find(
-      u => String(u.user_id) === String(userId)
+      u => String(u.user_id)
+      === String(userId)
     );
 
   if(!user){
-    showToast('找不到使用者','error');
+
+    showToast(
+      '找不到使用者',
+      'error'
+    );
+
     return;
+
   }
 
-  alert(
-`
-姓名：${user.name || '-'}
+  document
+    .getElementById(
+      'statisticsModal'
+    )
+    .classList
+    .remove('hidden');
 
-帳號：${user.username || '-'}
+  document
+    .getElementById(
+      'statisticsContent'
+    )
+    .innerHTML = `
 
-總經驗：
-${user.exp_total || 0}
+      <div class="stats-grid">
 
-裁判經驗：
-${user.exp_judge || 0}
+        <div class="stat-card">
 
-紀錄經驗：
-${user.exp_record || 0}
+          <h3>
+            ${user.name || '-'}
+          </h3>
 
-完成率：
-${user.completed_rate || 0}%
+          <div>
+            ${user.username || '-'}
+          </div>
 
-遲到率：
-${user.late_rate || 0}%
+        </div>
 
-缺席率：
-${user.no_show_rate || 0}%
+        <div class="stat-card">
 
-品質分數：
-${user.quality_score || 0}
+          <strong>總經驗</strong>
 
-總評分：
-${user.final_score || 0}
-`
-  );
+          <div>
+            ${user.exp_total || 0}
+          </div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <strong>裁判經驗</strong>
+
+          <div>
+            ${user.exp_judge || 0}
+          </div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <strong>紀錄經驗</strong>
+
+          <div>
+            ${user.exp_record || 0}
+          </div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <strong>完成率</strong>
+
+          <div>
+            ${user.completed_rate || 0}%
+          </div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <strong>遲到率</strong>
+
+          <div>
+            ${user.late_rate || 0}%
+          </div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <strong>缺席率</strong>
+
+          <div>
+            ${user.no_show_rate || 0}%
+          </div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <strong>品質分數</strong>
+
+          <div>
+            ${user.quality_score || 0}
+          </div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <strong>總評分</strong>
+
+          <div>
+            ${user.final_score || 0}
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
 
 }
 
@@ -2485,5 +2638,16 @@ function saveUserModal(){
   }
 
 }
-  
+
+// close 統計數據
+function closeStatisticsModal(){
+
+  document
+    .getElementById(
+      'statisticsModal'
+    )
+    .classList
+    .add('hidden');
+
+}
 </script>
