@@ -1306,6 +1306,87 @@ function displayLevel(v){
   }
 
   return v;
+}
+
+/*********************************************************
+ * 顯示完整證照文字
+ *********************************************************/
+function displayLicense(level){
+
+  if(!level){
+    return '無';
+  }
+
+  const [
+    judgeLevel = 'N',
+    recordLevel = 'N'
+  ] = splitLevel(level);
+
+  const result = [];
+
+  if(judgeLevel !== 'N'){
+    result.push(
+      `裁判${judgeLevel}級`
+    );
+  }
+
+  if(recordLevel !== 'N'){
+    result.push(
+      `紀錄${recordLevel}級`
+    );
+  }
+
+  if(result.length === 0){
+    return '無';
+  }
+
+  return result.join(' / ');
+
+}
+
+/*********************************************************
+ * 顯示中文身份
+ *********************************************************/
+function displayRole(role){
+
+  if(!role){
+    return '無';
+  }
+
+  const roles =
+    String(role)
+      .split(',');
+
+  const result = [];
+
+  roles.forEach(r=>{
+
+    switch(r.trim()){
+
+      case 'judge':
+        result.push('裁判');
+        break;
+
+      case 'chief_judge':
+        result.push('裁判長');
+        break;
+
+      case 'record':
+        result.push('紀錄');
+        break;
+
+      case 'record_chief':
+        result.push('紀錄長');
+        break;
+
+      case 'admin':
+        result.push('管理員');
+        break;
+    }
+
+  });
+
+  return result.join(' / ');
 
 }
 
@@ -1881,6 +1962,26 @@ function getFilteredUsers(){
 
 }
 
+/*********************************************************
+ * 主表顯示證照
+ *********************************************************/
+function displayLicenseShort(level,type){
+
+  if(!level || level === 'N'){
+    return '無';
+  }
+
+  if(type === 'judge'){
+    return `${level}級裁判`;
+  }
+
+  if(type === 'record'){
+    return `${level}級紀錄`;
+  }
+
+  return level;
+
+}
 
 /*********************************************************
  * User V3 主表格
@@ -2005,15 +2106,23 @@ function renderUserTable(){
       </td>
 
       <td>
-
+      
         <div>
-          🏅 ${displayLevel(judgeLv)}
+          🏅
+          ${displayLicenseShort(
+            judgeLv,
+            'judge'
+          )}
         </div>
-
+      
         <div>
-          📝 ${displayLevel(recordLv)}
+          📝
+          ${displayLicenseShort(
+            recordLv,
+            'record'
+          )}
         </div>
-
+      
       </td>
 
       <td>
@@ -2271,7 +2380,7 @@ function showUserStatistics(userId){
             line-height:1.4;
           ">
         
-            ${user.role || '-'}
+            ${displayRole(user.role)}
         
           </div>
         
@@ -2286,7 +2395,7 @@ function showUserStatistics(userId){
             line-height:1.4;
           ">
         
-            ${user.level || '-'}
+            ${displayLicense(user.level)}
         
           </div>
         
