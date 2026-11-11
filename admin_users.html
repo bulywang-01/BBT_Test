@@ -2059,7 +2059,8 @@ function renderUserTable(){
           onclick="
             copyUserInfo(
               '${u.username || ''}',
-              '${u.email || ''}'
+              '${u.email || ''}',
+              '${u.name || ''}'
             )">
           📋
         </button>
@@ -2231,6 +2232,36 @@ function showUserStatistics(userId){
             ${user.username || '-'}
           </div>
 
+        </div>
+        
+        <div class="stat-card">
+        
+          <strong>身份</strong>
+        
+          <div style="
+            font-size:14px;
+            line-height:1.4;
+          ">
+        
+            ${user.role || '-'}
+        
+          </div>
+        
+        </div>
+        
+        <div class="stat-card">
+        
+          <strong>證照</strong>
+        
+          <div style="
+            font-size:14px;
+            line-height:1.4;
+          ">
+        
+            ${user.level || '-'}
+        
+          </div>
+        
         </div>
 
         <div class="stat-card">
@@ -2964,41 +2995,6 @@ function closeStatisticsModal(){
     )
     .classList
     .add('hidden');
-
-}
-
-/*********************************************************
- * 複製帳號資訊
- *********************************************************/
-function copyUserInfo(
-  username,
-  email = ''
-){
-
-  const text =
-
-`帳號：${username}
-
-Email：${email || '-'}`;
-
-  navigator.clipboard
-    .writeText(text)
-    .then(()=>{
-
-      showToast(
-        '帳號資訊已複製',
-        'success'
-      );
-
-    })
-    .catch(()=>{
-
-      showToast(
-        '複製失敗',
-        'error'
-      );
-
-    });
 
 }
 
