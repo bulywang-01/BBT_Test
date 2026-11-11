@@ -477,6 +477,14 @@ body{
   background:#dbeafe;
   color:#1d4ed8;
 }
+
+.action-group{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  flex-wrap:wrap;
+}
   
 /*************************************************
  * RWD
@@ -798,6 +806,33 @@ body{
   background:#fee2e2;
   color:#991b1b;
 }
+
+/* 證照呈現 */
+.license-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+}
+
+.license-badge{
+  display:inline-flex;
+  align-items:center;
+  padding:3px 8px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:700;
+}
+
+.license-judge{
+  background:#dbeafe;
+  color:#1d4ed8;
+}
+
+.license-record{
+  background:#ede9fe;
+  color:#6d28d9;
+}
+
 
 </style>
 
@@ -2107,21 +2142,38 @@ function renderUserTable(){
 
       <td>
       
-        <div>
-          ${displayLicenseShort(
-            judgeLv,
-            'judge'
-          )}
-        </div>
+        <div class="license-badges">
       
-        <div>
-          ${displayLicenseShort(
-            recordLv,
-            'record'
-          )}
+          ${
+            judgeLv !== 'N'
+            ? `
+            <span
+              class="license-badge license-judge">
+      
+              ${judgeLv}級裁判
+      
+            </span>
+            `
+            : ''
+          }
+      
+          ${
+            recordLv !== 'N'
+            ? `
+            <span
+              class="license-badge license-record">
+      
+              ${recordLv}級紀錄
+      
+            </span>
+            `
+            : ''
+          }
+      
         </div>
       
       </td>
+
 
       <td>
       
@@ -2143,23 +2195,28 @@ function renderUserTable(){
       
         <div
           class="attendance-count"
-          style="color:${qualityColor}">
-        
+          style="
+            color:${qualityColor};
+            font-size:22px;
+          ">
+      
           ${u.quality_score || 0}
-        
+      
         </div>
       
         <div
           style="
-            font-size:12px;
+            font-size:11px;
             color:#64748b;
+            margin-top:2px;
           ">
       
-          評分 ${u.final_score || 0}
+          總分 ${u.final_score || 0}
       
         </div>
       
       </td>
+
 
       <td>
       
@@ -2187,57 +2244,62 @@ function renderUserTable(){
 
 
       <td class="action-col">
-
-        <button
-          class="action-btn copy"
-          title="複製帳號資訊"
-          onclick="
-            copyUserInfo(
-              '${u.username || ''}',
-              '${u.email || ''}',
-              '${u.name || ''}'
-            )">
-          📋
-        </button>
-
-        <button
-          class="action-btn stat"
-          title="個人統計"
-          onclick="showUserStatistics('${u.user_id}')">
-          📊
-        </button>
-
-        <button
-          class="action-btn edit"
-          title="編輯資料"
-          onclick="openEditUserModal('${u.user_id}')">
-          ✏️
-        </button>
-
-        <button
-          class="action-btn password"
-          title="重設密碼"
-          onclick="resetPassword('${u.user_id}')">
-          🔑
-        </button>
-
-        <button
-          class="action-btn delete"
-          title="刪除使用者"
-          onclick="deleteUser('${u.user_id}','${u.username}')">
-          🗑
-        </button>
-        
-        <button
-          class="action-btn ${powerClass}"
-          title="啟用停用"
-          onclick="
-            toggleActive(
-              '${u.user_id}',
-              ${!isUserActive(u.active)}
-            )">
-          ⏻
-        </button>
+      
+        <div class="action-group">
+      
+          <button
+            class="action-btn copy"
+            title="複製帳號資訊"
+            onclick="
+              copyUserInfo(
+                '${u.username || ''}',
+                '${u.email || ''}',
+                '${u.name || ''}'
+              )">
+            📋
+          </button>
+      
+          <button
+            class="action-btn stat"
+            title="個人統計"
+            onclick="showUserStatistics('${u.user_id}')">
+            📊
+          </button>
+      
+          <button
+            class="action-btn edit"
+            title="編輯資料"
+            onclick="openEditUserModal('${u.user_id}')">
+            ✏️
+          </button>
+      
+          <button
+            class="action-btn password"
+            title="重設密碼"
+            onclick="resetPassword('${u.user_id}')">
+            🔑
+          </button>
+      
+          <button
+            class="action-btn delete"
+            title="刪除使用者"
+            onclick="deleteUser('${u.user_id}','${u.username}')">
+            🗑
+          </button>
+      
+          <button
+            class="action-btn ${powerClass}"
+            title="啟用停用"
+            onclick="
+              toggleActive(
+                '${u.user_id}',
+                ${!isUserActive(u.active)}
+              )">
+            ⏻
+          </button>
+      
+        </div>
+      
       </td>
 
     `;
