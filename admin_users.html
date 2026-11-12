@@ -143,6 +143,39 @@ body{
   color:#94a3b8;
 }
 
+.kpi-flex{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:8px;
+}
+
+.kpi-main-value{
+  font-size:34px;
+  font-weight:900;
+  line-height:1;
+}
+
+.kpi-side{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  min-width:90px;
+}
+
+.kpi-side div{
+  font-size:13px;
+  color:#64748b;
+}
+
+.kpi-side span{
+  margin-left:4px;
+  font-size:18px;
+  font-weight:900;
+  color:#0f172a;
+}
+
+
 /*************************************************
  * KPI Dashboard V3
  *************************************************/
@@ -250,6 +283,7 @@ body{
 #kpiDisabledUsers{
   color:#dc2626;
 }
+    
 /*************************************************
  * Search
  *************************************************/
@@ -1285,88 +1319,106 @@ body{
   <section class="kpi-summary">
   
     <div class="kpi-main-card">
-  
+    
       <div class="kpi-main-label">
         帳號總數
       </div>
-  
-      <div
-        class="kpi-main-value"
-        id="kpiTotalUsers">
-  
-        0
-  
-      </div>
-  
-      <div class="kpi-subline">
-  
-        停用
-  
-        <span id="kpiDisabledUsers">
+    
+      <div class="kpi-flex">
+    
+        <div
+          class="kpi-main-value"
+          id="kpiTotalUsers">
+    
           0
-        </span>
-  
+    
+        </div>
+    
+        <div class="kpi-side">
+    
+          <div>
+            停用
+            <span id="kpiDisabledUsers">0</span>
+          </div>
+    
+        </div>
+    
       </div>
-  
+    
     </div>
   
     <div class="kpi-main-card">
-  
+    
       <div class="kpi-main-label">
         裁判總數
       </div>
-  
-      <div
-        class="kpi-main-value"
-        id="kpiJudgeUsers">
-  
-        0
-  
+    
+      <div class="kpi-flex">
+    
+        <div
+          class="kpi-main-value"
+          id="kpiJudgeUsers">
+    
+          0
+    
+        </div>
+    
+        <div class="kpi-side">
+    
+          <div>
+            A級 <span id="kpiJudgeA">0</span>
+          </div>
+    
+          <div>
+            B級 <span id="kpiJudgeB">0</span>
+          </div>
+    
+          <div>
+            C級 <span id="kpiJudgeC">0</span>
+          </div>
+    
+        </div>
+    
       </div>
-  
-      <div class="kpi-subline">
-  
-        A
-        <span id="kpiJudgeA">0</span>
-  
-        B
-        <span id="kpiJudgeB">0</span>
-  
-        C
-        <span id="kpiJudgeC">0</span>
-  
-      </div>
-  
+    
     </div>
   
     <div class="kpi-main-card">
-  
+    
       <div class="kpi-main-label">
         紀錄總數
       </div>
-  
-      <div
-        class="kpi-main-value"
-        id="kpiRecordUsers">
-  
-        0
-  
+    
+      <div class="kpi-flex">
+    
+        <div
+          class="kpi-main-value"
+          id="kpiRecordUsers">
+    
+          0
+    
+        </div>
+    
+        <div class="kpi-side">
+    
+          <div>
+            A級 <span id="kpiRecordA">0</span>
+          </div>
+    
+          <div>
+            B級 <span id="kpiRecordB">0</span>
+          </div>
+    
+          <div>
+            C級 <span id="kpiRecordC">0</span>
+          </div>
+    
+        </div>
+    
       </div>
-  
-      <div class="kpi-subline">
-  
-        A
-        <span id="kpiRecordA">0</span>
-  
-        B
-        <span id="kpiRecordB">0</span>
-  
-        C
-        <span id="kpiRecordC">0</span>
-  
-      </div>
-  
+    
     </div>
+
   
     <div class="kpi-main-card">
   
