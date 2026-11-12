@@ -45,9 +45,14 @@
     </div>
   </div>
 
+  <!-- ✅ 你原本就有的 JS（一定要） -->
+  <script src="js/auth.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/index.js" defer></script>
+  <script src="js/core.js"></script>
+  
   <script>
-    // 🔴 請將此處換成您實際部署的 GAS Web App 網址 (結尾為 /exec)
-    const GAS_API_URL = 'https://script.google.com/macros/s/你的實際部署ID/exec';
     let selectedCourseId = null;
 
     document.addEventListener('DOMContentLoaded', () => {
