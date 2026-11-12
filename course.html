@@ -134,12 +134,11 @@
         return;
       }
 
-      // 建立已報名課程詳細對照表 { courseId: { status, payment_status } }
       const enrolledMap = {};
       enrollments.forEach(en => {
         enrolledMap[String(en.course_id)] = {
-          status: en.status,                 // applied, confirmed, waitlist
-          payment_status: en.payment_status  // paid, unpaid
+          status: en.status,
+          payment_status: en.payment_status
         };
       });
 
@@ -167,8 +166,8 @@
                 const enrollmentInfo = enrolledMap[cId];
                 const isEnrolled = !!enrollmentInfo;
                 const isFull = (c.current_enrollment || 0) >= (c.capacity || 30);
+                const courseTime = c.time || c.course_time || '依課程公告為準';
 
-                // 按鈕與狀態文字
                 let btnText = '立即報名';
                 let btnClass = 'bg-slate-900 hover:bg-slate-800';
                 if (isEnrolled) {
@@ -179,7 +178,6 @@
                   btnClass = 'bg-amber-600 hover:bg-amber-700';
                 }
 
-                // 狀態顯示標籤
                 let statusBadge = '';
                 if (isEnrolled) {
                   const stText = enrollmentInfo.status === 'waitlist' ? '候補中' : (enrollmentInfo.status === 'confirmed' ? '已錄取' : '已申請(正取)');
@@ -201,7 +199,6 @@
                 return `
                   <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between space-y-4">
                     <div class="space-y-3">
-                      <!-- 頂部標籤與時數 -->
                       <div class="flex justify-between items-start">
                         <div class="flex flex-wrap gap-1.5">
                           <span class="px-2.5 py-0.5 text-xs font-bold rounded-md bg-blue-50 text-blue-700 border border-blue-100">${c.course_type || '課程'}</span>
@@ -213,17 +210,16 @@
                       <h3 class="text-xl font-bold text-slate-900">${c.course_name}</h3>
                       <p class="text-xs text-slate-500">👨‍🏫 講師：${c.instructor || '未指定'}</p>
 
-                      <!-- 如果已報名，直接在卡片上呈現報名狀態與繳費狀態 -->
                       ${statusBadge}
 
-                      <!-- 核心資訊摘要 -->
+                      <!-- 核心資訊摘要 (已加入上課時間) -->
                       <div class="bg-slate-50 p-3.5 rounded-xl space-y-1.5 text-sm text-slate-600">
+                        <div>⏰ 時間：<span class="font-medium text-slate-800">${courseTime}</span></div>
                         <div>📍 地點：<span class="font-medium text-slate-800">${c.location || '實體/線上'}</span></div>
                         <div>💰 費用：<span class="font-medium text-slate-800">${c.fee == 0 ? '免費' : 'NT$ ' + c.fee}</span></div>
                         <div>👥 名額：<span class="font-medium text-slate-800">已報名 ${c.current_enrollment || 0} / 正取 ${c.capacity || 30} (候補上限 ${c.waitlist_capacity || 10})</span></div>
                       </div>
 
-                      <!-- 展開/收合詳細資訊區塊 -->
                       <details class="group border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50">
                         <summary class="px-4 py-2.5 text-xs font-bold text-slate-700 cursor-pointer select-none flex justify-between items-center hover:bg-slate-100 transition">
                           <span>🔍 檢視完整課程與報名規定細節</span>
@@ -240,7 +236,6 @@
                       </details>
                     </div>
 
-                    <!-- 報名按鈕 (已報名則鎖定) -->
                     <button onclick="${isEnrolled ? '' : `openSignupModal('${c.course_id}', '${c.course_name}', '${date}')`}" 
                       id="btn_${c.course_id}"
                       class="w-full ${btnClass} text-white font-bold py-2.5 rounded-xl text-sm transition shadow-sm"
