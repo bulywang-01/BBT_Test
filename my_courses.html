@@ -39,6 +39,18 @@
       loadHeader();
       loadMyCourses();
     });
+
+  // 日期時間格式
+  function formatDateOnly(isoString) {
+    if (!isoString) return '未定';
+    const d = new Date(isoString);
+    if (isNaN(d)) return isoString; // 如果本來就不是時間格式就原樣回傳
+    
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
   </script>
 
   <div class="main max-w-5xl mx-auto p-6">
@@ -133,7 +145,7 @@
               </div>
               <h3 class="text-lg font-bold text-slate-900">${item.course_name}</h3>
               <div class="text-sm text-slate-600 flex flex-wrap gap-x-4 gap-y-1">
-                <span>📅 日期：${item.date || '未定'}</span>
+                <span>📅 日期：${formatDateOnly(item.date) || '未定'}</span>
                 <span>📍 地點：${item.location || '未定'}</span>
                 <span>💰 繳費狀態：<span class="${pay.class}">${pay.text}</span></span>
               </div>
