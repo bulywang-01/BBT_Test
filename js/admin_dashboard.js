@@ -2173,7 +2173,8 @@ function buildRosterHtml(isPreview = true){
 
   const groups = {};
   
-  filtered.forEach(g=>{
+  // ✅ 這裡修正：將原本未定義的 filtered 改為 games
+  games.forEach(g=>{
   
     const tournament =
       g.tournament || '未分類';
@@ -2275,20 +2276,20 @@ function buildRosterHtml(isPreview = true){
                     <td style="text-align:center;">
                       ${
                         Number(game.umpire_count) >= 4
-                        ? renderName(
-                            getJudgeName(game,'U2')
-                          )
-                        : '-'
+                          ? renderName(
+                              getJudgeName(game,'U2')
+                            )
+                          : '-'
                       }
                     </td>
   
                     <td style="text-align:center;">
                       ${
                         Number(game.umpire_count) >= 3
-                        ? renderName(
-                            getJudgeName(game,'U3')
-                          )
-                        : '-'
+                          ? renderName(
+                              getJudgeName(game,'U3')
+                            )
+                          : '-'
                       }
                     </td>
   
