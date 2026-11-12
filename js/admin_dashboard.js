@@ -2501,7 +2501,10 @@ function buildRosterHtml(isPreview = true){
 
   `;
 
+  });
+
 }
+           
 
 // 產出班表資料 - 
 async function exportRosterImage(){
