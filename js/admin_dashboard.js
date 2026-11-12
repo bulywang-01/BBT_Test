@@ -1104,19 +1104,19 @@ function getUrlParams(){
 /*********************************************************
  * Modal
  *********************************************************/
-function showModal(title){
+//function showModal(title){
 
 //  setText(
 //    'modal-title',
 //    title
 //  );
+//
+//  document
+//    .getElementById('admin-modal')
+//    ?.classList
+//    .remove('hidden');
 
-  document
-    .getElementById('admin-modal')
-    ?.classList
-    .remove('hidden');
-
-}
+//}
 
 function closeModal(){
 
