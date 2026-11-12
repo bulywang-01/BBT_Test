@@ -2172,20 +2172,26 @@ function buildRosterHtml(isPreview = true){
   }
 
   const groups = {};
-
-  games.forEach(game => {
-
+  
+  filtered.forEach(g=>{
+  
     const tournament =
-      game.tournament ||
-      game.league ||
-      '未分類賽事';
-
+      g.tournament || '未分類';
+  
+    const field =
+      g.field || '未指定場地';
+  
     if(!groups[tournament]){
-      groups[tournament] = [];
+      groups[tournament] = {};
     }
-
-    groups[tournament].push(game);
-
+  
+    if(!groups[tournament][field]){
+      groups[tournament][field] = [];
+    }
+  
+    groups[tournament][field]
+      .push(g);
+  
   });
 
   let sections = '';
@@ -2361,25 +2367,15 @@ function buildRosterHtml(isPreview = true){
                   ">
   
                     <th style="width:60px;">時間</th>
-  
                     <th style="width:80px;">場次</th>
-  
                     <th style="width:80px;">組別</th>
-  
                     <th style="width:250px;">對戰</th>
-  
                     <th style="width:70px;">主審</th>
-  
                     <th style="width:70px;">一壘</th>
-  
                     <th style="width:70px;">二壘</th>
-  
                     <th style="width:70px;">三壘</th>
-  
                     <th style="width:70px;">紀錄</th>
-  
                     <th style="width:70px;">實習</th>
-  
                     <th style="width:70px;">影像</th>
   
                   </tr>
@@ -2400,6 +2396,12 @@ function buildRosterHtml(isPreview = true){
   
         });
   
+      sections += `
+        </div>
+      `;
+  
+    });
+
     });
 
   return `
