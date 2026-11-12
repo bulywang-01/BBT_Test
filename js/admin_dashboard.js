@@ -2179,7 +2179,7 @@ function buildRosterHtml(isPreview = true){
       game.tournament || '未分類';
   
     const field =
-      gamefield || '未指定場地';
+      game.field || '未指定場地';
   
     if(!groups[tournament]){
       groups[tournament] = {};
