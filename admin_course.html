@@ -3,18 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>課程管理後台</title>
+  <title>BBT 聯盟 - 課程管理後台</title>
 
+  <!-- 引入共用樣式與 Tailwind CSS -->
   <link rel="stylesheet" href="css/signup_dashboard.css">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body data-page-title="課程管理後台" class="page-admin">
+<body data-page-title="課程管理後台" class="page-admin-course">
 
+  <!-- 引入系統標準共用 JS -->
   <script src="js/auth.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/header.js"></script>
   <script src="js/core.js"></script>
 
+  <!-- 動態載入 Header 容器 -->
   <div id="header-container"></div>
 
   <script>
@@ -25,6 +29,7 @@
           document.getElementById('header-container').innerHTML = html;
           const session = (typeof getSession === 'function') ? getSession() : null;
           document.body.classList.remove('role-admin', 'role-judge', 'role-record');
+
           if (session && session.role) {
             const roles = session.role.split(',').map(r => r.trim());
             if (roles.includes('admin')) document.body.classList.add('role-admin');
@@ -38,98 +43,246 @@
     });
   </script>
 
-  <div class="main max-w-4xl mx-auto p-6">
-    <div class="mb-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-      <h2 class="text-2xl font-black text-slate-900 mb-2">➕ 新增線上課程</h2>
-      <p class="text-sm text-slate-500 mb-6">在這裡建立課程後，前台的「線上課程報名」頁面就會同步顯示並提供報名與候選驗證。</p>
+  <!-- 主內容區 -->
+  <div class="main max-w-5xl mx-auto p-6 space-y-8">
 
-      <form id="course-form" onsubmit="submitCourse(event)" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-bold text-slate-700 mb-1">課程名稱</label>
-            <input type="text" id="course_name" required placeholder="例：115年度 A級裁判培訓營" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+    <!-- 頂部標題區 -->
+    <div class="flex justify-between items-center">
+      <div>
+        <h2 class="text-2xl font-black text-slate-900">➕ 新增與管理線上課程</h2>
+        <p class="text-sm text-slate-500">在此建立完整課程後，前台「線上課程報名」頁面將同步顯示並提供報名與候補驗證。</p>
+      </div>
+      <a href="course.html" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-4 py-2 rounded-xl text-sm transition">
+        返回課程大廳
+      </a>
+    </div>
+
+    <!-- 完整課程表單 -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-6">
+      <form id="course-form" onsubmit="handleSaveCourse(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        
+        <!-- 隱藏的 course_id (用於編輯) -->
+        <input type="hidden" id="course_id" value="">
+
+        <!-- 課程名稱 -->
+        <div class="md:col-span-2 space-y-1">
+          <label class="font-bold text-slate-700">課程名稱 <span class="text-rose-500">*</span></label>
+          <input type="text" id="course_name" required placeholder="例：115年度 A級裁判培訓營" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+
+        <!-- 課程類型 -->
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">課程類型 (course_type)</label>
+          <select id="course_type" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+            <option value="judge">裁判培訓 (judge)</option>
+            <option value="record">紀錄培訓 (record)</option>
+            <option value="general">通識教育 (general)</option>
+          </select>
+        </div>
+
+        <!-- 授課講師 -->
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">授課講師 (instructor)</label>
+          <input type="text" id="instructor" placeholder="例：陳阿信" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+
+        <!-- 證照類型 -->
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">證照類型 (certificate_type)</label>
+          <select id="certificate_type" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+            <option value="">無</option>
+            <option value="judge">裁判 (judge)</option>
+            <option value="record">紀錄 (record)</option>
+            <option value="general">通識教育 (general)</option>
+          </select>
+        </div>
+
+        <!-- 證照等級 -->
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">證照等級 (certificate_level)</label>
+          <select id="certificate_level" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+            <option value="">無 (NULL)</option>
+            <option value="A">A級</option>
+            <option value="B">B級</option>
+            <option value="C">C級</option>
+          </select>
+        </div>
+
+        <!-- 上課日期 (支援起訖日) -->
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">上課日期 / 起始日 (date) <span class="text-rose-500">*</span></label>
+          <input type="date" id="date" required class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">結束日期 (若為多日範圍)</label>
+          <input type="date" id="end_date" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+
+        <!-- 上課時間範圍 -->
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">上課時間範圍 (time)</label>
+          <input type="text" id="time" placeholder="例：09:00 - 16:00" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+
+        <!-- 訓練時數與認證時數 -->
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">培訓時數 hr (training_hours)</label>
+          <input type="number" id="training_hours" value="4" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">認證時數說明 (certificate_hours)</label>
+          <input type="text" id="certificate_hours" placeholder="例：裁判繼續教育4小時" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+
+        <!-- 上課地點與線上網址 -->
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">上課地點 (location)</label>
+          <input type="text" id="location" placeholder="例：台北大學棒球場" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">線上會議網址 (location_url)</label>
+          <input type="url" id="location_url" placeholder="Teams / Meet / Zoom 連結" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+
+        <!-- 費用與名額 -->
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">課程費用 NT$ (fee)</label>
+          <input type="number" id="fee" value="0" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="space-y-1">
+            <label class="font-bold text-slate-700">正取名額 (capacity)</label>
+            <input type="number" id="capacity" value="30" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
           </div>
-          <div>
-            <label class="block text-sm font-bold text-slate-700 mb-1">課程類型</label>
-            <select id="course_type" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-              <option value="judge">裁判培訓 (judge)</option>
-              <option value="record">紀錄培訓 (record)</option>
-              <option value="general">通識教育 (general)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-bold text-slate-700 mb-1">授課講師</label>
-            <input type="text" id="instructor" placeholder="例：王教練" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-sm font-bold text-slate-700 mb-1">上課日期</label>
-            <input type="date" id="date" required class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-sm font-bold text-slate-700 mb-1">上課地點</label>
-            <input type="text" id="location" placeholder="例：實體教室 / 臺北大學" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-sm font-bold text-slate-700 mb-1">訓練時數 (hr)</label>
-            <input type="number" id="training_hours" value="4" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-sm font-bold text-slate-700 mb-1">課程費用 (NT$)</label>
-            <input type="number" id="fee" value="0" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-sm font-bold text-slate-700 mb-1">正取名額上限</label>
-            <input type="number" id="capacity" value="30" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          <div class="space-y-1">
+            <label class="font-bold text-slate-700">候補上限 (waitlist)</label>
+            <input type="number" id="waitlist_capacity" value="10" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
           </div>
         </div>
 
-        <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl transition shadow-md mt-6">
-          立即建立課程
-        </button>
+        <!-- 報名資格與起訖日 -->
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">報名資格 (signup_type)</label>
+          <select id="signup_type" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+            <option value="public">公開報名 (public)</option>
+            <option value="member_only">系統會員限定 (member_only)</option>
+            <option value="licensed_only">具備特定證照者 (licensed_only)</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="space-y-1">
+            <label class="font-bold text-slate-700">報名開始日</label>
+            <input type="date" id="signup_start" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div class="space-y-1">
+            <label class="font-bold text-slate-700">報名截止日</label>
+            <input type="date" id="signup_end" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+        </div>
+
+        <!-- 取消政策與結訓動作 -->
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">允許線上取消 (allow_cancel)</label>
+          <select id="allow_cancel" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+            <option value="Y">是 (Y)</option>
+            <option value="N">否 (N)</option>
+          </select>
+        </div>
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">結訓後資格處理 (certificate_action)</label>
+          <select id="certificate_action" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+            <option value="none">不處理 (none)</option>
+            <option value="track_only">僅追蹤棒協發證 (track_only)</option>
+            <option value="auto_upgrade">系統自動升級權限 (auto_upgrade)</option>
+          </select>
+        </div>
+
+        <!-- 備註說明 -->
+        <div class="md:col-span-2 space-y-1">
+          <label class="font-bold text-slate-700">備註說明 (remark)</label>
+          <textarea id="remark" rows="2" placeholder="延期原因、特殊規定或管理備註..." class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+        </div>
+
+        <!-- 提交按鈕 -->
+        <div class="md:col-span-2 pt-4">
+          <button type="submit" id="submit-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl transition shadow-md">
+            💾 立即儲存並建立完整課程
+          </button>
+        </div>
+
       </form>
     </div>
+
   </div>
 
   <script>
-    function submitCourse(e) {
-      e.preventDefault();
-      const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
-      
+    // 透過 JSONP 將表單資料送往後端 saveCourse
+    function handleSaveCourse(event) {
+      event.preventDefault();
+
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.textContent = '⏳ 系統儲存中...';
+
       const payload = {
-        action: 'saveCourse',
+        course_id: document.getElementById('course_id').value,
         course_name: document.getElementById('course_name').value,
         course_type: document.getElementById('course_type').value,
+        certificate_type: document.getElementById('certificate_type').value,
+        certificate_level: document.getElementById('certificate_level').value,
         instructor: document.getElementById('instructor').value,
         date: document.getElementById('date').value,
+        end_date: document.getElementById('end_date').value,
+        time: document.getElementById('time').value,
         location: document.getElementById('location').value,
+        location_url: document.getElementById('location_url').value,
         training_hours: document.getElementById('training_hours').value,
+        certificate_hours: document.getElementById('certificate_hours').value,
         fee: document.getElementById('fee').value,
         capacity: document.getElementById('capacity').value,
-        waitlist_capacity: 10,
-        course_status: 'open'
+        waitlist_capacity: document.getElementById('waitlist_capacity').value,
+        signup_type: document.getElementById('signup_type').value,
+        signup_start: document.getElementById('signup_start').value,
+        signup_end: document.getElementById('signup_end').value,
+        allow_cancel: document.getElementById('allow_cancel').value,
+        certificate_action: document.getElementById('certificate_action').value,
+        remark: document.getElementById('remark').value
       };
 
+      const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
       const callbackName = 'jsonp_save_course_' + Math.round(100000 * Math.random());
+
+      // 組合 QueryString
+      const params = new URLSearchParams({
+        action: 'saveCourse',
+        callback: callbackName,
+        ...payload
+      });
+
       window[callbackName] = function(res) {
         delete window[callbackName];
         if (script.parentNode) script.parentNode.removeChild(script);
 
+        btn.disabled = false;
+        btn.textContent = '💾 立即儲存並建立完整課程';
+
         if (res && res.result === 'ok') {
-          alert('✅ ' + res.message);
+          alert('✅ 課程儲存成功！');
           document.getElementById('course-form').reset();
+          document.getElementById('course_id').value = '';
         } else {
-          alert('❌ 建立失敗：' + (res ? res.message : '未知錯誤'));
+          alert('❌ 儲存失敗：' + (res ? res.message : '未知錯誤'));
         }
       };
 
-      // 組合 JSONP 請求網址
-      const queryStr = Object.keys(payload).map(k => `${k}=${encodeURIComponent(payload[k])}`).join('&');
       const script = document.createElement('script');
-      script.src = `${baseUrl}?${queryStr}&callback=${callbackName}`;
+      script.src = `${baseUrl}?${params.toString()}`;
       script.onerror = function() {
         delete window[callbackName];
         if (script.parentNode) script.parentNode.removeChild(script);
-        alert('網路連線異常');
+        btn.disabled = false;
+        btn.textContent = '💾 立即儲存並建立完整課程';
+        alert('網路連線異常，請稍後再試');
       };
       document.body.appendChild(script);
     }
