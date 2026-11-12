@@ -2399,7 +2399,7 @@ function buildRosterHtml(isPreview = true){
           </div>
 
           <div style="
-            font-size:18px;
+            font-size:22px;
             font-weight:700;
             color:#475569;
             margin-bottom:12px;
