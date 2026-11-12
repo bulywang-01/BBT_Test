@@ -61,7 +61,7 @@
 
     // 1. 載入課程列表
     function loadCourses() {
-      fetch(`${GAS_API_URL}?action=getCourses`)
+      fetch(`${API_BASE}?action=getCourses`)
         .then(res => res.json())
         .then(data => {
           renderCourses(data.data || []);
@@ -135,7 +135,7 @@
         course_id: selectedCourseId
       };
 
-      fetch(GAS_API_URL, {
+      fetch(API_BASE, {
         method: 'POST',
         body: JSON.stringify(payload)
       })
