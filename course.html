@@ -7,7 +7,7 @@
 
   <!-- 引入您指定的共用樣式表 -->
   <link rel="stylesheet" href="css/signup_dashboard.css">
-  <!-- 引入 Tailwind CSS (保留卡片與按鈕的彈性微調) -->
+  <!-- 引入 Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- 引入 Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -16,7 +16,7 @@
 <!-- 共用 Header，設定頁面識別 class -->
 <body data-page-title="線上課程報名" class="page-course">
 
-  <!-- 引入你們系統標準的共用 JS -->
+  <!-- 引入系統標準的共用 JS -->
   <script src="js/auth.js"></script>
   <script src="js/config.js"></script>
   <script src="js/header.js"></script>
@@ -150,7 +150,8 @@
 
       root.innerHTML = '';
 
-      Object.keys(dateMap.sort()).forEach(date => {
+      // 修正：對日期鍵陣列進行排序，而不是對物件本身呼叫 .sort()
+      Object.keys(dateMap).sort().forEach(date => {
         const dayCourses = dateMap[date];
 
         root.innerHTML += `
