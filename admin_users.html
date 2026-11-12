@@ -152,7 +152,7 @@ body{
   grid-template-columns:
     repeat(4,1fr);
   gap:14px;
-  margin-bottom:12px;
+  margin-bottom:14px;
 }
 
 .kpi-main-card{
@@ -166,17 +166,33 @@ body{
 
 .kpi-main-label{
   font-size:13px;
-  font-weight:700;
   color:#64748b;
+  font-weight:700;
 }
 
 .kpi-main-value{
-  margin-top:6px;
+  margin-top:8px;
   font-size:42px;
   font-weight:900;
+  line-height:1;
   color:#0f172a;
 }
 
+.kpi-subline{
+  margin-top:12px;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+  font-size:13px;
+  color:#64748b;
+}
+
+.kpi-subline span{
+  font-weight:800;
+  color:#0f172a;
+}
+    
 .kpi-license-bar{
   display:flex;
   flex-wrap:wrap;
@@ -942,6 +958,34 @@ body{
   color:#6d28d9;
 }
 
+.filter-toolbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+}
+
+.filter-search-row{
+  width:420px;
+  margin-top:0;
+}
+
+.filter-search-row .search-input{
+  width:100%;
+}
+
+@media(max-width:768px){
+
+  .filter-toolbar{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .filter-search-row{
+    width:100%;
+  }
+
+}
 
 </style>
 
@@ -1222,67 +1266,110 @@ body{
   <!-- KPI -->
   <!-- ===================================================== -->
 
-  // 第一層
   <section class="kpi-summary">
   
     <div class="kpi-main-card">
-      <div class="kpi-main-label">帳號總數</div>
-      <div class="kpi-main-value" id="kpiTotalUsers">0</div>
+  
+      <div class="kpi-main-label">
+        帳號總數
+      </div>
+  
+      <div
+        class="kpi-main-value"
+        id="kpiTotalUsers">
+  
+        0
+  
+      </div>
+  
+      <div class="kpi-subline">
+  
+        停用
+  
+        <span id="kpiDisabledUsers">
+          0
+        </span>
+  
+      </div>
+  
     </div>
   
     <div class="kpi-main-card">
-      <div class="kpi-main-label">裁判總數</div>
-      <div class="kpi-main-value" id="kpiJudgeUsers">0</div>
+  
+      <div class="kpi-main-label">
+        裁判總數
+      </div>
+  
+      <div
+        class="kpi-main-value"
+        id="kpiJudgeUsers">
+  
+        0
+  
+      </div>
+  
+      <div class="kpi-subline">
+  
+        A
+        <span id="kpiJudgeA">0</span>
+  
+        B
+        <span id="kpiJudgeB">0</span>
+  
+        C
+        <span id="kpiJudgeC">0</span>
+  
+      </div>
+  
     </div>
   
     <div class="kpi-main-card">
-      <div class="kpi-main-label">紀錄總數</div>
-      <div class="kpi-main-value" id="kpiRecordUsers">0</div>
+  
+      <div class="kpi-main-label">
+        紀錄總數
+      </div>
+  
+      <div
+        class="kpi-main-value"
+        id="kpiRecordUsers">
+  
+        0
+  
+      </div>
+  
+      <div class="kpi-subline">
+  
+        A
+        <span id="kpiRecordA">0</span>
+  
+        B
+        <span id="kpiRecordB">0</span>
+  
+        C
+        <span id="kpiRecordC">0</span>
+  
+      </div>
+  
     </div>
   
     <div class="kpi-main-card">
-      <div class="kpi-main-label">平均評分</div>
-      <div class="kpi-main-value" id="kpiAverageScore">0</div>
-    </div>
   
-  </section>
-
-  // 第二層  
-  <section class="kpi-license-bar">
+      <div class="kpi-main-label">
+        平均評分
+      </div>
   
-    <div class="kpi-mini">
-      <span>A裁</span>
-      <strong id="kpiJudgeA">0</strong>
-    </div>
+      <div
+        class="kpi-main-value"
+        id="kpiAverageScore">
   
-    <div class="kpi-mini">
-      <span>B裁</span>
-      <strong id="kpiJudgeB">0</strong>
-    </div>
+        0
   
-    <div class="kpi-mini">
-      <span>C裁</span>
-      <strong id="kpiJudgeC">0</strong>
-    </div>
+      </div>
   
-    <div class="kpi-mini">
-      <span>A紀</span>
-      <strong id="kpiRecordA">0</strong>
-    </div>
+      <div class="kpi-subline">
+        全體平均
+      </div>
   
-    <div class="kpi-mini">
-      <span>B紀</span>
-      <strong id="kpiRecordB">0</strong>
-    </div>
-  
-    <div class="kpi-mini">
-      <span>C紀</span>
-      <strong id="kpiRecordC">0</strong>
-    </div>
-  
-    <div class="kpi-mini danger">
-      <span>停用</span>
-      <strong id="kpiDisabledUsers">0</strong>
     </div>
   
   </section>
@@ -1294,62 +1381,66 @@ body{
 
   <section class="filter-card">
   
-    <div class="role-filter-row">
-  
-      <label>
-        <input type="radio"
-               name="roleFilter"
-               value="all"
-               checked>
-        全部
-      </label>
-  
-      <label>
-        <input type="radio"
-               name="roleFilter"
-               value="judge">
-        裁判
-      </label>
-  
-      <label>
-        <input type="radio"
-               name="roleFilter"
-               value="record">
-        紀錄
-      </label>
-  
-      <label>
-        <input type="radio"
-               name="roleFilter"
-               value="chief_judge">
-        裁判長
-      </label>
-  
-      <label>
-        <input type="radio"
-               name="roleFilter"
-               value="record_chief">
-        紀錄長
-      </label>
-  
-      <label>
-        <input type="radio"
-               name="roleFilter"
-               value="admin">
-        管理員
-      </label>
-  
-    </div>
+    <div class="filter-toolbar">
     
-    <div class="filter-search-row">
-  
-      <input
-        id="txtSearch"
-        class="search-input"
-        type="text"
-        placeholder="搜尋帳號、姓名、背號、Email..."
-      >
-  
+      <div class="role-filter-row">
+      
+          <label>
+            <input type="radio"
+                   name="roleFilter"
+                   value="all"
+                   checked>
+            全部
+          </label>
+      
+          <label>
+            <input type="radio"
+                   name="roleFilter"
+                   value="judge">
+            裁判
+          </label>
+      
+          <label>
+            <input type="radio"
+                   name="roleFilter"
+                   value="record">
+            紀錄
+          </label>
+      
+          <label>
+            <input type="radio"
+                   name="roleFilter"
+                   value="chief_judge">
+            裁判長
+          </label>
+      
+          <label>
+            <input type="radio"
+                   name="roleFilter"
+                   value="record_chief">
+            紀錄長
+          </label>
+      
+          <label>
+            <input type="radio"
+                   name="roleFilter"
+                   value="admin">
+            管理員
+          </label>
+      
+      </div>
+    
+      <div class="filter-search-row">
+    
+        <input
+          id="txtSearch"
+          class="search-input"
+          type="text"
+          placeholder="搜尋帳號、姓名、背號、Email..."
+        >
+    
+      </div>
+    
     </div>
     
   </section>
