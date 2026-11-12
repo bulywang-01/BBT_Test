@@ -36,6 +36,22 @@
       loadHeader();
       loadEnrollments();
     });
+
+    // 時間日期格式
+    function formatDateTime(isoString) {
+      if (!isoString) return '';
+      const d = new Date(isoString);
+      if (isNaN(d)) return isoString; // 如果本來就不是時間格式就原樣回傳
+      
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const hh = String(d.getHours()).padStart(2, '0');
+      const min = String(d.getMinutes()).padStart(2, '0');
+      const ss = String(d.getSeconds()).padStart(2, '0');
+      
+      return `${yyyy}/${mm}/${dd} ${hh}:${min}:${ss}`;
+    }
   </script>
 
   <div class="main max-w-7xl mx-auto p-6">
@@ -113,7 +129,7 @@
           <td class="p-4 font-mono text-xs text-slate-500">${item.log_id}</td>
           <td class="p-4 font-bold text-slate-900">${item.name || 'ID: ' + item.user_id}</td>
           <td class="p-4 font-medium text-slate-800">${item.course_name}</td>
-          <td class="p-4 text-xs text-slate-500">${item.created_at}</td>
+          <td class="p-4 text-xs text-slate-500">${formatDateTime(item.created_at)}</td>
           
           <!-- 報名狀態 -->
           <td class="p-4">
