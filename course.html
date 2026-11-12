@@ -46,8 +46,8 @@
   </div>
 
   <script>
-    // 假設你的 GAS Web App 部署網址
-    const GAS_API_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
+    // 🔴 請將此處換成您實際部署的 GAS Web App 網址 (結尾為 /exec)
+    const GAS_API_URL = 'https://script.google.com/macros/s/你的實際部署ID/exec';
     let selectedCourseId = null;
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -56,15 +56,14 @@
 
     // 1. 載入課程列表
     function loadCourses() {
-      // 串接 GAS 取得 Course 資料
       fetch(`${GAS_API_URL}?action=getCourses`)
         .then(res => res.json())
         .then(data => {
-          renderCourses(data.courses || []);
+          renderCourses(data.data || []);
         })
         .catch(err => {
           console.error('載入課程失敗', err);
-          document.getElementById('course-container').innerHTML = `<div class="col-span-full text-center text-rose-500">載入課程失敗，請稍後再試。</div>`;
+          document.getElementById('course-container').innerHTML = `<div class="col-span-full text-center text-rose-500">載入課程失敗，請檢查網址或稍後再試。</div>`;
         });
     }
 
@@ -124,8 +123,9 @@
         return;
       }
 
+      // 改為對應後端的 'enrollCourse'
       const payload = {
-        action: 'applyCourse',
+        action: 'enrollCourse',
         user_id: session.user_id,
         course_id: selectedCourseId
       };
