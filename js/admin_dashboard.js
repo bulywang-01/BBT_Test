@@ -2399,12 +2399,6 @@ function buildRosterHtml(isPreview = true){
           `;
   
         });
-      
-        });
-  
-      sections += `
-        </div>
-      `;
   
     });
 
