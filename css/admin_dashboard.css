@@ -189,3 +189,15 @@
         font-size:28px;
     }
 }
+
+
+.field-title{
+  margin-top:12px;
+  margin-bottom:8px;
+  padding:10px 14px;
+  border-left:4px solid #f59e0b;
+  background:#f8fafc;
+  font-size:16px;
+  font-weight:800;
+  color:#0f172a;
+}
