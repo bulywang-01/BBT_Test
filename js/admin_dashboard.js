@@ -2172,52 +2172,28 @@ function buildRosterHtml(isPreview = true){
   }
 
   const groups = {};
-  
+
   games.forEach(game => {
-  
+
     const tournament =
-      game.tournament || '未分類';
-  
-    const field =
-      game.field || '未指定場地';
-  
+      game.tournament ||
+      game.league ||
+      '未分類賽事';
+
     if(!groups[tournament]){
-      groups[tournament] = {};
+      groups[tournament] = [];
     }
-  
-    if(!groups[tournament][field]){
-      groups[tournament][field] = [];
-    }
-  
-    groups[tournament][field]
-      .push(game);
-  
+
+    groups[tournament].push(game);
+
   });
 
   let sections = '';
 
   Object.keys(groups)
-  .forEach(tournament=>{
-  
-    html += `
-    <div class="tournament-title">
-  
-      📁 ${tournament}
-  
-    </div>
-    `;
-  
-    Object.keys(groups[tournament])
-    .forEach(field=>{
-  
-        html += `
-        <div class="field-title">
-  
-          📍 ${field}
-  
-        </div>
-        `;
-  
+    .sort()
+    .forEach(tournament => {
+
       const rows =
         groups[tournament]
           .sort((a,b)=>{
@@ -2501,10 +2477,7 @@ function buildRosterHtml(isPreview = true){
 
   `;
 
-  });
-
 }
-           
 
 // 產出班表資料 - 
 async function exportRosterImage(){
