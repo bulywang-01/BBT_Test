@@ -1,44 +1,138 @@
-<div id="list"></div>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>課程管理後台</title>
 
-<script>
-function loadAdmin(){
+  <link rel="stylesheet" href="css/signup_dashboard.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
 
-  callApi({action:'getTrainingLog'}, res=>{
+<body data-page-title="課程管理後台" class="page-admin">
 
-    const html = res.data.map(r=>`
-      <div class="person-row">
+  <script src="js/auth.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/core.js"></script>
 
-        <b>${r.course_name}</b>｜${r.name}
+  <div id="header-container"></div>
 
-        <select onchange="setStatus('${r.log_id}',this.value)">
-          <option value="applied">報名</option>
-          <option value="confirmed">確認</option>
-          <option value="attended">出席</option>
-          <option value="absent">缺席</option>
-        </select>
+  <script>
+    function loadHeader() {
+      fetch('header.html')
+        .then(res => res.text())
+        .then(html => {
+          document.getElementById('header-container').innerHTML = html;
+          const session = (typeof getSession === 'function') ? getSession() : null;
+          document.body.classList.remove('role-admin', 'role-judge', 'role-record');
+          if (session && session.role) {
+            const roles = session.role.split(',').map(r => r.trim());
+            if (roles.includes('admin')) document.body.classList.add('role-admin');
+          }
+        })
+        .catch(err => console.error('Header 載入失敗', err));
+    }
 
-        <button onclick="pay('${r.log_id}')">
-          ${r.payment_status==='paid'?'已繳':'繳費'}
+    document.addEventListener('DOMContentLoaded', () => {
+      loadHeader();
+    });
+  </script>
+
+  <div class="main max-w-4xl mx-auto p-6">
+    <div class="mb-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+      <h2 class="text-2xl font-black text-slate-900 mb-2">➕ 新增線上課程</h2>
+      <p class="text-sm text-slate-500 mb-6">在這裡建立課程後，前台的「線上課程報名」頁面就會同步顯示並提供報名與候選驗證。</p>
+
+      <form id="course-form" onsubmit="submitCourse(event)" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-1">課程名稱</label>
+            <input type="text" id="course_name" required placeholder="例：115年度 A級裁判培訓營" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-1">課程類型</label>
+            <select id="course_type" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+              <option value="judge">裁判培訓 (judge)</option>
+              <option value="record">紀錄培訓 (record)</option>
+              <option value="general">通識教育 (general)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-1">授課講師</label>
+            <input type="text" id="instructor" placeholder="例：王教練" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-1">上課日期</label>
+            <input type="date" id="date" required class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-1">上課地點</label>
+            <input type="text" id="location" placeholder="例：實體教室 / 臺北大學" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-1">訓練時數 (hr)</label>
+            <input type="number" id="training_hours" value="4" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-1">課程費用 (NT$)</label>
+            <input type="number" id="fee" value="0" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-1">正取名額上限</label>
+            <input type="number" id="capacity" value="30" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl transition shadow-md mt-6">
+          立即建立課程
         </button>
+      </form>
+    </div>
+  </div>
 
-      </div>
-    `).join('');
+  <script>
+    function submitCourse(e) {
+      e.preventDefault();
+      const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+      
+      const payload = {
+        action: 'saveCourse',
+        course_name: document.getElementById('course_name').value,
+        course_type: document.getElementById('course_type').value,
+        instructor: document.getElementById('instructor').value,
+        date: document.getElementById('date').value,
+        location: document.getElementById('location').value,
+        training_hours: document.getElementById('training_hours').value,
+        fee: document.getElementById('fee').value,
+        capacity: document.getElementById('capacity').value,
+        waitlist_capacity: 10,
+        course_status: 'open'
+      };
 
-    document.getElementById('list').innerHTML = html;
-  });
-}
+      const callbackName = 'jsonp_save_course_' + Math.round(100000 * Math.random());
+      window[callbackName] = function(res) {
+        delete window[callbackName];
+        if (script.parentNode) script.parentNode.removeChild(script);
 
-function setStatus(id,status){
-  callApi({action:'updateTrainingStatus',log_id:id,status});
-}
+        if (res && res.result === 'ok') {
+          alert('✅ ' + res.message);
+          document.getElementById('course-form').reset();
+        } else {
+          alert('❌ 建立失敗：' + (res ? res.message : '未知錯誤'));
+        }
+      };
 
-function pay(id){
-  callApi({
-    action:'updateTrainingStatus',
-    log_id:id,
-    payment_status:'paid'
-  },loadAdmin);
-}
-
-loadAdmin();
-</script>
+      // 組合 JSONP 請求網址
+      const queryStr = Object.keys(payload).map(k => `${k}=${encodeURIComponent(payload[k])}`).join('&');
+      const script = document.createElement('script');
+      script.src = `${baseUrl}?${queryStr}&callback=${callbackName}`;
+      script.onerror = function() {
+        delete window[callbackName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+        alert('網路連線異常');
+      };
+      document.body.appendChild(script);
+    }
+  </script>
+</body>
+</html>
