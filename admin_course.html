@@ -3,93 +3,296 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BBT 聯盟 - 課程管理後台</title>
-
-  <!-- 引入共用樣式與 Tailwind CSS -->
-  <link rel="stylesheet" href="css/signup_dashboard.css">
+  <title>BBT 聯盟 - 課程管理中心</title>
+  
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- 共用 CSS -->
+  <link rel="stylesheet" href="common.css">
+
+  <style>
+    *{ box-sizing:border-box; }
+    body{ margin:0; padding:0; background:#f8fafc; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#0f172a; }
+    .hidden{ display:none!important; }
+
+    .page-container{ max-width:1400px; margin:auto; padding:20px; }
+    .page-title-bar{ margin-bottom:24px; }
+    .page-title{ display:flex; align-items:center; gap:10px; font-size:32px; font-weight:800; margin:0; }
+    .page-desc{ margin-top:6px; color:#64748b; font-size:14px; }
+
+    /* KPI Summary */
+    .kpi-summary{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+    .kpi-main-card{ background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:18px; box-shadow:0 4px 10px rgba(15,23,42,.05); min-height:110px; }
+    .kpi-main-label{ font-size:13px; color:#64748b; font-weight:700; }
+    .kpi-main-value{ margin-top:6px; font-size:30px; font-weight:900; line-height:1; color:#0f172a; }
+    .kpi-flex{ display:grid; grid-template-columns:1fr auto; align-items:center; margin-top:6px; }
+    .kpi-side{ display:flex; flex-direction:column; gap:2px; align-items:flex-end; font-size:13px; color:#64748b; }
+    .kpi-side strong{ font-size:16px; font-weight:900; color:#2563eb; }
+
+    /* Filter & Toolbar */
+    .filter-card{ background:#fff; border-radius:18px; padding:16px; margin-bottom:16px; box-shadow:0 4px 12px rgba(15,23,42,.05); display:flex; justify-content:space-between; align-items:center; gap:20px; }
+    .filter-search-row{ width:100%; max-width:420px; }
+    .search-input{ width:100%; height:44px; border:1px solid #cbd5e1; border-radius:12px; padding:0 14px; background:#fff; }
+    .search-input:focus{ outline:none; border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+
+    /* Buttons */
+    .btn-primary{ border:none; padding:10px 18px; border-radius:12px; background:#2563eb; color:#fff; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(37,99,235,.25); transition:.2s; }
+    .btn-primary:hover{ background:#1d4ed8; }
+    .btn-outline{ border:1px solid #cbd5e1; background:#fff; color:#334155; border-radius:12px; padding:9px 16px; font-weight:700; cursor:pointer; transition:.2s; }
+    .btn-outline:hover{ background:#f8fafc; border-color:#94a3b8; }
+
+    /* Table Panel */
+    .table-panel{ background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 4px 14px rgba(15,23,42,.05); }
+    .table-header{ display:flex; justify-content:space-between; align-items:center; padding:16px 20px; background:linear-gradient(90deg,#0f172a,#1e3a8a); color:#fff; }
+    .table-title{ font-size:18px; font-weight:800; }
+    .user-table{ width:100%; border-collapse:collapse; }
+    .user-table th{ background:#f8fafc; padding:14px 16px; text-align:left; font-size:13px; color:#475569; font-weight:700; border-bottom:1px solid #e2e8f0; }
+    .user-table td{ padding:16px; vertical-align:middle; border-bottom:1px solid #e2e8f0; font-size:14px; }
+    .user-table tbody tr:hover{ background:#f8fafc; }
+
+    /* Badges */
+    .role-badge{ display:inline-flex; align-items:center; height:28px; padding:0 12px; border-radius:999px; font-size:12px; font-weight:700; }
+    .badge-judge{ background:#dbeafe; color:#1d4ed8; }
+    .badge-record{ background:#ede9fe; color:#6d28d9; }
+    .badge-general{ background:#f1f5f9; color:#475569; }
+
+    /* Modal */
+    .modal{ position:fixed; inset:0; background:rgba(15,23,42,.45); display:flex; justify-content:center; align-items:center; z-index:9999; }
+    .modal.hidden{ display:none; }
+    .modal-dialog{ width:90%; max-width:800px; background:#ffffff; border-radius:18px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.2); max-height:90vh; display:flex; flex-direction:column; }
+    .modal-header{ display:flex; justify-content:space-between; align-items:center; padding:16px 20px; background:linear-gradient(90deg,#0f172a,#1e3a8a); color:#fff; }
+    .modal-body{ padding:20px; overflow-y:auto; flex:1; }
+    .modal-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; align-items:start; }
+    .modal-grid input, .modal-grid select, .modal-grid textarea{ width:100%; height:42px; border:1px solid #cbd5e1; border-radius:10px; padding:0 12px; font-size:14px; background:#fff; }
+    .modal-grid textarea{ height:80px; padding:10px 12px; resize:vertical; }
+    .modal-grid input:focus, .modal-grid select:focus, .modal-grid textarea:focus{ outline:none; border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+    .modal-footer{ display:flex; justify-content:flex-end; gap:10px; padding:16px 20px; border-top:1px solid #e5e7eb; background:#f8fafc; }
+    .modal-close{ border:none; width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.15); color:#fff; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
+    .full-row{ grid-column:1 / span 2; }
+
+    /* Toast */
+    .toast{ position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-10px); min-width:280px; max-width:500px; padding:12px 18px; border-radius:12px; text-align:center; color:#fff; font-size:14px; font-weight:700; box-shadow:0 10px 25px rgba(0,0,0,.15); opacity:0; transition:.25s; z-index:10000; }
+    .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+    .toast.success{ background:#16a34a; }
+    .toast.error{ background:#dc2626; }
+    .toast.warn{ background:#f59e0b; }
+
+    #loadingMask{ position:fixed; inset:0; background:rgba(15,23,42,.25); display:flex; justify-content:center; align-items:center; z-index:20000; }
+    #loadingMask.hidden{ display:none; }
+    .loading-box{ background:#fff; padding:20px 28px; border-radius:16px; font-weight:700; box-shadow:0 8px 24px rgba(0,0,0,.15); }
+
+    .action-btn{ font-size:14px; width:34px; height:34px; border:none; border-radius:10px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; justify-content:center; }
+    .action-btn:hover{ transform:translateY(-1px); }
+    .action-btn.edit{ background:#ffedd5; color:#c2410c; }
+    .action-btn.delete{ background:#fee2e2; color:#991b1b; }
+    .action-group{ display:flex; gap:6px; }
+  </style>
 </head>
 
-<body data-page-title="課程管理後台" class="page-admin-course">
+<body class="bg-slate-100 antialiased text-slate-800">
 
-  <!-- 引入系統標準共用 JS -->
-  <script src="js/auth.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/header.js"></script>
-  <script src="js/core.js"></script>
+<div class="flex min-h-screen">
 
-  <!-- 動態載入 Header 容器 -->
-  <div id="header-container"></div>
-
-  <script>
-    function loadHeader() {
-      fetch('header.html')
-        .then(res => res.text())
-        .then(html => {
-          document.getElementById('header-container').innerHTML = html;
-          const session = (typeof getSession === 'function') ? getSession() : null;
-          document.body.classList.remove('role-admin', 'role-judge', 'role-record');
-
-          if (session && session.role) {
-            const roles = session.role.split(',').map(r => r.trim());
-            if (roles.includes('admin')) document.body.classList.add('role-admin');
-          }
-        })
-        .catch(err => console.error('Header 載入失敗', err));
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      loadHeader();
-    });
-  </script>
-
-  <!-- 主內容區 -->
-  <div class="main max-w-5xl mx-auto p-6 space-y-8">
-
-    <!-- 頂部標題區 -->
-    <div class="flex justify-between items-center">
-      <div>
-        <h2 class="text-2xl font-black text-slate-900">➕ 新增與管理線上課程</h2>
-        <p class="text-sm text-slate-500">在此建立完整課程後，前台「線上課程報名」頁面將同步顯示並提供報名與候補驗證。</p>
+  <!-- Mobile Overlay -->
+  <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity"></div>
+  
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 z-50 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shrink-0 border-r border-slate-800 shadow-2xl lg:shadow-none">
+    <div>
+      <!-- Logo -->
+      <div class="h-16 flex items-center justify-between px-5 bg-slate-950 border-b border-slate-800">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-black text-white text-base tracking-wide">BBT 管理中心</h1>
+            <p class="text-[12px] font-bold text-slate-400">出勤與賽事後端控制台</p>
+          </div>
+        </div>
+        <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
-      <a href="course.html" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-4 py-2 rounded-xl text-sm transition">
-        返回課程大廳
-      </a>
+
+      <!-- Navigation -->
+      <nav class="p-3.5 space-y-1 text-xs font-semibold overflow-y-auto max-h-[calc(100vh-140px)]">
+        <div class="text-[10px] text-slate-500 font-bold px-3 pt-2 pb-1 uppercase tracking-wider">主控數據中心</div>
+        <a href="admin_dashboard.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+          <div class="flex items-center space-x-3"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>管理總覽</span></div>
+        </a>
+
+        <div class="text-[10px] text-slate-500 font-bold px-3 pt-4 pb-1 uppercase tracking-wider">排班管理</div>
+        <a href="judge_dashboard_admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition"><i data-lucide="flag" class="w-4 h-4"></i><span>裁判排班</span></a>
+        <a href="record_dashboard_admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition"><i data-lucide="clipboard-list" class="w-4 h-4"></i><span>紀錄排班</span></a>
+
+        <div class="text-[10px] text-slate-500 font-bold px-3 pt-4 pb-1 uppercase tracking-wider">出勤管理</div>
+        <a href="assignment_execution.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition"><i data-lucide="clipboard-check" class="w-4 h-4"></i><span>出勤確認</span></a>
+
+        <div class="text-[10px] text-slate-500 font-bold px-3 pt-4 pb-1 uppercase tracking-wider">系統管理</div>
+        <a href="admin_games.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition"><i data-lucide="calendar-range" class="w-4 h-4"></i><span>賽事管理</span></a>
+        <a href="admin_course.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/30">
+          <div class="flex items-center space-x-3"><i data-lucide="book-open" class="w-4 h-4"></i><span>課程管理</span></div>
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        </a>
+        <a href="admin_users.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition"><i data-lucide="users" class="w-4 h-4"></i><span>帳號管理</span></a>
+
+        <div class="text-[10px] text-slate-500 font-bold px-3 pt-4 pb-1 uppercase tracking-wider">統計報表</div>
+        <a href="report.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition"><i data-lucide="file-bar-chart" class="w-4 h-4"></i><span>出勤報表</span></a>
+      </nav>
     </div>
 
-    <!-- 完整課程表單 -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-6">
-      <form id="course-form" onsubmit="handleSaveCourse(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-        
-        <!-- 隱藏的 course_id (用於編輯) -->
-        <input type="hidden" id="course_id" value="">
+    <!-- Footer -->
+    <div class="p-3.5 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div id="sidebarAvatar" class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 font-black flex items-center justify-center text-sm">-</div>
+        <div>
+          <div id="sidebarUserName" class="text-xs font-bold text-white">-</div>
+          <div id="sidebarUserRole" class="text-[10px] text-amber-400">-</div>
+        </div>
+      </div>
+      <button onclick="alert('登出')" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+    </div>
+  </aside>
 
-        <!-- 課程名稱 -->
-        <div class="md:col-span-2 space-y-1">
-          <label class="font-bold text-slate-700">課程名稱 <span class="text-rose-500">*</span></label>
-          <input type="text" id="course_name" required placeholder="例：115年度 A級裁判培訓營" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Top Navigation Header -->
+    <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20 shrink-0 shadow-sm">
+      <div class="flex items-center space-x-3">
+        <button onclick="toggleSidebar()" class="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition"><i data-lucide="menu" class="w-5 h-5"></i></button>
+        <h2 class="font-black text-slate-900 text-base sm:text-lg tracking-tight">BBT 出勤管理中心</h2>
+      </div>
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <button onclick="loadCourses()" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition relative" title="重新整理數據"><i data-lucide="refresh-cw" class="w-4.5 h-4.5"></i></button>
+        <a href="index.html" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shadow-sm">
+          <i data-lucide="external-link" class="w-3.5 h-3.5 text-amber-400"></i><span>回首頁</span>
+        </a>
+      </div>
+    </header>
+
+    <div class="overflow-auto flex-1 p-6">
+      <div class="page-container space-y-6">
+        
+        <!-- Header title bar -->
+        <div class="page-title-bar flex justify-between items-center">
+          <div>
+            <div class="page-title">📚 課程管理中心</div>
+            <div class="page-desc">建立、維護與管理線上培訓課程與報名細節</div>
+          </div>
         </div>
 
-        <!-- 課程類型 -->
+        <!-- KPI Summary Cards -->
+        <section class="kpi-summary">
+          <div class="kpi-main-card">
+            <div class="kpi-main-label">課程總數</div>
+            <div class="kpi-flex">
+              <div class="kpi-main-value" id="kpiTotalCourses">0</div>
+              <div class="kpi-side">開放中 <strong id="kpiOpenCourses">0</strong></div>
+            </div>
+          </div>
+          <div class="kpi-main-card">
+            <div class="kpi-main-label">裁判培訓</div>
+            <div class="kpi-flex">
+              <div class="kpi-main-value" id="kpiJudgeCourses" style="color:#2563eb;">0</div>
+              <div class="kpi-side">場次數</div>
+            </div>
+          </div>
+          <div class="kpi-main-card">
+            <div class="kpi-main-label">紀錄培訓</div>
+            <div class="kpi-flex">
+              <div class="kpi-main-value" id="kpiRecordCourses" style="color:#7c3aed;">0</div>
+              <div class="kpi-side">場次數</div>
+            </div>
+          </div>
+          <div class="kpi-main-card">
+            <div class="kpi-main-label">總累積報名人數</div>
+            <div class="kpi-flex">
+              <div class="kpi-main-value" id="kpiTotalEnrollments" style="color:#16a34a;">0</div>
+              <div class="kpi-side">人次</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Search & Filter Bar -->
+        <section class="filter-card">
+          <div class="flex items-center gap-3 w-full">
+            <div class="filter-search-row">
+              <input id="txtSearch" class="search-input" type="text" placeholder="搜尋課程名稱、講師、地點..." oninput="renderCourseTable()">
+            </div>
+          </div>
+        </section>
+
+        <!-- Course Table Panel -->
+        <section class="table-panel">
+          <div class="table-header">
+            <div class="table-title">📋 課程清單</div>
+            <div class="table-actions">
+              <button class="btn-primary" onclick="openCourseModal('create')">＋ 新增課程</button>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table class="user-table">
+              <thead>
+                <tr>
+                  <th># 編號</th>
+                  <th>課程名稱 / 類型</th>
+                  <th>日期與時間</th>
+                  <th>地點 / 講師</th>
+                  <th>名額與費用</th>
+                  <th>報名狀態</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="courseTableBody">
+                <tr><td colspan="7" class="text-center py-6 text-slate-400">載入課程中...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Course Modal (Create / Edit) -->
+<div id="courseModal" class="modal hidden">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div id="courseModalTitle" class="table-title">新增課程</div>
+      <button class="modal-close" onclick="closeCourseModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="course-form" onsubmit="saveCourseData(event)" class="modal-grid">
+        <input type="hidden" id="course_id" value="">
+
+        <div class="full-row space-y-1">
+          <label class="font-bold text-slate-700 text-xs">課程名稱 <span class="text-rose-500">*</span></label>
+          <input type="text" id="course_name" required placeholder="例：115年度 A級裁判培訓營">
+        </div>
+
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">課程類型 (course_type)</label>
-          <select id="course_type" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+          <label class="font-bold text-slate-700 text-xs">課程類型 (course_type)</label>
+          <select id="course_type">
             <option value="judge">裁判培訓 (judge)</option>
             <option value="record">紀錄培訓 (record)</option>
             <option value="general">通識教育 (general)</option>
           </select>
         </div>
 
-        <!-- 授課講師 -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">授課講師 (instructor)</label>
-          <input type="text" id="instructor" placeholder="例：陳阿信" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+          <label class="font-bold text-slate-700 text-xs">授課講師 (instructor)</label>
+          <input type="text" id="instructor" placeholder="例：陳阿信">
         </div>
 
-        <!-- 證照類型 -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">證照類型 (certificate_type)</label>
-          <select id="certificate_type" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+          <label class="font-bold text-slate-700 text-xs">證照類型 (certificate_type)</label>
+          <select id="certificate_type">
             <option value="">無</option>
             <option value="judge">裁判 (judge)</option>
             <option value="record">紀錄 (record)</option>
@@ -97,10 +300,9 @@
           </select>
         </div>
 
-        <!-- 證照等級 -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">證照等級 (certificate_level)</label>
-          <select id="certificate_level" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+          <label class="font-bold text-slate-700 text-xs">證照等級 (certificate_level)</label>
+          <select id="certificate_level">
             <option value="">無 (NULL)</option>
             <option value="A">A級</option>
             <option value="B">B級</option>
@@ -108,184 +310,411 @@
           </select>
         </div>
 
-        <!-- 上課日期 (支援起訖日) -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">上課日期 / 起始日 (date) <span class="text-rose-500">*</span></label>
-          <input type="date" id="date" required class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-        </div>
-        <div class="space-y-1">
-          <label class="font-bold text-slate-700">結束日期 (若為多日範圍)</label>
-          <input type="date" id="end_date" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+          <label class="font-bold text-slate-700 text-xs">上課日期 / 起始日 (date) <span class="text-rose-500">*</span></label>
+          <input type="date" id="date" required>
         </div>
 
-        <!-- 上課時間範圍 -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">上課時間範圍 (time)</label>
-          <input type="text" id="time" placeholder="例：09:00 - 16:00" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+          <label class="font-bold text-slate-700 text-xs">結束日期 (若為多日範圍)</label>
+          <input type="date" id="end_date">
         </div>
 
-        <!-- 訓練時數與認證時數 -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">培訓時數 hr (training_hours)</label>
-          <input type="number" id="training_hours" value="4" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-        </div>
-        <div class="space-y-1">
-          <label class="font-bold text-slate-700">認證時數說明 (certificate_hours)</label>
-          <input type="text" id="certificate_hours" placeholder="例：裁判繼續教育4小時" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+          <label class="font-bold text-slate-700 text-xs">上課時間範圍 (time)</label>
+          <input type="text" id="time" placeholder="例：09:00 - 16:00">
         </div>
 
-        <!-- 上課地點與線上網址 -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">上課地點 (location)</label>
-          <input type="text" id="location" placeholder="例：台北大學棒球場" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-        </div>
-        <div class="space-y-1">
-          <label class="font-bold text-slate-700">線上會議網址 (location_url)</label>
-          <input type="url" id="location_url" placeholder="Teams / Meet / Zoom 連結" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+          <label class="font-bold text-slate-700 text-xs">培訓時數 hr (training_hours)</label>
+          <input type="number" id="training_hours" value="4">
         </div>
 
-        <!-- 費用與名額 -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">課程費用 NT$ (fee)</label>
-          <input type="number" id="fee" value="0" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+          <label class="font-bold text-slate-700 text-xs">認證時數說明 (certificate_hours)</label>
+          <input type="text" id="certificate_hours" placeholder="例：裁判繼續教育4小時">
         </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700 text-xs">上課地點 (location)</label>
+          <input type="text" id="location" placeholder="例：台北大學棒球場">
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700 text-xs">線上會議網址 (location_url)</label>
+          <input type="url" id="location_url" placeholder="Teams / Meet / Zoom 連結">
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700 text-xs">課程費用 NT$ (fee)</label>
+          <input type="number" id="fee" value="0">
+        </div>
+
         <div class="grid grid-cols-2 gap-2">
           <div class="space-y-1">
-            <label class="font-bold text-slate-700">正取名額 (capacity)</label>
-            <input type="number" id="capacity" value="30" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+            <label class="font-bold text-slate-700 text-xs">正取名額 (capacity)</label>
+            <input type="number" id="capacity" value="30">
           </div>
           <div class="space-y-1">
-            <label class="font-bold text-slate-700">候補上限 (waitlist)</label>
-            <input type="number" id="waitlist_capacity" value="10" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+            <label class="font-bold text-slate-700 text-xs">候補上限 (waitlist)</label>
+            <input type="number" id="waitlist_capacity" value="10">
           </div>
         </div>
 
-        <!-- 報名資格與起訖日 -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">報名資格 (signup_type)</label>
-          <select id="signup_type" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+          <label class="font-bold text-slate-700 text-xs">報名資格 (signup_type)</label>
+          <select id="signup_type">
             <option value="public">公開報名 (public)</option>
             <option value="member_only">系統會員限定 (member_only)</option>
             <option value="licensed_only">具備特定證照者 (licensed_only)</option>
           </select>
         </div>
+
         <div class="grid grid-cols-2 gap-2">
           <div class="space-y-1">
-            <label class="font-bold text-slate-700">報名開始日</label>
-            <input type="date" id="signup_start" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+            <label class="font-bold text-slate-700 text-xs">報名開始日</label>
+            <input type="date" id="signup_start">
           </div>
           <div class="space-y-1">
-            <label class="font-bold text-slate-700">報名截止日</label>
-            <input type="date" id="signup_end" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+            <label class="font-bold text-slate-700 text-xs">報名截止日</label>
+            <input type="date" id="signup_end">
           </div>
         </div>
 
-        <!-- 取消政策與結訓動作 -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">允許線上取消 (allow_cancel)</label>
-          <select id="allow_cancel" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+          <label class="font-bold text-slate-700 text-xs">允許線上取消 (allow_cancel)</label>
+          <select id="allow_cancel">
             <option value="Y">是 (Y)</option>
             <option value="N">否 (N)</option>
           </select>
         </div>
+
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">結訓後資格處理 (certificate_action)</label>
-          <select id="certificate_action" class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+          <label class="font-bold text-slate-700 text-xs">結訓後資格處理 (certificate_action)</label>
+          <select id="certificate_action">
             <option value="none">不處理 (none)</option>
-            <option value="track_only">僅追蹤棒協發證 (track_only)</option>
-            <option value="auto_upgrade">系統自動升級權限 (auto_upgrade)</option>
+            <option value="track_only">僅追蹤發證 (track_only)</option>
+            <option value="auto_upgrade">系統自動升級 (auto_upgrade)</option>
           </select>
         </div>
 
-        <!-- 備註說明 -->
-        <div class="md:col-span-2 space-y-1">
-          <label class="font-bold text-slate-700">備註說明 (remark)</label>
-          <textarea id="remark" rows="2" placeholder="延期原因、特殊規定或管理備註..." class="w-full px-3.5 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+        <div class="full-row space-y-1">
+          <label class="font-bold text-slate-700 text-xs">備註說明 (remark)</label>
+          <textarea id="remark" placeholder="延期原因、特殊規定或管理備註..."></textarea>
         </div>
-
-        <!-- 提交按鈕 -->
-        <div class="md:col-span-2 pt-4">
-          <button type="submit" id="submit-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl transition shadow-md">
-            💾 立即儲存並建立完整課程
-          </button>
-        </div>
-
       </form>
     </div>
-
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeCourseModal()">取消</button>
+      <button class="btn-primary" onclick="document.getElementById('course-form').requestSubmit()">儲存課程</button>
+    </div>
   </div>
+</div>
 
-  <script>
-    // 透過 JSONP 將表單資料送往後端 saveCourse
-    function handleSaveCourse(event) {
-      event.preventDefault();
+<!-- Loading Mask -->
+<div id="loadingMask" class="hidden">
+  <div class="loading-box">處理中...</div>
+</div>
 
-      const btn = document.getElementById('submit-btn');
-      btn.disabled = true;
-      btn.textContent = '⏳ 系統儲存中...';
+<!-- Toast Script & Logic -->
+<script src="js/auth.js"></script>
+<script src="js/config.js"></script>
+<script>
+  let allCourses = [];
+  let currentModalMode = 'create';
 
-      const payload = {
-        course_id: document.getElementById('course_id').value,
-        course_name: document.getElementById('course_name').value,
-        course_type: document.getElementById('course_type').value,
-        certificate_type: document.getElementById('certificate_type').value,
-        certificate_level: document.getElementById('certificate_level').value,
-        instructor: document.getElementById('instructor').value,
-        date: document.getElementById('date').value,
-        end_date: document.getElementById('end_date').value,
-        time: document.getElementById('time').value,
-        location: document.getElementById('location').value,
-        location_url: document.getElementById('location_url').value,
-        training_hours: document.getElementById('training_hours').value,
-        certificate_hours: document.getElementById('certificate_hours').value,
-        fee: document.getElementById('fee').value,
-        capacity: document.getElementById('capacity').value,
-        waitlist_capacity: document.getElementById('waitlist_capacity').value,
-        signup_type: document.getElementById('signup_type').value,
-        signup_start: document.getElementById('signup_start').value,
-        signup_end: document.getElementById('signup_end').value,
-        allow_cancel: document.getElementById('allow_cancel').value,
-        certificate_action: document.getElementById('certificate_action').value,
-        remark: document.getElementById('remark').value
-      };
+  document.addEventListener('DOMContentLoaded', () => {
+    loadHeader();
+    loadCourses();
+  });
 
-      const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
-      const callbackName = 'jsonp_save_course_' + Math.round(100000 * Math.random());
-
-      // 組合 QueryString
-      const params = new URLSearchParams({
-        action: 'saveCourse',
-        callback: callbackName,
-        ...payload
-      });
-
-      window[callbackName] = function(res) {
-        delete window[callbackName];
-        if (script.parentNode) script.parentNode.removeChild(script);
-
-        btn.disabled = false;
-        btn.textContent = '💾 立即儲存並建立完整課程';
-
-        if (res && res.result === 'ok') {
-          alert('✅ 課程儲存成功！');
-          document.getElementById('course-form').reset();
-          document.getElementById('course_id').value = '';
-        } else {
-          alert('❌ 儲存失敗：' + (res ? res.message : '未知錯誤'));
+  function loadHeader() {
+    fetch('header.html')
+      .then(res => res.text())
+      .then(html => {
+        const hc = document.getElementById('header-container');
+        if (hc) hc.innerHTML = html;
+        const session = (typeof getSession === 'function') ? getSession() : JSON.parse(localStorage.getItem('session_user') || '{}');
+        if (session && session.name) {
+          const nameEl = document.getElementById('sidebarUserName');
+          if (nameEl) nameEl.textContent = session.name;
+          const roleEl = document.getElementById('sidebarUserRole');
+          if (roleEl) roleEl.textContent = session.role || '管理員';
+          const avatarEl = document.getElementById('sidebarAvatar');
+          if (avatarEl) avatarEl.textContent = session.name.charAt(0);
         }
-      };
+      })
+      .catch(err => console.error('Header 載入失敗', err));
+  }
 
-      const script = document.createElement('script');
-      script.src = `${baseUrl}?${params.toString()}`;
-      script.onerror = function() {
-        delete window[callbackName];
-        if (script.parentNode) script.parentNode.removeChild(script);
-        btn.disabled = false;
-        btn.textContent = '💾 立即儲存並建立完整課程';
-        alert('網路連線異常，請稍後再試');
-      };
-      document.body.appendChild(script);
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.toggle('-translate-x-full');
+    overlay.classList.toggle('hidden');
+  }
+
+  function showLoading(msg='處理中...') {
+    const m = document.getElementById('loadingMask');
+    if (!m) return;
+    m.querySelector('.loading-box').textContent = msg;
+    m.classList.remove('hidden');
+  }
+
+  function hideLoading() {
+    const m = document.getElementById('loadingMask');
+    if (m) m.classList.add('hidden');
+  }
+
+  function showToast(msg, type='success') {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.classList.add('show'), 10);
+    setTimeout(() => {
+      t.classList.remove('show');
+      setTimeout(() => t.remove(), 300);
+    }, 2000);
+  }
+
+  function loadCourses() {
+    showLoading('載入課程清單...');
+    const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+    const cb = 'jsonp_courses_' + Math.round(100000 * Math.random());
+    
+    window[cb] = function(res) {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      if (res && res.result === 'ok') {
+        allCourses = res.data || [];
+        updateKpi();
+        renderCourseTable();
+      } else {
+        showToast(res ? res.message : '載入課程失敗', 'error');
+      }
+    };
+
+    const script = document.createElement('script');
+    script.src = `${baseUrl}?action=getCourses&callback=${cb}`;
+    script.onerror = function() {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      showToast('網路連線異常', 'error');
+    };
+    document.body.appendChild(script);
+  }
+
+  function updateKpi() {
+    const total = allCourses.length;
+    const open = allCourses.filter(c => c.course_status === 'open' || !c.course_status).length;
+    const judge = allCourses.filter(c => c.course_type === 'judge').length;
+    const record = allCourses.filter(c => c.course_type === 'record').length;
+    const enrollments = allCourses.reduce((sum, c) => sum + (Number(c.current_enrollment) || 0), 0);
+
+    document.getElementById('kpiTotalCourses').textContent = total;
+    document.getElementById('kpiOpenCourses').textContent = open;
+    document.getElementById('kpiJudgeCourses').textContent = judge;
+    document.getElementById('kpiRecordCourses').textContent = record;
+    document.getElementById('kpiTotalEnrollments').textContent = enrollments;
+  }
+
+  function renderCourseTable() {
+    const tbody = document.getElementById('courseTableBody');
+    const keyword = (document.getElementById('txtSearch').value || '').toLowerCase();
+    
+    const filtered = allCourses.filter(c => {
+      const match = [c.course_name, c.instructor, c.location].join(' ').toLowerCase();
+      return !keyword || match.includes(keyword);
+    });
+
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-bold">目前無符合條件的課程</td></tr>`;
+      return;
     }
-  </script>
+
+    tbody.innerHTML = '';
+    filtered.forEach(c => {
+      const tr = document.createElement('tr');
+      const typeBadge = c.course_type === 'judge' ? 'badge-judge' : (c.course_type === 'record' ? 'badge-record' : 'badge-general');
+      const statusText = c.course_status === 'closed' ? '已關閉' : (c.course_status === 'finished' ? '已結束' : '開放報名');
+      const statusClass = c.course_status === 'open' || !c.course_status ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600';
+
+      tr.innerHTML = `
+        <td class="font-bold text-slate-600">#${c.course_id || '-'}</td>
+        <td>
+          <div class="font-extrabold text-slate-900 text-base">${c.course_name || '-'}</div>
+          <div class="flex items-center gap-1.5 mt-1">
+            <span class="role-badge ${typeBadge}">${c.course_type || 'general'}</span>
+            ${c.certificate_type ? `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold">證照: ${c.certificate_type} ${c.certificate_level || ''}</span>` : ''}
+          </div>
+        </td>
+        <td class="text-xs text-slate-700">
+          <div class="font-bold">📅 ${c.date || '未定'}${c.end_date && c.end_date !== c.date ? ' ~ ' + c.end_date : ''}</div>
+          <div class="text-slate-500 mt-0.5">⏰ ${c.time || '依公告為準'}</div>
+        </td>
+        <td class="text-xs text-slate-700">
+          <div class="font-bold">📍 ${c.location || '實體/線上'}</div>
+          <div class="text-slate-500 mt-0.5">👨‍🏫 ${c.instructor || '未指定'}</div>
+        </td>
+        <td class="text-xs text-slate-700">
+          <div class="font-bold">💰 ${c.fee == 0 ? '免費' : 'NT$ ' + c.fee}</div>
+          <div class="text-slate-500 mt-0.5">👥 已報名 ${c.current_enrollment || 0} / 正取 ${c.capacity || 30}</div>
+        </td>
+        <td>
+          <span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${statusClass}">${statusText}</span>
+        </td>
+        <td class="action-col">
+          <div class="action-group">
+            <button class="action-btn edit" onclick="openCourseModal('edit', '${c.course_id}')" title="編輯課程">✏️</button>
+            <button class="action-btn delete" onclick="deleteCourse('${c.course_id}', '${c.course_name}')" title="刪除課程">🗑</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function openCourseModal(mode, courseId = '') {
+    currentModalMode = mode;
+    document.getElementById('courseModal').classList.remove('hidden');
+    document.getElementById('courseModalTitle').textContent = mode === 'create' ? '新增課程' : '編輯課程';
+
+    if (mode === 'create') {
+      document.getElementById('course-form').reset();
+      document.getElementById('course_id').value = '';
+      document.getElementById('training_hours').value = 4;
+      document.getElementById('fee').value = 0;
+      document.getElementById('capacity').value = 30;
+      document.getElementById('waitlist_capacity').value = 10;
+    } else {
+      const c = allCourses.find(x => String(x.course_id) === String(courseId));
+      if (!c) {
+        showToast('找不到該課程資料', 'error');
+        closeCourseModal();
+        return;
+      }
+      document.getElementById('course_id').value = c.course_id || '';
+      document.getElementById('course_name').value = c.course_name || '';
+      document.getElementById('course_type').value = c.course_type || 'general';
+      document.getElementById('certificate_type').value = c.certificate_type || '';
+      document.getElementById('certificate_level').value = c.certificate_level || '';
+      document.getElementById('instructor').value = c.instructor || '';
+      document.getElementById('date').value = c.date ? c.date.split('T')[0] : '';
+      document.getElementById('end_date').value = c.end_date ? c.end_date.split('T')[0] : '';
+      document.getElementById('time').value = c.time || '';
+      document.getElementById('location').value = c.location || '';
+      document.getElementById('location_url').value = c.location_url || '';
+      document.getElementById('training_hours').value = c.training_hours || 4;
+      document.getElementById('certificate_hours').value = c.certificate_hours || '';
+      document.getElementById('fee').value = c.fee || 0;
+      document.getElementById('capacity').value = c.capacity || 30;
+      document.getElementById('waitlist_capacity').value = c.waitlist_capacity || 10;
+      document.getElementById('signup_type').value = c.signup_type || 'public';
+      document.getElementById('signup_start').value = c.signup_start ? c.signup_start.split('T')[0] : '';
+      document.getElementById('signup_end').value = c.signup_end ? c.signup_end.split('T')[0] : '';
+      document.getElementById('allow_cancel').value = c.allow_cancel || 'Y';
+      document.getElementById('certificate_action').value = c.certificate_action || 'none';
+      document.getElementById('remark').value = c.remark || '';
+    }
+  }
+
+  function closeCourseModal() {
+    document.getElementById('courseModal').classList.add('hidden');
+  }
+
+  function saveCourseData(event) {
+    event.preventDefault();
+    showLoading('儲存課程資料中...');
+
+    const payload = {
+      course_id: document.getElementById('course_id').value,
+      course_name: document.getElementById('course_name').value,
+      course_type: document.getElementById('course_type').value,
+      certificate_type: document.getElementById('certificate_type').value,
+      certificate_level: document.getElementById('certificate_level').value,
+      instructor: document.getElementById('instructor').value,
+      date: document.getElementById('date').value,
+      end_date: document.getElementById('end_date').value,
+      time: document.getElementById('time').value,
+      location: document.getElementById('location').value,
+      location_url: document.getElementById('location_url').value,
+      training_hours: document.getElementById('training_hours').value,
+      certificate_hours: document.getElementById('certificate_hours').value,
+      fee: document.getElementById('fee').value,
+      capacity: document.getElementById('capacity').value,
+      waitlist_capacity: document.getElementById('waitlist_capacity').value,
+      signup_type: document.getElementById('signup_type').value,
+      signup_start: document.getElementById('signup_start').value,
+      signup_end: document.getElementById('signup_end').value,
+      allow_cancel: document.getElementById('allow_cancel').value,
+      certificate_action: document.getElementById('certificate_action').value,
+      remark: document.getElementById('remark').value
+    };
+
+    const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+    const cb = 'jsonp_save_course_' + Math.round(100000 * Math.random());
+    const params = new URLSearchParams({
+      action: 'saveCourse',
+      callback: cb,
+      ...payload
+    });
+
+    window[cb] = function(res) {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      if (res && res.result === 'ok') {
+        showToast('✅ 課程儲存成功！', 'success');
+        closeCourseModal();
+        loadCourses();
+      } else {
+        showToast('❌ 儲存失敗：' + (res ? res.message : '未知錯誤'), 'error');
+      }
+    };
+
+    const script = document.createElement('script');
+    script.src = `${baseUrl}?${params.toString()}`;
+    script.onerror = function() {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      showToast('網路連線異常', 'error');
+    };
+    document.body.appendChild(script);
+  }
+
+  function deleteCourse(courseId, courseName) {
+    if (!confirm(`確定要刪除課程「${courseName}」？`)) return;
+    showLoading('刪除課程中...');
+
+    const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+    const cb = 'jsonp_del_course_' + Math.round(100000 * Math.random());
+
+    window[cb] = function(res) {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      if (res && res.result === 'ok') {
+        showToast('課程已刪除', 'success');
+        loadCourses();
+      } else {
+        showToast(res ? res.message : '刪除失敗', 'error');
+      }
+    };
+
+    const script = document.createElement('script');
+    script.src = `${baseUrl}?action=deleteCourse&course_id=${courseId}&callback=${cb}`;
+    script.onerror = function() {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      showToast('網路連線異常', 'error');
+    };
+    document.body.appendChild(script);
+  }
+</script>
 </body>
 </html>
