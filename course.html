@@ -86,12 +86,10 @@
       return `${yyyy}-${mm}-${dd}`;
     }
 
-    // 同時載入課程清單與目前登入者的報名紀錄
     function loadDataAndCourses() {
       const session = JSON.parse(localStorage.getItem('session_user') || '{}');
       const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
       
-      // 1. 取得課程
       const cbCourses = 'jsonp_courses_' + Math.round(100000 * Math.random());
       window[cbCourses] = function(res) {
         delete window[cbCourses];
@@ -136,10 +134,13 @@
         return;
       }
 
-      // 建立已報名課程對照表 { courseId: status }
+      // 建立已報名課程詳細對照表 { courseId: { status, payment_status } }
       const enrolledMap = {};
       enrollments.forEach(en => {
-        enrolledMap[String(en.course_id)] = en.status; // applied, confirmed, waitlist
+        enrolledMap[String(en.course_id)] = {
+          status: en.status,                 // applied, confirmed, waitlist
+          payment_status: en.payment_status  // paid, unpaid
+        };
       });
 
       const dateMap = {};
@@ -163,19 +164,38 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               ${dayCourses.map(c => {
                 const cId = String(c.course_id);
-                const userStatus = enrolledMap[cId];
-                const isEnrolled = !!userStatus;
+                const enrollmentInfo = enrolledMap[cId];
+                const isEnrolled = !!enrollmentInfo;
                 const isFull = (c.current_enrollment || 0) >= (c.capacity || 30);
 
-                // 按鈕文字與狀態
+                // 按鈕與狀態文字
                 let btnText = '立即報名';
                 let btnClass = 'bg-slate-900 hover:bg-slate-800';
                 if (isEnrolled) {
-                  btnText = userStatus === 'waitlist' ? '已在候補名單中' : '已報名（正取/錄取）';
+                  btnText = enrollmentInfo.status === 'waitlist' ? '已在候補名單中' : '已報名（正取/錄取）';
                   btnClass = 'bg-emerald-600 cursor-not-allowed opacity-90';
                 } else if (isFull) {
                   btnText = '額滿（點擊報名將加入候補）';
                   btnClass = 'bg-amber-600 hover:bg-amber-700';
+                }
+
+                // 狀態顯示標籤
+                let statusBadge = '';
+                if (isEnrolled) {
+                  const stText = enrollmentInfo.status === 'waitlist' ? '候補中' : (enrollmentInfo.status === 'confirmed' ? '已錄取' : '已申請(正取)');
+                  const stClass = enrollmentInfo.status === 'waitlist' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                  const payText = enrollmentInfo.payment_status === 'paid' ? '已繳費' : '未繳費';
+                  const payClass = enrollmentInfo.payment_status === 'paid' ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold';
+
+                  statusBadge = `
+                    <div class="bg-slate-100 p-3 rounded-xl flex items-center justify-between text-xs border border-slate-200">
+                      <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded font-bold border ${stClass}">${stText}</span>
+                        <span class="text-slate-500">繳費狀況：<span class="${payClass}">${payText}</span></span>
+                      </div>
+                      <a href="my_courses.html" class="text-blue-600 hover:underline font-bold">查看紀錄 &rarr;</a>
+                    </div>
+                  `;
                 }
 
                 return `
@@ -192,6 +212,9 @@
 
                       <h3 class="text-xl font-bold text-slate-900">${c.course_name}</h3>
                       <p class="text-xs text-slate-500">👨‍🏫 講師：${c.instructor || '未指定'}</p>
+
+                      <!-- 如果已報名，直接在卡片上呈現報名狀態與繳費狀態 -->
+                      ${statusBadge}
 
                       <!-- 核心資訊摘要 -->
                       <div class="bg-slate-50 p-3.5 rounded-xl space-y-1.5 text-sm text-slate-600">
@@ -245,7 +268,6 @@
       document.getElementById('signup-modal').classList.add('hidden');
     }
 
-    // 提交報名 (加入處理中提示與防呆)
     function submitSignup() {
       const session = JSON.parse(localStorage.getItem('session_user') || '{}');
       if (!session.user_id) {
