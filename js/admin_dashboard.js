@@ -2173,13 +2173,13 @@ function buildRosterHtml(isPreview = true){
 
   const groups = {};
   
-  filtered.forEach(g=>{
+  games.forEach(game => {
   
     const tournament =
-      g.tournament || '未分類';
+      game.tournament || '未分類';
   
     const field =
-      g.field || '未指定場地';
+      gamefield || '未指定場地';
   
     if(!groups[tournament]){
       groups[tournament] = {};
@@ -2190,7 +2190,7 @@ function buildRosterHtml(isPreview = true){
     }
   
     groups[tournament][field]
-      .push(g);
+      .push(game);
   
   });
 
