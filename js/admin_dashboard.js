@@ -2402,8 +2402,6 @@ function buildRosterHtml(isPreview = true){
   
     });
 
-    });
-
   return `
 
     <div
