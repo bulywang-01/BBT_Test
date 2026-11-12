@@ -166,6 +166,7 @@
                 const enrollmentInfo = enrolledMap[cId];
                 const isEnrolled = !!enrollmentInfo;
                 const isFull = (c.current_enrollment || 0) >= (c.capacity || 30);
+                const courseDateFormatted = formatDateOnly(c.date);
                 const courseTime = c.time || c.course_time || '依課程公告為準';
 
                 let btnText = '立即報名';
@@ -212,8 +213,9 @@
 
                       ${statusBadge}
 
-                      <!-- 核心資訊摘要 (已加入上課時間) -->
+                      <!-- 核心資訊摘要 (已補上日期與時間) -->
                       <div class="bg-slate-50 p-3.5 rounded-xl space-y-1.5 text-sm text-slate-600">
+                        <div>📅 日期：<span class="font-medium text-slate-800">${courseDateFormatted}</span></div>
                         <div>⏰ 時間：<span class="font-medium text-slate-800">${courseTime}</span></div>
                         <div>📍 地點：<span class="font-medium text-slate-800">${c.location || '實體/線上'}</span></div>
                         <div>💰 費用：<span class="font-medium text-slate-800">${c.fee == 0 ? '免費' : 'NT$ ' + c.fee}</span></div>
@@ -236,7 +238,7 @@
                       </details>
                     </div>
 
-                    <button onclick="${isEnrolled ? '' : `openSignupModal('${c.course_id}', '${c.course_name}', '${date}')`}" 
+                    <button onclick="${isEnrolled ? '' : `openSignupModal('${c.course_id}', '${c.course_name}', '${courseDateFormatted}')`}" 
                       id="btn_${c.course_id}"
                       class="w-full ${btnClass} text-white font-bold py-2.5 rounded-xl text-sm transition shadow-sm"
                       ${isEnrolled ? 'disabled' : ''}>
