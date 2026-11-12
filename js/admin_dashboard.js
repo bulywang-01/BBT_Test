@@ -1106,10 +1106,10 @@ function getUrlParams(){
  *********************************************************/
 function showModal(title){
 
-  setText(
-    'modal-title',
-    title
-  );
+//  setText(
+//    'modal-title',
+//    title
+//  );
 
   document
     .getElementById('admin-modal')
