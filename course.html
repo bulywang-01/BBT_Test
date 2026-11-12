@@ -77,13 +77,23 @@
     let selectedCourseId = null;
 
     function formatDateOnly(isoString) {
-      if (!isoString) return '未定';
+      if (!isoString) return '';
       const d = new Date(isoString);
       if (isNaN(d)) return isoString;
       const yyyy = d.getFullYear();
       const mm = String(d.getMonth() + 1).padStart(2, '0');
       const dd = String(d.getDate()).padStart(2, '0');
       return `${yyyy}-${mm}-${dd}`;
+    }
+
+    // 處理日期範圍呈現（支援單日、起訖日或自訂文字）
+    function getCourseDateDisplay(c) {
+      const start = formatDateOnly(c.date || c.start_date);
+      const end = formatDateOnly(c.end_date);
+      if (start && end && start !== end) {
+        return `${start} ～ ${end}`;
+      }
+      return start || '未定日期';
     }
 
     function loadDataAndCourses() {
@@ -144,20 +154,20 @@
 
       const dateMap = {};
       courses.forEach(c => {
-        const d = formatDateOnly(c.date) || '未定日期';
-        if (!dateMap[d]) dateMap[d] = [];
-        dateMap[d].push(c);
+        const dateDisplay = getCourseDateDisplay(c);
+        if (!dateMap[dateDisplay]) dateMap[dateDisplay] = [];
+        dateMap[dateDisplay].push(c);
       });
 
       root.innerHTML = '';
 
-      Object.keys(dateMap).sort().forEach(date => {
-        const dayCourses = dateMap[date];
+      Object.keys(dateMap).sort().forEach(dateGroup => {
+        const dayCourses = dateMap[dateGroup];
 
         root.innerHTML += `
           <div class="space-y-3">
             <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
-              <span class="text-base font-black text-slate-900">📅 ${date}</span>
+              <span class="text-base font-black text-slate-900">📅 ${dateGroup}</span>
               <span class="text-xs text-slate-400">（共 ${dayCourses.length} 門課程）</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -166,7 +176,7 @@
                 const enrollmentInfo = enrolledMap[cId];
                 const isEnrolled = !!enrollmentInfo;
                 const isFull = (c.current_enrollment || 0) >= (c.capacity || 30);
-                const courseDateFormatted = formatDateOnly(c.date);
+                const dateDisplay = getCourseDateDisplay(c);
                 const courseTime = c.time || c.course_time || '依課程公告為準';
 
                 let btnText = '立即報名';
@@ -213,15 +223,16 @@
 
                       ${statusBadge}
 
-                      <!-- 核心資訊摘要 (已補上日期與時間) -->
+                      <!-- 核心資訊摘要 (完整呈現起訖日與時間範圍) -->
                       <div class="bg-slate-50 p-3.5 rounded-xl space-y-1.5 text-sm text-slate-600">
-                        <div>📅 日期：<span class="font-medium text-slate-800">${courseDateFormatted}</span></div>
+                        <div>📅 日期：<span class="font-medium text-slate-800">${dateDisplay}</span></div>
                         <div>⏰ 時間：<span class="font-medium text-slate-800">${courseTime}</span></div>
                         <div>📍 地點：<span class="font-medium text-slate-800">${c.location || '實體/線上'}</span></div>
                         <div>💰 費用：<span class="font-medium text-slate-800">${c.fee == 0 ? '免費' : 'NT$ ' + c.fee}</span></div>
                         <div>👥 名額：<span class="font-medium text-slate-800">已報名 ${c.current_enrollment || 0} / 正取 ${c.capacity || 30} (候補上限 ${c.waitlist_capacity || 10})</span></div>
                       </div>
 
+                      <!-- 展開/收合詳細資訊區塊 -->
                       <details class="group border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50">
                         <summary class="px-4 py-2.5 text-xs font-bold text-slate-700 cursor-pointer select-none flex justify-between items-center hover:bg-slate-100 transition">
                           <span>🔍 檢視完整課程與報名規定細節</span>
@@ -238,7 +249,7 @@
                       </details>
                     </div>
 
-                    <button onclick="${isEnrolled ? '' : `openSignupModal('${c.course_id}', '${c.course_name}', '${courseDateFormatted}')`}" 
+                    <button onclick="${isEnrolled ? '' : `openSignupModal('${c.course_id}', '${c.course_name}', '${dateDisplay}')`}" 
                       id="btn_${c.course_id}"
                       class="w-full ${btnClass} text-white font-bold py-2.5 rounded-xl text-sm transition shadow-sm"
                       ${isEnrolled ? 'disabled' : ''}>
