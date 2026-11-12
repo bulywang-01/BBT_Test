@@ -2172,28 +2172,52 @@ function buildRosterHtml(isPreview = true){
   }
 
   const groups = {};
-
-  games.forEach(game => {
-
+  
+  filtered.forEach(g=>{
+  
     const tournament =
-      game.tournament ||
-      game.league ||
-      '未分類賽事';
-
+      g.tournament || '未分類';
+  
+    const field =
+      g.field || '未指定場地';
+  
     if(!groups[tournament]){
-      groups[tournament] = [];
+      groups[tournament] = {};
     }
-
-    groups[tournament].push(game);
-
+  
+    if(!groups[tournament][field]){
+      groups[tournament][field] = [];
+    }
+  
+    groups[tournament][field]
+      .push(g);
+  
   });
 
   let sections = '';
 
   Object.keys(groups)
-    .sort()
-    .forEach(tournament => {
-
+  .forEach(tournament=>{
+  
+    html += `
+    <div class="tournament-title">
+  
+      📁 ${tournament}
+  
+    </div>
+    `;
+  
+    Object.keys(groups[tournament])
+    .forEach(field=>{
+  
+        html += `
+        <div class="field-title">
+  
+          📍 ${field}
+  
+        </div>
+        `;
+  
       const rows =
         groups[tournament]
           .sort((a,b)=>{
