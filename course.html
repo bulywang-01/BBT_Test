@@ -11,6 +11,12 @@
 </head>
 <body class="bg-slate-100 text-slate-800">
 
+  <!-- 引入你們系統標準的共用 JS -->
+  <script src="js/auth.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/core.js"></script>
+
   <!-- 導覽列 -->
   <header class="bg-slate-900 text-white p-4 shadow-md">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
@@ -45,31 +51,37 @@
     </div>
   </div>
 
-  <!-- ✅ 你原本就有的 JS（一定要） -->
-  <script src="js/auth.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/header.js"></script>
-  <script src="js/index.js" defer></script>
-  <script src="js/core.js"></script>
-  
   <script>
+    // 固定的 API 變數
+    const API_BASE = 'https://script.google.com/macros/s/AKfycbznSxEjF-IuybeEhtAqBuYgQUty6-B0tDygIqFWmV6BMNLLSAta4FKUA-eqnt25PhwsLw/exec';
     let selectedCourseId = null;
 
     document.addEventListener('DOMContentLoaded', () => {
       loadCourses();
     });
 
-    // 1. 載入課程列表
+    // 1. 載入課程列表 (使用你們慣用的 JSONP 封裝安全版)
     function loadCourses() {
-      fetch(`${API_BASE}?action=getCourses`)
-        .then(res => res.json())
-        .then(data => {
-          renderCourses(data.data || []);
-        })
-        .catch(err => {
-          console.error('載入課程失敗', err);
-          document.getElementById('course-container').innerHTML = `<div class="col-span-full text-center text-rose-500">載入課程失敗，請檢查網址或稍後再試。</div>`;
-        });
+      const callbackName = 'jsonp_courses_' + Math.round(100000 * Math.random());
+      window[callbackName] = function(res) {
+        delete window[callbackName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+        
+        if (res && res.result === 'ok') {
+          renderCourses(res.data || []);
+        } else {
+          document.getElementById('course-container').innerHTML = `<div class="col-span-full text-center text-rose-500">載入課程失敗：${res ? res.message : '未知錯誤'}</div>`;
+        }
+      };
+
+      const script = document.createElement('script');
+      script.src = `${API_BASE}?action=getCourses&callback=${callbackName}`;
+      script.onerror = function() {
+        delete window[callbackName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+        document.getElementById('course-container').innerHTML = `<div class="col-span-full text-center text-rose-500">網路連線異常，載入課程失敗。</div>`;
+      };
+      document.body.appendChild(script);
     }
 
     // 2. 渲染課程卡片
@@ -110,7 +122,7 @@
     function openSignupModal(courseId, courseName, courseDate) {
       selectedCourseId = courseId;
       document.getElementById('modal-course-title').textContent = `確認報名：${courseName}`;
-      document.getElementById('modal-course-info').textContent = `上課日期：${courseDate}。送出後將由系統進行資格審核與名額分配。`;
+      document.getElementById('modal-course-info').textContent = `上課日期：${courseDate}。送出後將由系統進行資格審核與名額分配（額滿自動轉為候補）。`;
       document.getElementById('signup-modal').classList.remove('hidden');
     }
 
@@ -119,8 +131,9 @@
       document.getElementById('signup-modal').classList.add('hidden');
     }
 
-    // 4. 提交報名 API
+    // 4. 提交報名 API (透過 JSONP 安全送出)
     function submitSignup() {
+      // 從 localStorage 取得目前登入者 (配合你們的 auth.js / session 機制)
       const session = JSON.parse(localStorage.getItem('session_user') || '{}');
       if (!session.user_id) {
         alert('請先登入系統');
@@ -128,31 +141,28 @@
         return;
       }
 
-      // 改為對應後端的 'enrollCourse'
-      const payload = {
-        action: 'enrollCourse',
-        user_id: session.user_id,
-        course_id: selectedCourseId
-      };
+      const callbackName = 'jsonp_signup_' + Math.round(100000 * Math.random());
+      window[callbackName] = function(res) {
+        delete window[callbackName];
+        if (script.parentNode) script.parentNode.removeChild(script);
 
-      fetch(API_BASE, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      })
-      .then(res => res.json())
-      .then(res => {
-        if (res.result === 'ok') {
+        if (res && (res.result === 'ok' || res.result === 'waitlist')) {
           alert(res.message || '報名成功！');
           closeSignupModal();
-          loadCourses(); // 重新整理列表
+          loadCourses(); // 重新整理列表更新名額
         } else {
-          alert('報名失敗：' + res.message);
+          alert('報名失敗：' + (res ? res.message : '未知錯誤'));
         }
-      })
-      .catch(err => {
-        console.error(err);
-        alert('網路連線異常');
-      });
+      };
+
+      const script = document.createElement('script');
+      script.src = `${API_BASE}?action=enrollCourse&user_id=${session.user_id}&course_id=${selectedCourseId}&callback=${callbackName}`;
+      script.onerror = function() {
+        delete window[callbackName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+        alert('網路連線異常，請稍後再試');
+      };
+      document.body.appendChild(script);
     }
   </script>
 </body>
