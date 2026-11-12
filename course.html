@@ -4,41 +4,80 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BBT 聯盟線上課程報名</title>
-  <!-- 引入 Tailwind CSS -->
+
+  <!-- 引入您指定的共用樣式表 -->
+  <link rel="stylesheet" href="css/signup_dashboard.css">
+  <!-- 引入 Tailwind CSS (保留卡片與按鈕的彈性微調) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- 引入 Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-100 text-slate-800">
 
-  <!-- ✅ 你原本就有的共用 JS（直接讀取 config.js 內的 API 設定） -->
+<!-- 共用 Header，設定頁面識別 class -->
+<body data-page-title="線上課程報名" class="page-course">
+
+  <!-- 引入你們系統標準的共用 JS -->
   <script src="js/auth.js"></script>
   <script src="js/config.js"></script>
   <script src="js/header.js"></script>
   <script src="js/core.js"></script>
 
-  <!-- 導覽列 -->
-  <header class="bg-slate-900 text-white p-4 shadow-md">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
-      <h1 class="text-xl font-bold">BBT 聯盟教育訓練系統</h1>
-      <a href="my_courses.html" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm transition">我的課程 / 報名紀錄</a>
-    </div>
-  </header>
+  <!-- 動態載入 Header 容器 -->
+  <div id="header-container"></div>
+
+  <script>
+    // Header 載入與身份識別控制
+    function loadHeader() {
+      fetch('header.html')
+        .then(res => res.text())
+        .then(html => {
+          document.getElementById('header-container').innerHTML = html;
+          
+          const session = (typeof getSession === 'function') ? getSession() : null;
+          document.body.classList.remove('role-admin', 'role-judge', 'role-record');
+
+          if (session && session.role) {
+            const roles = session.role.split(',').map(r => r.trim());
+            if (roles.includes('admin')) document.body.classList.add('role-admin');
+            if (roles.includes('judge') || roles.includes('chief_judge')) document.body.classList.add('role-judge');
+            if (roles.includes('record') || roles.includes('record_chief')) document.body.classList.add('role-record');
+          }
+        })
+        .catch(err => console.error('Header 載入失敗', err));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadHeader();
+      loadCourses();
+    });
+  </script>
 
   <!-- 主內容區 -->
-  <main class="max-w-6xl mx-auto p-6">
-    <div class="mb-6">
-      <h2 class="text-2xl font-black text-slate-900">近期開課列表</h2>
-      <p class="text-sm text-slate-500">請選擇您想報名的課程，額滿將自動轉為候補名單。</p>
+  <div class="main">
+
+    <!-- 頂部標題與說明 -->
+    <div class="mb-6 flex justify-between items-center">
+      <div>
+        <h2 class="text-2xl font-black text-slate-900">近期開課列表</h2>
+        <p class="text-sm text-slate-500">請選擇您想報名的課程，額滿將自動轉為候補名單。</p>
+      </div>
+      <a href="my_courses.html" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm transition shadow-sm">
+        我的課程 / 報名紀錄
+      </a>
     </div>
 
-    <!-- 課程卡片容器 -->
-    <div id="course-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div class="col-span-full text-center py-10 text-slate-400">載入課程中...</div>
-    </div>
-  </main>
+    <!-- 月份與類別篩選列 (與班表風格一致) -->
+    <div id="month-tabs" class="month-tabs"></div>
+    <div id="tournamentFilterArea" style="margin:8px 0 14px;"></div>
 
-  <!-- 報名確認 Modal -->
+    <!-- 課程卡片呈現容器 -->
+    <div id="content">
+      <div class="text-center py-10 text-slate-400">載入課程中...</div>
+    </div>
+
+  </div>
+
+  <!-- 報名確認 Modal (維持您的設計風格) -->
   <div id="signup-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
       <h3 id="modal-course-title" class="text-lg font-bold text-slate-900 mb-2">確認報名</h3>
@@ -51,13 +90,10 @@
   </div>
 
   <script>
+    let allCourses = [];
     let selectedCourseId = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
-      loadCourses();
-    });
-
-    // 1. 載入課程列表 (直接取用 config.js 內定義好的 API 變數，如 API_BASE 或 API_URL)
+    // 1. 載入課程列表 (使用 JSONP 確保跨域安全)
     function loadCourses() {
       const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
       const callbackName = 'jsonp_courses_' + Math.round(100000 * Math.random());
@@ -67,9 +103,10 @@
         if (script.parentNode) script.parentNode.removeChild(script);
         
         if (res && res.result === 'ok') {
-          renderCourses(res.data || []);
+          allCourses = res.data || [];
+          renderCourses(allCourses);
         } else {
-          document.getElementById('course-container').innerHTML = `<div class="col-span-full text-center text-rose-500">載入課程失敗：${res ? res.message : '未知錯誤'}</div>`;
+          document.getElementById('content').innerHTML = `<div class="row-warning">載入課程失敗：${res ? res.message : '未知錯誤'}</div>`;
         }
       };
 
@@ -78,50 +115,74 @@
       script.onerror = function() {
         delete window[callbackName];
         if (script.parentNode) script.parentNode.removeChild(script);
-        document.getElementById('course-container').innerHTML = `<div class="col-span-full text-center text-rose-500">網路連線異常，載入課程失敗。</div>`;
+        document.getElementById('content').innerHTML = `<div class="row-warning">網路連線異常，載入課程失敗。</div>`;
       };
       document.body.appendChild(script);
     }
 
-    // 2. 渲染課程卡片
+    // 2. 渲染課程列表 (依照「裁判班表」的區塊與卡片網格風格)
     function renderCourses(courses) {
-      const container = document.getElementById('course-container');
+      const root = document.getElementById('content');
       if (!courses.length) {
-        container.innerHTML = `<div class="col-span-full text-center py-10 text-slate-400">目前無開放報名的課程</div>`;
+        root.innerHTML = `<div class="row-warning">目前無開放報名的課程</div>`;
         return;
       }
 
-      container.innerHTML = courses.map(c => `
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
-          <div>
-            <div class="flex justify-between items-start mb-2">
-              <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-blue-50 text-blue-700 border border-blue-100">${c.course_type}</span>
-              <span class="text-xs font-semibold text-slate-400">時數: ${c.training_hours}hr</span>
-            </div>
-            <h3 class="text-lg font-bold text-slate-900 mb-1">${c.course_name}</h3>
-            <p class="text-xs text-slate-500 mb-4">講師：${c.instructor || '未指定'}</p>
-            
-            <div class="space-y-1.5 text-sm text-slate-600 mb-4">
-              <div>📅 日期：${c.date}</div>
-              <div>📍 地點：${c.location}</div>
-              <div>💰 費用：${c.fee == 0 ? '免費' : 'NT$ ' + c.fee}</div>
-              <div>👥 名額：已報名 ${c.current_enrollment} / 正取 ${c.capacity}</div>
-            </div>
+      // 依據日期分組
+      const dateMap = {};
+      courses.forEach(c => {
+        const d = c.date || '未定日期';
+        if (!dateMap[d]) dateMap[d] = [];
+        dateMap[d].push(c);
+      });
+
+      root.innerHTML = '';
+
+      Object.keys(dateMap).sort().forEach(date => {
+        const dayCourses = dateMap[date];
+
+        root.innerHTML += `
+          <div class="date-header">
+            <div class="date-title">📅 ${date}</div>
+            <div class="date-sub">共 ${dayCourses.length} 門課程</div>
           </div>
-          
-          <button onclick="openSignupModal('${c.course_id}', '${c.course_name}', '${c.date}')" 
-            class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-sm transition">
-            立即報名
-          </button>
-        </div>
-      `).join('');
+          <div class="card-grid">
+            ${dayCourses.map(c => {
+              const isFull = c.current_enrollment >= c.capacity;
+              return `
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
+                  <div>
+                    <div class="flex justify-between items-start mb-2">
+                      <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-blue-50 text-blue-700 border border-blue-100">${c.course_type}</span>
+                      <span class="text-xs font-semibold text-slate-400">時數: ${c.training_hours}hr</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">${c.course_name}</h3>
+                    <p class="text-xs text-slate-500 mb-4">講師：${c.instructor || '未指定'}</p>
+                    
+                    <div class="space-y-1.5 text-sm text-slate-600 mb-4">
+                      <div>📍 地點：${c.location}</div>
+                      <div>💰 費用：${c.fee == 0 ? '免費' : 'NT$ ' + c.fee}</div>
+                      <div>👥 名額：已報名 ${c.current_enrollment} / 正取 ${c.capacity}</div>
+                    </div>
+                  </div>
+                  
+                  <button onclick="openSignupModal('${c.course_id}', '${c.course_name}', '${c.date}')" 
+                    class="w-full ${isFull ? 'bg-amber-600 hover:bg-amber-700' : 'bg-slate-900 hover:bg-slate-800'} text-white font-bold py-2.5 rounded-xl text-sm transition">
+                    ${isFull ? '額滿（將加入候補）' : '立即報名'}
+                  </button>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      });
     }
 
     // 3. 開啟報名 Modal
     function openSignupModal(courseId, courseName, courseDate) {
       selectedCourseId = courseId;
       document.getElementById('modal-course-title').textContent = `確認報名：${courseName}`;
-      document.getElementById('modal-course-info').textContent = `上課日期：${courseDate}。送出後將由系統進行資格審核與名額分配。`;
+      document.getElementById('modal-course-info').textContent = `上課日期：${courseDate}。送出後將由系統進行資格審核與名額分配（若正取額滿將自動轉為候補）。`;
       document.getElementById('signup-modal').classList.remove('hidden');
     }
 
@@ -130,7 +191,7 @@
       document.getElementById('signup-modal').classList.add('hidden');
     }
 
-    // 4. 提交報名 API
+    // 4. 提交報名 API (安全 JSONP)
     function submitSignup() {
       const session = JSON.parse(localStorage.getItem('session_user') || '{}');
       if (!session.user_id) {
