@@ -11,7 +11,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800">
 
-  <!-- 引入你們系統標準的共用 JS -->
+  <!-- ✅ 你原本就有的共用 JS（直接讀取 config.js 內的 API 設定） -->
   <script src="js/auth.js"></script>
   <script src="js/config.js"></script>
   <script src="js/header.js"></script>
@@ -32,9 +32,8 @@
       <p class="text-sm text-slate-500">請選擇您想報名的課程，額滿將自動轉為候補名單。</p>
     </div>
 
-    <!-- 課程卡片容器 (透過 JS 動態載入) -->
+    <!-- 課程卡片容器 -->
     <div id="course-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- 載入中提示 -->
       <div class="col-span-full text-center py-10 text-slate-400">載入課程中...</div>
     </div>
   </main>
@@ -52,17 +51,17 @@
   </div>
 
   <script>
-    // 固定的 API 變數
-    const API_BASE = 'https://script.google.com/macros/s/AKfycbznSxEjF-IuybeEhtAqBuYgQUty6-B0tDygIqFWmV6BMNLLSAta4FKUA-eqnt25PhwsLw/exec';
     let selectedCourseId = null;
 
     document.addEventListener('DOMContentLoaded', () => {
       loadCourses();
     });
 
-    // 1. 載入課程列表 (使用你們慣用的 JSONP 封裝安全版)
+    // 1. 載入課程列表 (直接取用 config.js 內定義好的 API 變數，如 API_BASE 或 API_URL)
     function loadCourses() {
+      const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
       const callbackName = 'jsonp_courses_' + Math.round(100000 * Math.random());
+      
       window[callbackName] = function(res) {
         delete window[callbackName];
         if (script.parentNode) script.parentNode.removeChild(script);
@@ -75,7 +74,7 @@
       };
 
       const script = document.createElement('script');
-      script.src = `${API_BASE}?action=getCourses&callback=${callbackName}`;
+      script.src = `${baseUrl}?action=getCourses&callback=${callbackName}`;
       script.onerror = function() {
         delete window[callbackName];
         if (script.parentNode) script.parentNode.removeChild(script);
@@ -122,7 +121,7 @@
     function openSignupModal(courseId, courseName, courseDate) {
       selectedCourseId = courseId;
       document.getElementById('modal-course-title').textContent = `確認報名：${courseName}`;
-      document.getElementById('modal-course-info').textContent = `上課日期：${courseDate}。送出後將由系統進行資格審核與名額分配（額滿自動轉為候補）。`;
+      document.getElementById('modal-course-info').textContent = `上課日期：${courseDate}。送出後將由系統進行資格審核與名額分配。`;
       document.getElementById('signup-modal').classList.remove('hidden');
     }
 
@@ -131,9 +130,8 @@
       document.getElementById('signup-modal').classList.add('hidden');
     }
 
-    // 4. 提交報名 API (透過 JSONP 安全送出)
+    // 4. 提交報名 API
     function submitSignup() {
-      // 從 localStorage 取得目前登入者 (配合你們的 auth.js / session 機制)
       const session = JSON.parse(localStorage.getItem('session_user') || '{}');
       if (!session.user_id) {
         alert('請先登入系統');
@@ -141,7 +139,9 @@
         return;
       }
 
+      const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
       const callbackName = 'jsonp_signup_' + Math.round(100000 * Math.random());
+      
       window[callbackName] = function(res) {
         delete window[callbackName];
         if (script.parentNode) script.parentNode.removeChild(script);
@@ -149,14 +149,14 @@
         if (res && (res.result === 'ok' || res.result === 'waitlist')) {
           alert(res.message || '報名成功！');
           closeSignupModal();
-          loadCourses(); // 重新整理列表更新名額
+          loadCourses();
         } else {
           alert('報名失敗：' + (res ? res.message : '未知錯誤'));
         }
       };
 
       const script = document.createElement('script');
-      script.src = `${API_BASE}?action=enrollCourse&user_id=${session.user_id}&course_id=${selectedCourseId}&callback=${callbackName}`;
+      script.src = `${baseUrl}?action=enrollCourse&user_id=${session.user_id}&course_id=${selectedCourseId}&callback=${callbackName}`;
       script.onerror = function() {
         delete window[callbackName];
         if (script.parentNode) script.parentNode.removeChild(script);
