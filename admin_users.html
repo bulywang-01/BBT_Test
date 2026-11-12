@@ -2051,19 +2051,13 @@ function renderUserTable(){
 
   tbody.innerHTML = '';
 
-  users.forEach(u => {
+  users.forEach(u=>{
 
     const tr =
       document.createElement('tr');
 
-    const roles =
-      String(u.role || '')
-        .split(',');
-
-    const [judgeLv,recordLv] =
-      splitLevel(
-        u.level || 'N,N'
-      );
+    const qualificationBadges =
+      buildQualificationBadges(u);
 
     const activeClass =
       isUserActive(u.active)
@@ -2074,55 +2068,61 @@ function renderUserTable(){
       isUserActive(u.active)
         ? '啟用'
         : '停用';
-    
+
     const powerClass =
       isUserActive(u.active)
         ? 'power-on'
         : 'power-off';
-    
-    const qualificationBadges = buildQualificationBadges(u);
 
     const quality =
-        Number(u.quality_score || 0);
-      
-      let qualityColor = '#64748b';
-      
-      if(quality >= 80){
-        qualityColor = '#16a34a';
-      }
-      else if(quality >= 60){
-        qualityColor = '#2563eb';
-      }
-      else if(quality >= 40){
-        qualityColor = '#f59e0b';
-      }
-      else{
-        qualityColor = '#dc2626';
-      }
+      Number(
+        u.quality_score || 0
+      );
+
+    let qualityColor =
+      '#64748b';
+
+    if(quality >= 80){
+      qualityColor = '#16a34a';
+    }
+    else if(quality >= 60){
+      qualityColor = '#2563eb';
+    }
+    else if(quality >= 40){
+      qualityColor = '#f59e0b';
+    }
+    else{
+      qualityColor = '#dc2626';
+    }
 
     tr.innerHTML = `
 
       <td>
-      
+
         <div
           style="
             font-weight:700;
-            margin-bottom:4px;
+            margin-bottom:6px;
           ">
+
           #${u.note || '-'}
+
         </div>
-      
+
         <span
           class="
             status-badge
             ${activeClass}
           ">
+
           ${activeText}
+
         </span>
-      
+
       </td>
 
       <td>
+
         <div class="tb-name">
           ${u.name || '-'}
         </div>
@@ -2130,150 +2130,167 @@ function renderUserTable(){
         <div class="tb-account">
           ${u.username || ''}
         </div>
+
       </td>
 
       <td>
-        <div class="stat-card">
-          <strong>
-            資格
-          </strong>
-        
-          <div
-            class="table-badges"
-            style="margin-top:8px;">
-            ${qualificationBadges}
-          </div>
-        </div>
-      </td>
 
-      <td>
-      
         <div class="table-badges">
-      
+
           ${qualificationBadges}
-      
+
         </div>
-      
+
       </td>
 
       <td>
-      
+
         <div
           style="
             font-size:18px;
             font-weight:700;
           ">
+
           ${u.exp_total || 0}
+
         </div>
-      
+
         <div
           class="attendance-rate">
+
           ${u.completed_rate || 0}%
+
         </div>
-      
+
       </td>
 
       <td>
-      
+
         <div
           style="
             color:${qualityColor};
             font-size:22px;
             font-weight:800;
           ">
+
           ${u.quality_score || 0}
+
         </div>
-      
+
         <div
           style="
             font-size:11px;
             color:#64748b;
           ">
+
           ${Math.round(
             u.final_score || 0
           )}
-      
+
         </div>
-      
+
       </td>
 
       <td>
-      
+
         <div
           style="
             font-size:13px;
           ">
+
           ${u.email || '-'}
+
         </div>
-      
+
         <div
           style="
             font-size:11px;
             color:#64748b;
             margin-top:2px;
           ">
+
           ${u.phone || '-'}
+
         </div>
-      
+
       </td>
 
       <td class="action-col">
-      
+
         <div class="action-group">
-      
+
           <button
             class="action-btn copy"
-            title="複製帳號資訊"
             onclick="
               copyUserInfo(
                 '${u.username || ''}',
                 '${u.email || ''}',
                 '${u.name || ''}'
               )">
+
             📋
+
           </button>
-      
+
           <button
             class="action-btn stat"
-            title="個人統計"
-            onclick="showUserStatistics('${u.user_id}')">
+            onclick="
+              showUserStatistics(
+                '${u.user_id}'
+              )">
+
             📊
+
           </button>
-      
+
           <button
             class="action-btn edit"
-            title="編輯資料"
-            onclick="openEditUserModal('${u.user_id}')">
+            onclick="
+              openEditUserModal(
+                '${u.user_id}'
+              )">
+
             ✏️
+
           </button>
-      
+
           <button
             class="action-btn password"
-            title="重設密碼"
-            onclick="resetPassword('${u.user_id}')">
+            onclick="
+              resetPassword(
+                '${u.user_id}'
+              )">
+
             🔑
+
           </button>
-      
+
           <button
             class="action-btn delete"
-            title="刪除使用者"
-            onclick="deleteUser('${u.user_id}','${u.username}')">
+            onclick="
+              deleteUser(
+                '${u.user_id}',
+                '${u.username}'
+              )">
+
             🗑
+
           </button>
-      
+
           <button
             class="action-btn ${powerClass}"
-            title="啟用停用"
             onclick="
               toggleActive(
                 '${u.user_id}',
                 ${!isUserActive(u.active)}
               )">
+
             ⏻
+
           </button>
-      
+
         </div>
-      
+
       </td>
 
     `;
@@ -2281,16 +2298,6 @@ function renderUserTable(){
     tbody.appendChild(tr);
 
   });
-
-  const countBox =
-    document.getElementById(
-      'tableCount'
-    );
-
-  if(countBox){
-    countBox.textContent =
-      `共 ${users.length} 筆`;
-  }
 
 }
 
@@ -2331,8 +2338,10 @@ function showUserStatistics(userId){
 
   const user =
     allUsers.find(
-      u => String(u.user_id)
-      === String(userId)
+      u =>
+        String(u.user_id)
+        ===
+        String(userId)
     );
 
   if(!user){
@@ -2343,10 +2352,15 @@ function showUserStatistics(userId){
     );
 
     return;
-
   }
 
-  let qualityColor = '#64748b';
+  const qualificationBadges =
+    buildQualificationBadges(
+      user
+    );
+
+  let qualityColor =
+    '#64748b';
 
   const quality =
     Number(
@@ -2382,133 +2396,121 @@ function showUserStatistics(userId){
       <div class="stats-grid">
 
         <div class="stat-card">
-
           <strong>姓名</strong>
-
-          <div style="
-            font-size:18px;
-          ">
+          <div style="font-size:18px;">
             ${user.name || '-'}
           </div>
-
         </div>
 
         <div class="stat-card">
-
           <strong>帳號</strong>
-
-          <div style="
-            font-size:18px;
-          ">
+          <div style="font-size:18px;">
             ${user.username || '-'}
           </div>
-
         </div>
-        
-        <td>
-        
-          <div class="stat-card">
-            ${qualificationBadges}
-          </div>
-        
-        </td>
 
         <div class="stat-card">
 
+          <strong>
+            資格
+          </strong>
+
+          <div
+            class="table-badges"
+            style="margin-top:8px;">
+
+            ${qualificationBadges}
+
+          </div>
+
+        </div>
+
+        <div class="stat-card">
           <strong>帳號狀態</strong>
 
-          <div style="
-            font-size:18px;
-            color:${
-              isUserActive(user.active)
-                ? '#16a34a'
-                : '#dc2626'
-            };
-          ">
+          <div
+            style="
+              font-size:18px;
+              color:${
+                isUserActive(user.active)
+                  ? '#16a34a'
+                  : '#dc2626'
+              };
+            ">
+
             ${
               isUserActive(user.active)
                 ? '啟用'
                 : '停用'
             }
-          </div>
 
+          </div>
         </div>
 
         <div class="stat-card">
-
           <strong>總經驗</strong>
-
           <div>
             ${user.exp_total || 0}
           </div>
-
         </div>
 
         <div class="stat-card">
-
           <strong>裁判經驗</strong>
-
           <div>
             ${user.exp_judge || 0}
           </div>
-
         </div>
 
         <div class="stat-card">
-
           <strong>紀錄經驗</strong>
-
           <div>
             ${user.exp_record || 0}
           </div>
-
         </div>
 
         <div class="stat-card">
-
           <strong>完成率</strong>
-
           <div>
             ${user.completed_rate || 0}%
           </div>
-
         </div>
 
         <div class="stat-card">
-
           <strong>遲到率</strong>
-
           <div>
             ${user.late_rate || 0}%
           </div>
-
         </div>
 
         <div class="stat-card">
-
           <strong>缺席率</strong>
-
           <div>
             ${user.no_show_rate || 0}%
           </div>
-
         </div>
 
         <div class="stat-card">
 
-          <strong>品質分數</strong>
+          <strong>
+            品質分數
+          </strong>
 
-          <div style="
-            color:${qualityColor};
-          ">
+          <div
+            style="
+              color:${qualityColor};
+            ">
+
             ${user.quality_score || 0}
+
           </div>
 
         </div>
 
         <div class="stat-card">
 
-          <strong>總評分</strong>
+          <strong>
+            總評分
+          </strong>
 
           <div>
             ${user.final_score || 0}
@@ -2518,17 +2520,22 @@ function showUserStatistics(userId){
 
         <div class="stat-card">
 
-          <strong>最後登入</strong>
+          <strong>
+            最後登入
+          </strong>
 
-          <div style="
-            font-size:14px;
-            line-height:1.4;
-          ">
+          <div
+            style="
+              font-size:14px;
+              line-height:1.4;
+            ">
+
             ${
               formatDateTime(
                 user.last_login
               )
             }
+
           </div>
 
         </div>
