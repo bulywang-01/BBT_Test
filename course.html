@@ -406,7 +406,11 @@
           const isFull = enrolled >= cap;
     
           const startDate = safeFormatDate(c.date);
-          const endDate = safeFormatDate(c.signup_end);
+      
+          // 💡 確保同時兼容各種可能的截止日欄位名稱 (signup_end, signupEnd, end_date)
+          const rawEndDate = c.signup_end || c.signupEnd || c.end_date;
+          const endDate = safeFormatDate(rawEndDate);
+      
           const todayStr = new Date().toISOString().split('T')[0];
           const isExpired = endDate && todayStr > endDate;
     
