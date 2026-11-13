@@ -887,57 +887,68 @@
   }
 
   function renderCourseTable() {
-    const tbody = document.getElementById('courseTableBody');
-    const keyword = (document.getElementById('txtSearch').value || '').toLowerCase();
-    
-    const filtered = allCourses.filter(c => {
-      const match = [c.course_name, c.instructor, c.location].join(' ').toLowerCase();
-      return !keyword || match.includes(keyword);
-    });
-
-    if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-bold">目前無符合條件的課程</td></tr>`;
-      return;
+      const tbody = document.getElementById('courseTableBody');
+      const keyword = (document.getElementById('txtSearch').value || '').toLowerCase();
+      
+      const filtered = allCourses.filter(c => {
+        const match = [c.course_name, c.instructor, c.location].join(' ').toLowerCase();
+        return !keyword || match.includes(keyword);
+      });
+  
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-bold">目前無符合條件的課程</td></tr>`;
+        return;
+      }
+  
+      const todayStr = new Date().toISOString().split('T')[0];
+  
+      tbody.innerHTML = filtered.map(c => {
+        const typeBadge = c.course_type === 'judge' ? 'badge-judge' : (c.course_type === 'record' ? 'badge-record' : 'badge-general');
+        
+        // 💡 前端即時防呆判斷：如果超過報名截止日，強制顯示「已截止」
+        const isExpired = c.signup_end && todayStr > c.signup_end;
+        const statusText = isExpired ? '已截止' : (c.course_status === 'closed' ? '已關閉' : (c.course_status === 'finished' ? '已結束' : '開放報名'));
+        
+        let statusClass = 'bg-emerald-100 text-emerald-800';
+        if (isExpired || c.course_status === 'closed') {
+          statusClass = 'bg-rose-100 text-rose-800'; // 已截止或關閉顯示紅色
+        } else if (c.course_status === 'finished') {
+          statusClass = 'bg-slate-100 text-slate-600';
+        }
+  
+        return `
+          <tr>
+            <td class="font-bold text-slate-600 whitespace-nowrap">#${c.course_id || '-'}</td>
+            <td class="min-w-[180px]">
+              <div class="font-extrabold text-slate-900 text-base">${c.course_name || '-'}</div>
+              <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                <span class="role-badge ${typeBadge}">${c.course_type || 'general'}</span>
+                ${c.certificate_type ? `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold whitespace-nowrap">證照: ${c.certificate_type} ${c.certificate_level || ''}</span>` : ''}
+              </div>
+            </td>
+            <td class="text-xs text-slate-700 whitespace-nowrap">
+              <div class="font-bold">📅 上課: ${c.date ? c.date.split('T')[0] : '未定'}</div>
+              <div class="text-rose-600 font-bold mt-0.5">⏳ 截止: ${c.signup_end ? c.signup_end.split('T')[0] : '未設定'}</div>
+            </td>
+            <td class="text-xs text-slate-700 min-w-[140px]">
+              <div class="font-bold">📍 ${c.location || '實體/線上'}</div>
+              <div class="text-slate-500 mt-0.5">👨‍🏫 ${c.instructor || '未指定'}</div>
+            </td>
+            <td class="text-xs text-slate-700 whitespace-nowrap">
+              <div class="font-bold">💰 ${c.fee == 0 ? '免費' : 'NT$ ' + c.fee}</div>
+              <div class="text-slate-500 mt-0.5">👥 已報名 ${c.current_enrollment || 0} / 正取 ${c.capacity || 30}</div>
+            </td>
+            <td class="whitespace-nowrap"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${statusClass}">${statusText}</span></td>
+            <td class="action-col whitespace-nowrap">
+              <div class="action-group">
+                <button class="action-btn edit" onclick="openCourseModal('edit', '${c.course_id}')" title="編輯課程">✏️</button>
+                <button class="action-btn delete" onclick="deleteCourse('${c.course_id}', '${c.course_name}')" title="刪除課程">🗑</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
-
-    tbody.innerHTML = filtered.map(c => {
-      const typeBadge = c.course_type === 'judge' ? 'badge-judge' : (c.course_type === 'record' ? 'badge-record' : 'badge-general');
-      const statusText = c.course_status === 'closed' ? '已關閉' : (c.course_status === 'finished' ? '已結束' : '開放報名');
-      const statusClass = c.course_status === 'open' || !c.course_status ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600';
-
-      return `
-        <tr>
-          <td class="font-bold text-slate-600 whitespace-nowrap">#${c.course_id || '-'}</td>
-          <td class="min-w-[180px]">
-            <div class="font-extrabold text-slate-900 text-base">${c.course_name || '-'}</div>
-            <div class="flex flex-wrap items-center gap-1.5 mt-1">
-              <span class="role-badge ${typeBadge}">${c.course_type || 'general'}</span>
-              ${c.certificate_type ? `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold whitespace-nowrap">證照: ${c.certificate_type} ${c.certificate_level || ''}</span>` : ''}
-            </div>
-          </td>
-          <td class="text-xs text-slate-700 whitespace-nowrap">
-            <div class="font-bold">📅 ${c.date ? c.date.split('T')[0] : '未定'}</div>
-            <div class="text-slate-500 mt-0.5">⏰ ${c.time || '依公告'}</div>
-          </td>
-          <td class="text-xs text-slate-700 min-w-[140px]">
-            <div class="font-bold">📍 ${c.location || '實體/線上'}</div>
-            <div class="text-slate-500 mt-0.5">👨‍🏫 ${c.instructor || '未指定'}</div>
-          </td>
-          <td class="text-xs text-slate-700 whitespace-nowrap">
-            <div class="font-bold">💰 ${c.fee == 0 ? '免費' : 'NT$ ' + c.fee}</div>
-            <div class="text-slate-500 mt-0.5">👥 已報名 ${c.current_enrollment || 0} / 正取 ${c.capacity || 30}</div>
-          </td>
-          <td class="whitespace-nowrap"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${statusClass}">${statusText}</span></td>
-          <td class="action-col whitespace-nowrap">
-            <div class="action-group">
-              <button class="action-btn edit" onclick="openCourseModal('edit', '${c.course_id}')" title="編輯課程">✏️</button>
-              <button class="action-btn delete" onclick="deleteCourse('${c.course_id}', '${c.course_name}')" title="刪除課程">🗑</button>
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-  }
 
   function loadEnrollmentData(activeTab = 'enrollments') {
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
