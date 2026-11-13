@@ -312,27 +312,38 @@
       document.body.appendChild(script);
     }
 
-// 💡 絕對安全的日期清洗工具（強制轉為 YYYY-MM-DD，絕對不會變成 Fri 或長英文）
+    // 💡 絕對安全的日期清洗工具（強制轉為 YYYY-MM-DD，絕對不會變成 Fri 或長英文）
     function safeFormatDate(raw) {
-          if (!raw) return '2026-00-00'; // 預設防呆日期
-          let str = String(raw).trim();
-          
-          // 如果後端不幸只傳了星期簡寫 (Fri / Sat)，我們強制對應回您截圖中的正確日期
-          if (str === 'Fri') return '2026-88-88';
-          if (str === 'Sat') return '2026-99-99';
-    
-          if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
-          if (str.includes('T')) return str.split('T')[0];
-          
-          const d = new Date(str);
-          if (!isNaN(d.getTime())) {
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            if (y > 2020) return `${y}-${m}-${day}`;
-          }
-          return str.split(' ')[0] || '2026-77-77';
-        }
+      if (!raw) return '';
+      let str = String(raw).trim();
+      
+      // 如果已經是 YYYY-MM-DD 就直接回傳
+      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+      
+      // 如果包含 T (ISO格式)
+      if (str.includes('T')) return str.split('T')[0];
+
+      // 💡 針對類似 "Fri Nov 13 2026 00:00:00 GM..." 的字串，直接用正則抓出年份、月份、日期並組裝
+      const match = str.match(/([A-Za-z]{3})\s+([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})/);
+      if (match) {
+        const months = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
+        const m = months[match[2]];
+        const d = String(match[3]).padStart(2, '0');
+        const y = match[4];
+        if (m) return `${y}-${m}-${d}`;
+      }
+
+      // 保底：用 Date 物件解析
+      const d = new Date(str);
+      if (!isNaN(d.getTime())) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        if (y > 2020) return `${y}-${m}-${day}`;
+      }
+      
+      return str.split(' ')[0] || '';
+    }
 
     function renderCourses() {
       const container = document.getElementById('coursesContainer');
