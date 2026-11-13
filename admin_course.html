@@ -902,7 +902,6 @@ function renderCourseTable() {
 
     const todayStr = new Date().toISOString().split('T')[0];
 
-    // 💡 專門解析類似 "Fri Nov 13 2026 00:00:00..." 的強力日期清洗工具
     const cleanDate = (raw) => {
       if (!raw) return '';
       let str = String(raw).trim();
@@ -910,7 +909,6 @@ function renderCourseTable() {
       if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
       if (str.includes('T')) return str.split('T')[0];
 
-      // 抓出英文長日期的年、月、日
       const match = str.match(/([A-Za-z]{3})\s+([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})/);
       if (match) {
         const months = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
@@ -933,10 +931,44 @@ function renderCourseTable() {
     tbody.innerHTML = filtered.map(c => {
       const typeBadge = c.course_type === 'judge' ? 'badge-judge' : (c.course_type === 'record' ? 'badge-record' : 'badge-general');
       
+      // 💡 1. 課程型別中文化對照
+      const typeMap = {
+        'judge': '裁判培訓',
+        'record': '紀錄培訓',
+        'general': '通識教育'
+      };
+      const typeLabel = typeMap[c.course_type] || c.course_type || '一般課程';
+
+      // 💡 2. 證照資訊智慧解析與中文化
+      let rawCertType = String(c.certificate_type || '').trim();
+      let rawLevel = String(c.certificate_level || '').trim();
+      let certName = '';
+      let certLevel = '';
+
+      if (rawCertType) {
+        if (rawCertType.toLowerCase().includes('judge') || rawCertType.includes('裁判')) {
+          certName = '裁判';
+        } else if (rawCertType.toLowerCase().includes('record') || rawCertType.includes('紀錄')) {
+          certName = '紀錄員';
+        } else if (!rawCertType.toLowerCase().includes('general') && rawCertType.toLowerCase() !== 'none') {
+          certName = rawCertType;
+        }
+      }
+
+      if (rawCertType.toLowerCase().includes('general') && rawCertType.toUpperCase().includes('C')) {
+        certName = '裁判';
+        certLevel = 'C';
+      }
+
+      if (rawLevel && rawLevel.toLowerCase() !== 'none' && rawLevel.toLowerCase() !== 'null') {
+        certLevel = rawLevel;
+      }
+
+      const formattedLevel = certLevel ? (certLevel.includes('級') ? certLevel : `${certLevel}級`) : '';
+      const hasValidCert = (certName !== '' || formattedLevel !== '');
+
       const startDate = cleanDate(c.date);
-      // 💡 同樣支援多種欄位名稱防呆
       const endDate = cleanDate(c.signup_end || c.signupEnd || c.end_date);
-      // const endDate = cleanDate(c.signup_end);
 
       const isExpired = endDate && todayStr > endDate;
       const statusText = isExpired ? '已截止' : (c.course_status === 'closed' ? '已關閉' : (c.course_status === 'finished' ? '已結束' : '開放報名'));
@@ -954,8 +986,9 @@ function renderCourseTable() {
           <td class="min-w-[180px]">
             <div class="font-extrabold text-slate-900 text-base">${c.course_name || '-'}</div>
             <div class="flex flex-wrap items-center gap-1.5 mt-1">
-              <span class="role-badge ${typeBadge}">${c.course_type || 'general'}</span>
-              ${c.certificate_type ? `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold whitespace-nowrap">證照: ${c.certificate_type} ${c.certificate_level || ''}</span>` : ''}
+              <span class="role-badge ${typeBadge}">${typeLabel}</span>
+              <!-- 💡 智慧呈現中文化與級別，無證照則自動隱藏 -->
+              ${hasValidCert ? `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold whitespace-nowrap">證照：${certName || '裁判'} ${formattedLevel}</span>` : ''}
             </div>
           </td>
           <td class="text-xs text-slate-700 whitespace-nowrap">
@@ -981,6 +1014,7 @@ function renderCourseTable() {
       `;
     }).join('');
   }
+
 
   function loadEnrollmentData(activeTab = 'enrollments') {
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
