@@ -391,29 +391,40 @@ function buildCourseCard(c) {
       const typeLabel = typeMap[c.course_name] || typeMap[c.course_type] || c.course_type || '一般課程';
       const typeBadgeColor = c.course_type === 'judge' ? 'bg-blue-100 text-blue-700' : (c.course_type === 'record' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700');
       
-      // 2. 嚴格過濾與解析證照
-      let rawCertType = String(c.certificate_type || '').trim().toLowerCase();
+      // 2. 智慧解析證照（不論後端給 general C、judge 或是其他，都精準抓出來顯示）
+      let rawCertType = String(c.certificate_type || '').trim();
       let rawLevel = String(c.certificate_level || '').trim();
 
-      // 如果資料本身包含 general 或是空白/none，視為無證照
-      let certTypeName = '';
-      let hasValidCert = false;
+      let certName = '';
+      let certLevel = '';
 
-      if (rawCertType && rawCertType !== 'general' && rawCertType !== 'none' && rawCertType !== 'null') {
-        if (rawCertType.includes('judge') || rawCertType.includes('裁判')) {
-          certTypeName = '裁判';
-          hasValidCert = true;
-        } else if (rawCertType.includes('record') || rawCertType.includes('紀錄')) {
-          certTypeName = '紀錄員';
-          hasValidCert = true;
-        } else {
-          certTypeName = c.certificate_type; // 其他自定義中文
-          hasValidCert = true;
+      // 解析證照名稱
+      if (rawCertType) {
+        if (rawCertType.toLowerCase().includes('judge') || rawCertType.includes('裁判')) {
+          certName = '裁判';
+        } else if (rawCertType.toLowerCase().includes('record') || rawCertType.includes('紀錄')) {
+          certName = '紀錄員';
+        } else if (!rawCertType.toLowerCase().includes('general') && rawCertType.toLowerCase() !== 'none') {
+          certName = rawCertType;
         }
       }
 
-      // 如果有填寫級別 (例如 C, B, A)
-      const certLevelName = rawLevel && rawLevel.toLowerCase() !== 'none' ? (rawLevel.includes('級') ? rawLevel : `${rawLevel}級`) : '';
+      // 如果 certificate_type 裡面藏了等級（例如 "general C"）
+      if (rawCertType.toLowerCase().includes('general') && rawCertType.toUpperCase().includes('C')) {
+        certName = '裁判';
+        certLevel = 'C';
+      }
+
+      // 解析級別欄位
+      if (rawLevel && rawLevel.toLowerCase() !== 'none' && rawLevel.toLowerCase() !== 'null') {
+        certLevel = rawLevel;
+      }
+
+      // 格式化級別字串（確保有「級」字，例如 C 變 C級）
+      const formattedLevel = certLevel ? (certLevel.includes('級') ? certLevel : `${certLevel}級`) : '';
+      
+      // 判斷是否顯示證照標籤：只要有名稱，或者有級別，就一定要顯示！
+      const hasValidCert = (certName !== '' || formattedLevel !== '');
 
       const enrolled = Number(c.current_enrollment) || 0;
       const cap = Number(c.capacity) || 30;
@@ -451,8 +462,8 @@ function buildCourseCard(c) {
             <div class="flex items-center justify-between gap-2">
               <div class="flex flex-wrap items-center gap-1.5">
                 <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${typeBadgeColor}">${typeLabel}</span>
-                <!-- 💡 只有當有真正的有效證照時才顯示，且不會出現英文 general -->
-                ${hasValidCert ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-purple-100 text-purple-700">證照：${certTypeName} ${certLevelName}</span>` : ''}
+                <!-- 💡 完整保留證照與級別（例如：證照：裁判 C級） -->
+                ${hasValidCert ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-purple-100 text-purple-700">證照：${certName || '裁判'} ${formattedLevel}</span>` : ''}
               </div>
               <span class="text-xs font-bold text-slate-500">培訓時數：${c.training_hours || 0} hr</span>
             </div>
