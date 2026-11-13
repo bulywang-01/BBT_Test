@@ -934,7 +934,9 @@ function renderCourseTable() {
       const typeBadge = c.course_type === 'judge' ? 'badge-judge' : (c.course_type === 'record' ? 'badge-record' : 'badge-general');
       
       const startDate = cleanDate(c.date);
-      const endDate = cleanDate(c.signup_end);
+      // 💡 同樣支援多種欄位名稱防呆
+      const endDate = cleanDate(c.signup_end || c.signupEnd || c.end_date);
+      // const endDate = cleanDate(c.signup_end);
 
       const isExpired = endDate && todayStr > endDate;
       const statusText = isExpired ? '已截止' : (c.course_status === 'closed' ? '已關閉' : (c.course_status === 'finished' ? '已結束' : '開放報名'));
