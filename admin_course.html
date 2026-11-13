@@ -523,9 +523,10 @@
     t.textContent = msg;
     document.body.appendChild(t);
     setTimeout(() => t.classList.add('show'), 10);
-    setTimeout => {
-      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2000);
-    }, 10);
+    setTimeout(() => {
+      t.classList.remove('show');
+      setTimeout(() => t.remove(), 300);
+    }, 2000);
   }
 
   function switchTab(tab) {
@@ -544,7 +545,7 @@
       btnC.className = 'tab-btn';
       conE.classList.remove('hidden');
       conC.classList.add('hidden');
-      loadEnrollmentData(); // 切換過去時自動刷新報名審核資料
+      loadEnrollmentData(); 
     }
   }
 
@@ -552,7 +553,6 @@
     loadCourses();
   }
 
-  // 1. 載入課程資料
   function loadCourses() {
     showLoading('載入資料中...');
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
@@ -649,7 +649,6 @@
     }).join('');
   }
 
-  // 2. 載入報名與後五碼審核資料
   function loadEnrollmentData() {
     showLoading('載入報名審核資料...');
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
@@ -662,7 +661,6 @@
       if (res && res.result === 'ok') {
         allEnrollments = (res.data || []).filter(item => String(item.status || '').trim().toLowerCase() !== 'cancelled');
         
-        // 更新統計
         const total = allEnrollments.length;
         const paid = allEnrollments.filter(i => i.payment_status === 'paid').length;
         document.getElementById('statTotalEnroll').textContent = total;
@@ -775,7 +773,7 @@
       hideLoading();
       if (res && res.result === 'ok') {
         showToast('繳費狀態更新成功！', 'success');
-        loadEnrollmentData(); // 重新整理表格
+        loadEnrollmentData(); 
       } else {
         showToast(res ? res.message : '更新失敗', 'error');
       }
@@ -792,7 +790,6 @@
     document.body.appendChild(script);
   }
 
-  // 課程 Modal 與儲存邏輯 (保留您原本的功能)
   function openCourseModal(mode, courseId = '') {
     document.getElementById('courseModal').classList.remove('hidden');
     document.getElementById('courseModalTitle').textContent = mode === 'create' ? '新增課程' : '編輯課程';
