@@ -902,16 +902,31 @@
   
       const todayStr = new Date().toISOString().split('T')[0];
   
+      // 💡 日期清洗小工具
+      const cleanDate = (raw) => {
+        if (!raw) return '';
+        const str = String(raw).trim();
+        if (str.includes('T')) return str.split('T')[0];
+        const d = new Date(str);
+        if (!isNaN(d.getTime())) {
+          return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
+        return str.split(' ')[0] || '';
+      };
+  
       tbody.innerHTML = filtered.map(c => {
         const typeBadge = c.course_type === 'judge' ? 'badge-judge' : (c.course_type === 'record' ? 'badge-record' : 'badge-general');
         
-        // 💡 前端即時防呆判斷：如果超過報名截止日，強制顯示「已截止」
-        const isExpired = c.signup_end && todayStr > c.signup_end;
+        const startDate = cleanDate(c.date);
+        const endDate = cleanDate(c.signup_end);
+  
+        // 💡 檢查是否超過報名截止日（即時轉為已截止）
+        const isExpired = endDate && todayStr > endDate;
         const statusText = isExpired ? '已截止' : (c.course_status === 'closed' ? '已關閉' : (c.course_status === 'finished' ? '已結束' : '開放報名'));
         
         let statusClass = 'bg-emerald-100 text-emerald-800';
         if (isExpired || c.course_status === 'closed') {
-          statusClass = 'bg-rose-100 text-rose-800'; // 已截止或關閉顯示紅色
+          statusClass = 'bg-rose-100 text-rose-800'; // 紅色
         } else if (c.course_status === 'finished') {
           statusClass = 'bg-slate-100 text-slate-600';
         }
@@ -927,8 +942,8 @@
               </div>
             </td>
             <td class="text-xs text-slate-700 whitespace-nowrap">
-              <div class="font-bold">📅 上課: ${c.date ? c.date.split('T')[0] : '未定'}</div>
-              <div class="text-rose-600 font-bold mt-0.5">⏳ 截止: ${c.signup_end ? c.signup_end.split('T')[0] : '未設定'}</div>
+              <div class="font-bold">📅 上課: ${startDate || '未定'}</div>
+              <div class="text-rose-600 font-bold mt-0.5">⏳ 截止: ${endDate || '未設定'}</div>
             </td>
             <td class="text-xs text-slate-700 min-w-[140px]">
               <div class="font-bold">📍 ${c.location || '實體/線上'}</div>
