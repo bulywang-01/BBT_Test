@@ -902,22 +902,24 @@ function renderCourseTable() {
 
     const todayStr = new Date().toISOString().split('T')[0];
 
-    // 💡 針對後端傳來 Fri / Sat 的強制對應修復
-    const safeFormatDate = (raw) => {
-      if (!raw) return '2026-11-13';
+    // 💡 專門解析類似 "Fri Nov 13 2026 00:00:00..." 的強力日期清洗工具
+    const cleanDate = (raw) => {
+      if (!raw) return '';
       let str = String(raw).trim();
       
-      if (str === 'Fri') return '2026-11-13';
-      if (str === 'Sat') return '2026-11-14';
-      if (str === 'Sun') return '2026-11-15';
-      if (str === 'Mon') return '2026-11-16';
-      if (str === 'Tue') return '2026-11-17';
-      if (str === 'Wed') return '2026-11-18';
-      if (str === 'Thu') return '2026-11-19';
-
       if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
       if (str.includes('T')) return str.split('T')[0];
-      
+
+      // 抓出英文長日期的年、月、日
+      const match = str.match(/([A-Za-z]{3})\s+([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})/);
+      if (match) {
+        const months = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
+        const m = months[match[2]];
+        const d = String(match[3]).padStart(2, '0');
+        const y = match[4];
+        if (m) return `${y}-${m}-${d}`;
+      }
+
       const d = new Date(str);
       if (!isNaN(d.getTime())) {
         const y = d.getFullYear();
@@ -925,14 +927,14 @@ function renderCourseTable() {
         const day = String(d.getDate()).padStart(2, '0');
         if (y > 2020) return `${y}-${m}-${day}`;
       }
-      return str;
+      return str.split(' ')[0] || '';
     };
 
     tbody.innerHTML = filtered.map(c => {
       const typeBadge = c.course_type === 'judge' ? 'badge-judge' : (c.course_type === 'record' ? 'badge-record' : 'badge-general');
       
-      const startDate = safeFormatDate(c.date);
-      const endDate = safeFormatDate(c.signup_end);
+      const startDate = cleanDate(c.date);
+      const endDate = cleanDate(c.signup_end);
 
       const isExpired = endDate && todayStr > endDate;
       const statusText = isExpired ? '已截止' : (c.course_status === 'closed' ? '已關閉' : (c.course_status === 'finished' ? '已結束' : '開放報名'));
@@ -977,7 +979,6 @@ function renderCourseTable() {
       `;
     }).join('');
   }
-
 
   function loadEnrollmentData(activeTab = 'enrollments') {
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
