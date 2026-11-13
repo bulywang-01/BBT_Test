@@ -26,7 +26,7 @@
     .page-desc{ margin-top:6px; color:#64748b; font-size:14px; }
 
     /* Tab 切換樣式 */
-    .tab-btn { padding: 10px 20px; font-weight: 800; font-size: 14px; border-radius: 12px; cursor: pointer; transition: .2s; border: 1px solid #cbd5e1; background: #fff; color: #475569; }
+    .tab-btn { padding: 10px 16px; font-weight: 800; font-size: 13px; border-radius: 12px; cursor: pointer; transition: .2s; border: 1px solid #cbd5e1; background: #fff; color: #475569; white-space: nowrap; }
     .tab-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; box-shadow: 0 4px 12px rgba(37,99,235,.25); }
 
     /* KPI Summary */
@@ -52,12 +52,12 @@
     .btn-outline{ border:1px solid #cbd5e1; background:#fff; color:#334155; border-radius:12px; padding:9px 16px; font-weight:700; font-size:14px; cursor:pointer; transition:.2s; white-space:nowrap; }
     .btn-outline:hover{ background:#f8fafc; border-color:#94a3b8; }
 
-    /* Table Panel */
+    /* Table Panel & Mobile Scroll Wrapper */
     .table-panel{ background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 4px 14px rgba(15,23,42,.05); }
     .table-header{ display:flex; justify-content:space-between; align-items:center; padding:14px 18px; background:linear-gradient(90deg,#0f172a,#1e3a8a); color:#fff; gap:12px; }
     .table-title{ font-size:17px; font-weight:800; }
     .table-wrapper{ width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
-    .user-table{ width:100%; min-width:780px; border-collapse:collapse; }
+    .user-table{ width:100%; min-width:850px; border-collapse:collapse; }
     .user-table th{ background:#f8fafc; padding:12px 16px; text-align:left; font-size:13px; color:#475569; font-weight:700; border-bottom:1px solid #e2e8f0; white-space:nowrap; }
     .user-table td{ padding:14px 16px; vertical-align:middle; border-bottom:1px solid #e2e8f0; font-size:14px; }
     .user-table tbody tr:hover{ background:#f8fafc; }
@@ -71,7 +71,7 @@
     /* Modal */
     .modal{ position:fixed; inset:0; background:rgba(15,23,42,.45); display:flex; justify-content:center; align-items:center; z-index:9999; padding:16px; }
     .modal.hidden{ display:none; }
-    .modal-dialog{ width:100%; max-width:800px; background:#ffffff; border-radius:18px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.2); max-height:90vh; display:flex; flex-direction:column; }
+    .modal-dialog{ width:100%; max-width:850px; background:#ffffff; border-radius:18px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.2); max-height:90vh; display:flex; flex-direction:column; }
     .modal-header{ display:flex; justify-content:space-between; align-items:center; padding:16px 20px; background:linear-gradient(90deg,#0f172a,#1e3a8a); color:#fff; }
     .modal-body{ padding:20px; overflow-y:auto; flex:1; }
     .modal-grid{ display:grid; grid-template-columns:1fr; gap:14px; align-items:start; }
@@ -105,8 +105,11 @@
 <body class="bg-slate-100 antialiased text-slate-800">
 
 <div class="flex min-h-screen">
+
+  <!-- Mobile Overlay -->
   <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity"></div>
   
+  <!-- Sidebar -->
   <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 z-50 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shrink-0 border-r border-slate-800 shadow-2xl lg:shadow-none">
     <div>
       <div class="h-16 flex items-center justify-between px-5 bg-slate-950 border-b border-slate-800">
@@ -126,7 +129,9 @@
 
       <nav class="p-3.5 space-y-1 text-xs font-semibold overflow-y-auto max-h-[calc(100vh-140px)]">
         <div class="text-[10px] text-slate-500 font-bold px-3 pt-2 pb-1 uppercase tracking-wider">主控數據中心</div>
-        <a href="admin_dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>管理總覽</span></a>
+        <a href="admin_dashboard.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
+          <div class="flex items-center space-x-3"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>管理總覽</span></div>
+        </a>
 
         <div class="text-[10px] text-slate-500 font-bold px-3 pt-4 pb-1 uppercase tracking-wider">排班管理</div>
         <a href="judge_dashboard_admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition"><i data-lucide="flag" class="w-4 h-4"></i><span>裁判排班</span></a>
@@ -160,7 +165,9 @@
     </div>
   </aside>
 
+  <!-- Main Content -->
   <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    
     <header class="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between shrink-0 sticky top-0 z-30 shadow-sm">
       <div class="flex items-center gap-3">
         <button onclick="toggleSidebar()" class="lg:hidden p-2 -ml-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition" aria-label="開啟選單">
@@ -170,7 +177,7 @@
       </div>
 
       <div class="flex items-center gap-2.5">
-        <button onclick="loadCourses()" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition" title="重新整理">
+        <button onclick="loadAllData()" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition" title="重新整理">
           <i data-lucide="refresh-cw" class="w-5 h-5"></i>
         </button>
         <a href="index.html" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-bold hover:bg-slate-800 transition shadow-sm">
@@ -183,18 +190,22 @@
     <div class="overflow-y-auto flex-1 p-4 sm:p-6">
       <div class="page-container space-y-5 sm:space-y-6">
         
+        <!-- 標題與分頁切換列 -->
         <div class="page-title-bar flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
             <div class="page-title">📚 課程與報名管理中心</div>
-            <div class="page-desc">建立培訓課程、審核學員報名匯款後五碼與餐點統計</div>
+            <div class="page-desc">建立培訓課程、管理報名、審核繳費與後五碼、記錄出勤打卡、評分及結訓證書發放</div>
           </div>
-          <div class="flex items-center gap-2">
+          <!-- 核心 4 大功能分頁切換 Tabs -->
+          <div class="flex items-center gap-2 flex-wrap">
             <button id="tabBtnCourses" onclick="switchTab('courses')" class="tab-btn active">📅 課程場次管理</button>
-            <button id="tabBtnEnrollments" onclick="switchTab('enrollments')" class="tab-btn">🛡️ 報名與後五碼審核</button>
+            <button id="tabBtnEnrollments" onclick="switchTab('enrollments')" class="tab-btn">🛡️ 報名與後五碼</button>
+            <button id="tabBtnAttendance" onclick="switchTab('attendance')" class="tab-btn">⏰ 出勤與簽到</button>
+            <button id="tabBtnCertificates" onclick="switchTab('certificates')" class="tab-btn">🎓 成績與證書</button>
           </div>
         </div>
 
-        <!-- TAB 1 -->
+        <!-- ════════ TAB 1：課程場次管理 ════════ -->
         <div id="tabContentCourses" class="space-y-6">
           <section class="kpi-summary">
             <div class="kpi-main-card">
@@ -259,7 +270,7 @@
           </section>
         </div>
 
-        <!-- TAB 2 -->
+        <!-- ════════ TAB 2：報名審核與後五碼管理 ════════ -->
         <div id="tabContentEnrollments" class="space-y-6 hidden">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
@@ -292,7 +303,7 @@
               </select>
               <select id="filterPaymentStatus" onchange="renderEnrollmentTable()" class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white font-bold text-slate-700">
                 <option value="all">所有繳費狀態</option>
-                <option value="unpaid">待繳費 (unpaid)</option>
+                <option value="unpaid">待繳費 (unpaid/pending)</option>
                 <option value="paid">已繳費 (paid)</option>
               </select>
               <div class="flex-1 min-w-[240px]">
@@ -327,12 +338,136 @@
           </section>
         </div>
 
+        <!-- ════════ TAB 3：出勤與簽到打卡管理 ════════ -->
+        <div id="tabContentAttendance" class="space-y-6 hidden">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">總出席學員數</div>
+                <div id="statPresentCount" class="text-2xl font-black text-blue-600 mt-1">0</div>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">👥</div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">已完成簽到</div>
+                <div id="statCheckinCount" class="text-2xl font-black text-emerald-600 mt-1">0</div>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">✅</div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">已完成簽退</div>
+                <div id="statCheckoutCount" class="text-2xl font-black text-purple-600 mt-1">0</div>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">🏁</div>
+            </div>
+          </div>
+
+          <section class="filter-card">
+            <div class="flex flex-wrap items-center gap-3 w-full">
+              <select id="filterAttCourseSelect" onchange="renderAttendanceTable()" class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white font-bold text-slate-700">
+                <option value="all">所有課程</option>
+              </select>
+              <div class="flex-1 min-w-[240px]">
+                <input id="txtAttSearch" class="search-input" type="text" placeholder="搜尋學員姓名、電話..." oninput="renderAttendanceTable()">
+              </div>
+            </div>
+          </section>
+
+          <section class="table-panel">
+            <div class="table-header">
+              <div class="table-title">⏰ 學員出勤打卡與簽到追蹤</div>
+            </div>
+            <div class="table-wrapper">
+              <table class="user-table">
+                <thead>
+                  <tr>
+                    <th># 紀錄編號</th>
+                    <th>課程名稱</th>
+                    <th>學員姓名 / 電話</th>
+                    <th>出席狀態</th>
+                    <th>簽到時間</th>
+                    <th>簽退時間</th>
+                    <th class="text-right">出勤快捷操作</th>
+                  </tr>
+                </thead>
+                <tbody id="attendanceTableBody">
+                  <tr><td colspan="7" class="text-center py-12 text-slate-400 font-bold">載入出勤資料中...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- ════════ TAB 4：成績與結訓證書管理 ════════ -->
+        <div id="tabContentCertificates" class="space-y-6 hidden">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">已登錄成績人數</div>
+                <div id="statScoredCount" class="text-2xl font-black text-slate-900 mt-1">0</div>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">📝</div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">證書已發放 / 驗證</div>
+                <div id="statCertVerifiedCount" class="text-2xl font-black text-emerald-600 mt-1">0</div>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">📜</div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">待發放證書</div>
+                <div id="statCertPendingCount" class="text-2xl font-black text-amber-600 mt-1">0</div>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">⏳</div>
+            </div>
+          </div>
+
+          <section class="filter-card">
+            <div class="flex flex-wrap items-center gap-3 w-full">
+              <select id="filterCertCourseSelect" onchange="renderCertificateTable()" class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white font-bold text-slate-700">
+                <option value="all">所有課程</option>
+              </select>
+              <div class="flex-1 min-w-[240px]">
+                <input id="txtCertSearch" class="search-input" type="text" placeholder="搜尋學員姓名、電話..." oninput="renderCertificateTable()">
+              </div>
+            </div>
+          </section>
+
+          <section class="table-panel">
+            <div class="table-header">
+              <div class="table-title">🎓 學員測驗成績與證書發放管理</div>
+            </div>
+            <div class="table-wrapper">
+              <table class="user-table">
+                <thead>
+                  <tr>
+                    <th># 紀錄編號</th>
+                    <th>課程名稱</th>
+                    <th>學員姓名 / 電話</th>
+                    <th>測驗成績</th>
+                    <th>證書驗證狀態</th>
+                    <th>核發日期</th>
+                    <th class="text-right">成績與證書操作</th>
+                  </tr>
+                </thead>
+                <tbody id="certificateTableBody">
+                  <tr><td colspan="7" class="text-center py-12 text-slate-400 font-bold">載入成績與證書資料中...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
       </div>
     </div>
   </div>
 </div>
 
-<!-- Course Modal -->
+<!-- Course Modal (Create / Edit) -->
 <div id="courseModal" class="modal hidden">
   <div class="modal-dialog">
     <div class="modal-header">
@@ -464,6 +599,38 @@
   </div>
 </div>
 
+<!-- Score & Certificate Modal -->
+<div id="scoreCertModal" class="modal hidden">
+  <div class="modal-dialog" style="max-width:500px;">
+    <div class="modal-header">
+      <div class="table-title">✏️ 編輯學員成績與證書</div>
+      <button class="modal-close" onclick="closeScoreCertModal()">✕</button>
+    </div>
+    <div class="modal-body space-y-4">
+      <input type="hidden" id="modal_log_id" value="">
+      <div>
+        <div class="text-xs font-bold text-slate-500">學員資訊</div>
+        <div id="modal_student_info" class="text-base font-extrabold text-slate-900 mt-1">-</div>
+      </div>
+      <div class="space-y-1">
+        <label class="font-bold text-slate-700 text-xs">測驗成績 (score)</label>
+        <input type="number" id="modal_score" class="w-full h-10 border border-slate-300 rounded-xl px-3 font-bold" placeholder="例：85">
+      </div>
+      <div class="space-y-1">
+        <label class="font-bold text-slate-700 text-xs">證書發放 / 驗證狀態 (certificate_verified)</label>
+        <select id="modal_cert_verified" class="w-full h-10 border border-slate-300 rounded-xl px-3 font-bold bg-white">
+          <option value="no">未發放 (no)</option>
+          <option value="yes">已發放/已驗證 (yes)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeScoreCertModal()">取消</button>
+      <button class="btn-primary" onclick="saveScoreCertData()">儲存更新</button>
+    </div>
+  </div>
+</div>
+
 <!-- Loading Mask -->
 <div id="loadingMask" class="hidden">
   <div class="loading-box" id="loadingText">處理中...</div>
@@ -479,7 +646,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') lucide.createIcons();
     loadUserInfo();
-    loadCourses();
+    loadAllData();
   });
 
   function loadUserInfo() {
@@ -521,27 +688,30 @@
   }
 
   function switchTab(tab) {
-    const btnC = document.getElementById('tabBtnCourses');
-    const btnE = document.getElementById('tabBtnEnrollments');
-    const conC = document.getElementById('tabContentCourses');
-    const conE = document.getElementById('tabContentEnrollments');
+    const tabs = ['courses', 'enrollments', 'attendance', 'certificates'];
+    tabs.forEach(t => {
+      const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+      const con = document.getElementById('tabContent' + t.charAt(0).toUpperCase() + t.slice(1));
+      if (t === tab) {
+        if (btn) btn.className = 'tab-btn active';
+        if (con) con.classList.remove('hidden');
+      } else {
+        if (btn) btn.className = 'tab-btn';
+        if (con) con.classList.add('hidden');
+      }
+    });
 
-    if (tab === 'courses') {
-      btnC.className = 'tab-btn active';
-      btnE.className = 'tab-btn';
-      conC.classList.remove('hidden');
-      conE.classList.add('hidden');
-    } else {
-      btnE.className = 'tab-btn active';
-      btnC.className = 'tab-btn';
-      conE.classList.remove('hidden');
-      conC.classList.add('hidden');
-      loadEnrollmentData(); 
+    if (tab === 'enrollments' || tab === 'attendance' || tab === 'certificates') {
+      loadEnrollmentData(tab);
     }
   }
 
+  function loadAllData() {
+    loadCourses();
+  }
+
   function loadCourses() {
-    showLoading('載入課程清單...');
+    showLoading('載入課程資料中...');
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
     const cb = 'jsonp_courses_' + Math.round(100000 * Math.random());
     
@@ -636,8 +806,8 @@
     }).join('');
   }
 
-  function loadEnrollmentData() {
-    showLoading('載入報名審核資料...');
+  function loadEnrollmentData(activeTab = 'enrollments') {
+    showLoading('載入報名與出勤資料...');
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
     const cb = 'jsonp_enroll_logs_' + Math.round(100000 * Math.random());
 
@@ -648,14 +818,16 @@
       if (res && res.result === 'ok') {
         allEnrollments = (res.data || []).filter(item => String(item.status || '').trim().toLowerCase() !== 'cancelled');
         
-        const total = allEnrollments.length;
-        const paid = allEnrollments.filter(i => i.payment_status === 'paid').length;
-        document.getElementById('statTotalEnroll').textContent = total;
-        document.getElementById('statPaidEnroll').textContent = paid;
-        document.getElementById('statUnpaidEnroll').textContent = total - paid;
+        // 重新整理各區塊數據與下拉選單
+        updateEnrollmentStats();
+        updateAttendanceStats();
+        updateCertificateStats();
 
-        populateEnrollmentCourseFilter(allEnrollments);
-        renderEnrollmentTable();
+        populateAllFilters(allEnrollments);
+        
+        if (activeTab === 'enrollments') renderEnrollmentTable();
+        else if (activeTab === 'attendance') renderAttendanceTable();
+        else if (activeTab === 'certificates') renderCertificateTable();
       } else {
         showToast(res ? res.message : '無法取得報名紀錄', 'error');
       }
@@ -672,8 +844,33 @@
     document.body.appendChild(script);
   }
 
-  function populateEnrollmentCourseFilter(logs) {
-    const sel = document.getElementById('filterCourseSelect');
+  function updateEnrollmentStats() {
+    const total = allEnrollments.length;
+    const paid = allEnrollments.filter(i => i.payment_status === 'paid').length;
+    document.getElementById('statTotalEnroll').textContent = total;
+    document.getElementById('statPaidEnroll').textContent = paid;
+    document.getElementById('statUnpaidEnroll').textContent = total - paid;
+  }
+
+  function updateAttendanceStats() {
+    const totalPresent = allEnrollments.filter(i => i.attendance_status === 'present').length;
+    const checkedIn = allEnrollments.filter(i => i.checkin_time && i.checkin_time.trim() !== '').length;
+    const checkedOut = allEnrollments.filter(i => i.checkout_time && i.checkout_time.trim() !== '').length;
+    document.getElementById('statPresentCount').textContent = totalPresent;
+    document.getElementById('statCheckinCount').textContent = checkedIn;
+    document.getElementById('statCheckoutCount').textContent = checkedOut;
+  }
+
+  function updateCertificateStats() {
+    const scored = allEnrollments.filter(i => i.score !== undefined && i.score !== '' && i.score !== null).length;
+    const verified = allEnrollments.filter(i => i.certificate_verified === 'yes').length;
+    const pending = allEnrollments.length - verified;
+    document.getElementById('statScoredCount').textContent = scored;
+    document.getElementById('statCertVerifiedCount').textContent = verified;
+    document.getElementById('statCertPendingCount').textContent = pending;
+  }
+
+  function populateAllFilters(logs) {
     const set = new Set();
     logs.forEach(l => {
       if (l.course_name) set.add(JSON.stringify({ id: l.course_id, name: l.course_name }));
@@ -683,9 +880,14 @@
       const c = JSON.parse(item);
       html += `<option value="${c.id}">${c.name}</option>`;
     });
-    sel.innerHTML = html;
+
+    ['filterCourseSelect', 'filterAttCourseSelect', 'filterCertCourseSelect'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = html;
+    });
   }
 
+  // TAB 2 渲染與操作
   function renderEnrollmentTable() {
     const tbody = document.getElementById('enrollmentTableBody');
     const cFilter = document.getElementById('filterCourseSelect').value;
@@ -735,7 +937,7 @@
           <td class="p-4">${statusBadge}</td>
           <td class="p-4">${payBadge}</td>
           <td class="p-4 text-right">
-            <button onclick="togglePayment('${item.log_id}', '${item.payment_status}')" class="px-3 py-1.5 rounded-xl border ${isPaid ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100' : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'} text-xs font-extrabold transition">
+            <button onclick="updateTrainingField('${item.log_id}', 'payment_status', '${isPaid ? 'unpaid' : 'paid'}', '繳費狀態')" class="px-3 py-1.5 rounded-xl border ${isPaid ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100' : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'} text-xs font-extrabold transition">
               ${isPaid ? '改未繳費' : '確認已繳費'}
             </button>
           </td>
@@ -744,30 +946,205 @@
     }).join('');
   }
 
-  function togglePayment(logId, currentStatus) {
-    const nextStatus = currentStatus === 'paid' ? 'unpaid' : 'paid';
-    const actionText = nextStatus === 'paid' ? '確認已繳費' : '改為未繳費';
+  // TAB 3 渲染與出勤打卡操作
+  function renderAttendanceTable() {
+    const tbody = document.getElementById('attendanceTableBody');
+    const cFilter = document.getElementById('filterAttCourseSelect').value;
+    const keyword = (document.getElementById('txtAttSearch').value || '').toLowerCase();
 
-    if (!confirm(`確定要將紀錄 #${logId} 的繳費狀態更改為「${actionText}」嗎？`)) return;
+    const filtered = allEnrollments.filter(item => {
+      const matchC = cFilter === 'all' || String(item.course_id) === String(cFilter);
+      const text = [item.name, item.phone, item.course_name].join(' ').toLowerCase();
+      const matchKw = !keyword || text.includes(keyword);
+      return matchC && matchKw;
+    });
 
-    showLoading('更新繳費狀態...');
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-12 text-slate-400 font-bold">沒有符合條件的出勤資料</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(item => {
+      const hasCheckedIn = item.checkin_time && item.checkin_time.trim() !== '';
+      const hasCheckedOut = item.checkout_time && item.checkout_time.trim() !== '';
+
+      const attBadge = item.attendance_status === 'present'
+        ? `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800">出席 (present)</span>`
+        : `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-600">缺席 (absent)</span>`;
+
+      return `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-4 text-xs font-bold text-slate-700">#${item.log_id || '-'}</td>
+          <td class="p-4 font-bold text-slate-900">${item.course_name || '-'}</td>
+          <td class="p-4">
+            <div class="font-extrabold text-slate-900">${item.name || '未填'}</div>
+            <div class="text-xs text-slate-500">${item.phone || '-'}</div>
+          </td>
+          <td class="p-4">${attBadge}</td>
+          <td class="p-4 text-xs font-mono font-bold text-slate-700">${item.checkin_time || '尚未簽到'}</td>
+          <td class="p-4 text-xs font-mono font-bold text-slate-700">${item.checkout_time || '尚未簽退'}</td>
+          <td class="p-4 text-right space-x-2">
+            <button onclick="doAttendanceAction('${item.log_id}', 'checkin')" class="px-2.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-extrabold transition">
+              ${hasCheckedIn ? '重新簽到' : '簽到 (Check-in)'}
+            </button>
+            <button onclick="doAttendanceAction('${item.log_id}', 'checkout')" class="px-2.5 py-1.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 text-xs font-extrabold transition">
+              ${hasCheckedOut ? '重新簽退' : '簽退 (Check-out)'}
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function doAttendanceAction(logId, actionType) {
+    const actionName = actionType === 'checkin' ? '簽到' : '簽退';
+    showLoading(`執行${actionName}...`);
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
-    const cb = 'jsonp_toggle_pay_' + Math.round(100000 * Math.random());
+    const cb = 'jsonp_att_' + Math.round(100000 * Math.random());
 
     window[cb] = function(res) {
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
       if (res && res.result === 'ok') {
-        showToast('繳費狀態更新成功！', 'success');
-        loadEnrollmentData(); 
+        showToast(`${actionName}成功！`, 'success');
+        loadEnrollmentData('attendance');
+      } else {
+        showToast(res ? res.message : `${actionName}失敗`, 'error');
+      }
+    };
+
+    const script = document.createElement('script');
+    script.src = `${baseUrl}?action=updateAttendance&log_id=${encodeURIComponent(logId)}&type=${encodeURIComponent(actionType)}&callback=${cb}`;
+    script.onerror = function() {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      showToast('網路連線異常', 'error');
+    };
+    document.body.appendChild(script);
+  }
+
+  // TAB 4 渲染與成績證書管理
+  function renderCertificateTable() {
+    const tbody = document.getElementById('certificateTableBody');
+    const cFilter = document.getElementById('filterCertCourseSelect').value;
+    const keyword = (document.getElementById('txtCertSearch').value || '').toLowerCase();
+
+    const filtered = allEnrollments.filter(item => {
+      const matchC = cFilter === 'all' || String(item.course_id) === String(cFilter);
+      const text = [item.name, item.phone, item.course_name].join(' ').toLowerCase();
+      const matchKw = !keyword || text.includes(keyword);
+      return matchC && matchKw;
+    });
+
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-12 text-slate-400 font-bold">沒有符合條件的成績與證書資料</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(item => {
+      const isVerified = item.certificate_verified === 'yes';
+      const certBadge = isVerified
+        ? `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已發放/已驗證 (yes)</span>`
+        : `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">未發放 (no)</span>`;
+
+      return `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-4 text-xs font-bold text-slate-700">#${item.log_id || '-'}</td>
+          <td class="p-4 font-bold text-slate-900">${item.course_name || '-'}</td>
+          <td class="p-4">
+            <div class="font-extrabold text-slate-900">${item.name || '未填'}</div>
+            <div class="text-xs text-slate-500">${item.phone || '-'}</div>
+          </td>
+          <td class="p-4 font-black text-blue-600 text-base">${item.score !== undefined && item.score !== '' ? item.score : '<span class="text-slate-400 font-normal text-xs">未登錄</span>'}</td>
+          <td class="p-4">${certBadge}</td>
+          <td class="p-4 text-xs font-mono text-slate-600">${item.certificate_verified_date || '-'}</td>
+          <td class="p-4 text-right">
+            <button onclick="openScoreCertModal('${item.log_id}', '${item.name || ''}', '${item.score !== undefined ? item.score : ''}', '${item.certificate_verified || 'no'}')" class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-extrabold transition">
+              編輯成績與證書
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function openScoreCertModal(logId, studentName, score, verified) {
+    document.getElementById('modal_log_id').value = logId;
+    document.getElementById('modal_student_info').textContent = `#${logId} - ${studentName}`;
+    document.getElementById('modal_score').value = score;
+    document.getElementById('modal_cert_verified').value = verified;
+    document.getElementById('scoreCertModal').classList.remove('hidden');
+  }
+
+  function closeScoreCertModal() {
+    document.getElementById('scoreCertModal').classList.add('hidden');
+  }
+
+  function saveScoreCertData() {
+    const logId = document.getElementById('modal_log_id').value;
+    const score = document.getElementById('modal_score').value;
+    const certVerified = document.getElementById('modal_cert_verified').value;
+
+    showLoading('儲存成績與證書...');
+    const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+    const cb = 'jsonp_score_cert_' + Math.round(100000 * Math.random());
+
+    const params = new URLSearchParams({
+      action: 'updateScoreAndCertificate',
+      log_id: logId,
+      score: score,
+      certificate_verified: certVerified,
+      callback: cb
+    });
+
+    window[cb] = function(res) {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      if (res && res.result === 'ok') {
+        showToast('成績與證書更新成功！', 'success');
+        closeScoreCertModal();
+        loadEnrollmentData('certificates');
       } else {
         showToast(res ? res.message : '更新失敗', 'error');
       }
     };
 
     const script = document.createElement('script');
-    script.src = `${baseUrl}?action=updateTrainingStatus&log_id=${encodeURIComponent(logId)}&field=payment_status&value=${encodeURIComponent(nextStatus)}&callback=${cb}`;
+    script.src = `${baseUrl}?${params.toString()}`;
+    script.onerror = function() {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      showToast('網路連線異常', 'error');
+    };
+    document.body.appendChild(script);
+  }
+
+  // 共用的欄位更新 Helper
+  function updateTrainingField(logId, field, value, labelName) {
+    if (!confirm(`確定要將紀錄 #${logId} 的${labelName}更改為「${value === 'paid' ? '已繳費' : '未繳費'}」嗎？`)) return;
+
+    showLoading(`更新${labelName}...`);
+    const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+    const cb = 'jsonp_update_field_' + Math.round(100000 * Math.random());
+
+    window[cb] = function(res) {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      if (res && res.result === 'ok') {
+        showToast(`${labelName}更新成功！`, 'success');
+        loadEnrollmentData('enrollments');
+      } else {
+        showToast(res ? res.message : '更新失敗', 'error');
+      }
+    };
+
+    const script = document.createElement('script');
+    script.src = `${baseUrl}?action=updateTrainingStatus&log_id=${encodeURIComponent(logId)}&field=${encodeURIComponent(field)}&value=${encodeURIComponent(value)}&callback=${cb}`;
     script.onerror = function() {
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
