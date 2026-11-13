@@ -363,7 +363,7 @@
       if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    function buildCourseCard(c) {
+function buildCourseCard(c) {
       const typeLabel = c.course_type === 'judge' ? 'judge' : (c.course_type === 'record' ? 'record' : 'general');
       const typeBadgeColor = c.course_type === 'judge' ? 'bg-blue-100 text-blue-700' : (c.course_type === 'record' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700');
       
@@ -371,6 +371,23 @@
       const cap = Number(c.capacity) || 30;
       const waitCap = Number(c.waitlist_capacity) || 0;
       const isFull = enrolled >= cap;
+
+      // 💡 日期清洗小工具
+      const cleanDate = (raw) => {
+        if (!raw) return '';
+        const str = String(raw).trim();
+        if (str.includes('T')) return str.split('T')[0];
+        const d = new Date(str);
+        if (!isNaN(d.getTime())) {
+          return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
+        return str.split(' ')[0] || '';
+      };
+
+      const startDate = cleanDate(c.date);
+      const endDate = cleanDate(c.signup_end);
+      const todayStr = new Date().toISOString().split('T')[0];
+      const isExpired = endDate && todayStr > endDate;
 
       // 檢查使用者是否已經報名過此課程
       const existingReg = myRegistrations.find(r => String(r.course_id) === String(c.course_id) && r.status !== 'cancelled');
@@ -382,6 +399,8 @@
         } else {
           actionButtonHtml = `<button onclick="openMyRegistrations()" class="w-full py-3 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold text-sm shadow-sm transition cursor-pointer hover:bg-emerald-200">✅ 您已成功報名（點此查看紀錄）</button>`;
         }
+      } else if (isExpired) {
+        actionButtonHtml = `<button disabled class="w-full py-3 rounded-xl bg-slate-100 text-slate-400 border border-slate-200 font-extrabold text-sm cursor-not-allowed">報名已截止</button>`;
       } else {
         if (isFull) {
           actionButtonHtml = `<button onclick="openSignupModal('${c.course_id}')" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm shadow-sm transition cursor-pointer">正取已滿・登記候補</button>`;
@@ -393,7 +412,6 @@
       return `
         <article class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition p-5 flex flex-col justify-between space-y-4">
           <div class="space-y-3">
-            <!-- Top Badges & Hours -->
             <div class="flex items-center justify-between gap-2">
               <div class="flex flex-wrap items-center gap-1.5">
                 <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${typeBadgeColor}">${typeLabel}</span>
@@ -402,7 +420,6 @@
               <span class="text-xs font-bold text-slate-500">培訓時數 : ${c.training_hours || 0}hr</span>
             </div>
 
-            <!-- Title & Instructor -->
             <div>
               <h3 class="text-xl font-black text-slate-900 leading-snug">${c.course_name || '未命名課程'}</h3>
               <p class="text-xs font-bold text-slate-500 mt-1 flex items-center gap-1.5">
@@ -410,17 +427,16 @@
               </p>
             </div>
 
-            <!-- Info Box -->
             <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70 space-y-2 text-xs text-slate-700">
               <div class="flex items-center gap-2">
                 <span>📅</span>
-                <span class="font-bold">日期：</span>
-                <span>${c.date ? c.date.split('T')[0] : '未定'}${c.end_date && c.end_date !== c.date ? ' ~ ' + c.end_date.split('T')[0] : ''}</span>
+                <span class="font-bold">上課日期：</span>
+                <span>${startDate || '未定'}</span>
               </div>
               <div class="flex items-center gap-2">
-                <span>⏰</span>
-                <span class="font-bold">時間：</span>
-                <span>${c.time || '依課程公告為準'}</span>
+                <span>⏳</span>
+                <span class="font-bold text-rose-600">報名截止：</span>
+                <span class="font-bold text-rose-600">${endDate || '未設定'}</span>
               </div>
               <div class="flex items-center gap-2">
                 <span>📍</span>
@@ -435,27 +451,16 @@
               <div class="flex items-center gap-2">
                 <span>👥</span>
                 <span class="font-bold">名額：</span>
-                <span>已報名 <strong>${enrolled}</strong> / 正取 ${cap} ${waitCap > 0 ? `(候補上限 ${waitCap})` : ''}</span>
+                <span>已報名 <strong>${enrolled}</strong> / 正取 ${cap}</span>
+              </div>
+              <div class="flex items-center gap-2 pt-1 border-t border-slate-200/60">
+                <span>📌</span>
+                <span class="font-bold">狀態：</span>
+                <span class="${isExpired ? 'text-rose-600 font-black' : 'text-emerald-600 font-bold'}">${isExpired ? '已截止報名' : '報名中'}</span>
               </div>
             </div>
-
-            <!-- Collapsible Details -->
-            <details class="group bg-slate-50 rounded-xl border border-slate-200/70">
-              <summary class="px-3.5 py-2.5 text-xs font-bold text-slate-600 cursor-pointer flex items-center justify-between list-none">
-                <span>🔍 檢視完整課程與報名規定細節</span>
-                <span class="transition-transform group-open:rotate-180">▼</span>
-              </summary>
-              <div class="px-3.5 pb-3 pt-1 text-xs text-slate-600 space-y-1.5 border-t border-slate-200/60">
-                <div><strong>報名資格：</strong>${c.signup_type === 'member_only' ? '限系統會員' : (c.signup_type === 'licensed_only' ? '限具備相關證照者' : '公開報名')}</div>
-                <div><strong>報名期間：</strong>${c.signup_start ? c.signup_start.split('T')[0] : '即日起'} ~ ${c.signup_end ? c.signup_end.split('T')[0] : '額滿為止'}</div>
-                <div><strong>認證時數：</strong>${c.certificate_hours || '依結訓標準核發'}</div>
-                ${c.location_url ? `<div><strong>線上連結：</strong><a href="${c.location_url}" target="_blank" class="text-blue-600 underline">點此開啟會議室</a></div>` : ''}
-                ${c.remark ? `<div class="text-amber-700 bg-amber-50 p-2 rounded-lg mt-1"><strong>備註：</strong>${c.remark}</div>` : ''}
-              </div>
-            </details>
           </div>
 
-          <!-- Action Button -->
           <div class="pt-1">
             ${actionButtonHtml}
           </div>
