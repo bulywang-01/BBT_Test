@@ -70,7 +70,7 @@ function loadHomeCourses() {
     const recentCourses = courseList.slice(0, 2);
     
     container.innerHTML = recentCourses.map(c => {
-      // 日期清洗函式 (將 Fri Nov 13 2026... 轉為 2026-11-13)
+      // 💡 日期清洗函式 (將英文長字串或帶 T 的日期轉為 YYYY-MM-DD)
       const cleanDate = (raw) => {
         if (!raw) return '';
         const str = String(raw).trim();
@@ -85,10 +85,10 @@ function loadHomeCourses() {
       const courseDate = cleanDate(c.date || c.time);
       const signupEnd = cleanDate(c.signup_end);
       
-      // 💡 判斷是否報名已截止
+      // 💡 即時防呆判斷：若今天大於報名截止日，顯示「已截止」
       const isExpired = signupEnd && todayStr > signupEnd;
-      const statusText = isExpired ? '已截止' : (c.status || '報名中');
-      const statusColor = isExpired ? '#dc2626' : '#166534'; // 已截止顯示紅色，報名中顯示綠色
+      const statusText = isExpired ? '已截止' : (c.course_status_text || c.status || '報名中');
+      const statusColor = isExpired ? '#dc2626' : '#166534'; // 紅色或綠色
 
       return `
         <div class="home-course-card" onclick="location.href='course.html'" style="cursor: pointer;">
