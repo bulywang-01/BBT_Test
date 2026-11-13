@@ -84,9 +84,9 @@
     .modal-footer{ display:flex; justify-content:flex-end; gap:10px; padding:14px 20px; border-top:1px solid #e5e7eb; background:#f8fafc; }
     .modal-close{ border:none; width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.15); color:#fff; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
 
-    /* Toast 提示專屬樣式 */
-    .toast{ position:fixed; top:24px; left:50%; transform:translateX(-50%) translateY(-20px); min-width:300px; max-width:90vw; padding:14px 22px; border-radius:14px; text-align:center; color:#fff; font-size:15px; font-weight:800; box-shadow:0 15px 35px rgba(0,0,0,0.25); opacity:0; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index:30000; pointer-events:none; }
-    .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+    /* Toast 提示專屬樣式（嚴格防範無文字或空紅條） */
+    .toast{ position:fixed; top:24px; left:50%; transform:translateX(-50%) translateY(-20px); min-width:300px; max-width:90vw; padding:14px 22px; border-radius:14px; text-align:center; color:#fff; font-size:15px; font-weight:800; box-shadow:0 15px 35px rgba(0,0,0,0.25); opacity:0; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index:30000; pointer-events:none; display:none; }
+    .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); display:block; }
     .toast.success{ background:#16a34a; border:1px solid #15803d; }
     .toast.error{ background:#dc2626; border:1px solid #b91c1c; }
 
@@ -673,11 +673,11 @@
   }
 
   function showToast(msg, type='success') {
+    if (!msg) return; // 嚴格防範無文字時跳出紅條
     const t = document.createElement('div');
-    t.className = `toast ${type}`;
+    t.className = `toast ${type} show`;
     t.textContent = msg;
     document.body.appendChild(t);
-    setTimeout(() => t.classList.add('show'), 10);
     setTimeout(() => {
       t.classList.remove('show');
       setTimeout(() => t.remove(), 400);
@@ -850,8 +850,14 @@
 
   function updateAttendanceStats() {
     const totalPresent = allEnrollments.filter(i => i.attendance_status === 'present').length;
-    const checkedIn = allEnrollments.filter(i => i.checkin_time && i.checkin_time.trim() !== '' && i.checkin_time !== '-').length;
-    const checkedOut = allEnrollments.filter(i => i.checkout_time && i.checkout_time.trim() !== '' && i.checkout_time !== '-').length;
+    const checkedIn = allEnrollments.filter(i => {
+      const ci = i.checkin_time || i.checkinTime || '';
+      return ci.trim() !== '' && ci !== '-';
+    }).length;
+    const checkedOut = allEnrollments.filter(i => {
+      const co = i.checkout_time || i.checkoutTime || '';
+      return co.trim() !== '' && co !== '-';
+    }).length;
     document.getElementById('statPresentCount').textContent = totalPresent;
     document.getElementById('statCheckinCount').textContent = checkedIn;
     document.getElementById('statCheckoutCount').textContent = checkedOut;
@@ -961,8 +967,12 @@
     const todayStr = new Date().toISOString().split('T')[0];
 
     tbody.innerHTML = filtered.map(item => {
-      const hasCheckedIn = item.checkin_time && item.checkin_time.trim() !== '' && item.checkin_time !== '-';
-      const hasCheckedOut = item.checkout_time && item.checkout_time.trim() !== '' && item.checkout_time !== '-';
+      // 智慧相容後端回傳的欄位名稱 (checkin_time 或 checkinTime)
+      const rawCheckin = item.checkin_time || item.checkinTime || '';
+      const rawCheckout = item.checkout_time || item.checkoutTime || '';
+
+      const hasCheckedIn = rawCheckin.trim() !== '' && rawCheckin !== '-';
+      const hasCheckedOut = rawCheckout.trim() !== '' && rawCheckout !== '-';
 
       const courseObj = allCourses.find(c => String(c.course_id) === String(item.course_id));
       let isCourseNotStarted = false;
@@ -1006,9 +1016,9 @@
             <div class="text-xs text-slate-500">${item.phone || '-'}</div>
           </td>
           <td class="p-4">${attBadge}</td>
-          <td class="p-4 text-xs font-mono font-bold text-slate-700">${hasCheckedIn ? item.checkin_time : '尚未簽到'}</td>
-          <td class="p-4 text-xs font-mono font-bold text-slate-700">${hasCheckedOut ? item.checkout_time : '尚未簽退'}</td>
-          <td class="p-4 text-right space-x-2">
+          <td class="p-4 text-xs font-mono font-bold text-slate-700 whitespace-nowrap">${hasCheckedIn ? rawCheckin : '尚未簽到'}</td>
+          <td class="p-4 text-xs font-mono font-bold text-slate-700 whitespace-nowrap">${hasCheckedOut ? rawCheckout : '尚未簽退'}</td>
+          <td class="p-4 text-right space-x-2 whitespace-nowrap">
             <button onclick="doAttendanceAction('${item.log_id}', 'checkin')" ${checkinBtnDisabled} class="px-2.5 py-1.5 rounded-xl border text-xs font-extrabold transition ${checkinBtnClass}" title="${isCourseNotStarted ? '課程日期為 ' + courseDateText + '，尚未開始' : ''}">
               ${checkinBtnText}
             </button>
@@ -1041,7 +1051,6 @@
       hideLoading();
       if (res && (res.result === 'ok' || res.result === 'success')) {
         showToast(`${actionName}成功！`, 'success');
-        // 直接重新從後端載入最新出勤資料，確保畫面與試算表完全同步
         loadEnrollmentData('attendance');
       } else {
         showToast(res ? res.message : `${actionName}失敗`, 'error');
