@@ -391,27 +391,13 @@ function buildCourseCard(c) {
       const typeLabel = typeMap[c.course_name] || typeMap[c.course_type] || c.course_type || '一般課程';
       const typeBadgeColor = c.course_type === 'judge' ? 'bg-blue-100 text-blue-700' : (c.course_type === 'record' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700');
       
-      // 2. 智慧解析證照（不論後端給 general C、judge 或是其他，都精準抓出來顯示）
+      // 2. 智慧解析證照級別
       let rawCertType = String(c.certificate_type || '').trim();
       let rawLevel = String(c.certificate_level || '').trim();
-
-      let certName = '';
       let certLevel = '';
-
-      // 解析證照名稱
-      if (rawCertType) {
-        if (rawCertType.toLowerCase().includes('judge') || rawCertType.includes('裁判')) {
-          certName = '裁判';
-        } else if (rawCertType.toLowerCase().includes('record') || rawCertType.includes('紀錄')) {
-          certName = '紀錄員';
-        } else if (!rawCertType.toLowerCase().includes('general') && rawCertType.toLowerCase() !== 'none') {
-          certName = rawCertType;
-        }
-      }
 
       // 如果 certificate_type 裡面藏了等級（例如 "general C"）
       if (rawCertType.toLowerCase().includes('general') && rawCertType.toUpperCase().includes('C')) {
-        certName = '裁判';
         certLevel = 'C';
       }
 
@@ -420,11 +406,10 @@ function buildCourseCard(c) {
         certLevel = rawLevel;
       }
 
-      // 格式化級別字串（確保有「級」字，例如 C 變 C級）
       const formattedLevel = certLevel ? (certLevel.includes('級') ? certLevel : `${certLevel}級`) : '';
       
-      // 判斷是否顯示證照標籤：只要有名稱，或者有級別，就一定要顯示！
-      const hasValidCert = (certName !== '' || formattedLevel !== '');
+      // 💡 嚴格規定：必須要有具體的「證照級別」（如 C、B、A），才顯示證照標籤！沒有級別的課程會自動隱藏。
+      const hasValidCert = (formattedLevel !== '');
 
       const enrolled = Number(c.current_enrollment) || 0;
       const cap = Number(c.capacity) || 30;
@@ -462,8 +447,8 @@ function buildCourseCard(c) {
             <div class="flex items-center justify-between gap-2">
               <div class="flex flex-wrap items-center gap-1.5">
                 <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${typeBadgeColor}">${typeLabel}</span>
-                <!-- 💡 完整保留證照與級別（例如：證照：裁判 C級） -->
-                ${hasValidCert ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-purple-100 text-purple-700">證照：${certName || '裁判'} ${formattedLevel}</span>` : ''}
+                <!-- 💡 只有當具備有效證照級別時才會渲染 -->
+                ${hasValidCert ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-purple-100 text-purple-700">證照：裁判 ${formattedLevel}</span>` : ''}
               </div>
               <span class="text-xs font-bold text-slate-500">培訓時數：${c.training_hours || 0} hr</span>
             </div>
