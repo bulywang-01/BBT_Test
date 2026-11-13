@@ -655,7 +655,6 @@
       </div>
       <div class="space-y-1">
         <label class="font-bold text-slate-700 text-xs">證書發放 / 驗證狀態 (certificate_verified)</label>
-        <!-- 💡 修正為對應資料結構的 verified / pending / rejected -->
         <select id="modal_cert_verified" class="w-full h-10 border border-slate-300 rounded-xl px-3 font-bold bg-white">
           <option value="pending">待確認 (pending)</option>
           <option value="verified">已確認/已發放 (verified)</option>
@@ -666,6 +665,36 @@
     <div class="modal-footer">
       <button class="btn-outline" onclick="closeScoreCertModal()">取消</button>
       <button class="btn-primary" onclick="saveScoreCertData()">儲存更新</button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Confirmation Modal -->
+<div id="paymentModal" class="modal hidden">
+  <div class="modal-dialog" style="max-width:450px;">
+    <div class="modal-header">
+      <div class="table-title">💰 確認繳費與實收金額</div>
+      <button class="modal-close" onclick="closePaymentModal()">✕</button>
+    </div>
+    <div class="modal-body space-y-4">
+      <input type="hidden" id="modal_pay_log_id" value="">
+      <div>
+        <div class="text-xs font-bold text-slate-500">學員與課程資訊</div>
+        <div id="modal_pay_student_info" class="text-base font-extrabold text-slate-900 mt-1">-</div>
+      </div>
+      <div>
+        <div class="text-xs font-bold text-slate-500">匯款後五碼</div>
+        <div id="modal_pay_account" class="text-sm font-mono font-bold text-blue-600 mt-0.5">-</div>
+      </div>
+      <div class="space-y-1">
+        <label class="font-bold text-slate-700 text-xs">實收金額 NT$ (payment_amount) <span class="text-rose-500">*</span></label>
+        <input type="number" id="modal_pay_amount" class="w-full h-10 border border-slate-300 rounded-xl px-3 font-bold text-base" placeholder="例：1000">
+        <p class="text-[11px] text-slate-400">系統已自動帶入該課程預設費用，若有折扣或補繳可直接修改。</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closePaymentModal()">取消</button>
+      <button class="btn-primary" onclick="submitPaymentConfirmation()">確認已繳費並送出</button>
     </div>
   </div>
 </div>
@@ -766,7 +795,7 @@
         renderCourseTable();
         populateAllCourseDropdowns();
       } else {
-        showToast(res ? res.message : '載入課程失敗', 'error');
+        showToast((res ? res.message : '載入課程失敗') + '，請重整頁面', 'error');
       }
     };
 
@@ -776,7 +805,7 @@
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
-      showToast('網路連線異常', 'error');
+      showToast('網路連線異常，請重整頁面', 'error');
     };
     document.body.appendChild(script);
   }
@@ -802,14 +831,12 @@
       html += `<option value="${c.course_id}">${c.course_name} [${dateStr}]</option>`;
     });
 
-    // 填入出勤下拉選單
     const attDropdown = document.getElementById('selectAttendanceCourseDropdown');
     if (attDropdown) {
       attDropdown.innerHTML = html;
       if (selectedAttendanceCourseId) attDropdown.value = selectedAttendanceCourseId;
     }
 
-    // 填入成績證書下拉選單
     const certDropdown = document.getElementById('selectCertCourseDropdown');
     if (certDropdown) {
       certDropdown.innerHTML = html;
@@ -923,7 +950,6 @@
         allEnrollments = (res.data || []).filter(item => String(item.status || '').trim().toLowerCase() !== 'cancelled');
         
         updateEnrollmentStats();
-
         populateAllFilters(allEnrollments);
         
         if (activeTab === 'enrollments') renderEnrollmentTable();
@@ -936,7 +962,7 @@
           renderCertificateTable();
         }
       } else {
-        showToast(res ? res.message : '無法取得報名紀錄', 'error');
+        showToast((res ? res.message : '無法取得報名紀錄') + '，請重整頁面', 'error');
       }
     };
 
@@ -945,7 +971,7 @@
     script.onerror = function() {
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
-      showToast('網路連線異常', 'error');
+      showToast('網路連線異常，請重整頁面', 'error');
     };
     document.body.appendChild(script);
   }
@@ -982,13 +1008,10 @@
     const courseLogs = allEnrollments.filter(i => String(i.course_id) === String(selectedCertCourseId));
 
     const scored = courseLogs.filter(i => i.score !== undefined && i.score !== '' && i.score !== null).length;
-    
-    // 💡 修正統計：對應 verified 狀態
     const verified = courseLogs.filter(i => {
       const v = String(i.certificate_verified || '').trim().toLowerCase();
       return v === 'verified' || v === 'yes' || v === 'true';
     }).length;
-    
     const pending = courseLogs.length - verified;
 
     document.getElementById('statScoredCount').textContent = scored;
@@ -1044,6 +1067,11 @@
         ? `<span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">候補</span>`
         : `<span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">正取</span>`;
 
+      // 取得該課程預設費用
+      const courseObj = allCourses.find(c => String(c.course_id) === String(item.course_id));
+      const defaultFee = courseObj ? (courseObj.fee || 0) : 0;
+      const currentAmount = item.payment_amount !== undefined && item.payment_amount !== '' ? item.payment_amount : defaultFee;
+
       return `
         <tr class="hover:bg-slate-50 transition">
           <td class="p-4 text-xs">
@@ -1062,13 +1090,71 @@
           <td class="p-4">${statusBadge}</td>
           <td class="p-4">${payBadge}</td>
           <td class="p-4 text-right">
-            <button onclick="updateTrainingField('${item.log_id}', 'payment_status', '${isPaid ? 'unpaid' : 'paid'}', '繳費狀態')" class="px-3 py-1.5 rounded-xl border ${isPaid ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100' : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'} text-xs font-extrabold transition">
-              ${isPaid ? '改未繳費' : '確認已繳費'}
-            </button>
+            ${isPaid 
+              ? `<button onclick="updateTrainingField('${item.log_id}', 'payment_status', 'unpaid', '繳費狀態')" class="px-3 py-1.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-extrabold transition">改未繳費</button>`
+              : `<button onclick="openPaymentModal('${item.log_id}', '${item.name || ''}', '${item.course_name || ''}', '${item.payment_account || ''}', '${currentAmount}')" class="px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-extrabold transition">確認已繳費</button>`
+            }
           </td>
         </tr>
       `;
     }).join('');
+  }
+
+  // 繳費確認彈窗開關與送出
+  function openPaymentModal(logId, studentName, courseName, payAccount, defaultAmount) {
+    document.getElementById('modal_pay_log_id').value = logId;
+    document.getElementById('modal_pay_student_info').textContent = `${studentName} (${courseName})`;
+    document.getElementById('modal_pay_account').textContent = payAccount ? payAccount : '未填寫後五碼';
+    document.getElementById('modal_pay_amount').value = defaultAmount;
+    document.getElementById('paymentModal').classList.remove('hidden');
+  }
+
+  function closePaymentModal() {
+    document.getElementById('paymentModal').classList.add('hidden');
+  }
+
+  function submitPaymentConfirmation() {
+    const logId = document.getElementById('modal_pay_log_id').value;
+    const amount = document.getElementById('modal_pay_amount').value;
+
+    showLoading('儲存繳費資訊...');
+    const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+    const cb = 'jsonp_pay_confirm_' + Math.round(100000 * Math.random());
+
+    const params = new URLSearchParams({
+      action: 'updateTrainingStatus',
+      log_id: logId,
+      field: 'payment_status',
+      value: 'paid',
+      payment_amount: amount,
+      callback: cb,
+      _t: Date.now()
+    });
+
+    window[cb] = function(res) {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      closePaymentModal();
+
+      if (res && (res.result === 'ok' || res.result === 'success')) {
+        showToast('已成功確認繳費並記錄金額！', 'success');
+        loadEnrollmentData('enrollments');
+      } else {
+        showToast((res ? res.message : '更新失敗') + '，請重整頁面', 'error');
+      }
+    };
+
+    const script = document.createElement('script');
+    script.src = `${baseUrl}?${params.toString()}`;
+    script.onerror = function() {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      closePaymentModal();
+      showToast('網路連線異常，請重整頁面', 'error');
+    };
+    document.body.appendChild(script);
   }
 
   function renderAttendanceTable() {
@@ -1200,7 +1286,7 @@
         updateAttendanceStatsForActiveCourse();
         renderAttendanceTable();
       } else {
-        showToast(res ? res.message : `${actionName}失敗`, 'error');
+        showToast((res ? res.message : `${actionName}失敗`) + '，請重整頁面', 'error');
       }
     };
 
@@ -1210,7 +1296,7 @@
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
-      showToast('網路連線異常', 'error');
+      showToast('網路連線異常，請重整頁面', 'error');
     };
     document.body.appendChild(script);
   }
@@ -1236,7 +1322,6 @@
     }
 
     tbody.innerHTML = filtered.map(item => {
-      // ✅ 完美對應 verified / yes / true 狀態
       const val = String(item.certificate_verified || '').trim().toLowerCase();
       const isVerified = (val === 'verified' || val === 'yes' || val === 'true');
       
@@ -1314,7 +1399,7 @@
         updateCertificateStatsForActiveCourse();
         renderCertificateTable();
       } else {
-        showToast(res ? res.message : '更新失敗', 'error');
+        showToast((res ? res.message : '更新失敗') + '，請重整頁面', 'error');
       }
     };
 
@@ -1325,7 +1410,7 @@
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
       closeScoreCertModal();
-      showToast('網路連線異常', 'error');
+      showToast('網路連線異常，請重整頁面', 'error');
     };
     document.body.appendChild(script);
   }
@@ -1345,7 +1430,7 @@
         showToast(`${labelName}更新成功！`, 'success');
         loadEnrollmentData('enrollments');
       } else {
-        showToast(res ? res.message : '更新失敗', 'error');
+        showToast((res ? res.message : '更新失敗') + '，請重整頁面', 'error');
       }
     };
 
@@ -1355,7 +1440,7 @@
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
-      showToast('網路連線異常', 'error');
+      showToast('網路連線異常，請重整頁面', 'error');
     };
     document.body.appendChild(script);
   }
@@ -1372,7 +1457,7 @@
       document.getElementById('waitlist_capacity').value = 10;
     } else {
       const c = allCourses.find(x => String(x.course_id) === String(courseId));
-      if (!c) { showToast('找不到該課程', 'error'); closeCourseModal(); return; }
+      if (!c) { showToast('找不到該課程，請重整頁面', 'error'); closeCourseModal(); return; }
       document.getElementById('course_id').value = c.course_id || '';
       document.getElementById('course_name').value = c.course_name || '';
       document.getElementById('course_type').value = c.course_type || 'general';
@@ -1441,7 +1526,7 @@
         closeCourseModal();
         loadCourses();
       } else {
-        showToast(res ? res.message : '儲存失敗', 'error');
+        showToast((res ? res.message : '儲存失敗') + '，請重整頁面', 'error');
       }
     };
 
@@ -1451,7 +1536,7 @@
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
-      showToast('網路連線異常', 'error');
+      showToast('網路連線異常，請重整頁面', 'error');
     };
     document.body.appendChild(script);
   }
@@ -1470,7 +1555,7 @@
         showToast('課程已刪除', 'success');
         loadCourses();
       } else {
-        showToast(res ? res.message : '刪除失敗', 'error');
+        showToast((res ? res.message : '刪除失敗') + '，請重整頁面', 'error');
       }
     };
 
@@ -1480,7 +1565,7 @@
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
-      showToast('網路連線異常', 'error');
+      showToast('網路連線異常，請重整頁面', 'error');
     };
     document.body.appendChild(script);
   }
