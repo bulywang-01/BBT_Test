@@ -902,31 +902,31 @@
   
       const todayStr = new Date().toISOString().split('T')[0];
   
-      // 💡 日期清洗小工具
-      const cleanDate = (raw) => {
+      const safeFormatDate = (raw) => {
         if (!raw) return '';
-        const str = String(raw).trim();
+        let str = String(raw).trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
         if (str.includes('T')) return str.split('T')[0];
         const d = new Date(str);
         if (!isNaN(d.getTime())) {
-          return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          if (y > 2020) return `${y}-${m}-${day}`;
         }
         return str.split(' ')[0] || '';
       };
   
       tbody.innerHTML = filtered.map(c => {
         const typeBadge = c.course_type === 'judge' ? 'badge-judge' : (c.course_type === 'record' ? 'badge-record' : 'badge-general');
-        
-        const startDate = cleanDate(c.date);
-        const endDate = cleanDate(c.signup_end);
-  
-        // 💡 檢查是否超過報名截止日（即時轉為已截止）
+        const startDate = safeFormatDate(c.date);
+        const endDate = safeFormatDate(c.signup_end);
         const isExpired = endDate && todayStr > endDate;
         const statusText = isExpired ? '已截止' : (c.course_status === 'closed' ? '已關閉' : (c.course_status === 'finished' ? '已結束' : '開放報名'));
         
         let statusClass = 'bg-emerald-100 text-emerald-800';
         if (isExpired || c.course_status === 'closed') {
-          statusClass = 'bg-rose-100 text-rose-800'; // 紅色
+          statusClass = 'bg-rose-100 text-rose-800';
         } else if (c.course_status === 'finished') {
           statusClass = 'bg-slate-100 text-slate-600';
         }
