@@ -804,14 +804,12 @@
   }
 
   function loadEnrollmentData(activeTab = 'enrollments') {
-    showLoading('載入報名與出勤資料...');
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
     const cb = 'jsonp_enroll_logs_' + Math.round(100000 * Math.random());
 
     window[cb] = function(res) {
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
-      hideLoading();
       if (res && (res.result === 'ok' || res.result === 'success')) {
         allEnrollments = (res.data || []).filter(item => String(item.status || '').trim().toLowerCase() !== 'cancelled');
         
@@ -834,7 +832,6 @@
     script.onerror = function() {
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
-      hideLoading();
       showToast('網路連線異常', 'error');
     };
     document.body.appendChild(script);
@@ -967,12 +964,28 @@
     const todayStr = new Date().toISOString().split('T')[0];
 
     tbody.innerHTML = filtered.map(item => {
-      // 深度涵蓋各種可能的後端欄位命名方式
       const rawCheckin = String(item.checkin_time || item.checkinTime || item.checkInTime || item.check_in || '').trim();
       const rawCheckout = String(item.checkout_time || item.checkoutTime || item.checkOutTime || item.check_out || '').trim();
 
       const hasCheckedIn = rawCheckin !== '' && rawCheckin !== '-' && rawCheckin !== 'undefined' && rawCheckin !== 'null';
       const hasCheckedOut = rawCheckout !== '' && rawCheckout !== '-' && rawCheckout !== 'undefined' && rawCheckout !== 'null';
+
+      // 拆分日期與時間為兩行 (上日期、下時間)
+      let checkinHtml = '尚未簽到';
+      if (hasCheckedIn) {
+        const parts = rawCheckin.split(' ');
+        const datePart = parts[0] || '';
+        const timePart = parts[1] || '';
+        checkinHtml = `<div class="font-bold text-slate-800">${datePart}</div><div class="text-slate-500 mt-0.5">${timePart}</div>`;
+      }
+
+      let checkoutHtml = '尚未簽退';
+      if (hasCheckedOut) {
+        const parts = rawCheckout.split(' ');
+        const datePart = parts[0] || '';
+        const timePart = parts[1] || '';
+        checkoutHtml = `<div class="font-bold text-slate-800">${datePart}</div><div class="text-slate-500 mt-0.5">${timePart}</div>`;
+      }
 
       const courseObj = allCourses.find(c => String(c.course_id) === String(item.course_id));
       let isCourseNotStarted = false;
@@ -1016,8 +1029,8 @@
             <div class="text-xs text-slate-500">${item.phone || '-'}</div>
           </td>
           <td class="p-4">${attBadge}</td>
-          <td class="p-4 text-xs font-mono font-bold text-slate-700 whitespace-nowrap">${hasCheckedIn ? rawCheckin : '尚未簽到'}</td>
-          <td class="p-4 text-xs font-mono font-bold text-slate-700 whitespace-nowrap">${hasCheckedOut ? rawCheckout : '尚未簽退'}</td>
+          <td class="p-4 text-xs font-mono font-bold text-slate-700 whitespace-nowrap">${checkinHtml}</td>
+          <td class="p-4 text-xs font-mono font-bold text-slate-700 whitespace-nowrap">${checkoutHtml}</td>
           <td class="p-4 text-right space-x-2 whitespace-nowrap">
             <button onclick="doAttendanceAction('${item.log_id}', 'checkin')" ${checkinBtnDisabled} class="px-2.5 py-1.5 rounded-xl border text-xs font-extrabold transition ${checkinBtnClass}" title="${isCourseNotStarted ? '課程日期為 ' + courseDateText + '，尚未開始' : ''}">
               ${checkinBtnText}
@@ -1052,20 +1065,29 @@
       if (res && (res.result === 'ok' || res.result === 'success')) {
         showToast(`${actionName}成功！`, 'success');
         
-        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+        // 取得後端傳回的時間或當前時間 (YYYY-MM-DD HH:mm:ss)
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const nowStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-pad(${now.getDate()}) ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+        const returnedTime = res.time || res.checkin_time || res.checkout_time || res.checkinTime || res.checkoutTime || nowStr;
+
+        // 即時更新前端記憶體資料
         const target = allEnrollments.find(i => String(i.log_id) === String(logId));
         if (target) {
           if (actionType === 'checkin') {
-            target.checkin_time = res.time || res.checkin_time || res.checkinTime || nowStr;
-            target.checkinTime = target.checkin_time;
+            target.checkin_time = returnedTime;
+            target.checkinTime = returnedTime;
           } else {
-            target.checkout_time = res.time || res.checkout_time || res.checkoutTime || nowStr;
-            target.checkoutTime = target.checkout_time;
+            target.checkout_time = returnedTime;
+            target.checkoutTime = returnedTime;
           }
         }
 
+        // 立即局部重新渲染畫面與統計數據
         renderAttendanceTable();
         updateAttendanceStats();
+
+        // 背景同步抓取最新資料確保一致性
         loadEnrollmentData('attendance');
       } else {
         showToast(res ? res.message : `${actionName}失敗`, 'error');
@@ -1172,7 +1194,9 @@
           target.score = score;
           target.certificate_verified = certVerified;
           if (certVerified === 'yes') {
-            const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const nowStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
             target.certificate_verified_date = nowStr;
             target.certificate_updated = 'yes';
           } else {
