@@ -84,11 +84,11 @@
     .modal-footer{ display:flex; justify-content:flex-end; gap:10px; padding:14px 20px; border-top:1px solid #e5e7eb; background:#f8fafc; }
     .modal-close{ border:none; width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.15); color:#fff; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
 
-    /* Toast */
-    .toast{ position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-10px); min-width:280px; max-width:90vw; padding:12px 18px; border-radius:12px; text-align:center; color:#fff; font-size:14px; font-weight:700; box-shadow:0 10px 25px rgba(0,0,0,.15); opacity:0; transition:.25s; z-index:10000; }
+    /* Toast 顯眼修復：提高 z-index 至 30000 確保在最上層，且加上漂亮的陰影與字體 */
+    .toast{ position:fixed; top:24px; left:50%; transform:translateX(-50%) translateY(-20px); min-width:300px; max-width:90vw; padding:14px 22px; border-radius:14px; text-align:center; color:#fff; font-size:15px; font-weight:800; box-shadow:0 15px 35px rgba(0,0,0,0.25); opacity:0; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index:30000; pointer-events:none; }
     .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
-    .toast.success{ background:#16a34a; }
-    .toast.error{ background:#dc2626; }
+    .toast.success{ background:#16a34a; border:1px solid #15803d; }
+    .toast.error{ background:#dc2626; border:1px solid #b91c1c; }
 
     #loadingMask{ position:fixed; inset:0; background:rgba(15,23,42,.25); display:flex; justify-content:center; align-items:center; z-index:20000; }
     #loadingMask.hidden{ display:none; }
@@ -99,6 +99,9 @@
     .action-btn.edit{ background:#ffedd5; color:#c2410c; }
     .action-btn.delete{ background:#fee2e2; color:#991b1b; }
     .action-group{ display:flex; gap:6px; }
+
+    /* 禁用按鈕樣式 */
+    button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; filter: grayscale(50%); }
   </style>
 </head>
 
@@ -683,8 +686,8 @@
     setTimeout(() => t.classList.add('show'), 10);
     setTimeout(() => {
       t.classList.remove('show');
-      setTimeout(() => t.remove(), 300);
-    }, 2000);
+      setTimeout(() => t.remove(), 400);
+    }, 2500);
   }
 
   function switchTab(tab) {
@@ -818,7 +821,6 @@
       if (res && res.result === 'ok') {
         allEnrollments = (res.data || []).filter(item => String(item.status || '').trim().toLowerCase() !== 'cancelled');
         
-        // 重新整理各區塊數據與下拉選單
         updateEnrollmentStats();
         updateAttendanceStats();
         updateCertificateStats();
@@ -854,8 +856,8 @@
 
   function updateAttendanceStats() {
     const totalPresent = allEnrollments.filter(i => i.attendance_status === 'present').length;
-    const checkedIn = allEnrollments.filter(i => i.checkin_time && i.checkin_time.trim() !== '').length;
-    const checkedOut = allEnrollments.filter(i => i.checkout_time && i.checkout_time.trim() !== '').length;
+    const checkedIn = allEnrollments.filter(i => i.checkin_time && i.checkin_time.trim() !== '' && i.checkin_time !== '-').length;
+    const checkedOut = allEnrollments.filter(i => i.checkout_time && i.checkout_time.trim() !== '' && i.checkout_time !== '-').length;
     document.getElementById('statPresentCount').textContent = totalPresent;
     document.getElementById('statCheckinCount').textContent = checkedIn;
     document.getElementById('statCheckoutCount').textContent = checkedOut;
@@ -946,7 +948,7 @@
     }).join('');
   }
 
-  // TAB 3 渲染與出勤打卡操作
+  // TAB 3 渲染與出勤打卡操作（已加入嚴格鎖定條件）
   function renderAttendanceTable() {
     const tbody = document.getElementById('attendanceTableBody');
     const cFilter = document.getElementById('filterAttCourseSelect').value;
@@ -965,12 +967,27 @@
     }
 
     tbody.innerHTML = filtered.map(item => {
-      const hasCheckedIn = item.checkin_time && item.checkin_time.trim() !== '';
-      const hasCheckedOut = item.checkout_time && item.checkout_time.trim() !== '';
+      const hasCheckedIn = item.checkin_time && item.checkin_time.trim() !== '' && item.checkin_time !== '-';
+      const hasCheckedOut = item.checkout_time && item.checkout_time.trim() !== '' && item.checkout_time !== '-';
 
       const attBadge = item.attendance_status === 'present'
         ? `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800">出席 (present)</span>`
         : `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-600">缺席 (absent)</span>`;
+
+      // 鎖定規則：
+      // 1. 若已簽到 (hasCheckedIn = true)：簽到按鈕鎖定 (disabled)
+      // 2. 若尚未簽到 (!hasCheckedIn)：簽退按鈕必須鎖定 (disabled)，防止未簽到就簽退
+      // 3. 若已簽購/簽退 (hasCheckedOut = true)：簽退按鈕也鎖定
+      const checkinBtnDisabled = hasCheckedIn ? 'disabled' : '';
+      const checkoutBtnDisabled = (!hasCheckedIn || hasCheckedOut) ? 'disabled' : '';
+
+      const checkinBtnClass = hasCheckedIn 
+        ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed' 
+        : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100';
+
+      const checkoutBtnClass = (!hasCheckedIn || hasCheckedOut)
+        ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed' 
+        : 'border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100';
 
       return `
         <tr class="hover:bg-slate-50 transition">
@@ -981,14 +998,14 @@
             <div class="text-xs text-slate-500">${item.phone || '-'}</div>
           </td>
           <td class="p-4">${attBadge}</td>
-          <td class="p-4 text-xs font-mono font-bold text-slate-700">${item.checkin_time || '尚未簽到'}</td>
-          <td class="p-4 text-xs font-mono font-bold text-slate-700">${item.checkout_time || '尚未簽退'}</td>
+          <td class="p-4 text-xs font-mono font-bold text-slate-700">${hasCheckedIn ? item.checkin_time : '尚未簽到'}</td>
+          <td class="p-4 text-xs font-mono font-bold text-slate-700">${hasCheckedOut ? item.checkout_time : '尚未簽退'}</td>
           <td class="p-4 text-right space-x-2">
-            <button onclick="doAttendanceAction('${item.log_id}', 'checkin')" class="px-2.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-extrabold transition">
-              ${hasCheckedIn ? '重新簽到' : '簽到 (Check-in)'}
+            <button onclick="doAttendanceAction('${item.log_id}', 'checkin')" ${checkinBtnDisabled} class="px-2.5 py-1.5 rounded-xl border text-xs font-extrabold transition ${checkinBtnClass}">
+              ${hasCheckedIn ? '已簽到' : '簽到 (Check-in)'}
             </button>
-            <button onclick="doAttendanceAction('${item.log_id}', 'checkout')" class="px-2.5 py-1.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 text-xs font-extrabold transition">
-              ${hasCheckedOut ? '重新簽退' : '簽退 (Check-out)'}
+            <button onclick="doAttendanceAction('${item.log_id}', 'checkout')" ${checkoutBtnDisabled} class="px-2.5 py-1.5 rounded-xl border text-xs font-extrabold transition ${checkoutBtnClass}">
+              ${hasCheckedOut ? '已簽退' : '簽退 (Check-out)'}
             </button>
           </td>
         </tr>
@@ -996,19 +1013,18 @@
     }).join('');
   }
 
-function doAttendanceAction(logId, actionType) {
+  function doAttendanceAction(logId, actionType) {
     const actionName = actionType === 'checkin' ? '簽到' : '簽退';
     showLoading(`執行${actionName}...`);
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
     
-    // 加上 _t = Date.now() 確保每次請求都是全新的，絕對不被快取
     const cb = 'jsonp_att_' + Math.round(100000 * Math.random());
     const params = new URLSearchParams({
       action: 'updateAttendance',
       log_id: logId,
       type: actionType,
       callback: cb,
-      _t: Date.now() // 防止快取關鍵
+      _t: Date.now()
     });
 
     window[cb] = function(res) {
@@ -1018,7 +1034,6 @@ function doAttendanceAction(logId, actionType) {
       if (res && res.result === 'ok') {
         showToast(`${actionName}成功！`, 'success');
         
-        // 💡 優化：直接在前端記憶體中更新該筆資料的時間與狀態，實現真正的「秒級即時更新」！
         const target = allEnrollments.find(item => String(item.log_id) === String(logId));
         if (target) {
           if (actionType === 'checkin') {
@@ -1029,7 +1044,6 @@ function doAttendanceAction(logId, actionType) {
           }
         }
         
-        // 重新渲染畫面與統計數據
         updateAttendanceStats();
         renderAttendanceTable();
       } else {
@@ -1080,11 +1094,11 @@ function doAttendanceAction(logId, actionType) {
             <div class="font-extrabold text-slate-900">${item.name || '未填'}</div>
             <div class="text-xs text-slate-500">${item.phone || '-'}</div>
           </td>
-          <td class="p-4 font-black text-blue-600 text-base">${item.score !== undefined && item.score !== '' ? item.score : '<span class="text-slate-400 font-normal text-xs">未登錄</span>'}</td>
+          <td class="p-4 font-black text-blue-600 text-base">${item.score !== undefined && item.score !== '' && item.score !== null ? item.score : '<span class="text-slate-400 font-normal text-xs">未登錄</span>'}</td>
           <td class="p-4">${certBadge}</td>
           <td class="p-4 text-xs font-mono text-slate-600">${item.certificate_verified_date || '-'}</td>
           <td class="p-4 text-right">
-            <button onclick="openScoreCertModal('${item.log_id}', '${item.name || ''}', '${item.score !== undefined ? item.score : ''}', '${item.certificate_verified || 'no'}')" class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-extrabold transition">
+            <button onclick="openScoreCertModal('${item.log_id}', '${item.name || ''}', '${item.score !== undefined && item.score !== null ? item.score : ''}', '${item.certificate_verified || 'no'}')" class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-extrabold transition">
               編輯成績與證書
             </button>
           </td>
@@ -1105,68 +1119,68 @@ function doAttendanceAction(logId, actionType) {
     document.getElementById('scoreCertModal').classList.add('hidden');
   }
 
-  // 學員成績與證書儲存
+  // 學員成績與證書儲存（確保關閉 Modal 且即時更新畫面與 KPI）
   function saveScoreCertData() {
-      const logId = document.getElementById('modal_log_id').value;
-      const score = document.getElementById('modal_score').value;
-      const certVerified = document.getElementById('modal_cert_verified').value;
-  
-      showLoading('儲存成績與證書...');
-      const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
-      const cb = 'jsonp_score_cert_' + Math.round(100000 * Math.random());
-  
-      const params = new URLSearchParams({
-        action: 'updateScoreAndCertificate',
-        log_id: logId,
-        score: score,
-        certificate_verified: certVerified,
-        callback: cb,
-        _t: Date.now() // 防止快取
-      });
-  
-      window[cb] = function(res) {
-        delete window[cb];
-        if (script.parentNode) script.parentNode.removeChild(script);
-        hideLoading();
-        if (res && res.result === 'ok') {
-          showToast('成績與證書更新成功！', 'success');
-          
-          // 💡 關鍵修復：直接在前端記憶體中更新該筆資料，實現即時反應！
-          const target = allEnrollments.find(item => String(item.log_id) === String(logId));
-          if (target) {
-            target.score = score;
-            target.certificate_verified = certVerified;
-            if (certVerified === 'yes') {
-              // 自動補上當前日期作為驗證日期
-              const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
-              target.certificate_verified_date = nowStr;
-              target.certificate_updated = 'yes';
-            } else {
-              target.certificate_verified_date = '-';
-              target.certificate_updated = 'no';
-            }
+    const logId = document.getElementById('modal_log_id').value;
+    const score = document.getElementById('modal_score').value;
+    const certVerified = document.getElementById('modal_cert_verified').value;
+
+    showLoading('儲存成績與證書...');
+    const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+    const cb = 'jsonp_score_cert_' + Math.round(100000 * Math.random());
+
+    const params = new URLSearchParams({
+      action: 'updateScoreAndCertificate',
+      log_id: logId,
+      score: score,
+      certificate_verified: certVerified,
+      callback: cb,
+      _t: Date.now()
+    });
+
+    window[cb] = function(res) {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      
+      // 務必先關閉 Modal 視窗
+      closeScoreCertModal();
+
+      if (res && res.result === 'ok') {
+        showToast('成績與證書更新成功！', 'success');
+        
+        const target = allEnrollments.find(item => String(item.log_id) === String(logId));
+        if (target) {
+          target.score = score;
+          target.certificate_verified = certVerified;
+          if (certVerified === 'yes') {
+            const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+            target.certificate_verified_date = nowStr;
+            target.certificate_updated = 'yes';
+          } else {
+            target.certificate_verified_date = '-';
+            target.certificate_updated = 'no';
           }
-  
-          closeScoreCertModal();
-          
-          // 重新計算上方 KPI 統計並重繪證書表格
-          updateCertificateStats();
-          renderCertificateTable();
-        } else {
-          showToast(res ? res.message : '更新失敗', 'error');
         }
-      };
-  
-      const script = document.createElement('script');
-      script.src = `${baseUrl}?${params.toString()}`;
-      script.onerror = function() {
-        delete window[cb];
-        if (script.parentNode) script.parentNode.removeChild(script);
-        hideLoading();
-        showToast('網路連線異常', 'error');
-      };
-      document.body.appendChild(script);
-    }
+
+        updateCertificateStats();
+        renderCertificateTable();
+      } else {
+        showToast(res ? res.message : '更新失敗', 'error');
+      }
+    };
+
+    const script = document.createElement('script');
+    script.src = `${baseUrl}?${params.toString()}`;
+    script.onerror = function() {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      closeScoreCertModal();
+      showToast('網路連線異常', 'error');
+    };
+    document.body.appendChild(script);
+  }
 
   // 共用的欄位更新 Helper
   function updateTrainingField(logId, field, value, labelName) {
