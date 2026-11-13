@@ -931,7 +931,7 @@ function renderCourseTable() {
     tbody.innerHTML = filtered.map(c => {
       const typeBadge = c.course_type === 'judge' ? 'badge-judge' : (c.course_type === 'record' ? 'badge-record' : 'badge-general');
       
-      // 💡 1. 課程型別中文化對照
+      // 1. 課程型別中文化對照
       const typeMap = {
         'judge': '裁判培訓',
         'record': '紀錄培訓',
@@ -939,33 +939,20 @@ function renderCourseTable() {
       };
       const typeLabel = typeMap[c.course_type] || c.course_type || '一般課程';
 
-      // 💡 2. 證照資訊智慧解析與中文化
+      // 2. 智慧解析證照級別（嚴格要求必須有具體級別才顯示）
       let rawCertType = String(c.certificate_type || '').trim();
       let rawLevel = String(c.certificate_level || '').trim();
-      let certName = '';
       let certLevel = '';
 
-      if (rawCertType) {
-        if (rawCertType.toLowerCase().includes('judge') || rawCertType.includes('裁判')) {
-          certName = '裁判';
-        } else if (rawCertType.toLowerCase().includes('record') || rawCertType.includes('紀錄')) {
-          certName = '紀錄員';
-        } else if (!rawCertType.toLowerCase().includes('general') && rawCertType.toLowerCase() !== 'none') {
-          certName = rawCertType;
-        }
-      }
-
       if (rawCertType.toLowerCase().includes('general') && rawCertType.toUpperCase().includes('C')) {
-        certName = '裁判';
         certLevel = 'C';
       }
-
       if (rawLevel && rawLevel.toLowerCase() !== 'none' && rawLevel.toLowerCase() !== 'null') {
         certLevel = rawLevel;
       }
 
       const formattedLevel = certLevel ? (certLevel.includes('級') ? certLevel : `${certLevel}級`) : '';
-      const hasValidCert = (certName !== '' || formattedLevel !== '');
+      const hasValidCert = (formattedLevel !== '');
 
       const startDate = cleanDate(c.date);
       const endDate = cleanDate(c.signup_end || c.signupEnd || c.end_date);
@@ -987,8 +974,8 @@ function renderCourseTable() {
             <div class="font-extrabold text-slate-900 text-base">${c.course_name || '-'}</div>
             <div class="flex flex-wrap items-center gap-1.5 mt-1">
               <span class="role-badge ${typeBadge}">${typeLabel}</span>
-              <!-- 💡 智慧呈現中文化與級別，無證照則自動隱藏 -->
-              ${hasValidCert ? `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold whitespace-nowrap">證照：${certName || '裁判'} ${formattedLevel}</span>` : ''}
+              <!-- 💡 只有當有具體證照級別時才在後台顯示，無級別則自動隱藏 -->
+              ${hasValidCert ? `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold whitespace-nowrap">證照：裁判 ${formattedLevel}</span>` : ''}
             </div>
           </td>
           <td class="text-xs text-slate-700 whitespace-nowrap">
