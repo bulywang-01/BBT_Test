@@ -635,64 +635,66 @@
       document.body.appendChild(script);
     }
 
-  // ✅ 完整呈現學員報名與後續追蹤資訊的卡片渲染函式
-  function renderMyEnrollmentCard(item) {
-    // 1. 檢查簽到與簽退狀態 (相容多種可能的屬性名稱)
-    const rawCheckin = String(item.checkin_time || item.checkinTime || item.check_in || '').trim();
-    const rawCheckout = String(item.checkout_time || item.checkoutTime || item.check_out || '').trim();
-  
-    const hasCheckin = rawCheckin !== '' && rawCheckin !== '-' && rawCheckin !== 'undefined' && rawCheckin !== 'null';
-    const hasCheckout = rawCheckout !== '' && rawCheckout !== '-' && rawCheckout !== 'undefined' && rawCheckout !== 'null';
-  
-    let attendanceBadge = '';
-    let earnedHours = 0;
-  
-    if (hasCheckin && hasCheckout) {
-      attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">✅ 已完成 (完訓)</span>`;
-      earnedHours = item.training_hours || 4; // 預設或取自後端時數
-    } else if (hasCheckin && !hasCheckout) {
-      attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">⚠️ 報到未完全（未簽退）</span>`;
-      earnedHours = 0;
-    } else {
-      attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-600">❌ 缺課</span>`;
-      earnedHours = 0;
-    }
-  
-    // 2. 成績呈現
-    const scoreDisplay = (item.score !== undefined && item.score !== '' && item.score !== null) 
-      ? `<strong class="text-blue-600">${item.score} 分</strong>` 
-      : `<span class="text-slate-400">尚無成績</span>`;
-  
-    // 3. 判斷是否可取消報名：已繳費 (paid) 且已錄取 (confirmed 或 applied)，則不呈現取消按鈕
-    const isPaid = String(item.payment_status || '').trim() === 'paid';
-    const isConfirmed = String(item.status || '').trim() === 'confirmed' || String(item.status || '').trim() === 'applied';
-    const canCancel = !(isPaid && isConfirmed) && item.allow_cancel !== 'N';
-  
-    const cancelButtonHtml = canCancel 
-      ? `<button onclick="cancelEnrollment('${item.enrollment_id || item.log_id || item.course_id}', '${item.course_name}')" class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-extrabold transition">取消報名</button>` 
-      : `<span class="text-xs text-slate-400 font-bold bg-slate-100 px-2.5 py-1 rounded-lg">已繳費錄取，無法取消</span>`;
-  
-    return `
-      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
-        <div class="flex items-center justify-between">
-          <div class="font-black text-slate-900 text-base">${item.course_name || '課程名稱'}</div>
-          <div>${attendanceBadge}</div>
-        </div>
-        
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
-          <div>📅 日期：<strong class="text-slate-800">${item.date ? item.date.split('T')[0] : '未定'}</strong></div>
-          <div>⏱️ 採計時數：<strong class="text-blue-600">${earnedHours} hr</strong></div>
-          <div>📝 測驗成績：${scoreDisplay}</div>
-          <div>💰 繳費狀態：<strong class="${isPaid ? 'text-emerald-600' : 'text-amber-600'}">${isPaid ? '已繳費' : '待繳費'}</strong></div>
-        </div>
-  
-        <div class="flex items-center justify-between pt-1 border-t border-slate-100">
-          <div class="text-[11px] text-slate-400">報名紀錄編號：#${item.log_id || item.enrollment_id || '-'}</div>
-          <div>${cancelButtonHtml}</div>
-        </div>
-      </div>
-    `;
+// ✅ 修正版：完整串接並正確呈現學員的出勤、時數、成績與取消報名狀態
+function renderMyEnrollmentCard(item) {
+  // 1. 強效解析簽到與簽退時間（支援各種後端欄位命名方式）
+  const rawCheckin = String(item.checkin_time || item.checkinTime || item.check_in || '').trim();
+  const rawCheckout = String(item.checkout_time || item.checkoutTime || item.check_out || '').trim();
+
+  const hasCheckin = rawCheckin !== '' && rawCheckin !== '-' && rawCheckin !== 'undefined' && rawCheckin !== 'null';
+  const hasCheckout = rawCheckout !== '' && rawCheckout !== '-' && rawCheckout !== 'undefined' && rawCheckout !== 'null';
+
+  let attendanceBadge = '';
+  let earnedHours = 0;
+
+  if (hasCheckin && hasCheckout) {
+    attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">✅ 已完成 (完訓)</span>`;
+    earnedHours = Number(item.training_hours) || 4; // 帶入課程時數
+  } else if (hasCheckin && !hasCheckout) {
+    attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">⚠️ 報到未完全（未簽退）</span>`;
+    earnedHours = 0;
+  } else {
+    attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-600">❌ 缺課</span>`;
+    earnedHours = 0;
   }
+
+  // 2. 正確讀取與呈現成績（若有成績則顯示分數，無則顯示尚無成績）
+  const scoreVal = item.score !== undefined && item.score !== '' && item.score !== null ? String(item.score).trim() : '';
+  const scoreDisplay = (scoreVal !== '' && scoreVal !== '-') 
+    ? `<strong class="text-blue-600 font-black">${scoreVal} 分</strong>` 
+    : `<span class="text-slate-400">尚無成績</span>`;
+
+  // 3. 判斷是否可取消報名：已繳費 (paid) 且已錄取，則隱藏取消按鈕
+  const isPaid = String(item.payment_status || '').trim() === 'paid';
+  const isConfirmed = String(item.status || '').trim() === 'confirmed' || String(item.status || '').trim() === 'applied';
+  const canCancel = !(isPaid && isConfirmed) && item.allow_cancel !== 'N';
+
+  const cancelButtonHtml = canCancel 
+    ? `<button onclick="cancelEnrollment('${item.enrollment_id || item.log_id || item.course_id}', '${item.course_name}')" class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-extrabold transition">取消報名</button>` 
+    : `<span class="text-xs text-slate-400 font-bold bg-slate-100 px-2.5 py-1 rounded-lg">已繳費錄取，無法取消</span>`;
+
+  return `
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="font-black text-slate-900 text-base">${item.course_name || '課程名稱'}</div>
+        <div>${attendanceBadge}</div>
+      </div>
+      
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
+        <div>📅 日期：<strong class="text-slate-800">${item.date ? item.date.split('T')[0] : '未定'}</strong></div>
+        <div>⏱️ 採計時數：<strong class="text-blue-600">${earnedHours} hr</strong></div>
+        <div>📝 測驗成績：${scoreDisplay}</div>
+        <div>💰 繳費狀態：<strong class="${isPaid ? 'text-emerald-600' : 'text-amber-600'}">${isPaid ? '已繳費' : '待繳費'}</strong></div>
+      </div>
+
+      <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+        <div class="text-[11px] text-slate-400">報名紀錄編號：#${item.log_id || item.enrollment_id || '-'}</div>
+        <div>${cancelButtonHtml}</div>
+      </div>
+    </div>
+  `;
+}
+    
   </script>
 </body>
 </html>
