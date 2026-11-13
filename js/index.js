@@ -65,30 +65,29 @@ function loadHomeCourses() {
     }
 
     const todayStr = new Date().toISOString().split('T')[0];
-
-    // 取前 2 筆近期課程顯示於首頁
     const recentCourses = courseList.slice(0, 2);
     
     container.innerHTML = recentCourses.map(c => {
-      // 💡 日期清洗函式 (將英文長字串或帶 T 的日期轉為 YYYY-MM-DD)
       const cleanDate = (raw) => {
         if (!raw) return '';
-        const str = String(raw).trim();
+        let str = String(raw).trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
         if (str.includes('T')) return str.split('T')[0];
         const d = new Date(str);
         if (!isNaN(d.getTime())) {
-          return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          if (y > 2020) return `${y}-${m}-${day}`;
         }
         return str.split(' ')[0] || '';
       };
 
       const courseDate = cleanDate(c.date || c.time);
       const signupEnd = cleanDate(c.signup_end);
-      
-      // 💡 即時防呆判斷：若今天大於報名截止日，顯示「已截止」
       const isExpired = signupEnd && todayStr > signupEnd;
       const statusText = isExpired ? '已截止' : (c.course_status_text || c.status || '報名中');
-      const statusColor = isExpired ? '#dc2626' : '#166534'; // 紅色或綠色
+      const statusColor = isExpired ? '#dc2626' : '#166534';
 
       return `
         <div class="home-course-card" onclick="location.href='course.html'" style="cursor: pointer;">
