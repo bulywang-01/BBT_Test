@@ -335,66 +335,88 @@
           </section>
         </div>
 
-        <!-- TAB 3 -->
+        <!-- TAB 3 : 出勤與簽到 (改為先選課程場次再顯示該場次名單) -->
         <div id="tabContentAttendance" class="space-y-6 hidden">
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <!-- 步驟一：選擇課程卡片區 -->
+          <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <div class="text-xs font-bold text-slate-400">總出席學員數</div>
-                <div id="statPresentCount" class="text-2xl font-black text-blue-600 mt-1">0</div>
+                <h3 class="font-black text-lg text-slate-900">🎯 請選擇欲進行出勤簽到的課程場次</h3>
+                <p class="text-xs text-slate-500 mt-0.5">點選下方課程卡片，即可載入該場次的報名學員名單並進行簽到與簽退</p>
               </div>
-              <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">👥</div>
+              <div class="w-full sm:w-72">
+                <select id="selectAttendanceCourseDropdown" onchange="onAttendanceCourseSelect(this.value)" class="w-full h-11 border border-slate-300 rounded-xl px-3 font-bold text-slate-800 bg-white shadow-sm">
+                  <option value="">-- 請選擇課程場次 --</option>
+                </select>
+              </div>
             </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          </section>
+
+          <!-- 步驟二：選定課程後的簽到名單區 (預設隱藏，選課程後顯示) -->
+          <div id="attendanceActiveSection" class="space-y-6 hidden">
+            <div class="flex items-center justify-between bg-blue-50 border border-blue-200 px-5 py-3.5 rounded-2xl">
               <div>
-                <div class="text-xs font-bold text-slate-400">已完成簽到</div>
-                <div id="statCheckinCount" class="text-2xl font-black text-emerald-600 mt-1">0</div>
+                <div class="text-xs font-bold text-blue-600">目前檢視中的課程場次</div>
+                <div id="activeCourseTitleBanner" class="text-lg font-black text-slate-900 mt-0.5">-</div>
               </div>
-              <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">✅</div>
+              <button onclick="resetAttendanceSelection()" class="px-3 py-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition shadow-sm">
+                切換其他課程
+              </button>
             </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-              <div>
-                <div class="text-xs font-bold text-slate-400">已完成簽退</div>
-                <div id="statCheckoutCount" class="text-2xl font-black text-purple-600 mt-1">0</div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold text-slate-400">總報名學員數</div>
+                  <div id="statPresentCount" class="text-2xl font-black text-blue-600 mt-1">0</div>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">👥</div>
               </div>
-              <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">🏁</div>
+              <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold text-slate-400">已完成簽到</div>
+                  <div id="statCheckinCount" class="text-2xl font-black text-emerald-600 mt-1">0</div>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">✅</div>
+              </div>
+              <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold text-slate-400">已完成簽退</div>
+                  <div id="statCheckoutCount" class="text-2xl font-black text-purple-600 mt-1">0</div>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">🏁</div>
+              </div>
             </div>
+
+            <section class="filter-card">
+              <div class="w-full">
+                <input id="txtAttSearch" class="search-input" type="text" placeholder="在此課程名單中搜尋學員姓名、電話..." oninput="renderAttendanceTable()">
+              </div>
+            </section>
+
+            <section class="table-panel">
+              <div class="table-header">
+                <div class="table-title">⏰ 該課程學員出勤打卡與簽到追蹤</div>
+              </div>
+              <div class="table-wrapper">
+                <table class="user-table">
+                  <thead>
+                    <tr>
+                      <th># 紀錄編號</th>
+                      <th>學員姓名 / 電話</th>
+                      <th>出席狀態</th>
+                      <th>簽到時間</th>
+                      <th>簽退時間</th>
+                      <th class="text-right">出勤快捷操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="attendanceTableBody">
+                    <tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">請先選擇上方課程場次</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </div>
-
-          <section class="filter-card">
-            <div class="flex flex-wrap items-center gap-3 w-full">
-              <select id="filterAttCourseSelect" onchange="renderAttendanceTable()" class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white font-bold text-slate-700">
-                <option value="all">所有課程</option>
-              </select>
-              <div class="flex-1 min-w-[240px]">
-                <input id="txtAttSearch" class="search-input" type="text" placeholder="搜尋學員姓名、電話..." oninput="renderAttendanceTable()">
-              </div>
-            </div>
-          </section>
-
-          <section class="table-panel">
-            <div class="table-header">
-              <div class="table-title">⏰ 學員出勤打卡與簽到追蹤</div>
-            </div>
-            <div class="table-wrapper">
-              <table class="user-table">
-                <thead>
-                  <tr>
-                    <th># 紀錄編號</th>
-                    <th>課程名稱</th>
-                    <th>學員姓名 / 電話</th>
-                    <th>出席狀態</th>
-                    <th>簽到時間</th>
-                    <th>簽退時間</th>
-                    <th class="text-right">出勤快捷操作</th>
-                  </tr>
-                </thead>
-                <tbody id="attendanceTableBody">
-                  <tr><td colspan="7" class="text-center py-12 text-slate-400 font-bold">載入出勤資料中...</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
         </div>
 
         <!-- TAB 4 -->
@@ -639,6 +661,7 @@
 <script>
   let allCourses = [];
   let allEnrollments = [];
+  let selectedAttendanceCourseId = '';
 
   document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -720,6 +743,7 @@
         allCourses = res.data || [];
         updateKpi();
         renderCourseTable();
+        populateAttendanceCourseDropdown();
       } else {
         showToast(res ? res.message : '載入課程失敗', 'error');
       }
@@ -748,6 +772,41 @@
     document.getElementById('kpiJudgeCourses').textContent = judge;
     document.getElementById('kpiRecordCourses').textContent = record;
     document.getElementById('kpiTotalEnrollments').textContent = enrollments;
+  }
+
+  function populateAttendanceCourseDropdown() {
+    const select = document.getElementById('selectAttendanceCourseDropdown');
+    if (!select) return;
+    let html = `<option value="">-- 請選擇課程場次 (${allCourses.length}個場次) --</option>`;
+    allCourses.forEach(c => {
+      const dateStr = c.date ? c.date.split('T')[0] : '未定日期';
+      html += `<option value="${c.course_id}">${c.course_name} [${dateStr}]</option>`;
+    });
+    select.innerHTML = html;
+    if (selectedAttendanceCourseId) {
+      select.value = selectedAttendanceCourseId;
+    }
+  }
+
+  function onAttendanceCourseSelect(courseId) {
+    selectedAttendanceCourseId = courseId;
+    const activeSec = document.getElementById('attendanceActiveSection');
+    if (!courseId) {
+      activeSec.classList.add('hidden');
+      return;
+    }
+    activeSec.classList.remove('hidden');
+    const courseObj = allCourses.find(c => String(c.course_id) === String(courseId));
+    if (courseObj) {
+      document.getElementById('activeCourseTitleBanner').textContent = `${courseObj.course_name} (${courseObj.date ? courseObj.date.split('T')[0] : '未定日期'})`;
+    }
+    loadEnrollmentData('attendance');
+  }
+
+  function resetAttendanceSelection() {
+    selectedAttendanceCourseId = '';
+    document.getElementById('selectAttendanceCourseDropdown').value = '';
+    document.getElementById('attendanceActiveSection').classList.add('hidden');
   }
 
   function renderCourseTable() {
@@ -814,13 +873,15 @@
         allEnrollments = (res.data || []).filter(item => String(item.status || '').trim().toLowerCase() !== 'cancelled');
         
         updateEnrollmentStats();
-        updateAttendanceStats();
         updateCertificateStats();
 
         populateAllFilters(allEnrollments);
         
         if (activeTab === 'enrollments') renderEnrollmentTable();
-        else if (activeTab === 'attendance') renderAttendanceTable();
+        else if (activeTab === 'attendance') {
+          updateAttendanceStatsForActiveCourse();
+          renderAttendanceTable();
+        }
         else if (activeTab === 'certificates') renderCertificateTable();
       } else {
         showToast(res ? res.message : '無法取得報名紀錄', 'error');
@@ -845,16 +906,20 @@
     document.getElementById('statUnpaidEnroll').textContent = total - paid;
   }
 
-  function updateAttendanceStats() {
-    const totalPresent = allEnrollments.filter(i => i.attendance_status === 'present').length;
-    const checkedIn = allEnrollments.filter(i => {
+  function updateAttendanceStatsForActiveCourse() {
+    if (!selectedAttendanceCourseId) return;
+    const courseLogs = allEnrollments.filter(i => String(i.course_id) === String(selectedAttendanceCourseId));
+    
+    const totalPresent = courseLogs.length;
+    const checkedIn = courseLogs.filter(i => {
       const ci = i.checkin_time || i.checkinTime || i.checkInTime || i.check_in || '';
       return String(ci).trim() !== '' && ci !== '-' && ci !== 'undefined' && ci !== 'null';
     }).length;
-    const checkedOut = allEnrollments.filter(i => {
+    const checkedOut = courseLogs.filter(i => {
       const co = i.checkout_time || i.checkoutTime || i.checkOutTime || i.check_out || '';
       return String(co).trim() !== '' && co !== '-' && co !== 'undefined' && co !== 'null';
     }).length;
+
     document.getElementById('statPresentCount').textContent = totalPresent;
     document.getElementById('statCheckinCount').textContent = checkedIn;
     document.getElementById('statCheckoutCount').textContent = checkedOut;
@@ -880,7 +945,7 @@
       html += `<option value="${c.id}">${c.name}</option>`;
     });
 
-    ['filterCourseSelect', 'filterAttCourseSelect', 'filterCertCourseSelect'].forEach(id => {
+    ['filterCourseSelect', 'filterCertCourseSelect'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.innerHTML = html;
     });
@@ -946,18 +1011,23 @@
 
   function renderAttendanceTable() {
     const tbody = document.getElementById('attendanceTableBody');
-    const cFilter = document.getElementById('filterAttCourseSelect').value;
+    if (!selectedAttendanceCourseId) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">請先選擇上方課程場次</td></tr>`;
+      return;
+    }
+
     const keyword = (document.getElementById('txtAttSearch').value || '').toLowerCase();
 
-    const filtered = allEnrollments.filter(item => {
-      const matchC = cFilter === 'all' || String(item.course_id) === String(cFilter);
-      const text = [item.name, item.phone, item.course_name].join(' ').toLowerCase();
-      const matchKw = !keyword || text.includes(keyword);
-      return matchC && matchKw;
+    // 只篩選出該選定課程的學員名單
+    const courseLogs = allEnrollments.filter(item => String(item.course_id) === String(selectedAttendanceCourseId));
+
+    const filtered = courseLogs.filter(item => {
+      const text = [item.name, item.phone].join(' ').toLowerCase();
+      return !keyword || text.includes(keyword);
     });
 
     if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-12 text-slate-400 font-bold">沒有符合條件的出勤資料</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">此課程目前尚無報名學員</td></tr>`;
       return;
     }
 
@@ -970,7 +1040,6 @@
       const hasCheckedIn = rawCheckin !== '' && rawCheckin !== '-' && rawCheckin !== 'undefined' && rawCheckin !== 'null';
       const hasCheckedOut = rawCheckout !== '' && rawCheckout !== '-' && rawCheckout !== 'undefined' && rawCheckout !== 'null';
 
-      // 拆分日期與時間為兩行 (上日期、下時間)
       let checkinHtml = '尚未簽到';
       if (hasCheckedIn) {
         const parts = rawCheckin.split(' ');
@@ -1023,7 +1092,6 @@
       return `
         <tr class="hover:bg-slate-50 transition">
           <td class="p-4 text-xs font-bold text-slate-700">#${item.log_id || '-'}</td>
-          <td class="p-4 font-bold text-slate-900">${item.course_name || '-'}</td>
           <td class="p-4">
             <div class="font-extrabold text-slate-900">${item.name || '未填'}</div>
             <div class="text-xs text-slate-500">${item.phone || '-'}</div>
@@ -1065,13 +1133,11 @@
       if (res && (res.result === 'ok' || res.result === 'success')) {
         showToast(`${actionName}成功！`, 'success');
         
-        // 取得後端傳回的時間或當前時間 (YYYY-MM-DD HH:mm:ss)
         const now = new Date();
         const pad = n => String(n).padStart(2, '0');
-        const nowStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-pad(${now.getDate()}) ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+        const nowStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
         const returnedTime = res.time || res.checkin_time || res.checkout_time || res.checkinTime || res.checkoutTime || nowStr;
 
-        // 即時更新前端記憶體資料
         const target = allEnrollments.find(i => String(i.log_id) === String(logId));
         if (target) {
           if (actionType === 'checkin') {
@@ -1083,11 +1149,8 @@
           }
         }
 
-        // 立即局部重新渲染畫面與統計數據
+        updateAttendanceStatsForActiveCourse();
         renderAttendanceTable();
-        updateAttendanceStats();
-
-        // 背景同步抓取最新資料確保一致性
         loadEnrollmentData('attendance');
       } else {
         showToast(res ? res.message : `${actionName}失敗`, 'error');
