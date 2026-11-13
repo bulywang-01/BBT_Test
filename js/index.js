@@ -631,11 +631,6 @@ function safeMerge(g){
   return g;
 }
 
-let __GAME_CACHE = [];
-function setGameCache(list){
-  __GAME_CACHE = list;
-}
-
 function renderLoading(target){
   target.innerHTML = `<div style="text-align:center; padding:20px; color:#6b7280; font-size:14px;">⏳ 載入中...</div>`;
 }
