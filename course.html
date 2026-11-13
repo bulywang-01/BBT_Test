@@ -391,13 +391,16 @@
         const typeLabel = typeMap[c.course_type] || c.course_type || '一般課程';
         const typeBadgeColor = c.course_type === 'judge' ? 'bg-blue-100 text-blue-700' : (c.course_type === 'record' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700');
         
-        // 💡 證照類別中文化對照（若有需要可自行增減）
+        // 💡 智慧判斷：若證照類別不存在、或為 general、或空白，就不顯示證照標籤
+        const rawCertType = String(c.certificate_type || '').trim().toLowerCase();
+        const hasValidCert = rawCertType && rawCertType !== 'general' && rawCertType !== 'none';
+        
         const certTypeMap = {
           'judge': '裁判',
-          'record': '紀錄',
+          'record': '紀錄員',
           'general': '通識'
         };
-        const certTypeName = certTypeMap[c.certificate_type] || c.certificate_type || '';
+        const certTypeName = certTypeMap[rawCertType] || c.certificate_type || '';
         const certLevelName = c.certificate_level ? `${c.certificate_level}級` : '';
   
         const enrolled = Number(c.current_enrollment) || 0;
@@ -435,10 +438,9 @@
             <div class="space-y-3">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex flex-wrap items-center gap-1.5">
-                  <!-- 💡 顯示中文類別 -->
                   <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${typeBadgeColor}">${typeLabel}</span>
-                  <!-- 💡 智慧組合證照名稱與級別（例如：證照：裁判 C級） -->
-                  ${c.certificate_type ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-purple-100 text-purple-700">證照：${certTypeName} ${certLevelName}</span>` : ''}
+                  <!-- 💡 只有當真正有有效證照類別時才渲染證照標籤 -->
+                  ${hasValidCert ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-purple-100 text-purple-700">證照：${certTypeName} ${certLevelName}</span>` : ''}
                 </div>
                 <span class="text-xs font-bold text-slate-500">培訓時數：${c.training_hours || 0} hr</span>
               </div>
