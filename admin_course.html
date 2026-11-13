@@ -3,14 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BBT 聯盟 - 課程管理中心</title>
+  <title>BBT 聯盟 - 課程管理與報名審核中心</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  
   <!-- 共用 CSS -->
   <link rel="stylesheet" href="common.css">
 
@@ -27,7 +25,11 @@
     }
     .page-desc{ margin-top:6px; color:#64748b; font-size:14px; }
 
-    /* KPI Summary (RWD 響應式網格) */
+    /* Tab 切換樣式 */
+    .tab-btn { padding: 10px 20px; font-weight: 800; font-size: 14px; border-radius: 12px; cursor: pointer; transition: .2s; border: 1px solid #cbd5e1; background: #fff; color: #475569; }
+    .tab-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; box-shadow: 0 4px 12px rgba(37,99,235,.25); }
+
+    /* KPI Summary */
     .kpi-summary{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:20px; }
     @media (min-width: 1024px) {
       .kpi-summary{ grid-template-columns:repeat(4,1fr); gap:14px; }
@@ -40,8 +42,7 @@
     .kpi-side strong{ font-size:15px; font-weight:900; color:#2563eb; }
 
     /* Filter & Toolbar */
-    .filter-card{ background:#fff; border-radius:18px; padding:14px 16px; margin-bottom:16px; box-shadow:0 4px 12px rgba(15,23,42,.05); display:flex; justify-content:space-between; align-items:center; gap:16px; }
-    .filter-search-row{ width:100%; max-width:420px; }
+    .filter-card{ background:#fff; border-radius:18px; padding:14px 16px; margin-bottom:16px; box-shadow:0 4px 12px rgba(15,23,42,.05); display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap: wrap; }
     .search-input{ width:100%; height:42px; border:1px solid #cbd5e1; border-radius:12px; padding:0 14px; background:#fff; font-size:14px; }
     .search-input:focus{ outline:none; border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
 
@@ -67,7 +68,7 @@
     .badge-record{ background:#ede9fe; color:#6d28d9; }
     .badge-general{ background:#f1f5f9; color:#475569; }
 
-    /* Modal (RWD 響應式表單) */
+    /* Modal */
     .modal{ position:fixed; inset:0; background:rgba(15,23,42,.45); display:flex; justify-content:center; align-items:center; z-index:9999; padding:16px; }
     .modal.hidden{ display:none; }
     .modal-dialog{ width:100%; max-width:800px; background:#ffffff; border-radius:18px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.2); max-height:90vh; display:flex; flex-direction:column; }
@@ -80,7 +81,6 @@
     }
     .modal-grid input, .modal-grid select, .modal-grid textarea{ width:100%; height:42px; border:1px solid #cbd5e1; border-radius:10px; padding:0 12px; font-size:14px; background:#fff; }
     .modal-grid textarea{ height:80px; padding:10px 12px; resize:vertical; }
-    .modal-grid input:focus, .modal-grid select:focus, .modal-grid textarea:focus{ outline:none; border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
     .modal-footer{ display:flex; justify-content:flex-end; gap:10px; padding:14px 20px; border-top:1px solid #e5e7eb; background:#f8fafc; }
     .modal-close{ border:none; width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.15); color:#fff; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
 
@@ -89,7 +89,6 @@
     .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
     .toast.success{ background:#16a34a; }
     .toast.error{ background:#dc2626; }
-    .toast.warn{ background:#f59e0b; }
 
     #loadingMask{ position:fixed; inset:0; background:rgba(15,23,42,.25); display:flex; justify-content:center; align-items:center; z-index:20000; }
     #loadingMask.hidden{ display:none; }
@@ -107,13 +106,12 @@
 
 <div class="flex min-h-screen">
 
-  <!-- Mobile Overlay (點擊遮罩關閉側邊選單) -->
+  <!-- Mobile Overlay -->
   <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity"></div>
   
-  <!-- Sidebar (抽屜式側邊選單) -->
+  <!-- Sidebar -->
   <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 z-50 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shrink-0 border-r border-slate-800 shadow-2xl lg:shadow-none">
     <div>
-      <!-- Logo -->
       <div class="h-16 flex items-center justify-between px-5 bg-slate-950 border-b border-slate-800">
         <div class="flex items-center space-x-3">
           <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
@@ -129,7 +127,6 @@
         </button>
       </div>
 
-      <!-- Navigation -->
       <nav class="p-3.5 space-y-1 text-xs font-semibold overflow-y-auto max-h-[calc(100vh-140px)]">
         <div class="text-[10px] text-slate-500 font-bold px-3 pt-2 pb-1 uppercase tracking-wider">主控數據中心</div>
         <a href="admin_dashboard.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
@@ -146,7 +143,7 @@
         <div class="text-[10px] text-slate-500 font-bold px-3 pt-4 pb-1 uppercase tracking-wider">系統管理</div>
         <a href="admin_games.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition"><i data-lucide="calendar-range" class="w-4 h-4"></i><span>賽事管理</span></a>
         <a href="admin_course.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/30">
-          <div class="flex items-center space-x-3"><i data-lucide="book-open" class="w-4 h-4"></i><span>課程管理</span></div>
+          <div class="flex items-center space-x-3"><i data-lucide="book-open" class="w-4 h-4"></i><span>課程與報名管理</span></div>
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
         </a>
         <a href="admin_users.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition"><i data-lucide="users" class="w-4 h-4"></i><span>帳號管理</span></a>
@@ -156,7 +153,6 @@
       </nav>
     </div>
 
-    <!-- Footer -->
     <div class="p-3.5 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <div id="sidebarAvatar" class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 font-black flex items-center justify-center text-sm">-</div>
@@ -172,10 +168,8 @@
   <!-- Main Content -->
   <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
     
-    <!-- Top Header Bar (包含手機版左上角漢堡按鈕 ☰ 與回首頁按鈕) -->
     <header class="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between shrink-0 sticky top-0 z-30 shadow-sm">
       <div class="flex items-center gap-3">
-        <!-- 左上角三條線按鈕：在手機與平板上叫出側邊選單 -->
         <button onclick="toggleSidebar()" class="lg:hidden p-2 -ml-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition" aria-label="開啟選單">
           <i data-lucide="menu" class="w-6 h-6"></i>
         </button>
@@ -183,7 +177,7 @@
       </div>
 
       <div class="flex items-center gap-2.5">
-        <button onclick="loadCourses()" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition" title="重新整理">
+        <button onclick="loadAllData()" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition" title="重新整理">
           <i data-lucide="refresh-cw" class="w-5 h-5"></i>
         </button>
         <a href="index.html" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-bold hover:bg-slate-800 transition shadow-sm">
@@ -193,84 +187,154 @@
       </div>
     </header>
 
-    <!-- Main Scroll Area -->
     <div class="overflow-y-auto flex-1 p-4 sm:p-6">
       <div class="page-container space-y-5 sm:space-y-6">
         
-        <!-- Header title bar -->
-        <div class="page-title-bar flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+        <!-- 標題與分頁切換列 -->
+        <div class="page-title-bar flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
-            <div class="page-title">📚 課程管理中心</div>
-            <div class="page-desc">建立、維護與管理線上培訓課程與報名細節</div>
+            <div class="page-title">📚 課程與報名管理中心</div>
+            <div class="page-desc">建立培訓課程、審核學員報名匯款後五碼與餐點統計</div>
+          </div>
+          <!-- 核心分頁切換 Tabs -->
+          <div class="flex items-center gap-2">
+            <button id="tabBtnCourses" onclick="switchTab('courses')" class="tab-btn active">📅 課程場次管理</button>
+            <button id="tabBtnEnrollments" onclick="switchTab('enrollments')" class="tab-btn">🛡️ 報名與後五碼審核</button>
           </div>
         </div>
 
-        <!-- KPI Summary Cards -->
-        <section class="kpi-summary">
-          <div class="kpi-main-card">
-            <div class="kpi-main-label">課程總數</div>
-            <div class="kpi-flex">
-              <div class="kpi-main-value" id="kpiTotalCourses">0</div>
-              <div class="kpi-side">開放中 <strong id="kpiOpenCourses">0</strong></div>
+        <!-- ════════ TAB 1：課程管理介面 ════════ -->
+        <div id="tabContentCourses" class="space-y-6">
+          <section class="kpi-summary">
+            <div class="kpi-main-card">
+              <div class="kpi-main-label">課程總數</div>
+              <div class="kpi-flex">
+                <div class="kpi-main-value" id="kpiTotalCourses">0</div>
+                <div class="kpi-side">開放中 <strong id="kpiOpenCourses">0</strong></div>
+              </div>
             </div>
-          </div>
-          <div class="kpi-main-card">
-            <div class="kpi-main-label">裁判培訓</div>
-            <div class="kpi-flex">
-              <div class="kpi-main-value" id="kpiJudgeCourses" style="color:#2563eb;">0</div>
-              <div class="kpi-side">場次數</div>
+            <div class="kpi-main-card">
+              <div class="kpi-main-label">裁判培訓</div>
+              <div class="kpi-flex">
+                <div class="kpi-main-value" id="kpiJudgeCourses" style="color:#2563eb;">0</div>
+                <div class="kpi-side">場次數</div>
+              </div>
             </div>
-          </div>
-          <div class="kpi-main-card">
-            <div class="kpi-main-label">紀錄培訓</div>
-            <div class="kpi-flex">
-              <div class="kpi-main-value" id="kpiRecordCourses" style="color:#7c3aed;">0</div>
-              <div class="kpi-side">場次數</div>
+            <div class="kpi-main-card">
+              <div class="kpi-main-label">紀錄培訓</div>
+              <div class="kpi-flex">
+                <div class="kpi-main-value" id="kpiRecordCourses" style="color:#7c3aed;">0</div>
+                <div class="kpi-side">場次數</div>
+              </div>
             </div>
-          </div>
-          <div class="kpi-main-card">
-            <div class="kpi-main-label">總累積報名人數</div>
-            <div class="kpi-flex">
-              <div class="kpi-main-value" id="kpiTotalEnrollments" style="color:#16a34a;">0</div>
-              <div class="kpi-side">人次</div>
+            <div class="kpi-main-card">
+              <div class="kpi-main-label">總累積報名人數</div>
+              <div class="kpi-flex">
+                <div class="kpi-main-value" id="kpiTotalEnrollments" style="color:#16a34a;">0</div>
+                <div class="kpi-side">人次</div>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <!-- Search & Filter Bar -->
-        <section class="filter-card">
-          <div class="filter-search-row">
-            <input id="txtSearch" class="search-input" type="text" placeholder="搜尋課程名稱、講師、地點..." oninput="renderCourseTable()">
-          </div>
-        </section>
+          <section class="filter-card">
+            <div class="w-full max-w-md">
+              <input id="txtSearch" class="search-input" type="text" placeholder="搜尋課程名稱、講師、地點..." oninput="renderCourseTable()">
+            </div>
+          </section>
 
-        <!-- Course Table Panel -->
-        <section class="table-panel">
-          <div class="table-header">
-            <div class="table-title">📋 課程清單</div>
-            <div class="table-actions">
-              <button class="btn-primary" onclick="openCourseModal('create')">＋ 新增課程</button>
+          <section class="table-panel">
+            <div class="table-header">
+              <div class="table-title">📋 課程清單</div>
+              <div><button class="btn-primary" onclick="openCourseModal('create')">＋ 新增課程</button></div>
+            </div>
+            <div class="table-wrapper">
+              <table class="user-table">
+                <thead>
+                  <tr>
+                    <th># 編號</th>
+                    <th>課程名稱 / 類型</th>
+                    <th>日期與時間</th>
+                    <th>地點 / 講師</th>
+                    <th>名額與費用</th>
+                    <th>報名狀態</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="courseTableBody">
+                  <tr><td colspan="7" class="text-center py-6 text-slate-400">載入課程中...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- ════════ TAB 2：報名審核與後五碼管理介面 ════════ -->
+        <div id="tabContentEnrollments" class="space-y-6 hidden">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">有效報名總筆數</div>
+                <div id="statTotalEnroll" class="text-2xl font-black text-slate-900 mt-1">0</div>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">📋</div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">已確認繳費</div>
+                <div id="statPaidEnroll" class="text-2xl font-black text-emerald-600 mt-1">0</div>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">💰</div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-400">待繳費 / 對帳</div>
+                <div id="statUnpaidEnroll" class="text-2xl font-black text-amber-600 mt-1">0</div>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">⏳</div>
             </div>
           </div>
-          <div class="table-wrapper">
-            <table class="user-table">
-              <thead>
-                <tr>
-                  <th># 編號</th>
-                  <th>課程名稱 / 類型</th>
-                  <th>日期與時間</th>
-                  <th>地點 / 講師</th>
-                  <th>名額與費用</th>
-                  <th>報名狀態</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody id="courseTableBody">
-                <tr><td colspan="7" class="text-center py-6 text-slate-400">載入課程中...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
+
+          <section class="filter-card">
+            <div class="flex flex-wrap items-center gap-3 w-full">
+              <select id="filterCourseSelect" onchange="renderEnrollmentTable()" class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white font-bold text-slate-700">
+                <option value="all">所有課程</option>
+              </select>
+              <select id="filterPaymentStatus" onchange="renderEnrollmentTable()" class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white font-bold text-slate-700">
+                <option value="all">所有繳費狀態</option>
+                <option value="unpaid">待繳費 (unpaid)</option>
+                <option value="paid">已繳費 (paid)</option>
+              </select>
+              <div class="flex-1 min-w-[240px]">
+                <input id="txtEnrollSearch" class="search-input" type="text" placeholder="搜尋學員姓名、電話、匯款後五碼..." oninput="renderEnrollmentTable()">
+              </div>
+            </div>
+          </section>
+
+          <section class="table-panel">
+            <div class="table-header">
+              <div class="table-title">🛡️ 報名學員與匯款後五碼清單</div>
+            </div>
+            <div class="table-wrapper">
+              <table class="user-table">
+                <thead>
+                  <tr>
+                    <th># 紀錄編號 / 時間</th>
+                    <th>課程名稱</th>
+                    <th>學員姓名 / 電話</th>
+                    <th>匯款後五碼</th>
+                    <th>餐飲需求</th>
+                    <th>身分</th>
+                    <th>繳費狀態</th>
+                    <th class="text-right">管理操作</th>
+                  </tr>
+                </thead>
+                <tbody id="enrollmentTableBody">
+                  <tr><td colspan="8" class="text-center py-12 text-slate-400 font-bold">載入報名資料中...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
 
       </div>
     </div>
@@ -287,106 +351,90 @@
     <div class="modal-body">
       <form id="course-form" onsubmit="saveCourseData(event)" class="modal-grid">
         <input type="hidden" id="course_id" value="">
-
         <div class="full-row space-y-1">
           <label class="font-bold text-slate-700 text-xs">課程名稱 <span class="text-rose-500">*</span></label>
           <input type="text" id="course_name" required placeholder="例：115年度 A級裁判培訓營">
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">課程類型 (course_type)</label>
+          <label class="font-bold text-slate-700 text-xs">課程類型</label>
           <select id="course_type">
             <option value="judge">裁判培訓 (judge)</option>
             <option value="record">紀錄培訓 (record)</option>
             <option value="general">通識教育 (general)</option>
           </select>
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">授課講師 (instructor)</label>
+          <label class="font-bold text-slate-700 text-xs">授課講師</label>
           <input type="text" id="instructor" placeholder="例：陳阿信">
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">證照類型 (certificate_type)</label>
+          <label class="font-bold text-slate-700 text-xs">證照類型</label>
           <select id="certificate_type">
             <option value="">無</option>
-            <option value="judge">裁判 (judge)</option>
-            <option value="record">紀錄 (record)</option>
-            <option value="general">通識教育 (general)</option>
+            <option value="judge">裁判</option>
+            <option value="record">紀錄</option>
+            <option value="general">通識教育</option>
           </select>
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">證照等級 (certificate_level)</label>
+          <label class="font-bold text-slate-700 text-xs">證照等級</label>
           <select id="certificate_level">
-            <option value="">無 (NULL)</option>
+            <option value="">無</option>
             <option value="A">A級</option>
             <option value="B">B級</option>
             <option value="C">C級</option>
           </select>
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">上課日期 / 起始日 (date) <span class="text-rose-500">*</span></label>
+          <label class="font-bold text-slate-700 text-xs">上課日期 <span class="text-rose-500">*</span></label>
           <input type="date" id="date" required>
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">結束日期 (若為多日範圍)</label>
+          <label class="font-bold text-slate-700 text-xs">結束日期</label>
           <input type="date" id="end_date">
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">上課時間範圍 (time)</label>
+          <label class="font-bold text-slate-700 text-xs">上課時間範圍</label>
           <input type="text" id="time" placeholder="例：09:00 - 16:00">
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">培訓時數 hr (training_hours)</label>
+          <label class="font-bold text-slate-700 text-xs">培訓時數 hr</label>
           <input type="number" id="training_hours" value="4">
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">認證時數說明 (certificate_hours)</label>
+          <label class="font-bold text-slate-700 text-xs">認證時數說明</label>
           <input type="text" id="certificate_hours" placeholder="例：裁判繼續教育4小時">
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">上課地點 (location)</label>
+          <label class="font-bold text-slate-700 text-xs">上課地點</label>
           <input type="text" id="location" placeholder="例：台北大學棒球場">
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">線上會議網址 (location_url)</label>
-          <input type="url" id="location_url" placeholder="Teams / Meet / Zoom 連結">
+          <label class="font-bold text-slate-700 text-xs">線上會議網址</label>
+          <input type="url" id="location_url" placeholder="Teams / Meet 連結">
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">課程費用 NT$ (fee)</label>
+          <label class="font-bold text-slate-700 text-xs">課程費用 NT$</label>
           <input type="number" id="fee" value="0">
         </div>
-
         <div class="grid grid-cols-2 gap-2">
           <div class="space-y-1">
-            <label class="font-bold text-slate-700 text-xs">正取名額 (capacity)</label>
+            <label class="font-bold text-slate-700 text-xs">正取名額</label>
             <input type="number" id="capacity" value="30">
           </div>
           <div class="space-y-1">
-            <label class="font-bold text-slate-700 text-xs">候補上限 (waitlist)</label>
+            <label class="font-bold text-slate-700 text-xs">候補上限</label>
             <input type="number" id="waitlist_capacity" value="10">
           </div>
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">報名資格 (signup_type)</label>
+          <label class="font-bold text-slate-700 text-xs">報名資格</label>
           <select id="signup_type">
-            <option value="public">公開報名 (public)</option>
-            <option value="member_only">系統會員限定 (member_only)</option>
-            <option value="licensed_only">具備特定證照者 (licensed_only)</option>
+            <option value="public">公開報名</option>
+            <option value="member_only">系統會員限定</option>
+            <option value="licensed_only">具備特定證照者</option>
           </select>
         </div>
-
         <div class="grid grid-cols-2 gap-2">
           <div class="space-y-1">
             <label class="font-bold text-slate-700 text-xs">報名開始日</label>
@@ -397,27 +445,24 @@
             <input type="date" id="signup_end">
           </div>
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">允許線上取消 (allow_cancel)</label>
+          <label class="font-bold text-slate-700 text-xs">允許線上取消</label>
           <select id="allow_cancel">
             <option value="Y">是 (Y)</option>
             <option value="N">否 (N)</option>
           </select>
         </div>
-
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 text-xs">結訓後資格處理 (certificate_action)</label>
+          <label class="font-bold text-slate-700 text-xs">結訓後資格處理</label>
           <select id="certificate_action">
-            <option value="none">不處理 (none)</option>
-            <option value="track_only">僅追蹤發證 (track_only)</option>
-            <option value="auto_upgrade">系統自動升級 (auto_upgrade)</option>
+            <option value="none">不處理</option>
+            <option value="track_only">僅追蹤發證</option>
+            <option value="auto_upgrade">系統自動升級</option>
           </select>
         </div>
-
         <div class="full-row space-y-1">
-          <label class="font-bold text-slate-700 text-xs">備註說明 (remark)</label>
-          <textarea id="remark" placeholder="延期原因、特殊規定或管理備註..."></textarea>
+          <label class="font-bold text-slate-700 text-xs">備註說明</label>
+          <textarea id="remark" placeholder="延期原因或規定..."></textarea>
         </div>
       </form>
     </div>
@@ -430,22 +475,20 @@
 
 <!-- Loading Mask -->
 <div id="loadingMask" class="hidden">
-  <div class="loading-box">處理中...</div>
+  <div class="loading-box" id="loadingText">處理中...</div>
 </div>
 
-<!-- Toast Script & Logic -->
+<!-- Scripts -->
 <script src="js/auth.js"></script>
 <script src="js/config.js"></script>
 <script>
   let allCourses = [];
-  let currentModalMode = 'create';
+  let allEnrollments = [];
 
   document.addEventListener('DOMContentLoaded', () => {
-    if (typeof lucide !== 'undefined') {
-      lucide.createIcons();
-    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
     loadUserInfo();
-    loadCourses();
+    loadAllData();
   });
 
   function loadUserInfo() {
@@ -461,22 +504,17 @@
   }
 
   function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    sidebar.classList.toggle('-translate-x-full');
-    overlay.classList.toggle('hidden');
+    document.getElementById('sidebar').classList.toggle('-translate-x-full');
+    document.getElementById('sidebar-overlay').classList.toggle('hidden');
   }
 
   function showLoading(msg='處理中...') {
-    const m = document.getElementById('loadingMask');
-    if (!m) return;
-    m.querySelector('.loading-box').textContent = msg;
-    m.classList.remove('hidden');
+    document.getElementById('loadingText').textContent = msg;
+    document.getElementById('loadingMask').classList.remove('hidden');
   }
 
   function hideLoading() {
-    const m = document.getElementById('loadingMask');
-    if (m) m.classList.add('hidden');
+    document.getElementById('loadingMask').classList.add('hidden');
   }
 
   function showToast(msg, type='success') {
@@ -485,14 +523,38 @@
     t.textContent = msg;
     document.body.appendChild(t);
     setTimeout(() => t.classList.add('show'), 10);
-    setTimeout(() => {
-      t.classList.remove('show');
-      setTimeout(() => t.remove(), 300);
-    }, 2000);
+    setTimeout => {
+      setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2000);
+    }, 10);
   }
 
+  function switchTab(tab) {
+    const btnC = document.getElementById('tabBtnCourses');
+    const btnE = document.getElementById('tabBtnEnrollments');
+    const conC = document.getElementById('tabContentCourses');
+    const conE = document.getElementById('tabContentEnrollments');
+
+    if (tab === 'courses') {
+      btnC.className = 'tab-btn active';
+      btnE.className = 'tab-btn';
+      conC.classList.remove('hidden');
+      conE.classList.add('hidden');
+    } else {
+      btnE.className = 'tab-btn active';
+      btnC.className = 'tab-btn';
+      conE.classList.remove('hidden');
+      conC.classList.add('hidden');
+      loadEnrollmentData(); // 切換過去時自動刷新報名審核資料
+    }
+  }
+
+  function loadAllData() {
+    loadCourses();
+  }
+
+  // 1. 載入課程資料
   function loadCourses() {
-    showLoading('載入課程清單...');
+    showLoading('載入資料中...');
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
     const cb = 'jsonp_courses_' + Math.round(100000 * Math.random());
     
@@ -548,53 +610,192 @@
       return;
     }
 
-    tbody.innerHTML = '';
-    filtered.forEach(c => {
-      const tr = document.createElement('tr');
+    tbody.innerHTML = filtered.map(c => {
       const typeBadge = c.course_type === 'judge' ? 'badge-judge' : (c.course_type === 'record' ? 'badge-record' : 'badge-general');
       const statusText = c.course_status === 'closed' ? '已關閉' : (c.course_status === 'finished' ? '已結束' : '開放報名');
       const statusClass = c.course_status === 'open' || !c.course_status ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600';
 
-      tr.innerHTML = `
-        <td class="font-bold text-slate-600 whitespace-nowrap">#${c.course_id || '-'}</td>
-        <td class="min-w-[180px]">
-          <div class="font-extrabold text-slate-900 text-base">${c.course_name || '-'}</div>
-          <div class="flex flex-wrap items-center gap-1.5 mt-1">
-            <span class="role-badge ${typeBadge}">${c.course_type || 'general'}</span>
-            ${c.certificate_type ? `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold whitespace-nowrap">證照: ${c.certificate_type} ${c.certificate_level || ''}</span>` : ''}
-          </div>
-        </td>
-        <td class="text-xs text-slate-700 whitespace-nowrap">
-          <div class="font-bold">📅 ${c.date || '未定'}${c.end_date && c.end_date !== c.date ? ' ~ ' + c.end_date : ''}</div>
-          <div class="text-slate-500 mt-0.5">⏰ ${c.time || '依公告為準'}</div>
-        </td>
-        <td class="text-xs text-slate-700 min-w-[140px]">
-          <div class="font-bold">📍 ${c.location || '實體/線上'}</div>
-          <div class="text-slate-500 mt-0.5">👨‍🏫 ${c.instructor || '未指定'}</div>
-        </td>
-        <td class="text-xs text-slate-700 whitespace-nowrap">
-          <div class="font-bold">💰 ${c.fee == 0 ? '免費' : 'NT$ ' + c.fee}</div>
-          <div class="text-slate-500 mt-0.5">👥 已報名 ${c.current_enrollment || 0} / 正取 ${c.capacity || 30}</div>
-        </td>
-        <td class="whitespace-nowrap">
-          <span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${statusClass}">${statusText}</span>
-        </td>
-        <td class="action-col whitespace-nowrap">
-          <div class="action-group">
-            <button class="action-btn edit" onclick="openCourseModal('edit', '${c.course_id}')" title="編輯課程">✏️</button>
-            <button class="action-btn delete" onclick="deleteCourse('${c.course_id}', '${c.course_name}')" title="刪除課程">🗑</button>
-          </div>
-        </td>
+      return `
+        <tr>
+          <td class="font-bold text-slate-600 whitespace-nowrap">#${c.course_id || '-'}</td>
+          <td class="min-w-[180px]">
+            <div class="font-extrabold text-slate-900 text-base">${c.course_name || '-'}</div>
+            <div class="flex flex-wrap items-center gap-1.5 mt-1">
+              <span class="role-badge ${typeBadge}">${c.course_type || 'general'}</span>
+              ${c.certificate_type ? `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold whitespace-nowrap">證照: ${c.certificate_type} ${c.certificate_level || ''}</span>` : ''}
+            </div>
+          </td>
+          <td class="text-xs text-slate-700 whitespace-nowrap">
+            <div class="font-bold">📅 ${c.date ? c.date.split('T')[0] : '未定'}</div>
+            <div class="text-slate-500 mt-0.5">⏰ ${c.time || '依公告'}</div>
+          </td>
+          <td class="text-xs text-slate-700 min-w-[140px]">
+            <div class="font-bold">📍 ${c.location || '實體/線上'}</div>
+            <div class="text-slate-500 mt-0.5">👨‍🏫 ${c.instructor || '未指定'}</div>
+          </td>
+          <td class="text-xs text-slate-700 whitespace-nowrap">
+            <div class="font-bold">💰 ${c.fee == 0 ? '免費' : 'NT$ ' + c.fee}</div>
+            <div class="text-slate-500 mt-0.5">👥 已報名 ${c.current_enrollment || 0} / 正取 ${c.capacity || 30}</div>
+          </td>
+          <td class="whitespace-nowrap"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${statusClass}">${statusText}</span></td>
+          <td class="action-col whitespace-nowrap">
+            <div class="action-group">
+              <button class="action-btn edit" onclick="openCourseModal('edit', '${c.course_id}')" title="編輯課程">✏️</button>
+              <button class="action-btn delete" onclick="deleteCourse('${c.course_id}', '${c.course_name}')" title="刪除課程">🗑</button>
+            </div>
+          </td>
+        </tr>
       `;
-      tbody.appendChild(tr);
-    });
+    }).join('');
   }
 
+  // 2. 載入報名與後五碼審核資料
+  function loadEnrollmentData() {
+    showLoading('載入報名審核資料...');
+    const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+    const cb = 'jsonp_enroll_logs_' + Math.round(100000 * Math.random());
+
+    window[cb] = function(res) {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      if (res && res.result === 'ok') {
+        allEnrollments = (res.data || []).filter(item => String(item.status || '').trim().toLowerCase() !== 'cancelled');
+        
+        // 更新統計
+        const total = allEnrollments.length;
+        const paid = allEnrollments.filter(i => i.payment_status === 'paid').length;
+        document.getElementById('statTotalEnroll').textContent = total;
+        document.getElementById('statPaidEnroll').textContent = paid;
+        document.getElementById('statUnpaidEnroll').textContent = total - paid;
+
+        populateEnrollmentCourseFilter(allEnrollments);
+        renderEnrollmentTable();
+      } else {
+        showToast(res ? res.message : '無法取得報名紀錄', 'error');
+      }
+    };
+
+    const script = document.createElement('script');
+    script.src = `${baseUrl}?action=getTrainingLog&callback=${cb}`;
+    script.onerror = function() {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      showToast('網路連線異常', 'error');
+    };
+    document.body.appendChild(script);
+  }
+
+  function populateEnrollmentCourseFilter(logs) {
+    const sel = document.getElementById('filterCourseSelect');
+    const set = new Set();
+    logs.forEach(l => {
+      if (l.course_name) set.add(JSON.stringify({ id: l.course_id, name: l.course_name }));
+    });
+    let html = `<option value="all">所有課程 (${logs.length}筆)</option>`;
+    set.forEach(item => {
+      const c = JSON.parse(item);
+      html += `<option value="${c.id}">${c.name}</option>`;
+    });
+    sel.innerHTML = html;
+  }
+
+  function renderEnrollmentTable() {
+    const tbody = document.getElementById('enrollmentTableBody');
+    const cFilter = document.getElementById('filterCourseSelect').value;
+    const pFilter = document.getElementById('filterPaymentStatus').value;
+    const keyword = (document.getElementById('txtEnrollSearch').value || '').toLowerCase();
+
+    const filtered = allEnrollments.filter(item => {
+      const matchC = cFilter === 'all' || String(item.course_id) === String(cFilter);
+      const matchP = pFilter === 'all' || String(item.payment_status) === String(pFilter);
+      const text = [item.name, item.phone, item.payment_account, item.course_name].join(' ').toLowerCase();
+      const matchKw = !keyword || text.includes(keyword);
+      return matchC && matchP && matchKw;
+    });
+
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-12 text-slate-400 font-bold">沒有符合條件的報名資料</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(item => {
+      const isPaid = item.payment_status === 'paid';
+      const isWaitlist = item.status === 'waitlist';
+
+      const payBadge = isPaid 
+        ? `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已繳費</span>`
+        : `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">待繳費</span>`;
+
+      const statusBadge = isWaitlist
+        ? `<span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">候補</span>`
+        : `<span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">正取</span>`;
+
+      return `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-4 text-xs">
+            <div class="font-extrabold text-slate-900">#${item.log_id || '-'}</div>
+            <div class="text-slate-400 mt-0.5">${item.created_at || '-'}</div>
+          </td>
+          <td class="p-4 font-bold text-slate-900">${item.course_name || '-'}</td>
+          <td class="p-4">
+            <div class="font-extrabold text-slate-900">${item.name || '未填'}</div>
+            <div class="text-xs text-slate-500">${item.phone || '-'}</div>
+          </td>
+          <td class="p-4">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-100 font-mono font-bold text-slate-800 text-xs">${item.payment_account || '未填寫'}</span>
+          </td>
+          <td class="p-4 text-xs font-bold text-slate-700">${item.dietary || '葷食'}</td>
+          <td class="p-4">${statusBadge}</td>
+          <td class="p-4">${payBadge}</td>
+          <td class="p-4 text-right">
+            <button onclick="togglePayment('${item.log_id}', '${item.payment_status}')" class="px-3 py-1.5 rounded-xl border ${isPaid ? 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100' : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'} text-xs font-extrabold transition">
+              ${isPaid ? '改未繳費' : '確認已繳費'}
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function togglePayment(logId, currentStatus) {
+    const nextStatus = currentStatus === 'paid' ? 'unpaid' : 'paid';
+    const actionText = nextStatus === 'paid' ? '確認已繳費' : '改為未繳費';
+
+    if (!confirm(`確定要將紀錄 #${logId} 的繳費狀態更改為「${actionText}」嗎？`)) return;
+
+    showLoading('更新繳費狀態...');
+    const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+    const cb = 'jsonp_toggle_pay_' + Math.round(100000 * Math.random());
+
+    window[cb] = function(res) {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      if (res && res.result === 'ok') {
+        showToast('繳費狀態更新成功！', 'success');
+        loadEnrollmentData(); // 重新整理表格
+      } else {
+        showToast(res ? res.message : '更新失敗', 'error');
+      }
+    };
+
+    const script = document.createElement('script');
+    script.src = `${baseUrl}?action=updateTrainingStatus&log_id=${encodeURIComponent(logId)}&field=payment_status&value=${encodeURIComponent(nextStatus)}&callback=${cb}`;
+    script.onerror = function() {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      showToast('網路連線異常', 'error');
+    };
+    document.body.appendChild(script);
+  }
+
+  // 課程 Modal 與儲存邏輯 (保留您原本的功能)
   function openCourseModal(mode, courseId = '') {
-    currentModalMode = mode;
     document.getElementById('courseModal').classList.remove('hidden');
     document.getElementById('courseModalTitle').textContent = mode === 'create' ? '新增課程' : '編輯課程';
-
     if (mode === 'create') {
       document.getElementById('course-form').reset();
       document.getElementById('course_id').value = '';
@@ -604,11 +805,7 @@
       document.getElementById('waitlist_capacity').value = 10;
     } else {
       const c = allCourses.find(x => String(x.course_id) === String(courseId));
-      if (!c) {
-        showToast('找不到該課程資料', 'error');
-        closeCourseModal();
-        return;
-      }
+      if (!c) { showToast('找不到該課程', 'error'); closeCourseModal(); return; }
       document.getElementById('course_id').value = c.course_id || '';
       document.getElementById('course_name').value = c.course_name || '';
       document.getElementById('course_type').value = c.course_type || 'general';
@@ -634,14 +831,11 @@
     }
   }
 
-  function closeCourseModal() {
-    document.getElementById('courseModal').classList.add('hidden');
-  }
+  function closeCourseModal() { document.getElementById('courseModal').classList.add('hidden'); }
 
   function saveCourseData(event) {
     event.preventDefault();
-    showLoading('儲存課程資料中...');
-
+    showLoading('儲存課程中...');
     const payload = {
       course_id: document.getElementById('course_id').value,
       course_name: document.getElementById('course_name').value,
@@ -669,22 +863,18 @@
 
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
     const cb = 'jsonp_save_course_' + Math.round(100000 * Math.random());
-    const params = new URLSearchParams({
-      action: 'saveCourse',
-      callback: cb,
-      ...payload
-    });
+    const params = new URLSearchParams({ action: 'saveCourse', callback: cb, ...payload });
 
     window[cb] = function(res) {
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
       if (res && res.result === 'ok') {
-        showToast('✅ 課程儲存成功！', 'success');
+        showToast('課程儲存成功！', 'success');
         closeCourseModal();
         loadCourses();
       } else {
-        showToast('❌ 儲存失敗：' + (res ? res.message : '未知錯誤'), 'error');
+        showToast(res ? res.message : '儲存失敗', 'error');
       }
     };
 
@@ -700,9 +890,8 @@
   }
 
   function deleteCourse(courseId, courseName) {
-    if (!confirm(`確定要刪除課程「${courseName}」？`)) return;
-    showLoading('刪除課程中...');
-
+    if (!confirm(`確定要刪除課程「${courseName}」嗎？`)) return;
+    showLoading('刪除課程...');
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
     const cb = 'jsonp_del_course_' + Math.round(100000 * Math.random());
 
