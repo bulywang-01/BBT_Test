@@ -46,14 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /*********************************************************
- * ✅ 修正版：首頁載入聯盟開課資訊 (支援多種 API 回傳格式)
+ * ✅ 修正版：首頁載入聯盟開課資訊 (支援報名截止日判斷與日期清洗)
  *********************************************************/
 function loadHomeCourses() {
   const container = document.getElementById('home-course-container');
   if (!container) return;
 
   callApi({ action: 'getCourses' }, res => {
-    // 支援 res.courses 或 res.data 或是直接回傳陣列
     const courseList = res?.courses || res?.data || (Array.isArray(res) ? res : []);
 
     if (!res || (res.result !== 'ok' && !Array.isArray(res)) || courseList.length === 0) {
@@ -65,19 +64,44 @@ function loadHomeCourses() {
       return;
     }
 
+    const todayStr = new Date().toISOString().split('T')[0];
+
     // 取前 2 筆近期課程顯示於首頁
     const recentCourses = courseList.slice(0, 2);
     
-    container.innerHTML = recentCourses.map(c => `
-      <div class="home-course-card" onclick="location.href='course.html'" style="cursor: pointer;">
-        <div class="home-course-title">🎓 ${c.title || c.name || '聯盟培訓課程'}</div>
-        <div class="home-course-info">
-          <div>🕒 時間：${c.date || c.time || '另行公佈'}</div>
-          <div>📍 地點：${c.location || '線上/指定場地'}</div>
-          <div style="margin-top: 4px; color: #166534; font-weight: 700;">狀態：${c.status || '報名中'}</div>
+    container.innerHTML = recentCourses.map(c => {
+      // 日期清洗函式 (將 Fri Nov 13 2026... 轉為 2026-11-13)
+      const cleanDate = (raw) => {
+        if (!raw) return '';
+        const str = String(raw).trim();
+        if (str.includes('T')) return str.split('T')[0];
+        const d = new Date(str);
+        if (!isNaN(d.getTime())) {
+          return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
+        return str.split(' ')[0] || '';
+      };
+
+      const courseDate = cleanDate(c.date || c.time);
+      const signupEnd = cleanDate(c.signup_end);
+      
+      // 💡 判斷是否報名已截止
+      const isExpired = signupEnd && todayStr > signupEnd;
+      const statusText = isExpired ? '已截止' : (c.status || '報名中');
+      const statusColor = isExpired ? '#dc2626' : '#166534'; // 已截止顯示紅色，報名中顯示綠色
+
+      return `
+        <div class="home-course-card" onclick="location.href='course.html'" style="cursor: pointer;">
+          <div class="home-course-title">🎓 ${c.course_name || c.title || c.name || '聯盟培訓課程'}</div>
+          <div class="home-course-info">
+            <div>🕒 上課：${courseDate || '另行公佈'}</div>
+            <div style="color: #e11d48; font-weight: 700;">⏳ 截止：${signupEnd || '未設定'}</div>
+            <div>📍 地點：${c.location || '線上/指定場地'}</div>
+            <div style="margin-top: 4px; color: ${statusColor}; font-weight: 700;">狀態：${statusText}</div>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   });
 }
 
