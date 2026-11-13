@@ -84,7 +84,7 @@
     .modal-footer{ display:flex; justify-content:flex-end; gap:10px; padding:14px 20px; border-top:1px solid #e5e7eb; background:#f8fafc; }
     .modal-close{ border:none; width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.15); color:#fff; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
 
-    /* Toast 提示專屬樣式（嚴格防範無文字或空紅條） */
+    /* Toast 提示專屬樣式 */
     .toast{ position:fixed; top:24px; left:50%; transform:translateX(-50%) translateY(-20px); min-width:300px; max-width:90vw; padding:14px 22px; border-radius:14px; text-align:center; color:#fff; font-size:15px; font-weight:800; box-shadow:0 15px 35px rgba(0,0,0,0.25); opacity:0; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index:30000; pointer-events:none; display:none; }
     .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); display:block; }
     .toast.success{ background:#16a34a; border:1px solid #15803d; }
@@ -673,7 +673,7 @@
   }
 
   function showToast(msg, type='success') {
-    if (!msg) return; // 嚴格防範無文字時跳出紅條
+    if (!msg) return;
     const t = document.createElement('div');
     t.className = `toast ${type} show`;
     t.textContent = msg;
@@ -851,11 +851,11 @@
   function updateAttendanceStats() {
     const totalPresent = allEnrollments.filter(i => i.attendance_status === 'present').length;
     const checkedIn = allEnrollments.filter(i => {
-      const ci = i.checkin_time || i.checkinTime || '';
+      const ci = i.checkin_time || i.checkinTime || i.checkInTime || i.check_in || '';
       return ci.trim() !== '' && ci !== '-';
     }).length;
     const checkedOut = allEnrollments.filter(i => {
-      const co = i.checkout_time || i.checkoutTime || '';
+      const co = i.checkout_time || i.checkoutTime || i.checkOutTime || i.check_out || '';
       return co.trim() !== '' && co !== '-';
     }).length;
     document.getElementById('statPresentCount').textContent = totalPresent;
@@ -967,12 +967,12 @@
     const todayStr = new Date().toISOString().split('T')[0];
 
     tbody.innerHTML = filtered.map(item => {
-      // 智慧相容後端回傳的欄位名稱 (checkin_time 或 checkinTime)
-      const rawCheckin = item.checkin_time || item.checkinTime || '';
-      const rawCheckout = item.checkout_time || item.checkoutTime || '';
+      // 深度涵蓋各種可能的後端欄位命名方式 (checkin_time, checkinTime, checkInTime, check_in)
+      const rawCheckin = String(item.checkin_time || item.checkinTime || item.checkInTime || item.check_in || '').trim();
+      const rawCheckout = String(item.checkout_time || item.checkoutTime || item.checkOutTime || item.check_out || '').trim();
 
-      const hasCheckedIn = rawCheckin.trim() !== '' && rawCheckin !== '-';
-      const hasCheckedOut = rawCheckout.trim() !== '' && rawCheckout !== '-';
+      const hasCheckedIn = rawCheckin !== '' && rawCheckin !== '-' && rawCheckin !== 'undefined' && rawCheckin !== 'null';
+      const hasCheckedOut = rawCheckout !== '' && rawCheckout !== '-' && rawCheckout !== 'undefined' && rawCheckout !== 'null';
 
       const courseObj = allCourses.find(c => String(c.course_id) === String(item.course_id));
       let isCourseNotStarted = false;
@@ -1051,6 +1051,21 @@
       hideLoading();
       if (res && (res.result === 'ok' || res.result === 'success')) {
         showToast(`${actionName}成功！`, 'success');
+        
+        // 即時在前端更新該筆記錄的時間，避免等待重新載入延遲
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+        const target = allEnrollments.find(i => String(i.log_id) === String(logId));
+        if (target) {
+          if (actionType === 'checkin') {
+            target.checkin_time = res.time || res.checkin_time || res.checkinTime || nowStr;
+          } else {
+            target.checkout_time = res.time || res.checkout_time || res.checkoutTime || nowStr;
+          }
+        }
+
+        renderAttendanceTable();
+        updateAttendanceStats();
+        // 同步背景重新抓取最新資料
         loadEnrollmentData('attendance');
       } else {
         showToast(res ? res.message : `${actionName}失敗`, 'error');
