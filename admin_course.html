@@ -996,11 +996,20 @@
     }).join('');
   }
 
-  function doAttendanceAction(logId, actionType) {
+function doAttendanceAction(logId, actionType) {
     const actionName = actionType === 'checkin' ? '簽到' : '簽退';
     showLoading(`執行${actionName}...`);
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+    
+    // 加上 _t = Date.now() 確保每次請求都是全新的，絕對不被快取
     const cb = 'jsonp_att_' + Math.round(100000 * Math.random());
+    const params = new URLSearchParams({
+      action: 'updateAttendance',
+      log_id: logId,
+      type: actionType,
+      callback: cb,
+      _t: Date.now() // 防止快取關鍵
+    });
 
     window[cb] = function(res) {
       delete window[cb];
@@ -1008,14 +1017,28 @@
       hideLoading();
       if (res && res.result === 'ok') {
         showToast(`${actionName}成功！`, 'success');
-        loadEnrollmentData('attendance');
+        
+        // 💡 優化：直接在前端記憶體中更新該筆資料的時間與狀態，實現真正的「秒級即時更新」！
+        const target = allEnrollments.find(item => String(item.log_id) === String(logId));
+        if (target) {
+          if (actionType === 'checkin') {
+            target.checkin_time = res.time || new Date().toLocaleString();
+            target.attendance_status = 'present';
+          } else if (actionType === 'checkout') {
+            target.checkout_time = res.time || new Date().toLocaleString();
+          }
+        }
+        
+        // 重新渲染畫面與統計數據
+        updateAttendanceStats();
+        renderAttendanceTable();
       } else {
         showToast(res ? res.message : `${actionName}失敗`, 'error');
       }
     };
 
     const script = document.createElement('script');
-    script.src = `${baseUrl}?action=updateAttendance&log_id=${encodeURIComponent(logId)}&type=${encodeURIComponent(actionType)}&callback=${cb}`;
+    script.src = `${baseUrl}?${params.toString()}`;
     script.onerror = function() {
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
@@ -1082,46 +1105,68 @@
     document.getElementById('scoreCertModal').classList.add('hidden');
   }
 
+  // 學員成績與證書儲存
   function saveScoreCertData() {
-    const logId = document.getElementById('modal_log_id').value;
-    const score = document.getElementById('modal_score').value;
-    const certVerified = document.getElementById('modal_cert_verified').value;
-
-    showLoading('儲存成績與證書...');
-    const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
-    const cb = 'jsonp_score_cert_' + Math.round(100000 * Math.random());
-
-    const params = new URLSearchParams({
-      action: 'updateScoreAndCertificate',
-      log_id: logId,
-      score: score,
-      certificate_verified: certVerified,
-      callback: cb
-    });
-
-    window[cb] = function(res) {
-      delete window[cb];
-      if (script.parentNode) script.parentNode.removeChild(script);
-      hideLoading();
-      if (res && res.result === 'ok') {
-        showToast('成績與證書更新成功！', 'success');
-        closeScoreCertModal();
-        loadEnrollmentData('certificates');
-      } else {
-        showToast(res ? res.message : '更新失敗', 'error');
-      }
-    };
-
-    const script = document.createElement('script');
-    script.src = `${baseUrl}?${params.toString()}`;
-    script.onerror = function() {
-      delete window[cb];
-      if (script.parentNode) script.parentNode.removeChild(script);
-      hideLoading();
-      showToast('網路連線異常', 'error');
-    };
-    document.body.appendChild(script);
-  }
+      const logId = document.getElementById('modal_log_id').value;
+      const score = document.getElementById('modal_score').value;
+      const certVerified = document.getElementById('modal_cert_verified').value;
+  
+      showLoading('儲存成績與證書...');
+      const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+      const cb = 'jsonp_score_cert_' + Math.round(100000 * Math.random());
+  
+      const params = new URLSearchParams({
+        action: 'updateScoreAndCertificate',
+        log_id: logId,
+        score: score,
+        certificate_verified: certVerified,
+        callback: cb,
+        _t: Date.now() // 防止快取
+      });
+  
+      window[cb] = function(res) {
+        delete window[cb];
+        if (script.parentNode) script.parentNode.removeChild(script);
+        hideLoading();
+        if (res && res.result === 'ok') {
+          showToast('成績與證書更新成功！', 'success');
+          
+          // 💡 關鍵修復：直接在前端記憶體中更新該筆資料，實現即時反應！
+          const target = allEnrollments.find(item => String(item.log_id) === String(logId));
+          if (target) {
+            target.score = score;
+            target.certificate_verified = certVerified;
+            if (certVerified === 'yes') {
+              // 自動補上當前日期作為驗證日期
+              const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+              target.certificate_verified_date = nowStr;
+              target.certificate_updated = 'yes';
+            } else {
+              target.certificate_verified_date = '-';
+              target.certificate_updated = 'no';
+            }
+          }
+  
+          closeScoreCertModal();
+          
+          // 重新計算上方 KPI 統計並重繪證書表格
+          updateCertificateStats();
+          renderCertificateTable();
+        } else {
+          showToast(res ? res.message : '更新失敗', 'error');
+        }
+      };
+  
+      const script = document.createElement('script');
+      script.src = `${baseUrl}?${params.toString()}`;
+      script.onerror = function() {
+        delete window[cb];
+        if (script.parentNode) script.parentNode.removeChild(script);
+        hideLoading();
+        showToast('網路連線異常', 'error');
+      };
+      document.body.appendChild(script);
+    }
 
   // 共用的欄位更新 Helper
   function updateTrainingField(logId, field, value, labelName) {
