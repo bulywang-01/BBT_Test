@@ -118,13 +118,13 @@
             <input type="email" id="signupEmail" placeholder="example@email.com" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500">
           </div>
 
-          <!-- 動態欄位：匯款後五碼 (若費用 > 0 時顯示) -->
+          <!-- 動態欄位：匯款後五碼 -->
           <div id="fieldPaymentSection" class="hidden">
             <label class="block text-xs font-bold text-slate-700 mb-1">匯款帳號後五碼 <span class="text-rose-500">*</span></label>
             <input type="text" id="signupAtm" maxlength="5" placeholder="請輸入您的轉帳帳號後五碼" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500">
           </div>
 
-          <!-- 動態欄位：飲食習慣 (若課程有提供餐點時顯示) -->
+          <!-- 動態欄位：飲食習慣 -->
           <div id="fieldMealSection" class="hidden">
             <label class="block text-xs font-bold text-slate-700 mb-1">飲食習慣 / 餐點需求</label>
             <select id="signupMeal" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500">
@@ -249,21 +249,13 @@
       renderCourses();
     }
 
-    // 同步載入課程與使用者的報名紀錄，以便即時判斷按鈕狀態
     function loadInitialData() {
       showLoading('載入課程與報名狀態...');
       const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
-      const userId = currentUser.user_id || currentUser.id || '';
-      const userName = currentUser.name || '';
-
-      const cb = 'jsonp_init_data_' + Math.round(100000 * Math.random());
-
-      // 這裡我們平行發送或先抓課程再抓紀錄，最穩妥的方式是兩者都用 JSONP 載入
       loadCoursesAndRegistrations(baseUrl);
     }
 
     function loadCoursesAndRegistrations(baseUrl) {
-      // 先取得報名紀錄，再取得課程列表
       const userId = currentUser.user_id || currentUser.id || '';
       const userName = currentUser.name || '';
 
@@ -281,7 +273,7 @@
       scriptReg.onerror = function() {
         delete window[cbReg];
         if (scriptReg.parentNode) scriptReg.parentNode.removeChild(scriptReg);
-        fetchCourses(baseUrl); // 就算報名紀錄失敗也繼續載入課程
+        fetchCourses(baseUrl);
       };
       document.body.appendChild(scriptReg);
     }
@@ -294,7 +286,8 @@
         if (script.parentNode) script.parentNode.removeChild(script);
         hideLoading();
         if (res && res.result === 'ok') {
-          allCourses = (res.data || []).filter(c => c.course_status !== 'closed');
+          // 💡 取消過濾 closed 課程，讓所有課程（包含已截止的）都能順利顯示出來
+          allCourses = res.data || [];
           renderCourses();
         } else {
           showToast(res ? res.message : '無法取得課程列表', 'error');
@@ -312,18 +305,13 @@
       document.body.appendChild(script);
     }
 
-    // 💡 絕對安全的日期清洗工具（強制轉為 YYYY-MM-DD，絕對不會變成 Fri 或長英文）
+    // 💡 絕對安全的日期清洗工具
     function safeFormatDate(raw) {
       if (!raw) return '';
       let str = String(raw).trim();
-      
-      // 如果已經是 YYYY-MM-DD 就直接回傳
       if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
-      
-      // 如果包含 T (ISO格式)
       if (str.includes('T')) return str.split('T')[0];
 
-      // 💡 針對類似 "Fri Nov 13 2026 00:00:00 GM..." 的字串，直接用正則抓出年份、月份、日期並組裝
       const match = str.match(/([A-Za-z]{3})\s+([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})/);
       if (match) {
         const months = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
@@ -333,7 +321,6 @@
         if (m) return `${y}-${m}-${d}`;
       }
 
-      // 保底：用 Date 物件解析
       const d = new Date(str);
       if (!isNaN(d.getTime())) {
         const y = d.getFullYear();
@@ -341,16 +328,14 @@
         const day = String(d.getDate()).padStart(2, '0');
         if (y > 2020) return `${y}-${m}-${day}`;
       }
-      
       return str.split(' ')[0] || '';
     }
 
-  function renderCourses() {
+    function renderCourses() {
       const container = document.getElementById('coursesContainer');
       const keyword = (document.getElementById('searchInput').value || '').toLowerCase();
 
       const filtered = allCourses.filter(c => {
-        // 💡 確保分類篩選與全部課程邏輯正確
         const matchType = currentFilter === 'all' || String(c.course_type).trim() === String(currentFilter).trim();
         const text = [c.course_name, c.instructor, c.location, c.certificate_type].join(' ').toLowerCase();
         const matchKw = !keyword || text.includes(keyword);
@@ -367,7 +352,6 @@
         return;
       }
 
-      // 💡 嚴格強制：依「上課日期」(c.date) 分組，絕對不能抓到報名截止日
       const grouped = {};
       filtered.forEach(c => {
         const d = safeFormatDate(c.date) || '日期未定';
@@ -398,101 +382,97 @@
     }
 
     function buildCourseCard(c) {
-          const typeLabel = c.course_type === 'judge' ? 'judge' : (c.course_type === 'record' ? 'record' : 'general');
-          const typeBadgeColor = c.course_type === 'judge' ? 'bg-blue-100 text-blue-700' : (c.course_type === 'record' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700');
-          
-          const enrolled = Number(c.current_enrollment) || 0;
-          const cap = Number(c.capacity) || 30;
-          const waitCap = Number(c.waitlist_capacity) || 0;
-          const isFull = enrolled >= cap;
-    
-          const startDate = safeFormatDate(c.date);
+      const typeLabel = c.course_type === 'judge' ? 'judge' : (c.course_type === 'record' ? 'record' : 'general');
+      const typeBadgeColor = c.course_type === 'judge' ? 'bg-blue-100 text-blue-700' : (c.course_type === 'record' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700');
       
-          // 💡 確保同時兼容各種可能的截止日欄位名稱 (signup_end, signupEnd, end_date)
-          const rawEndDate = c.signup_end || c.signupEnd || c.end_date;
-          const endDate = safeFormatDate(rawEndDate);
+      const enrolled = Number(c.current_enrollment) || 0;
+      const cap = Number(c.capacity) || 30;
+      const isFull = enrolled >= cap;
+
+      const startDate = safeFormatDate(c.date);
+      const rawEndDate = c.signup_end || c.signupEnd || c.end_date;
+      const endDate = safeFormatDate(rawEndDate);
       
-          const todayStr = new Date().toISOString().split('T')[0];
-          const isExpired = endDate && todayStr > endDate;
-    
-          // 檢查使用者是否已經報名過此課程
-          const existingReg = myRegistrations.find(r => String(r.course_id) === String(c.course_id) && r.status !== 'cancelled');
-    
-          let actionButtonHtml = '';
-          if (existingReg) {
-            if (existingReg.status === 'waitlist') {
-              actionButtonHtml = `<button onclick="openMyRegistrations()" class="w-full py-3 rounded-xl bg-amber-100 text-amber-800 border border-amber-300 font-extrabold text-sm shadow-sm transition cursor-pointer hover:bg-amber-200">⏳ 已在候補名單（點此查看）</button>`;
-            } else {
-              actionButtonHtml = `<button onclick="openMyRegistrations()" class="w-full py-3 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold text-sm shadow-sm transition cursor-pointer hover:bg-emerald-200">✅ 您已成功報名（點此查看紀錄）</button>`;
-            }
-          } else if (isExpired) {
-            actionButtonHtml = `<button disabled class="w-full py-3 rounded-xl bg-slate-100 text-slate-400 border border-slate-200 font-extrabold text-sm cursor-not-allowed">報名已截止</button>`;
-          } else {
-            if (isFull) {
-              actionButtonHtml = `<button onclick="openSignupModal('${c.course_id}')" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm shadow-sm transition cursor-pointer">正取已滿・登記候補</button>`;
-            } else {
-              actionButtonHtml = `<button onclick="openSignupModal('${c.course_id}')" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-extrabold text-sm shadow-sm transition cursor-pointer">立即報名</button>`;
-            }
-          }
-    
-          return `
-            <article class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition p-5 flex flex-col justify-between space-y-4">
-              <div class="space-y-3">
-                <div class="flex items-center justify-between gap-2">
-                  <div class="flex flex-wrap items-center gap-1.5">
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${typeBadgeColor}">${typeLabel}</span>
-                    ${c.certificate_type ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-purple-100 text-purple-700">證照 : ${c.certificate_type} ${c.certificate_level || ''}</span>` : ''}
-                  </div>
-                  <span class="text-xs font-bold text-slate-500">培訓時數 : ${c.training_hours || 0}hr</span>
-                </div>
-    
-                <div>
-                  <h3 class="text-xl font-black text-slate-900 leading-snug">${c.course_name || '未命名課程'}</h3>
-                  <p class="text-xs font-bold text-slate-500 mt-1 flex items-center gap-1.5">
-                    <span>👨‍🏫 講師：${c.instructor || '依聯盟公告'}</span>
-                  </p>
-                </div>
-    
-                <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70 space-y-2 text-xs text-slate-700">
-                  <div class="flex items-center gap-2">
-                    <span>📅</span>
-                    <span class="font-bold">上課日期：</span>
-                    <span>${startDate || '未定'}</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span>⏳</span>
-                    <span class="font-bold text-rose-600">報名截止：</span>
-                    <span class="font-bold text-rose-600">${endDate || '未設定'}</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span>📍</span>
-                    <span class="font-bold">地點：</span>
-                    <span>${c.location || '實體 / 線上同步'}</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span>💰</span>
-                    <span class="font-bold">費用：</span>
-                    <span class="font-extrabold text-slate-900">${Number(c.fee) === 0 ? '免費' : 'NT$ ' + c.fee}</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span>👥</span>
-                    <span class="font-bold">名額：</span>
-                    <span>已報名 <strong>${enrolled}</strong> / 正取 ${cap}</span>
-                  </div>
-                  <div class="flex items-center gap-2 pt-1 border-t border-slate-200/60">
-                    <span>📌</span>
-                    <span class="font-bold">狀態：</span>
-                    <span class="${isExpired ? 'text-rose-600 font-black' : 'text-emerald-600 font-bold'}">${isExpired ? '已截止報名' : '報名中'}</span>
-                  </div>
-                </div>
-              </div>
-    
-              <div class="pt-1">
-                ${actionButtonHtml}
-              </div>
-            </article>
-          `;
+      const todayStr = new Date().toISOString().split('T')[0];
+      const isExpired = endDate && todayStr > endDate;
+
+      const existingReg = myRegistrations.find(r => String(r.course_id) === String(c.course_id) && r.status !== 'cancelled');
+
+      let actionButtonHtml = '';
+      if (existingReg) {
+        if (existingReg.status === 'waitlist') {
+          actionButtonHtml = `<button onclick="openMyRegistrations()" class="w-full py-3 rounded-xl bg-amber-100 text-amber-800 border border-amber-300 font-extrabold text-sm shadow-sm transition cursor-pointer hover:bg-amber-200">⏳ 已在候補名單（點此查看）</button>`;
+        } else {
+          actionButtonHtml = `<button onclick="openMyRegistrations()" class="w-full py-3 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold text-sm shadow-sm transition cursor-pointer hover:bg-emerald-200">✅ 您已成功報名（點此查看紀錄）</button>`;
         }
+      } else if (isExpired) {
+        actionButtonHtml = `<button disabled class="w-full py-3 rounded-xl bg-slate-100 text-slate-400 border border-slate-200 font-extrabold text-sm cursor-not-allowed">報名已截止</button>`;
+      } else {
+        if (isFull) {
+          actionButtonHtml = `<button onclick="openSignupModal('${c.course_id}')" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm shadow-sm transition cursor-pointer">正取已滿・登記候補</button>`;
+        } else {
+          actionButtonHtml = `<button onclick="openSignupModal('${c.course_id}')" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-extrabold text-sm shadow-sm transition cursor-pointer">立即報名</button>`;
+        }
+      }
+
+      return `
+        <article class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition p-5 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${typeBadgeColor}">${typeLabel}</span>
+                ${c.certificate_type ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-purple-100 text-purple-700">證照 : ${c.certificate_type} ${c.certificate_level || ''}</span>` : ''}
+              </div>
+              <span class="text-xs font-bold text-slate-500">培訓時數 : ${c.training_hours || 0}hr</span>
+            </div>
+
+            <div>
+              <h3 class="text-xl font-black text-slate-900 leading-snug">${c.course_name || '未命名課程'}</h3>
+              <p class="text-xs font-bold text-slate-500 mt-1 flex items-center gap-1.5">
+                <span>👨‍🏫 講師：${c.instructor || '依聯盟公告'}</span>
+              </p>
+            </div>
+
+            <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70 space-y-2 text-xs text-slate-700">
+              <div class="flex items-center gap-2">
+                <span>📅</span>
+                <span class="font-bold">上課日期：</span>
+                <span>${startDate || '未定'}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span>⏳</span>
+                <span class="font-bold text-rose-600">報名截止：</span>
+                <span class="font-bold text-rose-600">${endDate || '未設定'}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span>📍</span>
+                <span class="font-bold">地點：</span>
+                <span>${c.location || '實體 / 線上同步'}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span>💰</span>
+                <span class="font-bold">費用：</span>
+                <span class="font-extrabold text-slate-900">${Number(c.fee) === 0 ? '免費' : 'NT$ ' + c.fee}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span>👥</span>
+                <span class="font-bold">名額：</span>
+                <span>已報名 <strong>${enrolled}</strong> / 正取 ${cap}</span>
+              </div>
+              <div class="flex items-center gap-2 pt-1 border-t border-slate-200/60">
+                <span>📌</span>
+                <span class="font-bold">狀態：</span>
+                <span class="${isExpired ? 'text-rose-600 font-black' : 'text-emerald-600 font-bold'}">${isExpired ? '已截止報名' : '報名中'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-1">
+            ${actionButtonHtml}
+          </div>
+        </article>
+      `;
+    }
 
     function openSignupModal(courseId) {
       const c = allCourses.find(x => String(x.course_id) === String(courseId));
@@ -505,7 +485,6 @@
         <div>📍 地點：${c.location || '-'} ｜ 💰 費用：${Number(c.fee) === 0 ? '免費' : 'NT$ ' + c.fee}</div>
       `;
 
-      // 智慧動態顯示：若費用 > 0，顯示匯款後五碼欄位
       const paySection = document.getElementById('fieldPaymentSection');
       const atmInput = document.getElementById('signupAtm');
       if (Number(c.fee) > 0) {
@@ -517,7 +496,6 @@
         atmInput.value = '';
       }
 
-      // 智慧動態顯示：若備註或名稱含有餐點關鍵字、或時數 >= 4小時，自動顯示飲食習慣欄位供選擇
       const mealSection = document.getElementById('fieldMealSection');
       const isLongTraining = (Number(c.training_hours) || 0) >= 4;
       const hasMealRemark = (c.remark && (c.remark.includes('餐') || c.remark.includes('便當') || c.remark.includes('飲食')));
@@ -527,7 +505,6 @@
         mealSection.classList.add('hidden');
       }
 
-      // 若已登入，自動帶入會員資料
       if (currentUser && currentUser.name) {
         document.getElementById('signupName').value = currentUser.name || '';
         document.getElementById('signupPhone').value = currentUser.phone || '';
@@ -571,7 +548,7 @@
         if (res && res.result === 'ok') {
           showToast('🎉 報名成功！您已成功登記此課程', 'success');
           closeModal('signupModal');
-          loadInitialData(); // 重新載入以更新按鈕狀態
+          loadInitialData();
         } else {
           showToast('❌ 報名失敗：' + (res ? res.message : '請確認是否重複報名'), 'error');
         }
@@ -609,7 +586,7 @@
         if (res && res.result === 'ok') {
           myRegistrations = res.data || [];
           renderMyRecords();
-          renderCourses(); // 同步刷新主畫面按鈕
+          renderCourses();
         } else {
           body.innerHTML = `<div class="text-center py-8 text-rose-500 font-bold">${res ? res.message : '無法取得報名紀錄'}</div>`;
         }
@@ -631,8 +608,6 @@
         body.innerHTML = `<div class="text-center py-10 text-slate-400 font-bold">尚無任何課程報名紀錄</div>`;
         return;
       }
-    
-      // 使用我們剛剛設計的新版卡片渲染每一筆紀錄
       body.innerHTML = myRegistrations.map(item => renderMyEnrollmentCard(item)).join('');
     }
 
@@ -649,7 +624,7 @@
         if (res && res.result === 'ok') {
           showToast('已成功取消報名', 'success');
           openMyRegistrations();
-          loadInitialData(); // 重新載入以刷新按鈕狀態
+          loadInitialData();
         } else {
           showToast(res ? res.message : '取消失敗', 'error');
         }
@@ -666,66 +641,61 @@
       document.body.appendChild(script);
     }
 
-// ✅ 修正版：完整串接並正確呈現學員的出勤、時數、成績與取消報名狀態
-function renderMyEnrollmentCard(item) {
-  // 1. 強效解析簽到與簽退時間（支援各種後端欄位命名方式）
-  const rawCheckin = String(item.checkin_time || item.checkinTime || item.check_in || '').trim();
-  const rawCheckout = String(item.checkout_time || item.checkoutTime || item.check_out || '').trim();
+    function renderMyEnrollmentCard(item) {
+      const rawCheckin = String(item.checkin_time || item.checkinTime || item.check_in || '').trim();
+      const rawCheckout = String(item.checkout_time || item.checkoutTime || item.check_out || '').trim();
 
-  const hasCheckin = rawCheckin !== '' && rawCheckin !== '-' && rawCheckin !== 'undefined' && rawCheckin !== 'null';
-  const hasCheckout = rawCheckout !== '' && rawCheckout !== '-' && rawCheckout !== 'undefined' && rawCheckout !== 'null';
+      const hasCheckin = rawCheckin !== '' && rawCheckin !== '-' && rawCheckin !== 'undefined' && rawCheckin !== 'null';
+      const hasCheckout = rawCheckout !== '' && rawCheckout !== '-' && rawCheckout !== 'undefined' && rawCheckout !== 'null';
 
-  let attendanceBadge = '';
-  let earnedHours = 0;
+      let attendanceBadge = '';
+      let earnedHours = 0;
 
-  if (hasCheckin && hasCheckout) {
-    attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">✅ 已完成 (完訓)</span>`;
-    earnedHours = Number(item.training_hours) || 4; // 帶入課程時數
-  } else if (hasCheckin && !hasCheckout) {
-    attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">⚠️ 報到未完全（未簽退）</span>`;
-    earnedHours = 0;
-  } else {
-    attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-600">❌ 缺課</span>`;
-    earnedHours = 0;
-  }
+      if (hasCheckin && hasCheckout) {
+        attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">✅ 已完成 (完訓)</span>`;
+        earnedHours = Number(item.training_hours) || 4;
+      } else if (hasCheckin && !hasCheckout) {
+        attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">⚠️ 報到未完全（未簽退）</span>`;
+        earnedHours = 0;
+      } else {
+        attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-600">❌ 缺課</span>`;
+        earnedHours = 0;
+      }
 
-  // 2. 正確讀取與呈現成績（若有成績則顯示分數，無則顯示尚無成績）
-  const scoreVal = item.score !== undefined && item.score !== '' && item.score !== null ? String(item.score).trim() : '';
-  const scoreDisplay = (scoreVal !== '' && scoreVal !== '-') 
-    ? `<strong class="text-blue-600 font-black">${scoreVal} 分</strong>` 
-    : `<span class="text-slate-400">尚無成績</span>`;
+      const scoreVal = item.score !== undefined && item.score !== '' && item.score !== null ? String(item.score).trim() : '';
+      const scoreDisplay = (scoreVal !== '' && scoreVal !== '-') 
+        ? `<strong class="text-blue-600 font-black">${scoreVal} 分</strong>` 
+        : `<span class="text-slate-400">尚無成績</span>`;
 
-  // 3. 判斷是否可取消報名：已繳費 (paid) 且已錄取，則隱藏取消按鈕
-  const isPaid = String(item.payment_status || '').trim() === 'paid';
-  const isConfirmed = String(item.status || '').trim() === 'confirmed' || String(item.status || '').trim() === 'applied';
-  const canCancel = !(isPaid && isConfirmed) && item.allow_cancel !== 'N';
+      const isPaid = String(item.payment_status || '').trim() === 'paid';
+      const isConfirmed = String(item.status || '').trim() === 'confirmed' || String(item.status || '').trim() === 'applied';
+      const canCancel = !(isPaid && isConfirmed) && item.allow_cancel !== 'N';
 
-  const cancelButtonHtml = canCancel 
-    ? `<button onclick="cancelEnrollment('${item.enrollment_id || item.log_id || item.course_id}', '${item.course_name}')" class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-extrabold transition">取消報名</button>` 
-    : `<span class="text-xs text-slate-400 font-bold bg-slate-100 px-2.5 py-1 rounded-lg">已繳費錄取，無法取消</span>`;
+      const cancelButtonHtml = canCancel 
+        ? `<button onclick="cancelEnrollment('${item.enrollment_id || item.log_id || item.course_id}', '${item.course_name}')" class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-extrabold transition">取消報名</button>` 
+        : `<span class="text-xs text-slate-400 font-bold bg-slate-100 px-2.5 py-1 rounded-lg">已繳費錄取，無法取消</span>`;
 
-  return `
-    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
-      <div class="flex items-center justify-between">
-        <div class="font-black text-slate-900 text-base">${item.course_name || '課程名稱'}</div>
-        <div>${attendanceBadge}</div>
-      </div>
-      
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
-        <div>📅 日期：<strong class="text-slate-800">${item.date ? item.date.split('T')[0] : '未定'}</strong></div>
-        <div>⏱️ 採計時數：<strong class="text-blue-600">${earnedHours} hr</strong></div>
-        <div>📝 測驗成績：${scoreDisplay}</div>
-        <div>💰 繳費狀態：<strong class="${isPaid ? 'text-emerald-600' : 'text-amber-600'}">${isPaid ? '已繳費' : '待繳費'}</strong></div>
-      </div>
+      return `
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="font-black text-slate-900 text-base">${item.course_name || '課程名稱'}</div>
+            <div>${attendanceBadge}</div>
+          </div>
+          
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
+            <div>📅 日期：<strong class="text-slate-800">${item.date ? item.date.split('T')[0] : '未定'}</strong></div>
+            <div>⏱️ 採計時數：<strong class="text-blue-600">${earnedHours} hr</strong></div>
+            <div>📝 測驗成績：${scoreDisplay}</div>
+            <div>💰 繳費狀態：<strong class="${isPaid ? 'text-emerald-600' : 'text-amber-600'}">${isPaid ? '已繳費' : '待繳費'}</strong></div>
+          </div>
 
-      <div class="flex items-center justify-between pt-1 border-t border-slate-100">
-        <div class="text-[11px] text-slate-400">報名紀錄編號：#${item.log_id || item.enrollment_id || '-'}</div>
-        <div>${cancelButtonHtml}</div>
-      </div>
-    </div>
-  `;
-}
-    
+          <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+            <div class="text-[11px] text-slate-400">報名紀錄編號：#${item.log_id || item.enrollment_id || '-'}</div>
+            <div>${cancelButtonHtml}</div>
+          </div>
+        </div>
+      `;
+    }
   </script>
 </body>
 </html>
