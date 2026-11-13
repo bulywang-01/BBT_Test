@@ -345,13 +345,14 @@
       return str.split(' ')[0] || '';
     }
 
-    function renderCourses() {
+  function renderCourses() {
       const container = document.getElementById('coursesContainer');
       const keyword = (document.getElementById('searchInput').value || '').toLowerCase();
 
       const filtered = allCourses.filter(c => {
-        const matchType = currentFilter === 'all' || c.course_type === currentFilter;
-        const text = [c.course_name, c.instructor, c.location].join(' ').toLowerCase();
+        // 💡 確保分類篩選與全部課程邏輯正確
+        const matchType = currentFilter === 'all' || String(c.course_type).trim() === String(currentFilter).trim();
+        const text = [c.course_name, c.instructor, c.location, c.certificate_type].join(' ').toLowerCase();
         const matchKw = !keyword || text.includes(keyword);
         return matchType && matchKw;
       });
@@ -361,15 +362,15 @@
           <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-2">
             <div class="text-4xl">📭</div>
             <div class="font-extrabold text-slate-700 text-base">目前沒有符合條件的開課資訊</div>
-            <div class="text-xs text-slate-400">請嘗試切換分類或清除搜尋關鍵字</div>
+            <div class="text-xs text-slate-400">請嘗試切換「全部課程」或清除搜尋關鍵字</div>
           </div>`;
         return;
       }
 
-      // 依開課日期分組 (使用 safeFormatDate 確保日期為 YYYY-MM-DD)
+      // 💡 嚴格強制：依「上課日期」(c.date) 分組，絕對不能抓到報名截止日
       const grouped = {};
       filtered.forEach(c => {
-        const d = safeFormatDate(c.date || c.time) || '日期未定';
+        const d = safeFormatDate(c.date) || '日期未定';
         if (!grouped[d]) grouped[d] = [];
         grouped[d].push(c);
       });
