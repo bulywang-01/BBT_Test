@@ -15,140 +15,260 @@
   <script src="js/core.js"></script>
 
   <style>
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       background: linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Noto Sans TC", sans-serif;
-      font-weight: 400;
+      color: #1e293b;
       letter-spacing: 0.2px;
     }
     
-    .main { max-width: 1200px; margin: auto; padding: 28px; }
+    .main { max-width: 1200px; margin: 0 auto; padding: 18px 20px; }
     
-    .panel{
-      background:#ffffff;
-      border:1px solid #e8eef6;
-      border-radius:22px;
-      padding:22px;
-      margin-bottom:18px;
-      box-shadow: 0 10px 28px rgba(15,23,42,.05);
-      transition:.2s;
+    /* 通用卡片容器 (更緊湊的內距) */
+    .panel {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .panel:hover{ transform:translateY(-2px); box-shadow: 0 14px 36px rgba(15,23,42,.08); }
-    
-    .welcome-box{
+    .panel:hover {
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+    .section-header h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    /* ===== 頂部歡迎與統計儀表板 ===== */
+    .welcome-box {
       background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
-      border:1px solid #dbeafe;
-      margin-top:8px;
+      border: 1px solid #dbeafe;
     }
+    .welcome-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .welcome-title { font-size: 22px; font-weight: 900; color: #1e3a8a; }
+    .welcome-role { font-size: 15px; color: #2563eb; font-weight: 800; margin-top: 2px; }
+    .welcome-name { font-size: 18px; font-weight: 700; color: #111827; margin-top: 4px; }
+    .welcome-sub { font-size: 12px; color: #64748b; }
+
+    /* 數據統計三欄 */
+    .user-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 12px 0;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 10px 8px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f1f5f9;
+      transition: transform 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-2px); }
+    .stat-card:nth-child(1) { background: linear-gradient(135deg, #eff6ff, #ffffff); border-top: 3px solid #2563eb; }
+    .stat-card:nth-child(2) { background: linear-gradient(135deg, #ecfdf5, #ffffff); border-top: 3px solid #16a34a; }
+    .stat-card:nth-child(3) { background: linear-gradient(135deg, #fff7ed, #ffffff); border-top: 3px solid #ea580c; }
     
-    .welcome-role{ font-size:20px; color:#2563eb; font-weight:800; margin-top:8px; }
-    .welcome-name{ font-size:24px; color:#111827; margin:10px 0 16px 0; }
-    .welcome-sub{ margin-top:8px; font-size:13px; color:#64748b; }
+    .stat-title { font-size: 12px; font-weight: 700; color: #475569; }
+    .stat-value { font-size: 30px; font-weight: 900; color: #0f172a; line-height: 1.1; }
+    .stat-sub { font-size: 11px; color: #64748b; }
 
-    .user-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:16px 0; }
-    .stat-card{
-      position:relative; background:#fff; border-radius:18px; overflow:hidden;
-      padding:12px 8px; text-align:center; min-height:85px; display:flex;
-      flex-direction:column; justify-content:center; gap:4px; box-shadow:0 4px 12px rgba(0,0,0,.08);
-      transition:.25s;
+    /* 個人分析區美化 */
+    #home-user-analysis {
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #475569;
+      margin-bottom: 12px;
     }
-    .stat-card:hover{ transform:translateY(-4px); box-shadow: 0 14px 24px rgba(0,0,0,.08); }
-    .stat-card:nth-child(1) { background: linear-gradient(135deg, #eff6ff, #ffffff); border-top: 4px solid #1976d2; }
-    .stat-card:nth-child(2) { background: linear-gradient(135deg, #ecfdf5, #ffffff); border-top: 4px solid #2e7d32; }
-    .stat-card:nth-child(3) { background: linear-gradient(135deg, #fff7ed, #ffffff); border-top: 4px solid #ef6c00; }
-    
-    .stat-title{ font-size:13px; color:#64748b; }
-    .stat-value{ font-size:36px; font-weight:900; color:#111; }
-    .stat-sub { font-size: 12px; margin-top: 2px; display: flex; justify-content: center; gap: 10px; }
 
-    .welcome-actions{ margin-top:18px; display:flex; flex-wrap:wrap; justify-content:center; gap:12px; }
-    .pill{
-      padding:12px 18px; font-weight:700; box-shadow: 0 4px 10px rgba(0,0,0,.05);
-      border-radius:16px; border: none; cursor: pointer; transition:.2s;
+    /* 快捷按鈕列 (自適應填滿寬度，不留白邊) */
+    .welcome-actions {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
     }
-    .pill:hover{ transform:translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,.08); }
-    .pill-blue { background: #e7f0ff; color: #2563eb; }
-    .pill-green { background: #e8f5e9; color: #2e7d32; }
-    .pill-orange { background: #fff1e6; color: #ea580c; }
+    .pill {
+      padding: 10px 8px;
+      font-size: 13px;
+      font-weight: 800;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .pill:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
+    .pill-blue { background: #e0edff; color: #1d4ed8; }
+    .pill-green { background: #dcfce7; color: #15803d; }
+    .pill-orange { background: #ffedd5; color: #c2410c; }
 
-    .home-course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 12px; }
+    /* ===== 中段雙欄並排：開課資訊 + 最新公告 ===== */
+    .dashboard-mid-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .dashboard-mid-grid .panel {
+      margin-bottom: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .home-course-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      flex: 1;
+    }
     .home-course-card {
-      background: linear-gradient(135deg, #f0fdf4, #ffffff); border: 1px solid #bbf7d0;
-      border-radius: 16px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.2s ease;
+      background: linear-gradient(135deg, #f0fdf4, #ffffff);
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      transition: all 0.2s ease;
     }
-    .home-course-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
-    .home-course-title { font-size: 16px; font-weight: 800; color: #166534; margin-bottom: 6px; }
-    .home-course-info { font-size: 13px; color: #475569; line-height: 1.6; }
+    .home-course-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.05); }
+    .home-course-title { font-size: 14px; font-weight: 800; color: #166534; margin-bottom: 4px; }
+    .home-course-info { font-size: 12px; color: #475569; line-height: 1.5; }
 
-    .notice-list{ display:flex; flex-direction:column; gap:10px; }
-    .notice-item{
-      background: linear-gradient(135deg, #f8fbff, #ffffff);
-      border-left:4px solid #2563eb; border-radius:12px; padding:12px 16px; color:#334155; font-size:15px;
+    .notice-list { display: flex; flex-direction: column; gap: 8px; }
+    .notice-item {
+      background: #f8fafc;
+      border-left: 3px solid #2563eb;
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: #334155;
+      font-size: 13px;
+      line-height: 1.5;
     }
-    
-    .download-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:12px; }
-    .download-card{
-      display:block; text-decoration:none; background:#fff; border:1px solid #e5e7eb;
-      border-radius:16px; padding:14px; transition:.2s; color:#111827;
+
+    /* ===== 文件中心 (完整 6 張卡片，3x2 整齊排列) ===== */
+    .download-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
     }
-    .download-card:hover{ transform:translateY(-4px); box-shadow: 0 12px 22px rgba(0,0,0,.08); }
-    .download-title{ font-size:15px; font-weight:700; margin-bottom:4px; }
-    .download-desc{ font-size:12px; color:#64748b; }
+    .download-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-decoration: none;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      transition: all 0.2s;
+      color: #0f172a;
+    }
+    .download-card:hover {
+      background: #ffffff;
+      border-color: #93c5fd;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.08);
+    }
+    .download-title { font-size: 14px; font-weight: 800; margin-bottom: 3px; color: #1e293b; }
+    .download-desc { font-size: 12px; color: #64748b; line-height: 1.4; }
 
-    .system-center{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+    /* ===== 系統資訊中心 ===== */
+    .system-center {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
 
+    /* ===== 彈窗 Overlay ===== */
     .overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5);
       display: none; align-items: center; justify-content: center; z-index: 9999;
+      backdrop-filter: blur(2px);
     }
     .overlay-box {
-      background: #fff; width: 92vw; max-width: 480px; max-height: 85vh;
-      border-radius: 18px; padding: 22px; overflow-y: auto; box-shadow: 0 12px 40px rgba(0,0,0,0.25); box-sizing: border-box;
+      background: #fff; width: 92vw; max-width: 520px; max-height: 85vh;
+      border-radius: 18px; padding: 20px; overflow-y: auto;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
     }
-    .system-guide-box{ width:95vw !important; max-width:900px !important; }
+    .overlay-box h2 { margin-top: 0; font-size: 18px; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+    .system-guide-box { width: 95vw !important; max-width: 860px !important; }
 
-    .close-btn.full{
-      width: 100%; padding: 14px 0; border-radius: 12px; border: none;
-      background: linear-gradient(135deg, #4a7ef5, #3b6eea); color: #fff;
-      font-size: 16px; font-weight: 800; margin-top: 16px; cursor: pointer;
-      box-shadow: 0 6px 16px rgba(74,126,245,0.35);
-    }
-
-    .week-alert{
-      margin-top:12px; padding:12px 16px; border-radius:12px;
-      background:linear-gradient(135deg,#fff3cd,#ffe69c); border:1px solid #ffe08a;
-      color:#b45309; font-weight:800; display:flex; align-items:center; justify-content:space-between;
-      cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    .close-btn.full {
+      width: 100%; padding: 12px 0; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff;
+      font-size: 15px; font-weight: 800; margin-top: 14px; cursor: pointer;
     }
 
-    .footer{ text-align:center; margin-top:20px; padding:24px 12px; color:#64748b; font-size:13px; line-height:1.8; }
-    .footer .title{ font-size:16px; font-weight:700; color:#334155; }
+    .week-alert {
+      margin-bottom: 12px; padding: 10px 14px; border-radius: 12px;
+      background: linear-gradient(135deg, #fef3c7, #fde68a); border: 1px solid #fcd34d;
+      color: #92400e; font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+    }
 
-    @media (max-width:768px){
+    .footer {
+      text-align: center; padding: 16px 12px 24px;
+      color: #64748b; font-size: 12px; line-height: 1.6;
+    }
+    .footer .title { font-size: 14px; font-weight: 800; color: #334155; }
+
+    /* 📱 手機版與平板 RWD 自動調整 */
+    @media (max-width: 900px) {
+      .dashboard-mid-grid { grid-template-columns: 1fr; }
+      .welcome-actions { grid-template-columns: repeat(3, 1fr); }
+      .download-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 600px) {
       .main { padding: 12px; }
-      .user-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-      .stat-card { min-height: 65px; padding: 6px; }
-      .stat-value { font-size: 24px !important; }
-      .welcome-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .pill { width: 100%; font-size: 12px; padding: 10px; text-align: center; }
-      .download-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .system-center { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .home-course-grid { grid-template-columns: 1fr; }
+      .panel { padding: 14px; border-radius: 16px; }
+      .user-stats { gap: 8px; }
+      .stat-value { font-size: 24px; }
+      .welcome-actions { grid-template-columns: repeat(2, 1fr); }
+      .download-grid { grid-template-columns: 1fr; }
+      .system-center { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
 
 <body>
 
-  <div id="userModal" class="overlay">
-    <div class="overlay-box">
-      <h2>📊 個人數據分析</h2>
-      <div id="userContent"></div>
-      <button class="close-btn full" onclick="closeUserModal()">關閉</button>
-    </div>
-  </div>
-  
+  <!-- Header 容器 -->
   <div id="header-container"></div>
 
   <script>
@@ -179,33 +299,38 @@
   <div class="main">
     <div id="content"></div>
     
+    <!-- 1️⃣ 歡迎與核心儀表板 -->
     <div class="panel welcome-box">
-      <div style="font-size:26px;font-weight:800;margin-bottom:6px;color:#1e3a8a;">⚾ BBT 出勤管理系統</div>
-      <div class="welcome-role" id="welcome-role"></div>
-      <div class="welcome-name" id="welcome-name"></div>
-      <div class="welcome-sub">⚾ 感謝您協助維護聯盟賽事品質與公平競賽環境</div>
+      <div class="welcome-top">
+        <div>
+          <div class="welcome-title">⚾ BBT 出勤管理系統</div>
+          <div class="welcome-role" id="welcome-role"></div>
+          <div class="welcome-name" id="welcome-name"></div>
+        </div>
+        <div class="welcome-sub">感謝您協助維護聯盟賽事品質與公平競賽環境</div>
+      </div>
 
       <div id="welcome-alert"></div>
       
       <div class="user-stats">
         <div class="stat-card">
-          <div class="stat-title">🧑‍⚖️裁判場次</div>
+          <div class="stat-title">🧑‍⚖️ 裁判場次</div>
           <div class="stat-value" id="stat-judge">--</div>
           <div class="stat-sub" id="stat-judge-sub"></div>
         </div>
         <div class="stat-card">
-          <div class="stat-title">📝紀錄場次</div>
+          <div class="stat-title">📝 紀錄場次</div>
           <div class="stat-value" id="stat-record">--</div>
           <div class="stat-sub" id="stat-record-sub"></div>
         </div>
         <div class="stat-card">
-          <div class="stat-title">📊年度總計</div>
+          <div class="stat-title">📊 年度總計</div>
           <div class="stat-value" id="stat-total">--</div>
           <div class="stat-sub" id="stat-total-sub"></div>
         </div>
       </div>
       
-      <div id="home-user-analysis">個人數據資料載入中...</div>
+      <div id="home-user-analysis">⏳ 個人數據資料載入中...</div>
 
       <div class="welcome-actions">
         <button id="open-schedule" class="pill pill-orange">📅 我的班表</button>
@@ -217,52 +342,74 @@
       </div>
     </div>
 
-    <!-- 🎓 聯盟開課資訊整合區塊 (手機防擠壓優化版) -->
-    <div class="panel" style="background: linear-gradient(135deg, #f8fafc, #f1f5f9); border: 1px solid #cbd5e1;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px;">
-        <h3 style="margin: 0; color: #1e293b; font-size: 16px; white-space: nowrap;">🎓 聯盟開課資訊</h3>
-        <a href="course.html" style="font-size: 12px; color: #2563eb; font-weight: 700; text-decoration: none; white-space: nowrap;">查看全部 →</a>
+    <!-- 2️⃣ 雙欄並排：聯盟開課資訊 ＋ 最新公告 (不浪費左右空間) -->
+    <div class="dashboard-mid-grid">
+      <!-- 左欄：聯盟開課資訊 -->
+      <div class="panel" style="background: linear-gradient(135deg, #f8fafc, #f0fdf4); border-color: #bbf7d0;">
+        <div class="section-header">
+          <h3>🎓 聯盟開課資訊</h3>
+          <a href="course.html" style="font-size: 12px; color: #15803d; font-weight: 800; text-decoration: none; white-space: nowrap;">查看全部 →</a>
+        </div>
+        <div id="home-course-container" class="home-course-grid">
+          <div style="color: #64748b; font-size: 13px; padding: 8px;">載入聯盟開課資訊中...</div>
+        </div>
       </div>
-      <div id="home-course-container" class="home-course-grid">
-        <div style="color: #64748b; font-size: 13px; padding: 8px;">載入聯盟開課資訊中...</div>
-      </div>
-    </div>
-    
-    <div id="weekly-overlay" class="overlay">
-      <div class="overlay-box">
-        <h2>📊 本週聯盟賽事班表</h2>
-        <div id="weeklyContent"></div>
-        <button class="close-btn full" onclick="hideOverlay('weekly-overlay')">關閉</button>
-      </div>
-    </div>
-    
-    <div class="panel">
-      <h3>📢 最新公告</h3>
-      <div class="notice-list">
-        <div class="notice-item">⚾ 系統更新：首頁現已同步整合「聯盟開課資訊」快速預覽，方便各位夥伴隨時掌握培訓動態。</div>
-        <div class="notice-item">⚾ 10/16 - 十一月份賽程將於 10/17 (六) 12:00 起開放報名，請點選上方班表，詳細資訊請看Line群組。</div>
+
+      <!-- 右欄：最新公告 -->
+      <div class="panel">
+        <div class="section-header">
+          <h3>📢 最新公告</h3>
+        </div>
+        <div class="notice-list">
+          <div class="notice-item">⚾ <strong>系統更新</strong>：首頁現已整合「聯盟開課資訊」快速預覽，方便各位夥伴掌握培訓動態。</div>
+          <div class="notice-item">⚾ <strong>10/16</strong> - 十一月份賽程將於 10/17 (六) 12:00 起開放報名，請點選上方班表，詳細資訊請看Line群組。</div>
+          <div class="notice-item">⚾ <strong>8/13</strong> - 由於三峽北大的租金屬於高單價，該場地舉辦的 "例行賽" 賽事將調整為安排四場比賽。</div>
+        </div>
       </div>
     </div>
 
-    <h3>📚 文件中心</h3>
-    <div class="download-grid">
-      <a href="https://bbtls.com/a03.php" target="_blank" class="download-card">
-        <div class="download-title">📘 聯盟賽事規章</div>
-        <div class="download-desc">BBT聯盟正式競賽規章</div>
-      </a>
-      <a href="https://bbtls.com/" target="_blank" class="download-card">
-        <div class="download-title">🌐 聯盟官方網站</div>
-        <div class="download-desc">聯盟最新資訊</div>
-      </a>
-      <a href="ctba_rules_2024.pdf" target="_blank" class="download-card">
-        <div class="download-title">📖 棒球規則</div>
-        <div class="download-desc">中華民國棒球規則 2024 年版</div>
-      </a>
+    <!-- 3️⃣ 文件中心 (完整 6 項資料：規章/官網/規則 + 二/三/四人制移補位) -->
+    <div class="panel">
+      <div class="section-header">
+        <h3>📚 文件與手冊中心</h3>
+      </div>
+      <div class="download-grid">
+        <!-- 第一排 -->
+        <a href="https://bbtls.com/a03.php" target="_blank" class="download-card">
+          <div class="download-title">📘 聯盟賽事規章</div>
+          <div class="download-desc">BBT聯盟正式競賽規章</div>
+        </a>
+        <a href="https://bbtls.com/" target="_blank" class="download-card">
+          <div class="download-title">🌐 聯盟官方網站</div>
+          <div class="download-desc">聯盟最新資訊</div>
+        </a>
+        <a href="ctba_rules_2024.pdf" target="_blank" class="download-card">
+          <div class="download-title">📖 棒球規則</div>
+          <div class="download-desc">中華民國棒球規則 2024 年版</div>
+        </a>
+
+        <!-- 第二排 (補回完整的裁判移補位手冊) -->
+        <a href="umpire_2man_rotation.pdf" target="_blank" class="download-card">
+          <div class="download-title">⚾ 二人制移補位</div>
+          <div class="download-desc">WBSC 英文版裁判二人制移補位手冊</div>
+        </a>
+        <a href="umpire_3man_rotation.pdf" target="_blank" class="download-card">
+          <div class="download-title">⚾ 三人制移補位</div>
+          <div class="download-desc">CTBA 中文版裁判三人制移補位手冊（曾文彥老師）</div>
+        </a>
+        <a href="umpire_4man_rotation.pdf" target="_blank" class="download-card">
+          <div class="download-title">⚾ 四人制移補位</div>
+          <div class="download-desc">WBSC 英文版裁判四人制移補位手冊</div>
+        </a>
+      </div>
     </div>
   
+    <!-- 4️⃣ 系統資訊中心 -->
     <div class="panel">
-      <h3>📚 系統資訊中心</h3>
-      <div style="color:#64748b;font-size:14px;margin-bottom:12px;">提供系統功能介紹、開發歷程及數據分析說明。</div>
+      <div class="section-header" style="margin-bottom: 8px;">
+        <h3>ℹ️ 系統資訊中心</h3>
+        <span style="font-size: 12px; color: #64748b;">功能介紹、開發歷程與操作指南</span>
+      </div>
       <div class="system-center">
         <button id="open-system-history" class="pill pill-blue">📜 系統開發日誌</button>
         <button id="open-system-guide" class="pill pill-blue">ℹ️ 系統功能說明</button>
@@ -273,15 +420,107 @@
     
     <footer class="footer">
       <div class="title">⚾ BBT 軟式棒球聯盟出勤管理系統</div>
-      <div>Version 2.1 ｜ Updated 115/07/01</div>
-      <div>Design & Development by bulywang</div>
+      <div>Version 2.2 ｜ Updated 115/07/01 ｜ Design & Development by bulywang</div>
     </footer>
+
+    <!-- ================= 各項彈窗 Overlay ================= -->
+    <div id="userModal" class="overlay">
+      <div class="overlay-box">
+        <h2>📊 個人數據分析</h2>
+        <div id="userContent"></div>
+        <button class="close-btn full" onclick="closeUserModal()">關閉</button>
+      </div>
+    </div>
 
     <div id="schedule-overlay" class="overlay">
       <div class="overlay-box">
         <h2>📅 我的班表</h2>
         <div id="my-schedule-list"></div>
         <button class="close-btn full" onclick="hideOverlay('schedule-overlay')">關閉</button>
+      </div>
+    </div>
+
+    <div id="weekly-overlay" class="overlay">
+      <div class="overlay-box">
+        <h2>📊 本週聯盟賽事班表</h2>
+        <div id="weeklyContent"></div>
+        <button class="close-btn full" onclick="hideOverlay('weekly-overlay')">關閉</button>
+      </div>
+    </div>
+
+    <div id="league-overlay" class="overlay">
+      <div class="overlay-box">
+        <h2>📘 聯盟賽制說明</h2>
+        <div style="font-size:14px; line-height:1.6; color:#334155;">
+          <p>• 例行賽採 7 局制（或時間限制 110 分鐘不開新局）。</p>
+          <p>• 詳細賽制規範請參閱文件中心之《聯盟賽事規章》。</p>
+        </div>
+        <button class="close-btn full" onclick="hideOverlay('league-overlay')">關閉</button>
+      </div>
+    </div>
+
+    <div id="rules-overlay" class="overlay">
+      <div class="overlay-box">
+        <h2>🧑‍⚖️ BBT 聯盟例行賽｜裁判守則</h2>
+        <div style="font-size:14px; line-height:1.6; color:#334155;">
+          <p>1. 請於賽前 20 分鐘抵達球場著裝完畢（BBT 裁判制服、裁判帽）。</p>
+          <p>2. 主審須向雙方球隊領取填寫完成之先發打序單並確認人數。</p>
+        </div>
+        <button class="close-btn full" onclick="hideOverlay('rules-overlay')">關閉</button>
+      </div>
+    </div>
+
+    <div id="record-rules-overlay" class="overlay">
+      <div class="overlay-box">
+        <h2>📝 BBT 聯盟例行賽｜紀錄員守則</h2>
+        <div style="font-size:14px; line-height:1.6; color:#334155;">
+          <p>1. 請穿著 BBT 紀錄制服，賽前備妥黑/紅筆、A4 紀錄紙、計時器及現場設備。</p>
+          <p>2. 賽後請確實核對雙方比數、勝敗投及 MVP 資訊並完成系統回報。</p>
+        </div>
+        <button class="close-btn full" onclick="hideOverlay('record-rules-overlay')">關閉</button>
+      </div>
+    </div>
+
+    <div id="system-history-overlay" class="overlay">
+      <div class="overlay-box">
+        <h2>📜 系統開發日誌</h2>
+        <div style="font-size:13px; line-height:1.6; color:#334155;">
+          <p><strong>V2.2</strong>：首頁高密度雙欄儀表板改版、整合聯盟開課資訊與手機橫向導覽列。</p>
+          <p><strong>V2.0</strong>：新增個人年度經驗值、出勤品質統計與角色分布雷達圖。</p>
+        </div>
+        <button class="close-btn full" onclick="hideOverlay('system-history-overlay')">關閉</button>
+      </div>
+    </div>
+
+    <div id="system-guide-overlay" class="overlay">
+      <div class="overlay-box system-guide-box">
+        <h2>ℹ️ 系統功能說明</h2>
+        <div style="font-size:14px; line-height:1.6; color:#334155;">
+          <p>本系統提供裁判員與紀錄員線上報名班表、查詢本週賽程、追蹤年度出勤積分及課程報名整合服務。</p>
+        </div>
+        <button class="close-btn full" onclick="hideOverlay('system-guide-overlay')">關閉</button>
+      </div>
+    </div>
+
+    <div id="analysis-guide-overlay" class="overlay">
+      <div class="overlay-box">
+        <h2>📊 數據分析說明</h2>
+        <div style="font-size:14px; line-height:1.6; color:#334155;">
+          <p>• <strong>經驗值</strong>：依據實際完賽場次與執法位置權重累計。</p>
+          <p>• <strong>出勤率</strong>：完成場次佔總排班場次之百分比（遲到與無故缺席將影響出勤品質分）。</p>
+        </div>
+        <button class="close-btn full" onclick="hideOverlay('analysis-guide-overlay')">關閉</button>
+      </div>
+    </div>
+
+    <div id="user-guide-overlay" class="overlay">
+      <div class="overlay-box">
+        <h2>📖 使用教學</h2>
+        <div style="font-size:14px; line-height:1.6; color:#334155;">
+          <p>1. 點擊上方導覽列「裁判班表」或「紀錄班表」進行場次登記。</p>
+          <p>2. 排班確認後，可於首頁「我的班表」隨時檢視本週與未來出勤場次。</p>
+        </div>
+        <button class="close-btn full" onclick="hideOverlay('user-guide-overlay')">關閉</button>
       </div>
     </div>
 
