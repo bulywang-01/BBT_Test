@@ -84,7 +84,7 @@
     .modal-footer{ display:flex; justify-content:flex-end; gap:10px; padding:14px 20px; border-top:1px solid #e5e7eb; background:#f8fafc; }
     .modal-close{ border:none; width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.15); color:#fff; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
 
-    /* Toast 提示專屬樣式（確保 z-index 最高，絕對不被覆蓋） */
+    /* Toast 提示專屬樣式 */
     .toast{ position:fixed; top:24px; left:50%; transform:translateX(-50%) translateY(-20px); min-width:300px; max-width:90vw; padding:14px 22px; border-radius:14px; text-align:center; color:#fff; font-size:15px; font-weight:800; box-shadow:0 15px 35px rgba(0,0,0,0.25); opacity:0; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index:30000; pointer-events:none; }
     .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
     .toast.success{ background:#16a34a; border:1px solid #15803d; }
@@ -1041,19 +1041,8 @@
       hideLoading();
       if (res && (res.result === 'ok' || res.result === 'success')) {
         showToast(`${actionName}成功！`, 'success');
-        
-        const target = allEnrollments.find(item => String(item.log_id) === String(logId));
-        if (target) {
-          if (actionType === 'checkin') {
-            target.checkin_time = res.time || new Date().toLocaleString();
-            target.attendance_status = 'present';
-          } else if (actionType === 'checkout') {
-            target.checkout_time = res.time || new Date().toLocaleString();
-          }
-        }
-        
-        updateAttendanceStats();
-        renderAttendanceTable();
+        // 直接重新從後端載入最新出勤資料，確保畫面與試算表完全同步
+        loadEnrollmentData('attendance');
       } else {
         showToast(res ? res.message : `${actionName}失敗`, 'error');
       }
