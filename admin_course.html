@@ -417,7 +417,7 @@
           </div>
         </div>
 
-        <!-- TAB 4 : 成績與證書 (改為依課程場次選擇與檢視) -->
+        <!-- TAB 4 : 成績與證書 -->
         <div id="tabContentCertificates" class="space-y-6 hidden">
           <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -655,9 +655,11 @@
       </div>
       <div class="space-y-1">
         <label class="font-bold text-slate-700 text-xs">證書發放 / 驗證狀態 (certificate_verified)</label>
+        <!-- 💡 修正為對應資料結構的 verified / pending / rejected -->
         <select id="modal_cert_verified" class="w-full h-10 border border-slate-300 rounded-xl px-3 font-bold bg-white">
-          <option value="no">未發放 (no)</option>
-          <option value="yes">已發放/已驗證 (yes)</option>
+          <option value="pending">待確認 (pending)</option>
+          <option value="verified">已確認/已發放 (verified)</option>
+          <option value="rejected">未通過 (rejected)</option>
         </select>
       </div>
     </div>
@@ -980,7 +982,13 @@
     const courseLogs = allEnrollments.filter(i => String(i.course_id) === String(selectedCertCourseId));
 
     const scored = courseLogs.filter(i => i.score !== undefined && i.score !== '' && i.score !== null).length;
-    const verified = courseLogs.filter(i => i.certificate_verified === 'yes').length;
+    
+    // 💡 修正統計：對應 verified 狀態
+    const verified = courseLogs.filter(i => {
+      const v = String(i.certificate_verified || '').trim().toLowerCase();
+      return v === 'verified' || v === 'yes' || v === 'true';
+    }).length;
+    
     const pending = courseLogs.length - verified;
 
     document.getElementById('statScoredCount').textContent = scored;
@@ -1191,7 +1199,6 @@
 
         updateAttendanceStatsForActiveCourse();
         renderAttendanceTable();
-        // 保留當前選擇的課程，不跳回最前面
       } else {
         showToast(res ? res.message : `${actionName}失敗`, 'error');
       }
@@ -1229,13 +1236,13 @@
     }
 
     tbody.innerHTML = filtered.map(item => {
-      // ✅ 新版完美對應版
+      // ✅ 完美對應 verified / yes / true 狀態
       const val = String(item.certificate_verified || '').trim().toLowerCase();
       const isVerified = (val === 'verified' || val === 'yes' || val === 'true');
       
       const certBadge = isVerified
-        ? `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已發放 / 已驗證 (verified)</span>`
-        : `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">未發放 (no/pending)</span>`;
+        ? `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已確認 (verified)</span>`
+        : `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">待確認 (pending)</span>`;
 
       return `
         <tr class="hover:bg-slate-50 transition">
@@ -1248,7 +1255,7 @@
           <td class="p-4">${certBadge}</td>
           <td class="p-4 text-xs font-mono text-slate-600">${item.certificate_verified_date || '-'}</td>
           <td class="p-4 text-right">
-            <button onclick="openScoreCertModal('${item.log_id}', '${item.name || ''}', '${item.score !== undefined && item.score !== null ? item.score : ''}', '${item.certificate_verified || 'no'}')" class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-extrabold transition">
+            <button onclick="openScoreCertModal('${item.log_id}', '${item.name || ''}', '${item.score !== undefined && item.score !== null ? item.score : ''}', '${item.certificate_verified || 'pending'}')" class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-extrabold transition">
               編輯成績與證書
             </button>
           </td>
@@ -1261,7 +1268,7 @@
     document.getElementById('modal_log_id').value = logId;
     document.getElementById('modal_student_info').textContent = `#${logId} - ${studentName}`;
     document.getElementById('modal_score').value = score;
-    document.getElementById('modal_cert_verified').value = verified;
+    document.getElementById('modal_cert_verified').value = verified || 'pending';
     document.getElementById('scoreCertModal').classList.remove('hidden');
   }
 
@@ -1306,7 +1313,6 @@
 
         updateCertificateStatsForActiveCourse();
         renderCertificateTable();
-        // 保留當前選擇的課程，不跳回最前面
       } else {
         showToast(res ? res.message : '更新失敗', 'error');
       }
