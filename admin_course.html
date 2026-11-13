@@ -852,11 +852,11 @@
     const totalPresent = allEnrollments.filter(i => i.attendance_status === 'present').length;
     const checkedIn = allEnrollments.filter(i => {
       const ci = i.checkin_time || i.checkinTime || i.checkInTime || i.check_in || '';
-      return ci.trim() !== '' && ci !== '-';
+      return String(ci).trim() !== '' && ci !== '-' && ci !== 'undefined' && ci !== 'null';
     }).length;
     const checkedOut = allEnrollments.filter(i => {
       const co = i.checkout_time || i.checkoutTime || i.checkOutTime || i.check_out || '';
-      return co.trim() !== '' && co !== '-';
+      return String(co).trim() !== '' && co !== '-' && co !== 'undefined' && co !== 'null';
     }).length;
     document.getElementById('statPresentCount').textContent = totalPresent;
     document.getElementById('statCheckinCount').textContent = checkedIn;
@@ -967,7 +967,7 @@
     const todayStr = new Date().toISOString().split('T')[0];
 
     tbody.innerHTML = filtered.map(item => {
-      // 深度涵蓋各種可能的後端欄位命名方式 (checkin_time, checkinTime, checkInTime, check_in)
+      // 深度涵蓋各種可能的後端欄位命名方式
       const rawCheckin = String(item.checkin_time || item.checkinTime || item.checkInTime || item.check_in || '').trim();
       const rawCheckout = String(item.checkout_time || item.checkoutTime || item.checkOutTime || item.check_out || '').trim();
 
@@ -1052,20 +1052,20 @@
       if (res && (res.result === 'ok' || res.result === 'success')) {
         showToast(`${actionName}成功！`, 'success');
         
-        // 即時在前端更新該筆記錄的時間，避免等待重新載入延遲
         const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
         const target = allEnrollments.find(i => String(i.log_id) === String(logId));
         if (target) {
           if (actionType === 'checkin') {
             target.checkin_time = res.time || res.checkin_time || res.checkinTime || nowStr;
+            target.checkinTime = target.checkin_time;
           } else {
             target.checkout_time = res.time || res.checkout_time || res.checkoutTime || nowStr;
+            target.checkoutTime = target.checkout_time;
           }
         }
 
         renderAttendanceTable();
         updateAttendanceStats();
-        // 同步背景重新抓取最新資料
         loadEnrollmentData('attendance');
       } else {
         showToast(res ? res.message : `${actionName}失敗`, 'error');
