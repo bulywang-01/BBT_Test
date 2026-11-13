@@ -46,29 +46,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /*********************************************************
- * ✅ 首頁載入聯盟開課資訊
+ * ✅ 修正版：首頁載入聯盟開課資訊 (支援多種 API 回傳格式)
  *********************************************************/
 function loadHomeCourses() {
   const container = document.getElementById('home-course-container');
   if (!container) return;
 
   callApi({ action: 'getCourses' }, res => {
-    if (!res || res.result !== 'ok' || !res.courses || res.courses.length === 0) {
+    // 支援 res.courses 或 res.data 或是直接回傳陣列
+    const courseList = res?.courses || res?.data || (Array.isArray(res) ? res : []);
+
+    if (!res || (res.result !== 'ok' && !Array.isArray(res)) || courseList.length === 0) {
       container.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; color: #64748b; font-size: 13px; padding: 10px;">
+        <div style="grid-column: 1 / -1; text-align: center; color: #64748b; font-size: 13px; padding: 8px;">
           目前尚無進行中的聯盟開課資訊，請至 <a href="course.html" style="color: #2563eb; font-weight: 700;">課程專區</a> 查看更多。
         </div>
       `;
       return;
     }
 
-    const recentCourses = res.courses.slice(0, 2);
+    // 取前 2 筆近期課程顯示於首頁
+    const recentCourses = courseList.slice(0, 2);
     
     container.innerHTML = recentCourses.map(c => `
       <div class="home-course-card" onclick="location.href='course.html'" style="cursor: pointer;">
-        <div class="home-course-title">🎓 ${c.title || '聯盟培訓課程'}</div>
+        <div class="home-course-title">🎓 ${c.title || c.name || '聯盟培訓課程'}</div>
         <div class="home-course-info">
-          <div>🕒 時間：${c.date || '另行公佈'}</div>
+          <div>🕒 時間：${c.date || c.time || '另行公佈'}</div>
           <div>📍 地點：${c.location || '線上/指定場地'}</div>
           <div style="margin-top: 4px; color: #166534; font-weight: 700;">狀態：${c.status || '報名中'}</div>
         </div>
