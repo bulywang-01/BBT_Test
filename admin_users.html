@@ -916,8 +916,7 @@ function exportUsers(){
     `${u.completed_rate || 0}%`, `${u.late_rate || 0}%`, `${u.no_show_rate || 0}%`,
     u.quality_score || 0, u.final_score || 0
   ]);
-  const csvContent = '﻿' + [headers.join(','), ...rows.map(row => row.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(','))].join('
-');
+  const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(row => row.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(','))].join('\n');
   const blob = new Blob([csvContent], { type:'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);
