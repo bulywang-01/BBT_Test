@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ✅ 載入個人數據分析
   loadHomeUserAnalysis();
 
-  // ✅ 新增：首頁載入近期課程資訊
+  // ✅ 首頁載入聯盟開課資訊
   loadHomeCourses();
 
 });
@@ -76,6 +76,7 @@ function loadHomeCourses() {
     `).join('');
   });
 }
+
 
 /*********************************************************
  * ✅ Welcome
@@ -627,6 +628,10 @@ function safeMerge(g){
   });
 
   return g;
+}
+
+function setGameCache(list){
+  __GAME_CACHE = list;
 }
 
 function renderLoading(target){
