@@ -1229,10 +1229,13 @@
     }
 
     tbody.innerHTML = filtered.map(item => {
-      const isVerified = item.certificate_verified === 'yes';
+      // ✅ 新版完美對應版
+      const val = String(item.certificate_verified || '').trim().toLowerCase();
+      const isVerified = (val === 'verified' || val === 'yes' || val === 'true');
+      
       const certBadge = isVerified
-        ? `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已發放/已驗證 (yes)</span>`
-        : `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">未發放 (no)</span>`;
+        ? `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已發放 / 已驗證 (verified)</span>`
+        : `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">未發放 (no/pending)</span>`;
 
       return `
         <tr class="hover:bg-slate-50 transition">
