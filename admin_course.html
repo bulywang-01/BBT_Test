@@ -84,7 +84,7 @@
     .modal-footer{ display:flex; justify-content:flex-end; gap:10px; padding:14px 20px; border-top:1px solid #e5e7eb; background:#f8fafc; }
     .modal-close{ border:none; width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,.15); color:#fff; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
 
-    /* Toast 顯眼修復：提高 z-index 至 30000 確保在最上層，且加上漂亮的陰影與字體 */
+    /* Toast 提示專屬樣式（確保 z-index 最高，絕對不被覆蓋） */
     .toast{ position:fixed; top:24px; left:50%; transform:translateX(-50%) translateY(-20px); min-width:300px; max-width:90vw; padding:14px 22px; border-radius:14px; text-align:center; color:#fff; font-size:15px; font-weight:800; box-shadow:0 15px 35px rgba(0,0,0,0.25); opacity:0; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index:30000; pointer-events:none; }
     .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
     .toast.success{ background:#16a34a; border:1px solid #15803d; }
@@ -100,7 +100,6 @@
     .action-btn.delete{ background:#fee2e2; color:#991b1b; }
     .action-group{ display:flex; gap:6px; }
 
-    /* 禁用按鈕樣式 */
     button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; filter: grayscale(50%); }
   </style>
 </head>
@@ -109,10 +108,8 @@
 
 <div class="flex min-h-screen">
 
-  <!-- Mobile Overlay -->
   <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity"></div>
   
-  <!-- Sidebar -->
   <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 z-50 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shrink-0 border-r border-slate-800 shadow-2xl lg:shadow-none">
     <div>
       <div class="h-16 flex items-center justify-between px-5 bg-slate-950 border-b border-slate-800">
@@ -168,7 +165,6 @@
     </div>
   </aside>
 
-  <!-- Main Content -->
   <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
     
     <header class="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between shrink-0 sticky top-0 z-30 shadow-sm">
@@ -193,13 +189,11 @@
     <div class="overflow-y-auto flex-1 p-4 sm:p-6">
       <div class="page-container space-y-5 sm:space-y-6">
         
-        <!-- 標題與分頁切換列 -->
         <div class="page-title-bar flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
             <div class="page-title">📚 課程與報名管理中心</div>
             <div class="page-desc">建立培訓課程、管理報名、審核繳費與後五碼、記錄出勤打卡、評分及結訓證書發放</div>
           </div>
-          <!-- 核心 4 大功能分頁切換 Tabs -->
           <div class="flex items-center gap-2 flex-wrap">
             <button id="tabBtnCourses" onclick="switchTab('courses')" class="tab-btn active">📅 課程場次管理</button>
             <button id="tabBtnEnrollments" onclick="switchTab('enrollments')" class="tab-btn">🛡️ 報名與後五碼</button>
@@ -208,7 +202,7 @@
           </div>
         </div>
 
-        <!-- ════════ TAB 1：課程場次管理 ════════ -->
+        <!-- TAB 1 -->
         <div id="tabContentCourses" class="space-y-6">
           <section class="kpi-summary">
             <div class="kpi-main-card">
@@ -273,7 +267,7 @@
           </section>
         </div>
 
-        <!-- ════════ TAB 2：報名審核與後五碼管理 ════════ -->
+        <!-- TAB 2 -->
         <div id="tabContentEnrollments" class="space-y-6 hidden">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
@@ -341,7 +335,7 @@
           </section>
         </div>
 
-        <!-- ════════ TAB 3：出勤與簽到打卡管理 ════════ -->
+        <!-- TAB 3 -->
         <div id="tabContentAttendance" class="space-y-6 hidden">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
@@ -403,7 +397,7 @@
           </section>
         </div>
 
-        <!-- ════════ TAB 4：成績與結訓證書管理 ════════ -->
+        <!-- TAB 4 -->
         <div id="tabContentCertificates" class="space-y-6 hidden">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
@@ -470,7 +464,7 @@
   </div>
 </div>
 
-<!-- Course Modal (Create / Edit) -->
+<!-- Course Modal -->
 <div id="courseModal" class="modal hidden">
   <div class="modal-dialog">
     <div class="modal-header">
@@ -722,7 +716,7 @@
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
-      if (res && res.result === 'ok') {
+      if (res && (res.result === 'ok' || res.result === 'success')) {
         allCourses = res.data || [];
         updateKpi();
         renderCourseTable();
@@ -818,7 +812,7 @@
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
-      if (res && res.result === 'ok') {
+      if (res && (res.result === 'ok' || res.result === 'success')) {
         allEnrollments = (res.data || []).filter(item => String(item.status || '').trim().toLowerCase() !== 'cancelled');
         
         updateEnrollmentStats();
@@ -889,7 +883,6 @@
     });
   }
 
-  // TAB 2 渲染與操作
   function renderEnrollmentTable() {
     const tbody = document.getElementById('enrollmentTableBody');
     const cFilter = document.getElementById('filterCourseSelect').value;
@@ -948,7 +941,6 @@
     }).join('');
   }
 
-  // TAB 3 渲染與出勤打卡操作（已加入嚴格鎖定條件）
   function renderAttendanceTable() {
     const tbody = document.getElementById('attendanceTableBody');
     const cFilter = document.getElementById('filterAttCourseSelect').value;
@@ -966,22 +958,38 @@
       return;
     }
 
+    const todayStr = new Date().toISOString().split('T')[0];
+
     tbody.innerHTML = filtered.map(item => {
       const hasCheckedIn = item.checkin_time && item.checkin_time.trim() !== '' && item.checkin_time !== '-';
       const hasCheckedOut = item.checkout_time && item.checkout_time.trim() !== '' && item.checkout_time !== '-';
+
+      const courseObj = allCourses.find(c => String(c.course_id) === String(item.course_id));
+      let isCourseNotStarted = false;
+      let courseDateText = '';
+      if (courseObj && courseObj.date) {
+        const cDate = courseObj.date.split('T')[0];
+        courseDateText = cDate;
+        if (cDate > todayStr) {
+          isCourseNotStarted = true;
+        }
+      }
 
       const attBadge = item.attendance_status === 'present'
         ? `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800">出席 (present)</span>`
         : `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-600">缺席 (absent)</span>`;
 
-      // 鎖定規則：
-      // 1. 若已簽到 (hasCheckedIn = true)：簽到按鈕鎖定 (disabled)
-      // 2. 若尚未簽到 (!hasCheckedIn)：簽退按鈕必須鎖定 (disabled)，防止未簽到就簽退
-      // 3. 若已簽購/簽退 (hasCheckedOut = true)：簽退按鈕也鎖定
-      const checkinBtnDisabled = hasCheckedIn ? 'disabled' : '';
+      const checkinBtnDisabled = (isCourseNotStarted || hasCheckedIn) ? 'disabled' : '';
       const checkoutBtnDisabled = (!hasCheckedIn || hasCheckedOut) ? 'disabled' : '';
 
-      const checkinBtnClass = hasCheckedIn 
+      let checkinBtnText = '簽到 (Check-in)';
+      if (isCourseNotStarted) {
+        checkinBtnText = '課程未開始';
+      } else if (hasCheckedIn) {
+        checkinBtnText = '已簽到';
+      }
+
+      const checkinBtnClass = (isCourseNotStarted || hasCheckedIn) 
         ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed' 
         : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100';
 
@@ -1001,8 +1009,8 @@
           <td class="p-4 text-xs font-mono font-bold text-slate-700">${hasCheckedIn ? item.checkin_time : '尚未簽到'}</td>
           <td class="p-4 text-xs font-mono font-bold text-slate-700">${hasCheckedOut ? item.checkout_time : '尚未簽退'}</td>
           <td class="p-4 text-right space-x-2">
-            <button onclick="doAttendanceAction('${item.log_id}', 'checkin')" ${checkinBtnDisabled} class="px-2.5 py-1.5 rounded-xl border text-xs font-extrabold transition ${checkinBtnClass}">
-              ${hasCheckedIn ? '已簽到' : '簽到 (Check-in)'}
+            <button onclick="doAttendanceAction('${item.log_id}', 'checkin')" ${checkinBtnDisabled} class="px-2.5 py-1.5 rounded-xl border text-xs font-extrabold transition ${checkinBtnClass}" title="${isCourseNotStarted ? '課程日期為 ' + courseDateText + '，尚未開始' : ''}">
+              ${checkinBtnText}
             </button>
             <button onclick="doAttendanceAction('${item.log_id}', 'checkout')" ${checkoutBtnDisabled} class="px-2.5 py-1.5 rounded-xl border text-xs font-extrabold transition ${checkoutBtnClass}">
               ${hasCheckedOut ? '已簽退' : '簽退 (Check-out)'}
@@ -1031,7 +1039,7 @@
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
-      if (res && res.result === 'ok') {
+      if (res && (res.result === 'ok' || res.result === 'success')) {
         showToast(`${actionName}成功！`, 'success');
         
         const target = allEnrollments.find(item => String(item.log_id) === String(logId));
@@ -1062,7 +1070,6 @@
     document.body.appendChild(script);
   }
 
-  // TAB 4 渲染與成績證書管理
   function renderCertificateTable() {
     const tbody = document.getElementById('certificateTableBody');
     const cFilter = document.getElementById('filterCertCourseSelect').value;
@@ -1119,7 +1126,6 @@
     document.getElementById('scoreCertModal').classList.add('hidden');
   }
 
-  // 學員成績與證書儲存（確保關閉 Modal 且即時更新畫面與 KPI）
   function saveScoreCertData() {
     const logId = document.getElementById('modal_log_id').value;
     const score = document.getElementById('modal_score').value;
@@ -1143,10 +1149,9 @@
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
       
-      // 務必先關閉 Modal 視窗
       closeScoreCertModal();
 
-      if (res && res.result === 'ok') {
+      if (res && (res.result === 'ok' || res.result === 'success')) {
         showToast('成績與證書更新成功！', 'success');
         
         const target = allEnrollments.find(item => String(item.log_id) === String(logId));
@@ -1182,7 +1187,6 @@
     document.body.appendChild(script);
   }
 
-  // 共用的欄位更新 Helper
   function updateTrainingField(logId, field, value, labelName) {
     if (!confirm(`確定要將紀錄 #${logId} 的${labelName}更改為「${value === 'paid' ? '已繳費' : '未繳費'}」嗎？`)) return;
 
@@ -1194,7 +1198,7 @@
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
-      if (res && res.result === 'ok') {
+      if (res && (res.result === 'ok' || res.result === 'success')) {
         showToast(`${labelName}更新成功！`, 'success');
         loadEnrollmentData('enrollments');
       } else {
@@ -1289,7 +1293,7 @@
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
-      if (res && res.result === 'ok') {
+      if (res && (res.result === 'ok' || res.result === 'success')) {
         showToast('課程儲存成功！', 'success');
         closeCourseModal();
         loadCourses();
@@ -1319,7 +1323,7 @@
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
-      if (res && res.result === 'ok') {
+      if (res && (res.result === 'ok' || res.result === 'success')) {
         showToast('課程已刪除', 'success');
         loadCourses();
       } else {
