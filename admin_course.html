@@ -335,14 +335,13 @@
           </section>
         </div>
 
-        <!-- TAB 3 : 出勤與簽到 (改為先選課程場次再顯示該場次名單) -->
+        <!-- TAB 3 : 出勤與簽到 -->
         <div id="tabContentAttendance" class="space-y-6 hidden">
-          <!-- 步驟一：選擇課程卡片區 -->
           <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h3 class="font-black text-lg text-slate-900">🎯 請選擇欲進行出勤簽到的課程場次</h3>
-                <p class="text-xs text-slate-500 mt-0.5">點選下方課程卡片，即可載入該場次的報名學員名單並進行簽到與簽退</p>
+                <p class="text-xs text-slate-500 mt-0.5">點選下方課程場次，即可載入該場次的報名學員名單並進行打卡簽到與簽退</p>
               </div>
               <div class="w-full sm:w-72">
                 <select id="selectAttendanceCourseDropdown" onchange="onAttendanceCourseSelect(this.value)" class="w-full h-11 border border-slate-300 rounded-xl px-3 font-bold text-slate-800 bg-white shadow-sm">
@@ -352,7 +351,6 @@
             </div>
           </section>
 
-          <!-- 步驟二：選定課程後的簽到名單區 (預設隱藏，選課程後顯示) -->
           <div id="attendanceActiveSection" class="space-y-6 hidden">
             <div class="flex items-center justify-between bg-blue-50 border border-blue-200 px-5 py-3.5 rounded-2xl">
               <div>
@@ -419,66 +417,86 @@
           </div>
         </div>
 
-        <!-- TAB 4 -->
+        <!-- TAB 4 : 成績與證書 (改為依課程場次選擇與檢視) -->
         <div id="tabContentCertificates" class="space-y-6 hidden">
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <div class="text-xs font-bold text-slate-400">已登錄成績人數</div>
-                <div id="statScoredCount" class="text-2xl font-black text-slate-900 mt-1">0</div>
+                <h3 class="font-black text-lg text-slate-900">🎓 請選擇欲管理成績與證書的課程場次</h3>
+                <p class="text-xs text-slate-500 mt-0.5">點選下方課程場次，即可載入該場次學員名單並進行測驗成績登錄與證書發放</p>
               </div>
-              <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">📝</div>
+              <div class="w-full sm:w-72">
+                <select id="selectCertCourseDropdown" onchange="onCertCourseSelect(this.value)" class="w-full h-11 border border-slate-300 rounded-xl px-3 font-bold text-slate-800 bg-white shadow-sm">
+                  <option value="">-- 請選擇課程場次 --</option>
+                </select>
+              </div>
             </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          </section>
+
+          <div id="certActiveSection" class="space-y-6 hidden">
+            <div class="flex items-center justify-between bg-blue-50 border border-blue-200 px-5 py-3.5 rounded-2xl">
               <div>
-                <div class="text-xs font-bold text-slate-400">證書已發放 / 驗證</div>
-                <div id="statCertVerifiedCount" class="text-2xl font-black text-emerald-600 mt-1">0</div>
+                <div class="text-xs font-bold text-blue-600">目前檢視中的課程場次</div>
+                <div id="activeCertCourseTitleBanner" class="text-lg font-black text-slate-900 mt-0.5">-</div>
               </div>
-              <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">📜</div>
+              <button onclick="resetCertSelection()" class="px-3 py-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition shadow-sm">
+                切換其他課程
+              </button>
             </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-              <div>
-                <div class="text-xs font-bold text-slate-400">待發放證書</div>
-                <div id="statCertPendingCount" class="text-2xl font-black text-amber-600 mt-1">0</div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold text-slate-400">已登錄成績人數</div>
+                  <div id="statScoredCount" class="text-2xl font-black text-slate-900 mt-1">0</div>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">📝</div>
               </div>
-              <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">⏳</div>
+              <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold text-slate-400">證書已發放 / 驗證</div>
+                  <div id="statCertVerifiedCount" class="text-2xl font-black text-emerald-600 mt-1">0</div>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">📜</div>
+              </div>
+              <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold text-slate-400">待發放證書</div>
+                  <div id="statCertPendingCount" class="text-2xl font-black text-amber-600 mt-1">0</div>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">⏳</div>
+              </div>
             </div>
+
+            <section class="filter-card">
+              <div class="w-full">
+                <input id="txtCertSearch" class="search-input" type="text" placeholder="在此課程名單中搜尋學員姓名、電話..." oninput="renderCertificateTable()">
+              </div>
+            </section>
+
+            <section class="table-panel">
+              <div class="table-header">
+                <div class="table-title">🎓 該課程學員測驗成績與證書發放管理</div>
+              </div>
+              <div class="table-wrapper">
+                <table class="user-table">
+                  <thead>
+                    <tr>
+                      <th># 紀錄編號</th>
+                      <th>學員姓名 / 電話</th>
+                      <th>測驗成績</th>
+                      <th>證書驗證狀態</th>
+                      <th>核發日期</th>
+                      <th class="text-right">成績與證書操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="certificateTableBody">
+                    <tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">請先選擇上方課程場次</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </div>
-
-          <section class="filter-card">
-            <div class="flex flex-wrap items-center gap-3 w-full">
-              <select id="filterCertCourseSelect" onchange="renderCertificateTable()" class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white font-bold text-slate-700">
-                <option value="all">所有課程</option>
-              </select>
-              <div class="flex-1 min-w-[240px]">
-                <input id="txtCertSearch" class="search-input" type="text" placeholder="搜尋學員姓名、電話..." oninput="renderCertificateTable()">
-              </div>
-            </div>
-          </section>
-
-          <section class="table-panel">
-            <div class="table-header">
-              <div class="table-title">🎓 學員測驗成績與證書發放管理</div>
-            </div>
-            <div class="table-wrapper">
-              <table class="user-table">
-                <thead>
-                  <tr>
-                    <th># 紀錄編號</th>
-                    <th>課程名稱</th>
-                    <th>學員姓名 / 電話</th>
-                    <th>測驗成績</th>
-                    <th>證書驗證狀態</th>
-                    <th>核發日期</th>
-                    <th class="text-right">成績與證書操作</th>
-                  </tr>
-                </thead>
-                <tbody id="certificateTableBody">
-                  <tr><td colspan="7" class="text-center py-12 text-slate-400 font-bold">載入成績與證書資料中...</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
         </div>
 
       </div>
@@ -662,6 +680,7 @@
   let allCourses = [];
   let allEnrollments = [];
   let selectedAttendanceCourseId = '';
+  let selectedCertCourseId = '';
 
   document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -743,7 +762,7 @@
         allCourses = res.data || [];
         updateKpi();
         renderCourseTable();
-        populateAttendanceCourseDropdown();
+        populateAllCourseDropdowns();
       } else {
         showToast(res ? res.message : '載入課程失敗', 'error');
       }
@@ -774,17 +793,25 @@
     document.getElementById('kpiTotalEnrollments').textContent = enrollments;
   }
 
-  function populateAttendanceCourseDropdown() {
-    const select = document.getElementById('selectAttendanceCourseDropdown');
-    if (!select) return;
+  function populateAllCourseDropdowns() {
     let html = `<option value="">-- 請選擇課程場次 (${allCourses.length}個場次) --</option>`;
     allCourses.forEach(c => {
       const dateStr = c.date ? c.date.split('T')[0] : '未定日期';
       html += `<option value="${c.course_id}">${c.course_name} [${dateStr}]</option>`;
     });
-    select.innerHTML = html;
-    if (selectedAttendanceCourseId) {
-      select.value = selectedAttendanceCourseId;
+
+    // 填入出勤下拉選單
+    const attDropdown = document.getElementById('selectAttendanceCourseDropdown');
+    if (attDropdown) {
+      attDropdown.innerHTML = html;
+      if (selectedAttendanceCourseId) attDropdown.value = selectedAttendanceCourseId;
+    }
+
+    // 填入成績證書下拉選單
+    const certDropdown = document.getElementById('selectCertCourseDropdown');
+    if (certDropdown) {
+      certDropdown.innerHTML = html;
+      if (selectedCertCourseId) certDropdown.value = selectedCertCourseId;
     }
   }
 
@@ -807,6 +834,27 @@
     selectedAttendanceCourseId = '';
     document.getElementById('selectAttendanceCourseDropdown').value = '';
     document.getElementById('attendanceActiveSection').classList.add('hidden');
+  }
+
+  function onCertCourseSelect(courseId) {
+    selectedCertCourseId = courseId;
+    const activeSec = document.getElementById('certActiveSection');
+    if (!courseId) {
+      activeSec.classList.add('hidden');
+      return;
+    }
+    activeSec.classList.remove('hidden');
+    const courseObj = allCourses.find(c => String(c.course_id) === String(courseId));
+    if (courseObj) {
+      document.getElementById('activeCertCourseTitleBanner').textContent = `${courseObj.course_name} (${courseObj.date ? courseObj.date.split('T')[0] : '未定日期'})`;
+    }
+    loadEnrollmentData('certificates');
+  }
+
+  function resetCertSelection() {
+    selectedCertCourseId = '';
+    document.getElementById('selectCertCourseDropdown').value = '';
+    document.getElementById('certActiveSection').classList.add('hidden');
   }
 
   function renderCourseTable() {
@@ -873,7 +921,6 @@
         allEnrollments = (res.data || []).filter(item => String(item.status || '').trim().toLowerCase() !== 'cancelled');
         
         updateEnrollmentStats();
-        updateCertificateStats();
 
         populateAllFilters(allEnrollments);
         
@@ -882,7 +929,10 @@
           updateAttendanceStatsForActiveCourse();
           renderAttendanceTable();
         }
-        else if (activeTab === 'certificates') renderCertificateTable();
+        else if (activeTab === 'certificates') {
+          updateCertificateStatsForActiveCourse();
+          renderCertificateTable();
+        }
       } else {
         showToast(res ? res.message : '無法取得報名紀錄', 'error');
       }
@@ -925,10 +975,14 @@
     document.getElementById('statCheckoutCount').textContent = checkedOut;
   }
 
-  function updateCertificateStats() {
-    const scored = allEnrollments.filter(i => i.score !== undefined && i.score !== '' && i.score !== null).length;
-    const verified = allEnrollments.filter(i => i.certificate_verified === 'yes').length;
-    const pending = allEnrollments.length - verified;
+  function updateCertificateStatsForActiveCourse() {
+    if (!selectedCertCourseId) return;
+    const courseLogs = allEnrollments.filter(i => String(i.course_id) === String(selectedCertCourseId));
+
+    const scored = courseLogs.filter(i => i.score !== undefined && i.score !== '' && i.score !== null).length;
+    const verified = courseLogs.filter(i => i.certificate_verified === 'yes').length;
+    const pending = courseLogs.length - verified;
+
     document.getElementById('statScoredCount').textContent = scored;
     document.getElementById('statCertVerifiedCount').textContent = verified;
     document.getElementById('statCertPendingCount').textContent = pending;
@@ -1017,8 +1071,6 @@
     }
 
     const keyword = (document.getElementById('txtAttSearch').value || '').toLowerCase();
-
-    // 只篩選出該選定課程的學員名單
     const courseLogs = allEnrollments.filter(item => String(item.course_id) === String(selectedAttendanceCourseId));
 
     const filtered = courseLogs.filter(item => {
@@ -1043,17 +1095,13 @@
       let checkinHtml = '尚未簽到';
       if (hasCheckedIn) {
         const parts = rawCheckin.split(' ');
-        const datePart = parts[0] || '';
-        const timePart = parts[1] || '';
-        checkinHtml = `<div class="font-bold text-slate-800">${datePart}</div><div class="text-slate-500 mt-0.5">${timePart}</div>`;
+        checkinHtml = `<div class="font-bold text-slate-800">${parts[0] || ''}</div><div class="text-slate-500 mt-0.5">${parts[1] || ''}</div>`;
       }
 
       let checkoutHtml = '尚未簽退';
       if (hasCheckedOut) {
         const parts = rawCheckout.split(' ');
-        const datePart = parts[0] || '';
-        const timePart = parts[1] || '';
-        checkoutHtml = `<div class="font-bold text-slate-800">${datePart}</div><div class="text-slate-500 mt-0.5">${timePart}</div>`;
+        checkoutHtml = `<div class="font-bold text-slate-800">${parts[0] || ''}</div><div class="text-slate-500 mt-0.5">${parts[1] || ''}</div>`;
       }
 
       const courseObj = allCourses.find(c => String(c.course_id) === String(item.course_id));
@@ -1062,9 +1110,7 @@
       if (courseObj && courseObj.date) {
         const cDate = courseObj.date.split('T')[0];
         courseDateText = cDate;
-        if (cDate > todayStr) {
-          isCourseNotStarted = true;
-        }
+        if (cDate > todayStr) isCourseNotStarted = true;
       }
 
       const attBadge = item.attendance_status === 'present'
@@ -1074,13 +1120,7 @@
       const checkinBtnDisabled = (isCourseNotStarted || hasCheckedIn) ? 'disabled' : '';
       const checkoutBtnDisabled = (!hasCheckedIn || hasCheckedOut) ? 'disabled' : '';
 
-      let checkinBtnText = '簽到 (Check-in)';
-      if (isCourseNotStarted) {
-        checkinBtnText = '課程未開始';
-      } else if (hasCheckedIn) {
-        checkinBtnText = '已簽到';
-      }
-
+      let checkinBtnText = isCourseNotStarted ? '課程未開始' : (hasCheckedIn ? '已簽到' : '簽到 (Check-in)');
       const checkinBtnClass = (isCourseNotStarted || hasCheckedIn) 
         ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed' 
         : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100';
@@ -1151,7 +1191,7 @@
 
         updateAttendanceStatsForActiveCourse();
         renderAttendanceTable();
-        loadEnrollmentData('attendance');
+        // 保留當前選擇的課程，不跳回最前面
       } else {
         showToast(res ? res.message : `${actionName}失敗`, 'error');
       }
@@ -1170,18 +1210,21 @@
 
   function renderCertificateTable() {
     const tbody = document.getElementById('certificateTableBody');
-    const cFilter = document.getElementById('filterCertCourseSelect').value;
-    const keyword = (document.getElementById('txtCertSearch').value || '').toLowerCase();
+    if (!selectedCertCourseId) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">請先選擇上方課程場次</td></tr>`;
+      return;
+    }
 
-    const filtered = allEnrollments.filter(item => {
-      const matchC = cFilter === 'all' || String(item.course_id) === String(cFilter);
-      const text = [item.name, item.phone, item.course_name].join(' ').toLowerCase();
-      const matchKw = !keyword || text.includes(keyword);
-      return matchC && matchKw;
+    const keyword = (document.getElementById('txtCertSearch').value || '').toLowerCase();
+    const courseLogs = allEnrollments.filter(item => String(item.course_id) === String(selectedCertCourseId));
+
+    const filtered = courseLogs.filter(item => {
+      const text = [item.name, item.phone].join(' ').toLowerCase();
+      return !keyword || text.includes(keyword);
     });
 
     if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-12 text-slate-400 font-bold">沒有符合條件的成績與證書資料</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">此課程目前尚無報名學員</td></tr>`;
       return;
     }
 
@@ -1194,7 +1237,6 @@
       return `
         <tr class="hover:bg-slate-50 transition">
           <td class="p-4 text-xs font-bold text-slate-700">#${item.log_id || '-'}</td>
-          <td class="p-4 font-bold text-slate-900">${item.course_name || '-'}</td>
           <td class="p-4">
             <div class="font-extrabold text-slate-900">${item.name || '未填'}</div>
             <div class="text-xs text-slate-500">${item.phone || '-'}</div>
@@ -1254,22 +1296,14 @@
         
         const target = allEnrollments.find(item => String(item.log_id) === String(logId));
         if (target) {
-          target.score = score;
-          target.certificate_verified = certVerified;
-          if (certVerified === 'yes') {
-            const now = new Date();
-            const pad = n => String(n).padStart(2, '0');
-            const nowStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-            target.certificate_verified_date = nowStr;
-            target.certificate_updated = 'yes';
-          } else {
-            target.certificate_verified_date = '-';
-            target.certificate_updated = 'no';
-          }
+          target.score = res.score !== undefined ? res.score : score;
+          target.certificate_verified = res.certificate_verified !== undefined ? res.certificate_verified : certVerified;
+          target.certificate_verified_date = res.certificate_verified_date !== undefined ? res.certificate_verified_date : '-';
         }
 
-        updateCertificateStats();
+        updateCertificateStatsForActiveCourse();
         renderCertificateTable();
+        // 保留當前選擇的課程，不跳回最前面
       } else {
         showToast(res ? res.message : '更新失敗', 'error');
       }
