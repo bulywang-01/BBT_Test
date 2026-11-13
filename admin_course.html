@@ -52,7 +52,7 @@
     .btn-outline{ border:1px solid #cbd5e1; background:#fff; color:#334155; border-radius:12px; padding:9px 16px; font-weight:700; font-size:14px; cursor:pointer; transition:.2s; white-space:nowrap; }
     .btn-outline:hover{ background:#f8fafc; border-color:#94a3b8; }
 
-    /* Table Panel & Mobile Scroll Wrapper */
+    /* Table Panel */
     .table-panel{ background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 4px 14px rgba(15,23,42,.05); }
     .table-header{ display:flex; justify-content:space-between; align-items:center; padding:14px 18px; background:linear-gradient(90deg,#0f172a,#1e3a8a); color:#fff; gap:12px; }
     .table-title{ font-size:17px; font-weight:800; }
@@ -105,11 +105,8 @@
 <body class="bg-slate-100 antialiased text-slate-800">
 
 <div class="flex min-h-screen">
-
-  <!-- Mobile Overlay -->
   <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity"></div>
   
-  <!-- Sidebar -->
   <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 text-slate-300 z-50 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shrink-0 border-r border-slate-800 shadow-2xl lg:shadow-none">
     <div>
       <div class="h-16 flex items-center justify-between px-5 bg-slate-950 border-b border-slate-800">
@@ -129,9 +126,7 @@
 
       <nav class="p-3.5 space-y-1 text-xs font-semibold overflow-y-auto max-h-[calc(100vh-140px)]">
         <div class="text-[10px] text-slate-500 font-bold px-3 pt-2 pb-1 uppercase tracking-wider">主控數據中心</div>
-        <a href="admin_dashboard.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition">
-          <div class="flex items-center space-x-3"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>管理總覽</span></div>
-        </a>
+        <a href="admin_dashboard.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>管理總覽</span></a>
 
         <div class="text-[10px] text-slate-500 font-bold px-3 pt-4 pb-1 uppercase tracking-wider">排班管理</div>
         <a href="judge_dashboard_admin.html" class="flex items-center space-x-3 px-3 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white transition"><i data-lucide="flag" class="w-4 h-4"></i><span>裁判排班</span></a>
@@ -165,9 +160,7 @@
     </div>
   </aside>
 
-  <!-- Main Content -->
   <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-    
     <header class="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between shrink-0 sticky top-0 z-30 shadow-sm">
       <div class="flex items-center gap-3">
         <button onclick="toggleSidebar()" class="lg:hidden p-2 -ml-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition" aria-label="開啟選單">
@@ -177,7 +170,7 @@
       </div>
 
       <div class="flex items-center gap-2.5">
-        <button onclick="loadAllData()" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition" title="重新整理">
+        <button onclick="loadCourses()" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition" title="重新整理">
           <i data-lucide="refresh-cw" class="w-5 h-5"></i>
         </button>
         <a href="index.html" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs sm:text-sm font-bold hover:bg-slate-800 transition shadow-sm">
@@ -190,20 +183,18 @@
     <div class="overflow-y-auto flex-1 p-4 sm:p-6">
       <div class="page-container space-y-5 sm:space-y-6">
         
-        <!-- 標題與分頁切換列 -->
         <div class="page-title-bar flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
             <div class="page-title">📚 課程與報名管理中心</div>
             <div class="page-desc">建立培訓課程、審核學員報名匯款後五碼與餐點統計</div>
           </div>
-          <!-- 核心分頁切換 Tabs -->
           <div class="flex items-center gap-2">
             <button id="tabBtnCourses" onclick="switchTab('courses')" class="tab-btn active">📅 課程場次管理</button>
             <button id="tabBtnEnrollments" onclick="switchTab('enrollments')" class="tab-btn">🛡️ 報名與後五碼審核</button>
           </div>
         </div>
 
-        <!-- ════════ TAB 1：課程管理介面 ════════ -->
+        <!-- TAB 1 -->
         <div id="tabContentCourses" class="space-y-6">
           <section class="kpi-summary">
             <div class="kpi-main-card">
@@ -268,7 +259,7 @@
           </section>
         </div>
 
-        <!-- ════════ TAB 2：報名審核與後五碼管理介面 ════════ -->
+        <!-- TAB 2 -->
         <div id="tabContentEnrollments" class="space-y-6 hidden">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
@@ -341,7 +332,7 @@
   </div>
 </div>
 
-<!-- Course Modal (Create / Edit) -->
+<!-- Course Modal -->
 <div id="courseModal" class="modal hidden">
   <div class="modal-dialog">
     <div class="modal-header">
@@ -488,7 +479,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') lucide.createIcons();
     loadUserInfo();
-    loadAllData();
+    loadCourses();
   });
 
   function loadUserInfo() {
@@ -549,12 +540,8 @@
     }
   }
 
-  function loadAllData() {
-    loadCourses();
-  }
-
   function loadCourses() {
-    showLoading('載入資料中...');
+    showLoading('載入課程清單...');
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
     const cb = 'jsonp_courses_' + Math.round(100000 * Math.random());
     
