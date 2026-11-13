@@ -5,29 +5,28 @@
   background:#fff;
   border-bottom:1px solid #ddd;
   padding:16px 20px;
-  text-align: center;   /* ✅ 兩行一起置中 */
+  text-align: center;
 }
 
 #app-header .nav {
   display: flex;
-  justify-content: center;   /* ✅ 核心 */
+  justify-content: center;
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
 }
 
-/* 預設全部隱藏 */
 #app-header .item {
-  width: 84px;          /* 原本 96 → 縮小一點 */
-  height: 84px;         /* 原本 96 → 縮小一點 */
+  width: 84px;
+  height: 84px;
   display: none;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 6px;             /* 間距一起縮 */
-  font-size: 15px;      /* 文字微縮 */
+  gap: 6px;
+  font-size: 15px;
   font-weight: 800;
-  border-radius: 16px;  /* 圓角跟著比例縮 */
+  border-radius: 16px;
   text-decoration: none;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
@@ -39,7 +38,6 @@
   box-shadow: 0 6px 14px rgba(0,0,0,0.12);
 }
 
-/* 基本項目 */
 #app-header .home {
   display:flex;
   background:#f5f5f5;
@@ -47,24 +45,23 @@
 }
 
 #app-header .text small {
-  font-size: 16px;      /* 跟「登出」一樣大 */
-  font-weight: 800;     /* 跟上面的字一致 */
+  font-size: 16px;
+  font-weight: 800;
   line-height: 1.2;
-  color: inherit;       /* 跟登出同色 */
-  display: block;       /* ✅ 讓 small 獨立一行，置中才會準 */
-
+  color: inherit;
+  display: block;
 }
 
-/* 顏色 */
-#app-header .course { background:#e0f2fe; color:#0369a1; }
+/* 顏色設定 */
+#app-header .course { background:#e0f2fe; color:#0369a1; display:flex !important; }
 #app-header .judge  { background:#e8f1ff; }
 #app-header .record { background:#e8f5e9; }
 #app-header .admin  { background:#ede7f6; }
 
-/* ✅ 用 body 身分 class 決定顯示 */
+/* 身分權限控制顯示 */
 body.role-judge  #app-header .judge  { display:flex; }
 body.role-record #app-header .record { display:flex; }
-body.role-admin  #app-header .item   { display:flex; }
+body.role-admin  #app-header .admin  { display:flex; }
 </style>
 
 <div id="app-header">
@@ -74,7 +71,7 @@ body.role-admin  #app-header .item   { display:flex; }
       <span class="text">首頁</span>
     </a>
 
-    <a href="course.html" class="item course" style="display:flex;">
+    <a href="course.html" class="item course">
       <span class="icon">📚</span>
       <span class="text">課程<br>專區</span>
     </a>
