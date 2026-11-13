@@ -381,98 +381,115 @@
       if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    function buildCourseCard(c) {
-      const typeLabel = c.course_type === 'judge' ? 'judge' : (c.course_type === 'record' ? 'record' : 'general');
-      const typeBadgeColor = c.course_type === 'judge' ? 'bg-blue-100 text-blue-700' : (c.course_type === 'record' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700');
-      
-      const enrolled = Number(c.current_enrollment) || 0;
-      const cap = Number(c.capacity) || 30;
-      const isFull = enrolled >= cap;
-
-      const startDate = safeFormatDate(c.date);
-      const rawEndDate = c.signup_end || c.signupEnd || c.end_date;
-      const endDate = safeFormatDate(rawEndDate);
-      
-      const todayStr = new Date().toISOString().split('T')[0];
-      const isExpired = endDate && todayStr > endDate;
-
-      const existingReg = myRegistrations.find(r => String(r.course_id) === String(c.course_id) && r.status !== 'cancelled');
-
-      let actionButtonHtml = '';
-      if (existingReg) {
-        if (existingReg.status === 'waitlist') {
-          actionButtonHtml = `<button onclick="openMyRegistrations()" class="w-full py-3 rounded-xl bg-amber-100 text-amber-800 border border-amber-300 font-extrabold text-sm shadow-sm transition cursor-pointer hover:bg-amber-200">⏳ 已在候補名單（點此查看）</button>`;
+  function buildCourseCard(c) {
+        // 💡 課程型別中文化對照
+        const typeMap = {
+          'judge': '裁判培訓',
+          'record': '紀錄培訓',
+          'general': '通識教育'
+        };
+        const typeLabel = typeMap[c.course_type] || c.course_type || '一般課程';
+        const typeBadgeColor = c.course_type === 'judge' ? 'bg-blue-100 text-blue-700' : (c.course_type === 'record' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700');
+        
+        // 💡 證照類別中文化對照（若有需要可自行增減）
+        const certTypeMap = {
+          'judge': '裁判',
+          'record': '紀錄',
+          'general': '通識'
+        };
+        const certTypeName = certTypeMap[c.certificate_type] || c.certificate_type || '';
+        const certLevelName = c.certificate_level ? `${c.certificate_level}級` : '';
+  
+        const enrolled = Number(c.current_enrollment) || 0;
+        const cap = Number(c.capacity) || 30;
+        const isFull = enrolled >= cap;
+  
+        const startDate = safeFormatDate(c.date);
+        const rawEndDate = c.signup_end || c.signupEnd || c.end_date;
+        const endDate = safeFormatDate(rawEndDate);
+        
+        const todayStr = new Date().toISOString().split('T')[0];
+        const isExpired = endDate && todayStr > endDate;
+  
+        const existingReg = myRegistrations.find(r => String(r.course_id) === String(c.course_id) && r.status !== 'cancelled');
+  
+        let actionButtonHtml = '';
+        if (existingReg) {
+          if (existingReg.status === 'waitlist') {
+            actionButtonHtml = `<button onclick="openMyRegistrations()" class="w-full py-3 rounded-xl bg-amber-100 text-amber-800 border border-amber-300 font-extrabold text-sm shadow-sm transition cursor-pointer hover:bg-amber-200">⏳ 已在候補名單（點此查看）</button>`;
+          } else {
+            actionButtonHtml = `<button onclick="openMyRegistrations()" class="w-full py-3 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold text-sm shadow-sm transition cursor-pointer hover:bg-emerald-200">✅ 您已成功報名（點此查看紀錄）</button>`;
+          }
+        } else if (isExpired) {
+          actionButtonHtml = `<button disabled class="w-full py-3 rounded-xl bg-slate-100 text-slate-400 border border-slate-200 font-extrabold text-sm cursor-not-allowed">報名已截止</button>`;
         } else {
-          actionButtonHtml = `<button onclick="openMyRegistrations()" class="w-full py-3 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold text-sm shadow-sm transition cursor-pointer hover:bg-emerald-200">✅ 您已成功報名（點此查看紀錄）</button>`;
+          if (isFull) {
+            actionButtonHtml = `<button onclick="openSignupModal('${c.course_id}')" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm shadow-sm transition cursor-pointer">正取已滿・登記候補</button>`;
+          } else {
+            actionButtonHtml = `<button onclick="openSignupModal('${c.course_id}')" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-extrabold text-sm shadow-sm transition cursor-pointer">立即報名</button>`;
+          }
         }
-      } else if (isExpired) {
-        actionButtonHtml = `<button disabled class="w-full py-3 rounded-xl bg-slate-100 text-slate-400 border border-slate-200 font-extrabold text-sm cursor-not-allowed">報名已截止</button>`;
-      } else {
-        if (isFull) {
-          actionButtonHtml = `<button onclick="openSignupModal('${c.course_id}')" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-sm shadow-sm transition cursor-pointer">正取已滿・登記候補</button>`;
-        } else {
-          actionButtonHtml = `<button onclick="openSignupModal('${c.course_id}')" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-extrabold text-sm shadow-sm transition cursor-pointer">立即報名</button>`;
-        }
+  
+        return `
+          <article class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition p-5 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <!-- 💡 顯示中文類別 -->
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${typeBadgeColor}">${typeLabel}</span>
+                  <!-- 💡 智慧組合證照名稱與級別（例如：證照：裁判 C級） -->
+                  ${c.certificate_type ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-purple-100 text-purple-700">證照：${certTypeName} ${certLevelName}</span>` : ''}
+                </div>
+                <span class="text-xs font-bold text-slate-500">培訓時數：${c.training_hours || 0} hr</span>
+              </div>
+  
+              <div>
+                <h3 class="text-xl font-black text-slate-900 leading-snug">${c.course_name || '未命名課程'}</h3>
+                <p class="text-xs font-bold text-slate-500 mt-1 flex items-center gap-1.5">
+                  <span>👨‍🏫 講師：${c.instructor || '依聯盟公告'}</span>
+                </p>
+              </div>
+  
+              <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70 space-y-2 text-xs text-slate-700">
+                <div class="flex items-center gap-2">
+                  <span>📅</span>
+                  <span class="font-bold">上課日期：</span>
+                  <span>${startDate || '未定'}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span>⏳</span>
+                  <span class="font-bold text-rose-600">報名截止：</span>
+                  <span class="font-bold text-rose-600">${endDate || '未設定'}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span>📍</span>
+                  <span class="font-bold">地點：</span>
+                  <span>${c.location || '實體 / 線上同步'}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span>💰</span>
+                  <span class="font-bold">費用：</span>
+                  <span class="font-extrabold text-slate-900">${Number(c.fee) === 0 ? '免費' : 'NT$ ' + c.fee}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span>👥</span>
+                  <span class="font-bold">名額：</span>
+                  <span>已報名 <strong>${enrolled}</strong> / 正取 ${cap}</span>
+                </div>
+                <div class="flex items-center gap-2 pt-1 border-t border-slate-200/60">
+                  <span>📌</span>
+                  <span class="font-bold">狀態：</span>
+                  <span class="${isExpired ? 'text-rose-600 font-black' : 'text-emerald-600 font-bold'}">${isExpired ? '已截止報名' : '報名中'}</span>
+                </div>
+              </div>
+            </div>
+  
+            <div class="pt-1">
+              ${actionButtonHtml}
+            </div>
+          </article>
+        `;
       }
-
-      return `
-        <article class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition p-5 flex flex-col justify-between space-y-4">
-          <div class="space-y-3">
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex flex-wrap items-center gap-1.5">
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${typeBadgeColor}">${typeLabel}</span>
-                ${c.certificate_type ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-purple-100 text-purple-700">證照 : ${c.certificate_type} ${c.certificate_level || ''}</span>` : ''}
-              </div>
-              <span class="text-xs font-bold text-slate-500">培訓時數 : ${c.training_hours || 0}hr</span>
-            </div>
-
-            <div>
-              <h3 class="text-xl font-black text-slate-900 leading-snug">${c.course_name || '未命名課程'}</h3>
-              <p class="text-xs font-bold text-slate-500 mt-1 flex items-center gap-1.5">
-                <span>👨‍🏫 講師：${c.instructor || '依聯盟公告'}</span>
-              </p>
-            </div>
-
-            <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70 space-y-2 text-xs text-slate-700">
-              <div class="flex items-center gap-2">
-                <span>📅</span>
-                <span class="font-bold">上課日期：</span>
-                <span>${startDate || '未定'}</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span>⏳</span>
-                <span class="font-bold text-rose-600">報名截止：</span>
-                <span class="font-bold text-rose-600">${endDate || '未設定'}</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span>📍</span>
-                <span class="font-bold">地點：</span>
-                <span>${c.location || '實體 / 線上同步'}</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span>💰</span>
-                <span class="font-bold">費用：</span>
-                <span class="font-extrabold text-slate-900">${Number(c.fee) === 0 ? '免費' : 'NT$ ' + c.fee}</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span>👥</span>
-                <span class="font-bold">名額：</span>
-                <span>已報名 <strong>${enrolled}</strong> / 正取 ${cap}</span>
-              </div>
-              <div class="flex items-center gap-2 pt-1 border-t border-slate-200/60">
-                <span>📌</span>
-                <span class="font-bold">狀態：</span>
-                <span class="${isExpired ? 'text-rose-600 font-black' : 'text-emerald-600 font-bold'}">${isExpired ? '已截止報名' : '報名中'}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="pt-1">
-            ${actionButtonHtml}
-          </div>
-        </article>
-      `;
-    }
 
     function openSignupModal(courseId) {
       const c = allCourses.find(x => String(x.course_id) === String(courseId));
