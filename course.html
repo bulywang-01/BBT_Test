@@ -325,15 +325,17 @@
     function fetchCourses(baseUrl) {
       const cb = 'jsonp_lobby_courses_' + Math.round(100000 * Math.random());
 
-      window[cb] = function(res) {
+    window[cb] = function(res) {
         delete window[cb];
         if (script.parentNode) script.parentNode.removeChild(script);
-        hideLoading();
         if (res && res.result === 'ok') {
-          allCourses = res.data || [];
+          myRegistrations = res.data || [];
+          renderMyRecords();
           renderCourses();
         } else {
-          showToast(res ? res.message : '無法取得課程列表', 'error');
+          // 💡 防呆：如果 res 或 res.message 不存在，給予預設文字，絕對不顯示 undefined
+          const errorMsg = (res && res.message) ? res.message : '無法取得報名紀錄（請確認後端是否已部署新版本）';
+          body.innerHTML = `<div class="text-center py-8 text-rose-500 font-bold">${errorMsg}</div>`;
         }
       };
 
