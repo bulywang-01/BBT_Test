@@ -629,7 +629,7 @@
       document.body.appendChild(script);
     }
 
-    function openMyRegistrations() {
+function openMyRegistrations() {
       document.getElementById('myRecordsModal').classList.remove('hidden');
       const body = document.getElementById('myRecordsBody');
       
@@ -644,25 +644,43 @@
       const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
       const cb = 'jsonp_my_courses_' + Math.round(100000 * Math.random());
 
+      // 先建立 script 元素，確保閉包內安全存取
+      const script = document.createElement('script');
+
+      // 設定 10 秒逾時防護
+      const timer = setTimeout(() => {
+        if (window[cb]) {
+          delete window[cb];
+          if (script.parentNode) script.parentNode.removeChild(script);
+          body.innerHTML = `<div class="text-center py-8 text-rose-500 font-bold">連線逾時，請檢查後端 API 部署是否正常</div>`;
+        }
+      }, 10000);
+
       window[cb] = function(res) {
+        clearTimeout(timer);
         delete window[cb];
         if (script.parentNode) script.parentNode.removeChild(script);
+
         if (res && res.result === 'ok') {
           myRegistrations = res.data || [];
           renderMyRecords();
           renderCourses();
         } else {
-          body.innerHTML = `<div class="text-center py-8 text-rose-500 font-bold">${res ? res.message : '無法取得報名紀錄'}</div>`;
+          // 💡 絕對防呆：若 res 或 res.message 不存在，提供預設文字，絕不出現 undefined
+          const errMsg = (res && typeof res.message === 'string') ? res.message : '無法取得報名紀錄（請確認後端是否已部署最新版本）';
+          body.innerHTML = `<div class="text-center py-8 text-rose-500 font-bold">${errMsg}</div>`;
         }
       };
 
-      const script = document.createElement('script');
       script.src = `${baseUrl}?action=getMyEnrollments&user_id=${encodeURIComponent(userId)}&name=${encodeURIComponent(userName)}&callback=${cb}`;
+      
       script.onerror = function() {
+        clearTimeout(timer);
         delete window[cb];
         if (script.parentNode) script.parentNode.removeChild(script);
-        body.innerHTML = `<div class="text-center py-8 text-rose-500 font-bold">網路連線異常</div>`;
+        body.innerHTML = `<div class="text-center py-8 text-rose-500 font-bold">網路連線異常，請檢查 API 網址或網路狀態</div>`;
       };
+
       document.body.appendChild(script);
     }
 
