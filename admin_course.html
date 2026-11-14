@@ -192,7 +192,7 @@
         <div class="page-title-bar flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
             <div class="page-title">📚 課程與報名管理中心</div>
-            <div class="page-desc">建立培訓課程、管理報名、審核繳費與後五碼、記錄出勤打卡、評分及結訓證書發放</div>
+            <div class="page-desc">建立培訓課程、管理報名、審核繳費與退費、記錄出勤打卡、評分及結訓證書發放</div>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
             <button id="tabBtnCourses" onclick="switchTab('courses')" class="tab-btn active">📅 課程場次管理</button>
@@ -241,10 +241,9 @@
             </div>
           </section>
 
- <section class="table-panel">
+          <section class="table-panel">
             <div class="table-header">
               <div class="table-title">📋 課程清單</div>
-              <!-- 💡 並排放置「財務報表」與「新增課程」按鈕 -->
               <div class="flex items-center gap-2 flex-wrap">
                 <button onclick="openFinanceReportModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
                   <span>📊</span>
@@ -306,9 +305,10 @@
                 <option value="all">所有課程</option>
               </select>
               <select id="filterPaymentStatus" onchange="renderEnrollmentTable()" class="px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white font-bold text-slate-700">
-                <option value="all">所有繳費狀態</option>
-                <option value="unpaid">待繳費 (unpaid/pending)</option>
-                <option value="paid">已繳費 (paid)</option>
+                <option value="all">所有帳務狀態</option>
+                <option value="unpaid">待繳費</option>
+                <option value="paid">已繳費</option>
+                <option value="refunded">已退費</option>
               </select>
               <div class="flex-1 min-w-[240px]">
                 <input id="txtEnrollSearch" class="search-input" type="text" placeholder="搜尋學員姓名、電話、匯款後五碼..." oninput="renderEnrollmentTable()">
@@ -706,12 +706,202 @@
   </div>
 </div>
 
+<!-- 辦理退費確認 Modal -->
+<div id="refundModal" class="modal hidden">
+  <div class="modal-dialog max-w-md">
+    <div class="px-5 py-4 bg-rose-900 text-white flex items-center justify-between">
+      <h3 class="font-extrabold text-base flex items-center gap-2">
+        <span>💸</span>
+        <span>辦理學員退費</span>
+      </h3>
+      <button onclick="closeModal('refundModal')" class="text-rose-200 hover:text-white p-1 rounded-lg">✕</button>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <input type="hidden" id="refundLogId">
+      <div class="bg-rose-50 border border-rose-200 rounded-xl p-3.5 space-y-1 text-xs">
+        <div class="font-black text-rose-950 text-sm" id="refundStudentName">-</div>
+        <div class="text-rose-700 font-bold" id="refundCourseInfo">-</div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">實際退費金額 (NT$) <span class="text-rose-500">*</span></label>
+        <input type="number" id="refundAmountInput" min="0" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl font-black text-rose-600 focus:outline-none focus:border-rose-500">
+        <p class="text-[11px] text-slate-400 mt-1">預設帶入課程全額費用，若有扣除手續費可直接修改數字。</p>
+      </div>
+
+      <label class="flex items-center gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 cursor-pointer">
+        <input type="checkbox" id="refundCancelSeatCheck" checked class="w-4 h-4 accent-rose-600">
+        <span class="text-xs font-bold text-slate-700">退費後同步取消該學員報名資格（釋出正取名額）</span>
+      </label>
+    </div>
+
+    <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+      <button type="button" onclick="closeModal('refundModal')" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-100">取消</button>
+      <button type="button" onclick="submitRefundAction()" class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-sm shadow-md shadow-rose-600/20">確認辦理退費</button>
+    </div>
+  </div>
+</div>
+
+<!-- 發送行前通知 Email Modal -->
+<div id="emailReminderModal" class="modal hidden">
+  <div class="modal-dialog max-w-xl">
+    <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
+      <h3 class="font-extrabold text-base flex items-center gap-2">
+        <span>✉️</span>
+        <span>發送課程行前通知信</span>
+      </h3>
+      <button onclick="closeModal('emailReminderModal')" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+    </div>
+
+    <div class="p-5 space-y-4 overflow-y-auto">
+      <div class="bg-blue-50/80 border border-blue-200 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <div class="text-xs font-bold text-blue-600">目標課程</div>
+          <div id="mailTargetCourseName" class="font-black text-slate-900 text-base">-</div>
+        </div>
+        <div class="text-right">
+          <span id="mailRecipientCountBadge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-blue-600 text-white">
+            有效收件人：0 位
+          </span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">收件對象篩選</label>
+          <select id="mailTargetFilter" onchange="updateMailRecipientsPreview()" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white font-bold">
+            <option value="all_active">全部有效報名者（不含已取消）</option>
+            <option value="confirmed_only">僅限正取學員（排除候補）</option>
+            <option value="unpaid_only">僅限尚未繳費學員</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">選擇固定信件範本</label>
+          <select id="mailTemplateSelect" onchange="applyMailTemplate()" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white font-bold text-indigo-700">
+            <option value="standard">📋 標準行前上課通知（預設）</option>
+            <option value="payment">💰 繳費提醒與報到須知</option>
+            <option value="online">💻 線上視訊課程連結通知</option>
+            <option value="custom">✏️ 清空自訂內容</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">信件主旨 <span class="text-rose-500">*</span></label>
+        <input type="text" id="mailSubjectInput" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl font-bold focus:outline-none focus:border-blue-500">
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label class="block text-xs font-bold text-slate-700">信件內容（可直接編輯修改） <span class="text-rose-500">*</span></label>
+          <span class="text-[11px] text-slate-400">可用變數：{name}、{course_name}、{date}、{location}</span>
+        </div>
+        <textarea id="mailBodyInput" rows="8" class="w-full p-3 text-sm border border-slate-300 rounded-xl leading-relaxed focus:outline-none focus:border-blue-500"></textarea>
+      </div>
+
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+        <div class="text-xs font-bold text-slate-600 mb-1">將發送至以下學員信箱：</div>
+        <div id="mailRecipientsListText" class="text-xs text-slate-500 max-h-20 overflow-y-auto leading-relaxed">
+          載入中...
+        </div>
+      </div>
+    </div>
+
+    <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end gap-2.5">
+      <button type="button" onclick="closeModal('emailReminderModal')" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-100">取消</button>
+      <button type="button" onclick="confirmAndSendReminder()" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm shadow-md shadow-blue-600/20 flex items-center gap-1.5">
+        <span>🚀</span>
+        <span>確認發送通知信</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 財務收費／退費報表 Modal -->
+<div id="financeReportModal" class="modal hidden">
+  <div class="modal-dialog max-w-4xl">
+    <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
+      <h3 class="font-extrabold text-base flex items-center gap-2">
+        <span>📊</span>
+        <span>財務收費與退費明細報表</span>
+      </h3>
+      <button onclick="closeModal('financeReportModal')" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+    </div>
+
+    <div class="p-5 space-y-4 overflow-y-auto bg-slate-50/50">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200">
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="financeCourseFilter" onchange="renderFinanceReport()" class="px-3 py-2 text-xs font-extrabold border border-slate-300 rounded-xl bg-white">
+            <option value="all">全部課程總覽</option>
+          </select>
+          <select id="financeStatusFilter" onchange="renderFinanceReport()" class="px-3 py-2 text-xs font-extrabold border border-slate-300 rounded-xl bg-white">
+            <option value="all">所有帳務狀態</option>
+            <option value="paid">僅看已繳費</option>
+            <option value="refunded">僅看已退費</option>
+            <option value="unpaid">僅看待繳費</option>
+          </select>
+        </div>
+        <button onclick="exportFinanceCSV()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
+          <span>📥</span>
+          <span>匯出財務報表 (CSV)</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="text-xs font-bold text-slate-500">已收款總額</div>
+          <div id="finTotalPaid" class="text-xl font-black text-emerald-600 mt-1">NT$ 0</div>
+          <div id="finPaidCount" class="text-[11px] text-slate-400 mt-0.5">0 筆已繳</div>
+        </div>
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="text-xs font-bold text-slate-500">累計退費總額</div>
+          <div id="finTotalRefund" class="text-xl font-black text-rose-600 mt-1">NT$ 0</div>
+          <div id="finRefundCount" class="text-[11px] text-slate-400 mt-0.5">0 筆退費</div>
+        </div>
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="text-xs font-bold text-slate-500">待收款金額</div>
+          <div id="finTotalUnpaid" class="text-xl font-black text-amber-600 mt-1">NT$ 0</div>
+          <div id="finUnpaidCount" class="text-[11px] text-slate-400 mt-0.5">0 筆待繳</div>
+        </div>
+        <div class="bg-blue-50/80 p-3.5 rounded-2xl border border-blue-200 shadow-sm">
+          <div class="text-xs font-bold text-blue-700">課程實收淨額</div>
+          <div id="finNetIncome" class="text-xl font-black text-blue-700 mt-1">NT$ 0</div>
+          <div class="text-[11px] text-blue-500 mt-0.5">已收 － 退費</div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-100 text-slate-600 border-b border-slate-200 font-extrabold">
+                <th class="p-3 whitespace-nowrap">編號 / 課程</th>
+                <th class="p-3 whitespace-nowrap">學員姓名 / 電話</th>
+                <th class="p-3 whitespace-nowrap">後五碼</th>
+                <th class="p-3 whitespace-nowrap">帳務狀態</th>
+                <th class="p-3 text-right whitespace-nowrap">應收費用</th>
+                <th class="p-3 text-right whitespace-nowrap">退費金額</th>
+                <th class="p-3 whitespace-nowrap">退費時間</th>
+              </tr>
+            </thead>
+            <tbody id="financeTableBody" class="divide-y divide-slate-100">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-5 py-3.5 bg-white border-t border-slate-200 flex justify-end">
+      <button onclick="closeModal('financeReportModal')" class="px-4 py-2 rounded-xl bg-slate-800 text-white font-bold text-sm hover:bg-slate-700">關閉報表</button>
+    </div>
+  </div>
+</div>
+
 <!-- Loading Mask -->
 <div id="loadingMask" class="hidden">
   <div class="loading-box" id="loadingText">處理中...</div>
 </div>
-
-// 
 
 <!-- Scripts -->
 <script src="js/auth.js"></script>
@@ -721,12 +911,19 @@
   let allEnrollments = [];
   let selectedAttendanceCourseId = '';
   let selectedCertCourseId = '';
+  let activeMailCourse = null;
+  let validMailRecipients = [];
 
   document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') lucide.createIcons();
     loadUserInfo();
     loadAllData();
   });
+
+  function closeModal(modalId) {
+    const el = document.getElementById(modalId);
+    if (el) el.classList.add('hidden');
+  }
 
   function loadUserInfo() {
     const session = (typeof getSession === 'function') ? getSession() : JSON.parse(localStorage.getItem('session_user') || '{}');
@@ -895,7 +1092,7 @@
     document.getElementById('certActiveSection').classList.add('hidden');
   }
 
-function renderCourseTable() {
+  function renderCourseTable() {
     const tbody = document.getElementById('courseTableBody');
     const keyword = (document.getElementById('txtSearch').value || '').toLowerCase();
     
@@ -940,7 +1137,6 @@ function renderCourseTable() {
     tbody.innerHTML = filtered.map(c => {
       const typeBadge = c.course_type === 'judge' ? 'badge-judge' : (c.course_type === 'record' ? 'badge-record' : 'badge-general');
       
-      // 1. 課程型別中文化對照
       const typeMap = {
         'judge': '裁判培訓',
         'record': '紀錄培訓',
@@ -948,7 +1144,6 @@ function renderCourseTable() {
       };
       const typeLabel = typeMap[c.course_type] || c.course_type || '一般課程';
 
-      // 2. 智慧解析證照級別（嚴格要求必須有具體級別才顯示）
       let rawCertType = String(c.certificate_type || '').trim();
       let rawLevel = String(c.certificate_level || '').trim();
       let certLevel = '';
@@ -983,7 +1178,6 @@ function renderCourseTable() {
             <div class="font-extrabold text-slate-900 text-base">${c.course_name || '-'}</div>
             <div class="flex flex-wrap items-center gap-1.5 mt-1">
               <span class="role-badge ${typeBadge}">${typeLabel}</span>
-              <!-- 💡 只有當有具體證照級別時才在後台顯示，無級別則自動隱藏 -->
               ${hasValidCert ? `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold whitespace-nowrap">證照：裁判 ${formattedLevel}</span>` : ''}
             </div>
           </td>
@@ -1002,7 +1196,6 @@ function renderCourseTable() {
           <td class="whitespace-nowrap"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${statusClass}">${statusText}</span></td>
           <td class="action-col whitespace-nowrap">
             <div class="action-group flex items-center gap-1.5">
-              <!-- 💡 新增：針對該門課程發送行前通知 -->
               <button onclick="openEmailReminderModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm transition flex items-center gap-1 cursor-pointer" title="發送行前通知">
                 <span>✉️</span>
                 <span>通知</span>
@@ -1016,7 +1209,6 @@ function renderCourseTable() {
     }).join('');
   }
 
-
   function loadEnrollmentData(activeTab = 'enrollments') {
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
     const cb = 'jsonp_enroll_logs_' + Math.round(100000 * Math.random());
@@ -1025,7 +1217,10 @@ function renderCourseTable() {
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       if (res && (res.result === 'ok' || res.result === 'success')) {
-        allEnrollments = (res.data || []).filter(item => String(item.status || '').trim().toLowerCase() !== 'cancelled');
+        allEnrollments = (res.data || []).map(item => ({
+          ...item,
+          payment_status: String(item.payment_status || 'unpaid').trim().toLowerCase()
+        }));
         
         updateEnrollmentStats();
         populateAllFilters(allEnrollments);
@@ -1055,8 +1250,9 @@ function renderCourseTable() {
   }
 
   function updateEnrollmentStats() {
-    const total = allEnrollments.length;
-    const paid = allEnrollments.filter(i => i.payment_status === 'paid').length;
+    const activeList = allEnrollments.filter(i => i.status !== 'cancelled');
+    const total = activeList.length;
+    const paid = activeList.filter(i => i.payment_status === 'paid').length;
     document.getElementById('statTotalEnroll').textContent = total;
     document.getElementById('statPaidEnroll').textContent = paid;
     document.getElementById('statUnpaidEnroll').textContent = total - paid;
@@ -1064,7 +1260,7 @@ function renderCourseTable() {
 
   function updateAttendanceStatsForActiveCourse() {
     if (!selectedAttendanceCourseId) return;
-    const courseLogs = allEnrollments.filter(i => String(i.course_id) === String(selectedAttendanceCourseId));
+    const courseLogs = allEnrollments.filter(i => String(i.course_id) === String(selectedAttendanceCourseId) && i.status !== 'cancelled');
     
     const totalPresent = courseLogs.length;
     const checkedIn = courseLogs.filter(i => {
@@ -1083,7 +1279,7 @@ function renderCourseTable() {
 
   function updateCertificateStatsForActiveCourse() {
     if (!selectedCertCourseId) return;
-    const courseLogs = allEnrollments.filter(i => String(i.course_id) === String(selectedCertCourseId));
+    const courseLogs = allEnrollments.filter(i => String(i.course_id) === String(selectedCertCourseId) && i.status !== 'cancelled');
 
     const scored = courseLogs.filter(i => i.score !== undefined && i.score !== '' && i.score !== null).length;
     const verified = courseLogs.filter(i => {
@@ -1108,10 +1304,8 @@ function renderCourseTable() {
       html += `<option value="${c.id}">${c.name}</option>`;
     });
 
-    ['filterCourseSelect', 'filterCertCourseSelect'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.innerHTML = html;
-    });
+    const fSelect = document.getElementById('filterCourseSelect');
+    if (fSelect) fSelect.innerHTML = html;
   }
 
   function renderEnrollmentTable() {
@@ -1121,6 +1315,7 @@ function renderCourseTable() {
     const keyword = (document.getElementById('txtEnrollSearch').value || '').toLowerCase();
 
     const filtered = allEnrollments.filter(item => {
+      if (item.status === 'cancelled' && item.payment_status !== 'refunded') return false;
       const matchC = cFilter === 'all' || String(item.course_id) === String(cFilter);
       const matchP = pFilter === 'all' || String(item.payment_status) === String(pFilter);
       const text = [item.name, item.phone, item.payment_account, item.course_name].join(' ').toLowerCase();
@@ -1134,21 +1329,53 @@ function renderCourseTable() {
     }
 
     tbody.innerHTML = filtered.map(item => {
-      const isPaid = item.payment_status === 'paid';
+      const payStatus = item.payment_status;
       const isWaitlist = item.status === 'waitlist';
 
-      const payBadge = isPaid 
-        ? `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已繳費</span>`
-        : `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">待繳費</span>`;
+      let payBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">待繳費</span>`;
+      if (payStatus === 'paid') {
+        payBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已繳費</span>`;
+      } else if (payStatus === 'refunded') {
+        payBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800">已退費</span>`;
+      }
 
       const statusBadge = isWaitlist
         ? `<span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">候補</span>`
         : `<span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">正取</span>`;
 
-      // 取得該課程預設費用
       const courseObj = allCourses.find(c => String(c.course_id) === String(item.course_id));
       const defaultFee = courseObj ? (courseObj.fee || 0) : 0;
       const currentAmount = item.payment_amount !== undefined && item.payment_amount !== '' ? item.payment_amount : defaultFee;
+
+      // 💡 繳費／退費條件式操作按鈕
+      let actionHtml = '';
+      if (payStatus === 'paid') {
+        actionHtml = `
+          <div class="flex items-center justify-end gap-1.5 flex-wrap">
+            <button onclick="openRefundModal('${item.log_id}', '${item.name || ''}', '${item.course_name || ''}', ${defaultFee})" class="px-2.5 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-extrabold transition cursor-pointer">
+              辦理退費
+            </button>
+            <button onclick="changePaymentStatus('${item.log_id}', 'unpaid')" class="px-2.5 py-1.5 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-extrabold transition cursor-pointer">
+              改未繳費
+            </button>
+          </div>
+        `;
+      } else if (payStatus === 'refunded') {
+        actionHtml = `
+          <div class="flex items-center justify-end gap-1.5 flex-wrap">
+            <span class="text-xs font-bold text-rose-600">已退 NT$${item.refund_amount || defaultFee}</span>
+            <button onclick="changePaymentStatus('${item.log_id}', 'unpaid')" class="px-2 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 text-[11px] font-bold transition cursor-pointer">
+              重設未繳
+            </button>
+          </div>
+        `;
+      } else {
+        actionHtml = `
+          <button onclick="openPaymentModal('${item.log_id}', '${item.name || ''}', '${item.course_name || ''}', '${item.payment_account || ''}', '${currentAmount}')" class="px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-extrabold transition cursor-pointer">
+            確認已繳費
+          </button>
+        `;
+      }
 
       return `
         <tr class="hover:bg-slate-50 transition">
@@ -1167,12 +1394,7 @@ function renderCourseTable() {
           <td class="p-4 text-xs font-bold text-slate-700">${item.dietary || '葷食'}</td>
           <td class="p-4">${statusBadge}</td>
           <td class="p-4">${payBadge}</td>
-          <td class="p-4 text-right">
-            ${isPaid 
-              ? `<button onclick="updateTrainingField('${item.log_id}', 'payment_status', 'unpaid', '繳費狀態')" class="px-3 py-1.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-extrabold transition">改未繳費</button>`
-              : `<button onclick="openPaymentModal('${item.log_id}', '${item.name || ''}', '${item.course_name || ''}', '${item.payment_account || ''}', '${currentAmount}')" class="px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-extrabold transition">確認已繳費</button>`
-            }
-          </td>
+          <td class="p-4 text-right">${actionHtml}</td>
         </tr>
       `;
     }).join('');
@@ -1235,6 +1457,348 @@ function renderCourseTable() {
     document.body.appendChild(script);
   }
 
+  // 💡 辦理退費相關函式
+  function openRefundModal(logId, studentName, courseName, defaultFee) {
+    document.getElementById('refundLogId').value = logId;
+    document.getElementById('refundStudentName').textContent = `學員：${studentName}（編號 #${logId}）`;
+    document.getElementById('refundCourseInfo').textContent = `課程：${courseName}｜原課程費用：NT$ ${defaultFee}`;
+    document.getElementById('refundAmountInput').value = defaultFee;
+    document.getElementById('refundCancelSeatCheck').checked = true;
+    document.getElementById('refundModal').classList.remove('hidden');
+  }
+
+  function submitRefundAction() {
+    const logId = document.getElementById('refundLogId').value;
+    const refundAmt = Number(document.getElementById('refundAmountInput').value) || 0;
+    const cancelSeat = document.getElementById('refundCancelSeatCheck').checked;
+
+    if (!confirm(`確定要為編號 #${logId} 辦理退費 NT$ ${refundAmt} 嗎？`)) return;
+
+    closeModal('refundModal');
+    changePaymentStatus(logId, 'refunded', refundAmt, cancelSeat);
+  }
+
+  function changePaymentStatus(logId, newStatus, refundAmount = 0, cancelSeat = false) {
+    showLoading('更新帳務狀態中...');
+    const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+    const cb = 'jsonp_pay_' + Math.round(100000 * Math.random());
+
+    const params = new URLSearchParams({
+      action: 'updatePaymentStatus',
+      log_id: logId,
+      payment_status: newStatus,
+      refund_amount: refundAmount,
+      cancel_seat: cancelSeat,
+      callback: cb,
+      _t: Date.now()
+    });
+
+    window[cb] = function(res) {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+
+      if (res && (res.result === 'ok' || res.result === 'success')) {
+        showToast('帳務狀態已更新！', 'success');
+        const target = allEnrollments.find(i => String(i.log_id) === String(logId));
+        if (target) {
+          target.payment_status = newStatus;
+          if (newStatus === 'refunded') {
+            target.refund_amount = refundAmount;
+            target.refund_date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            if (cancelSeat) target.status = 'cancelled';
+          } else if (newStatus === 'unpaid') {
+            target.refund_amount = 0;
+            target.refund_date = '';
+          }
+        }
+        renderEnrollmentTable();
+      } else {
+        showToast(res ? res.message : '更新失敗', 'error');
+      }
+    };
+
+    const script = document.createElement('script');
+    script.src = `${baseUrl}?${params.toString()}`;
+    script.onerror = function() {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      showToast('網路連線異常，請重試', 'error');
+    };
+    document.body.appendChild(script);
+  }
+
+  // 💡 財務報表 Modal 與計算
+  function openFinanceReportModal() {
+    const courseSelect = document.getElementById('financeCourseFilter');
+    if (courseSelect) {
+      courseSelect.innerHTML = `<option value="all">全部課程總覽（共 ${allCourses.length} 門）</option>` +
+        allCourses.map(c => `<option value="${c.course_id}">${c.course_name} (${c.date ? c.date.split('T')[0] : '未定'})</option>`).join('');
+    }
+    const statusFilter = document.getElementById('financeStatusFilter');
+    if (statusFilter) statusFilter.value = 'all';
+
+    renderFinanceReport();
+    document.getElementById('financeReportModal').classList.remove('hidden');
+  }
+
+  function renderFinanceReport() {
+    const selectedCourseId = document.getElementById('financeCourseFilter')?.value || 'all';
+    const selectedStatus = document.getElementById('financeStatusFilter')?.value || 'all';
+
+    const courseFiltered = allEnrollments.filter(item => {
+      if (selectedCourseId !== 'all' && String(item.course_id) !== String(selectedCourseId)) return false;
+      if (item.status === 'cancelled' && item.payment_status !== 'refunded') return false;
+      return true;
+    });
+
+    let totalPaid = 0, paidCount = 0;
+    let totalRefund = 0, refundCount = 0;
+    let totalUnpaid = 0, unpaidCount = 0;
+
+    courseFiltered.forEach(item => {
+      const cInfo = allCourses.find(c => String(c.course_id) === String(item.course_id)) || {};
+      const fee = Number(item.fee !== undefined ? item.fee : (cInfo.fee || 0));
+      const pStatus = String(item.payment_status || 'unpaid').toLowerCase();
+
+      if (pStatus === 'paid') {
+        totalPaid += fee;
+        paidCount++;
+      } else if (pStatus === 'refunded') {
+        const refAmt = Number(item.refund_amount || fee);
+        totalPaid += fee;
+        totalRefund += refAmt;
+        refundCount++;
+      } else {
+        totalUnpaid += fee;
+        unpaidCount++;
+      }
+    });
+
+    const netIncome = totalPaid - totalRefund;
+
+    if (document.getElementById('finTotalPaid')) document.getElementById('finTotalPaid').textContent = `NT$ ${totalPaid.toLocaleString()}`;
+    if (document.getElementById('finPaidCount')) document.getElementById('finPaidCount').textContent = `${paidCount} 筆已繳`;
+    if (document.getElementById('finTotalRefund')) document.getElementById('finTotalRefund').textContent = `NT$ ${totalRefund.toLocaleString()}`;
+    if (document.getElementById('finRefundCount')) document.getElementById('finRefundCount').textContent = `${refundCount} 筆退費`;
+    if (document.getElementById('finTotalUnpaid')) document.getElementById('finTotalUnpaid').textContent = `NT$ ${totalUnpaid.toLocaleString()}`;
+    if (document.getElementById('finUnpaidCount')) document.getElementById('finUnpaidCount').textContent = `${unpaidCount} 筆待繳`;
+    if (document.getElementById('finNetIncome')) document.getElementById('finNetIncome').textContent = `NT$ ${netIncome.toLocaleString()}`;
+
+    const finalRows = courseFiltered.filter(item => {
+      const pStatus = String(item.payment_status || 'unpaid').toLowerCase();
+      if (selectedStatus !== 'all' && pStatus !== selectedStatus) return false;
+      return true;
+    });
+
+    const tbody = document.getElementById('financeTableBody');
+    if (!tbody) return;
+
+    if (!finalRows.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 font-bold">目前篩選條件下無財務紀錄</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = finalRows.map(item => {
+      const cInfo = allCourses.find(c => String(c.course_id) === String(item.course_id)) || {};
+      const fee = Number(item.fee !== undefined ? item.fee : (cInfo.fee || 0));
+      const pStatus = String(item.payment_status || 'unpaid').toLowerCase();
+      const refAmt = pStatus === 'refunded' ? Number(item.refund_amount || fee) : 0;
+
+      let payBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">待繳費</span>`;
+      if (pStatus === 'paid') {
+        payBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已繳費</span>`;
+      } else if (pStatus === 'refunded') {
+        payBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800">已退費</span>`;
+      }
+
+      return `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-3">
+            <div class="font-extrabold text-slate-900">#${item.log_id} ${item.course_name || cInfo.course_name || ''}</div>
+          </td>
+          <td class="p-3">
+            <div class="font-bold text-slate-800">${item.name || '-'}</div>
+            <div class="text-[11px] text-slate-400">${item.phone || '-'}</div>
+          </td>
+          <td class="p-3 font-mono font-bold text-slate-600">${item.payment_account || '-'}</td>
+          <td class="p-3 whitespace-nowrap">${payBadge}</td>
+          <td class="p-3 text-right font-mono font-bold text-slate-800">NT$ ${fee.toLocaleString()}</td>
+          <td class="p-3 text-right font-mono font-bold ${refAmt > 0 ? 'text-rose-600' : 'text-slate-300'}">
+            ${refAmt > 0 ? '- NT$ ' + refAmt.toLocaleString() : '-'}
+          </td>
+          <td class="p-3 text-[11px] font-mono text-slate-500">${item.refund_date || '-'}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function exportFinanceCSV() {
+    const selectedCourseId = document.getElementById('financeCourseFilter')?.value || 'all';
+    const rows = allEnrollments.filter(item => {
+      if (selectedCourseId !== 'all' && String(item.course_id) !== String(selectedCourseId)) return false;
+      if (item.status === 'cancelled' && item.payment_status !== 'refunded') return false;
+      return true;
+    });
+
+    if (!rows.length) {
+      showToast('目前沒有可匯出的資料', 'warn');
+      return;
+    }
+
+    let csv = '\uFEFF報名編號,課程名稱,學員姓名,聯絡電話,匯款後五碼,帳務狀態,應收費用,退費金額,退費時間\n';
+    rows.forEach(item => {
+      const cInfo = allCourses.find(c => String(c.course_id) === String(item.course_id)) || {};
+      const fee = Number(item.fee !== undefined ? item.fee : (cInfo.fee || 0));
+      const pStatus = String(item.payment_status || 'unpaid').toLowerCase();
+      const statusText = pStatus === 'paid' ? '已繳費' : (pStatus === 'refunded' ? '已退費' : '待繳費');
+      const refAmt = pStatus === 'refunded' ? Number(item.refund_amount || fee) : 0;
+
+      csv += `"#${item.log_id}","${item.course_name || cInfo.course_name || ''}","${item.name || ''}","${item.phone || ''}","${item.payment_account || ''}","${statusText}",${fee},${refAmt},"${item.refund_date || ''}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `BBT課程財務收退費報表_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // 💡 行前通知 Email 相關函式
+  function openEmailReminderModal(courseId) {
+    const course = allCourses.find(c => String(c.course_id) === String(courseId));
+    if (!course) {
+      showToast('找不到課程資料', 'error');
+      return;
+    }
+
+    activeMailCourse = course;
+    document.getElementById('mailTargetCourseName').textContent = course.course_name || '培訓課程';
+    document.getElementById('mailTargetFilter').value = 'all_active';
+    document.getElementById('mailTemplateSelect').value = 'standard';
+
+    updateMailRecipientsPreview();
+    applyMailTemplate();
+
+    document.getElementById('emailReminderModal').classList.remove('hidden');
+  }
+
+  function updateMailRecipientsPreview() {
+    if (!activeMailCourse) return;
+    const filterType = document.getElementById('mailTargetFilter').value;
+
+    const courseEnrollments = allEnrollments.filter(e => 
+      String(e.course_id) === String(activeMailCourse.course_id) && e.status !== 'cancelled'
+    );
+
+    const filtered = courseEnrollments.filter(e => {
+      if (filterType === 'confirmed_only') return e.status !== 'waitlist';
+      if (filterType === 'unpaid_only') return e.payment_status !== 'paid';
+      return true;
+    });
+
+    validMailRecipients = filtered
+      .filter(e => e.email && String(e.email).includes('@'))
+      .map(e => ({ name: e.name || '學員', email: String(e.email).trim() }));
+
+    const noEmailCount = filtered.length - validMailRecipients.length;
+
+    document.getElementById('mailRecipientCountBadge').textContent = `有效收件人：${validMailRecipients.length} 位`;
+    
+    if (validMailRecipients.length === 0) {
+      document.getElementById('mailRecipientsListText').innerHTML = `<span class="text-rose-500 font-bold">目前篩選條件下沒有任何填寫 Email 的學員。</span>`;
+    } else {
+      const namesStr = validMailRecipients.map(r => `${r.name} <${r.email}>`).join('、');
+      const warnStr = noEmailCount > 0 ? `<div class="text-amber-600 font-bold mt-1">※ 另有 ${noEmailCount} 位學員未填寫信箱，系統將自動略過。</div>` : '';
+      document.getElementById('mailRecipientsListText').innerHTML = namesStr + warnStr;
+    }
+  }
+
+  function applyMailTemplate() {
+    if (!activeMailCourse) return;
+    const tpl = document.getElementById('mailTemplateSelect').value;
+    const cName = activeMailCourse.course_name || '培訓課程';
+    const cDate = activeMailCourse.date ? activeMailCourse.date.split('T')[0] : '依公告日期';
+    const cTime = activeMailCourse.time || '請提前 15 分鐘報到';
+    const cLoc = activeMailCourse.location || '依聯盟公告地點';
+
+    const subjectEl = document.getElementById('mailSubjectInput');
+    const bodyEl = document.getElementById('mailBodyInput');
+
+    if (tpl === 'standard') {
+      subjectEl.value = `【BBT聯盟行前通知】${cName}（${cDate}）上課資訊提醒`;
+      bodyEl.value = `{name} 您好：\n\n提醒您已報名參加 BBT 聯盟舉辦之「{course_name}」，以下為本次課程資訊，請準時出席：\n\n📅 上課日期：${cDate}\n⏰ 上課時間：${cTime}\n📍 上課地點：${cLoc}\n\n【注意事項】\n1. 現場採實名簽到與簽退制，請務必於課程開始前完成報到，課程結束後完成簽退，以利採計研習時數。\n2. 請攜帶個人文具與水壺。\n3. 若臨時不克前來，請儘早聯繫聯盟主辦單位。\n\nBBT 聯盟 敬上`;
+    } else if (tpl === 'payment') {
+      subjectEl.value = `【繳費與報到提醒】${cName}（${cDate}）報名確認通知`;
+      bodyEl.value = `{name} 您好：\n\n感謝您報名「{course_name}」。\n提醒您若尚未完成課程費用轉帳，請於開課前完成匯款並確認帳號後五碼資訊，以確保您的正取資格。\n\n📅 上課日期：${cDate}\n📍 上課地點：${cLoc}\n\n如已完成繳費請忽略此提醒，期待在課程中見到您！\n\nBBT 聯盟 敬上`;
+    } else if (tpl === 'online') {
+      subjectEl.value = `【線上課程通知】${cName}（${cDate}）視訊會議連結與須知`;
+      bodyEl.value = `{name} 您好：\n\n您報名的「{course_name}」即將開始，本次採線上視訊方式進行：\n\n📅 上課日期：${cDate}\n⏰ 會議時間：${cTime}\n🔗 視訊連結：（請在此貼上 Google Meet / Zoom 連結）\n\n【線上上課須知】\n1. 進入會議室時，請將顯示名稱改為您的「真實姓名」，以利工作人員核對簽到。\n2. 課程期間請保持麥克風靜音，並依講師指示開啟鏡頭。\n\nBBT 聯盟 敬上`;
+    } else {
+      subjectEl.value = `【BBT聯盟通知】${cName}`;
+      bodyEl.value = `{name} 您好：\n\n`;
+    }
+  }
+
+  function confirmAndSendReminder() {
+    if (validMailRecipients.length === 0) {
+      showToast('目前沒有可寄送的收件人 Email', 'warn');
+      return;
+    }
+
+    const subject = document.getElementById('mailSubjectInput').value.trim();
+    const body = document.getElementById('mailBodyInput').value.trim();
+
+    if (!subject || !body) {
+      showToast('請填寫完整的信件主旨與內容', 'warn');
+      return;
+    }
+
+    if (!confirm(`確定要發送行前通知信給這 ${validMailRecipients.length} 位學員嗎？`)) return;
+
+    showLoading(`正在發送 ${validMailRecipients.length} 封通知信...`);
+    const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+    const cb = 'jsonp_send_mail_' + Math.round(100000 * Math.random());
+
+    const params = new URLSearchParams({
+      action: 'sendCourseReminder',
+      course_name: activeMailCourse.course_name || '',
+      date: activeMailCourse.date ? activeMailCourse.date.split('T')[0] : '',
+      time: activeMailCourse.time || '',
+      location: activeMailCourse.location || '',
+      subject: subject,
+      body: body,
+      recipients: JSON.stringify(validMailRecipients),
+      callback: cb
+    });
+
+    window[cb] = function(res) {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+
+      if (res && res.result === 'ok') {
+        showToast(res.message || '通知信已全數發送完成！', 'success');
+        closeModal('emailReminderModal');
+      } else {
+        showToast(res ? res.message : '發送失敗，請檢查後端設定', 'error');
+      }
+    };
+
+    const script = document.createElement('script');
+    script.src = `${baseUrl}?${params.toString()}`;
+    script.onerror = function() {
+      delete window[cb];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      hideLoading();
+      showToast('連線逾時或信件過長，請縮短內文後重試', 'error');
+    };
+    document.body.appendChild(script);
+  }
+
   function renderAttendanceTable() {
     const tbody = document.getElementById('attendanceTableBody');
     if (!selectedAttendanceCourseId) {
@@ -1285,7 +1849,6 @@ function renderCourseTable() {
         if (cDate > todayStr) isCourseNotStarted = true;
       }
 
-// 💡 智慧判定：只要有簽到或簽退紀錄，就自動視為「出席」，否則為「缺席」
       const isActuallyPresent = hasCheckedIn || hasCheckedOut || item.attendance_status === 'present';
 
       const attBadge = isActuallyPresent
@@ -1315,7 +1878,7 @@ function renderCourseTable() {
           <td class="p-4 text-xs font-mono font-bold text-slate-700 whitespace-nowrap">${checkinHtml}</td>
           <td class="p-4 text-xs font-mono font-bold text-slate-700 whitespace-nowrap">${checkoutHtml}</td>
           <td class="p-4 text-right space-x-2 whitespace-nowrap">
-            <button onclick="doAttendanceAction('${item.log_id}', 'checkin')" ${checkinBtnDisabled} class="px-2.5 py-1.5 rounded-xl border text-xs font-extrabold transition ${checkinBtnClass}" title="${isCourseNotStarted ? '課程日期為 ' + courseDateText + '，尚未開始' : ''}">
+            <button onclick="doAttendanceAction('${item.log_id}', 'checkin')" ${checkinBtnDisabled} class="px-2.5 py-1.5 rounded-xl border text-xs font-extrabold transition ${checkinBtnClass}">
               ${checkinBtnText}
             </button>
             <button onclick="doAttendanceAction('${item.log_id}', 'checkout')" ${checkoutBtnDisabled} class="px-2.5 py-1.5 rounded-xl border text-xs font-extrabold transition ${checkoutBtnClass}">
@@ -1327,7 +1890,7 @@ function renderCourseTable() {
     }).join('');
   }
 
-function doAttendanceAction(logId, actionType) {
+  function doAttendanceAction(logId, actionType) {
     const actionName = actionType === 'checkin' ? '簽到' : '簽退';
     showLoading(`執行${actionName}...`);
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
@@ -1346,17 +1909,14 @@ function doAttendanceAction(logId, actionType) {
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
 
-      // 💡 產生當前格式化時間 (YYYY-MM-DD HH:mm:ss)
       const now = new Date();
       const pad = n => String(n).padStart(2, '0');
       const nowStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
       
-      // 💡 強力容錯：不管後端回傳什麼或甚至沒回傳，只要有回應就視為成功
       const isSuccess = !res || res.result === 'ok' || res.result === 'success' || res.status === 'ok' || typeof res === 'object';
 
       if (isSuccess) {
         showToast(`${actionName}成功！`, 'success');
-        
         const returnedTime = (res && (res.time || res.checkin_time || res.checkout_time || res.checkinTime || res.checkoutTime)) || nowStr;
 
         const target = allEnrollments.find(i => String(i.log_id) === String(logId));
@@ -1368,7 +1928,6 @@ function doAttendanceAction(logId, actionType) {
             target.checkout_time = returnedTime;
             target.checkoutTime = returnedTime;
           }
-          // 同步更新出席狀態為已出席
           target.attendance_status = 'present';
         }
 
@@ -1385,8 +1944,6 @@ function doAttendanceAction(logId, actionType) {
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
-      
-      // 網路連線若偶發性阻斷，也給予正面提示並嘗試刷新畫面
       showToast(`${actionName}已送出`, 'success');
       loadEnrollmentData('attendance');
     };
@@ -1414,50 +1971,47 @@ function doAttendanceAction(logId, actionType) {
     }
 
     tbody.innerHTML = filtered.map(item => {
-          const val = String(item.certificate_verified || '').trim().toLowerCase();
-          const scoreNum = Number(item.score);
-          const hasScore = item.score !== undefined && item.score !== '' && item.score !== null && !isNaN(scoreNum);
-    
-          // 💡 智慧判定邏輯：
-          // 1. 如果有成績且低於 60 分，強制判定為未通過 (rejected)
-          // 2. 否則依據後端資料庫的設定 (verified / rejected / pending)
-          let finalStatus = val;
-          if (hasScore && scoreNum < 60 && finalStatus === 'pending') {
-            finalStatus = 'rejected';
-          }
-    
-          const isVerified = (finalStatus === 'verified' || finalStatus === 'yes' || finalStatus === 'true');
-          const isRejected = (finalStatus === 'rejected' || finalStatus === 'no' || (hasScore && scoreNum < 60));
-    
-          let certBadge = '';
-          if (isVerified) {
-            certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已確認 (verified)</span>`;
-          } else if (isRejected) {
-            certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800">未通過 (rejected)</span>`;
-          } else {
-            certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">待確認 (pending)</span>`;
-          }
-    
-          return `
-            <tr class="hover:bg-slate-50 transition">
-              <td class="p-4 text-xs font-bold text-slate-700">#${item.log_id || '-'}</td>
-              <td class="p-4">
-                <div class="font-extrabold text-slate-900">${item.name || '未填'}</div>
-                <div class="text-xs text-slate-500">${item.phone || '-'}</div>
-              </td>
-              <td class="p-4 font-black ${hasScore && scoreNum < 60 ? 'text-rose-600' : 'text-blue-600'} text-base">
-                ${hasScore ? item.score : '<span class="text-slate-400 font-normal text-xs">未登錄</span>'}
-              </td>
-              <td class="p-4">${certBadge}</td>
-              <td class="p-4 text-xs font-mono text-slate-600">${item.certificate_verified_date || '-'}</td>
-              <td class="p-4 text-right">
-                <button onclick="openScoreCertModal('${item.log_id}', '${item.name || ''}', '${hasScore ? item.score : ''}', '${item.certificate_verified || 'pending'}')" class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-extrabold transition">
-                  編輯成績與證書
-                </button>
-              </td>
-            </tr>
-          `;
-        }).join('');
+      const val = String(item.certificate_verified || '').trim().toLowerCase();
+      const scoreNum = Number(item.score);
+      const hasScore = item.score !== undefined && item.score !== '' && item.score !== null && !isNaN(scoreNum);
+
+      let finalStatus = val;
+      if (hasScore && scoreNum < 60 && finalStatus === 'pending') {
+        finalStatus = 'rejected';
+      }
+
+      const isVerified = (finalStatus === 'verified' || finalStatus === 'yes' || finalStatus === 'true');
+      const isRejected = (finalStatus === 'rejected' || finalStatus === 'no' || (hasScore && scoreNum < 60));
+
+      let certBadge = '';
+      if (isVerified) {
+        certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已確認 (verified)</span>`;
+      } else if (isRejected) {
+        certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800">未通過 (rejected)</span>`;
+      } else {
+        certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">待確認 (pending)</span>`;
+      }
+
+      return `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-4 text-xs font-bold text-slate-700">#${item.log_id || '-'}</td>
+          <td class="p-4">
+            <div class="font-extrabold text-slate-900">${item.name || '未填'}</div>
+            <div class="text-xs text-slate-500">${item.phone || '-'}</div>
+          </td>
+          <td class="p-4 font-black ${hasScore && scoreNum < 60 ? 'text-rose-600' : 'text-blue-600'} text-base">
+            ${hasScore ? item.score : '<span class="text-slate-400 font-normal text-xs">未登錄</span>'}
+          </td>
+          <td class="p-4">${certBadge}</td>
+          <td class="p-4 text-xs font-mono text-slate-600">${item.certificate_verified_date || '-'}</td>
+          <td class="p-4 text-right">
+            <button onclick="openScoreCertModal('${item.log_id}', '${item.name || ''}', '${hasScore ? item.score : ''}', '${item.certificate_verified || 'pending'}')" class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-extrabold transition">
+              編輯成績與證書
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
   }
 
   function openScoreCertModal(logId, studentName, score, verified) {
@@ -1494,7 +2048,6 @@ function doAttendanceAction(logId, actionType) {
       delete window[cb];
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
-      
       closeScoreCertModal();
 
       if (res && (res.result === 'ok' || res.result === 'success')) {
@@ -1521,36 +2074,6 @@ function doAttendanceAction(logId, actionType) {
       if (script.parentNode) script.parentNode.removeChild(script);
       hideLoading();
       closeScoreCertModal();
-      showToast('網路連線異常，請重整頁面', 'error');
-    };
-    document.body.appendChild(script);
-  }
-
-  function updateTrainingField(logId, field, value, labelName) {
-    if (!confirm(`確定要將紀錄 #${logId} 的${labelName}更改為「${value === 'paid' ? '已繳費' : '未繳費'}」嗎？`)) return;
-
-    showLoading(`更新${labelName}...`);
-    const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
-    const cb = 'jsonp_update_field_' + Math.round(100000 * Math.random());
-
-    window[cb] = function(res) {
-      delete window[cb];
-      if (script.parentNode) script.parentNode.removeChild(script);
-      hideLoading();
-      if (res && (res.result === 'ok' || res.result === 'success')) {
-        showToast(`${labelName}更新成功！`, 'success');
-        loadEnrollmentData('enrollments');
-      } else {
-        showToast((res ? res.message : '更新失敗') + '，請重整頁面', 'error');
-      }
-    };
-
-    const script = document.createElement('script');
-    script.src = `${baseUrl}?action=updateTrainingStatus&log_id=${encodeURIComponent(logId)}&field=${encodeURIComponent(field)}&value=${encodeURIComponent(value)}&callback=${cb}`;
-    script.onerror = function() {
-      delete window[cb];
-      if (script.parentNode) script.parentNode.removeChild(script);
-      hideLoading();
       showToast('網路連線異常，請重整頁面', 'error');
     };
     document.body.appendChild(script);
