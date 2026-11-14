@@ -982,9 +982,10 @@
     }
   }
 
-  function loadAllData() {
-    loadCourses();
-  }
+function loadAllData() {
+  loadCourses();
+  loadEnrollmentData('enrollments'); // 確保開機就預先載入報名與繳費、Email 資料
+}
 
   function loadCourses() {
     showLoading('載入課程資料中...');
