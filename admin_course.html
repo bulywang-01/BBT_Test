@@ -1332,8 +1332,8 @@ function renderEnrollmentTable() {
       const payStatus = item.payment_status;
       const isWaitlist = item.status === 'waitlist';
       
-      // 💡 關鍵修正：確實判斷後端傳來的 status 是否為 cancelled，或是繳費狀態為 refunded
-      const isCancelled = item.status === 'cancelled' || payStatus === 'refunded';
+      // 💡 雙重保險：只要後端 status 是 cancelled，或是繳費狀態是 refunded，一律判定為已取消！
+      const isCancelled = item.status === 'cancelled' || payStatus === 'refunded' || item.status === 'refunded';
 
       let statusBadge = `<span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">正取</span>`;
       if (isWaitlist) {
@@ -1404,7 +1404,6 @@ function renderEnrollmentTable() {
       `;
     }).join('');
   }
-
   
   function openPaymentModal(logId, studentName, courseName, payAccount, defaultAmount) {
     document.getElementById('modal_pay_log_id').value = logId;
