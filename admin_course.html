@@ -1347,7 +1347,6 @@
       const defaultFee = courseObj ? (courseObj.fee || 0) : 0;
       const currentAmount = item.payment_amount !== undefined && item.payment_amount !== '' ? item.payment_amount : defaultFee;
 
-      // 💡 繳費／退費條件式操作按鈕
       let actionHtml = '';
       if (payStatus === 'paid') {
         actionHtml = `
@@ -1400,7 +1399,6 @@
     }).join('');
   }
 
-  // 繳費確認彈窗開關與送出
   function openPaymentModal(logId, studentName, courseName, payAccount, defaultAmount) {
     document.getElementById('modal_pay_log_id').value = logId;
     document.getElementById('modal_pay_student_info').textContent = `${studentName} (${courseName})`;
@@ -1457,7 +1455,6 @@
     document.body.appendChild(script);
   }
 
-  // 💡 辦理退費相關函式
   function openRefundModal(logId, studentName, courseName, defaultFee) {
     document.getElementById('refundLogId').value = logId;
     document.getElementById('refundStudentName').textContent = `學員：${studentName}（編號 #${logId}）`;
@@ -1529,7 +1526,6 @@
     document.body.appendChild(script);
   }
 
-  // 💡 財務報表 Modal 與計算
   function openFinanceReportModal() {
     const courseSelect = document.getElementById('financeCourseFilter');
     if (courseSelect) {
@@ -1559,14 +1555,14 @@
 
     courseFiltered.forEach(item => {
       const cInfo = allCourses.find(c => String(c.course_id) === String(item.course_id)) || {};
-      const fee = Number(item.fee !== undefined ? item.fee : (cInfo.fee || 0));
+      const fee = Number(item.payment_amount !== undefined && item.payment_amount !== '' ? item.payment_amount : (cInfo.fee || 0));
       const pStatus = String(item.payment_status || 'unpaid').toLowerCase();
 
       if (pStatus === 'paid') {
         totalPaid += fee;
         paidCount++;
       } else if (pStatus === 'refunded') {
-        const refAmt = Number(item.refund_amount || fee);
+        const refAmt = Number(item.refund_amount !== undefined ? item.refund_amount : fee);
         totalPaid += fee;
         totalRefund += refAmt;
         refundCount++;
@@ -1602,9 +1598,9 @@
 
     tbody.innerHTML = finalRows.map(item => {
       const cInfo = allCourses.find(c => String(c.course_id) === String(item.course_id)) || {};
-      const fee = Number(item.fee !== undefined ? item.fee : (cInfo.fee || 0));
+      const fee = Number(item.payment_amount !== undefined && item.payment_amount !== '' ? item.payment_amount : (cInfo.fee || 0));
       const pStatus = String(item.payment_status || 'unpaid').toLowerCase();
-      const refAmt = pStatus === 'refunded' ? Number(item.refund_amount || fee) : 0;
+      const refAmt = pStatus === 'refunded' ? Number(item.refund_amount !== undefined ? item.refund_amount : fee) : 0;
 
       let payBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">待繳費</span>`;
       if (pStatus === 'paid') {
@@ -1637,7 +1633,7 @@
   function exportFinanceCSV() {
     const selectedCourseId = document.getElementById('financeCourseFilter')?.value || 'all';
     const rows = allEnrollments.filter(item => {
-      if (selectedCourseId !== 'all' && String(item.course_id) !== String(selectedCourseId)) return false;
+      if (selectedCourseId !== 'all' && String(item.course_id) === String(selectedCourseId)) return false;
       if (item.status === 'cancelled' && item.payment_status !== 'refunded') return false;
       return true;
     });
@@ -1647,15 +1643,17 @@
       return;
     }
 
-    let csv = '\uFEFF報名編號,課程名稱,學員姓名,聯絡電話,匯款後五碼,帳務狀態,應收費用,退費金額,退費時間\n';
+    let csv = '﻿報名編號,課程名稱,學員姓名,聯絡電話,匯款後五碼,帳務狀態,應收費用,退費金額,退費時間
+';
     rows.forEach(item => {
       const cInfo = allCourses.find(c => String(c.course_id) === String(item.course_id)) || {};
-      const fee = Number(item.fee !== undefined ? item.fee : (cInfo.fee || 0));
+      const fee = Number(item.payment_amount !== undefined && item.payment_amount !== '' ? item.payment_amount : (cInfo.fee || 0));
       const pStatus = String(item.payment_status || 'unpaid').toLowerCase();
       const statusText = pStatus === 'paid' ? '已繳費' : (pStatus === 'refunded' ? '已退費' : '待繳費');
-      const refAmt = pStatus === 'refunded' ? Number(item.refund_amount || fee) : 0;
+      const refAmt = pStatus === 'refunded' ? Number(item.refund_amount !== undefined ? item.refund_amount : fee) : 0;
 
-      csv += `"#${item.log_id}","${item.course_name || cInfo.course_name || ''}","${item.name || ''}","${item.phone || ''}","${item.payment_account || ''}","${statusText}",${fee},${refAmt},"${item.refund_date || ''}"\n`;
+      csv += `"#${item.log_id}","${item.course_name || cInfo.course_name || ''}","${item.name || ''}","${item.phone || ''}","${item.payment_account || ''}","${statusText}",${fee},${refAmt},"${item.refund_date || ''}"
+`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1667,7 +1665,6 @@
     URL.revokeObjectURL(url);
   }
 
-  // 💡 行前通知 Email 相關函式
   function openEmailReminderModal(courseId) {
     const course = allCourses.find(c => String(c.course_id) === String(courseId));
     if (!course) {
@@ -1730,16 +1727,53 @@
 
     if (tpl === 'standard') {
       subjectEl.value = `【BBT聯盟行前通知】${cName}（${cDate}）上課資訊提醒`;
-      bodyEl.value = `{name} 您好：\n\n提醒您已報名參加 BBT 聯盟舉辦之「{course_name}」，以下為本次課程資訊，請準時出席：\n\n📅 上課日期：${cDate}\n⏰ 上課時間：${cTime}\n📍 上課地點：${cLoc}\n\n【注意事項】\n1. 現場採實名簽到與簽退制，請務必於課程開始前完成報到，課程結束後完成簽退，以利採計研習時數。\n2. 請攜帶個人文具與水壺。\n3. 若臨時不克前來，請儘早聯繫聯盟主辦單位。\n\nBBT 聯盟 敬上`;
+      bodyEl.value = `{name} 您好：
+
+提醒您已報名參加 BBT 聯盟舉辦之「{course_name}」，以下為本次課程資訊，請準時出席：
+
+📅 上課日期：${cDate}
+⏰ 上課時間：${cTime}
+📍 上課地點：${cLoc}
+
+【注意事項】
+1. 現場採實名簽到與簽退制，請務必於課程開始前完成報到，課程結束後完成簽退，以利採計研習時數。
+2. 請攜帶個人文具與水壺。
+3. 若臨時不克前來，請儘早聯繫聯盟主辦單位。
+
+BBT 聯盟 敬上`;
     } else if (tpl === 'payment') {
       subjectEl.value = `【繳費與報到提醒】${cName}（${cDate}）報名確認通知`;
-      bodyEl.value = `{name} 您好：\n\n感謝您報名「{course_name}」。\n提醒您若尚未完成課程費用轉帳，請於開課前完成匯款並確認帳號後五碼資訊，以確保您的正取資格。\n\n📅 上課日期：${cDate}\n📍 上課地點：${cLoc}\n\n如已完成繳費請忽略此提醒，期待在課程中見到您！\n\nBBT 聯盟 敬上`;
+      bodyEl.value = `{name} 您好：
+
+感謝您報名「{course_name}」。
+提醒您若尚未完成課程費用轉帳，請於開課前完成匯款並確認帳號後五碼資訊，以確保您的正取資格。
+
+📅 上課日期：${cDate}
+📍 上課地點：${cLoc}
+
+如已完成繳費請忽略此提醒，期待在課程中見到您！
+
+BBT 聯盟 敬上`;
     } else if (tpl === 'online') {
       subjectEl.value = `【線上課程通知】${cName}（${cDate}）視訊會議連結與須知`;
-      bodyEl.value = `{name} 您好：\n\n您報名的「{course_name}」即將開始，本次採線上視訊方式進行：\n\n📅 上課日期：${cDate}\n⏰ 會議時間：${cTime}\n🔗 視訊連結：（請在此貼上 Google Meet / Zoom 連結）\n\n【線上上課須知】\n1. 進入會議室時，請將顯示名稱改為您的「真實姓名」，以利工作人員核對簽到。\n2. 課程期間請保持麥克風靜音，並依講師指示開啟鏡頭。\n\nBBT 聯盟 敬上`;
+      bodyEl.value = `{name} 您好：
+
+您報名的「{course_name}」即將開始，本次採線上視訊方式進行：
+
+📅 上課日期：${cDate}
+⏰ 會議時間：${cTime}
+🔗 視訊連結：（請在此貼上 Google Meet / Zoom 連結）
+
+【線上上課須知】
+1. 進入會議室時，請將顯示名稱改為您的「真實姓名」，以利工作人員核對簽到。
+2. 課程期間請保持麥克風靜音，並依講師指示開啟鏡頭。
+
+BBT 聯盟 敬上`;
     } else {
       subjectEl.value = `【BBT聯盟通知】${cName}`;
-      bodyEl.value = `{name} 您好：\n\n`;
+      bodyEl.value = `{name} 您好：
+
+`;
     }
   }
 
