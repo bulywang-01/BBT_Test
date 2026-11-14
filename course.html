@@ -747,125 +747,126 @@
     }
 
 function renderMyEnrollmentTableRow(item) {
-      const rawCheckin = String(item.checkin_time || item.checkinTime || item.check_in || '').trim();
-      const rawCheckout = String(item.checkout_time || item.checkoutTime || item.check_out || '').trim();
+    const rawCheckin = String(item.checkin_time || item.checkinTime || item.check_in || '').trim();
+    const rawCheckout = String(item.checkout_time || item.checkoutTime || item.check_out || '').trim();
 
-      const hasCheckin = rawCheckin !== '' && rawCheckin !== '-' && rawCheckin !== 'undefined' && rawCheckin !== 'null';
-      const hasCheckout = rawCheckout !== '' && rawCheckout !== '-' && rawCheckout !== 'undefined' && rawCheckout !== 'null';
+    const hasCheckin = rawCheckin !== '' && rawCheckin !== '-' && rawCheckin !== 'undefined' && rawCheckin !== 'null';
+    const hasCheckout = rawCheckout !== '' && rawCheckout !== '-' && rawCheckout !== 'undefined' && rawCheckout !== 'null';
 
-      const isCancelled = item.status === 'cancelled';
-      const isWaitlist = item.status === 'waitlist';
-      const isPaid = item.payment_status === 'paid';
-      const courseHours = Number(item.training_hours) || 0;
+    const isCancelled = item.status === 'cancelled';
+    const isWaitlist = item.status === 'waitlist';
+    const isPaid = item.payment_status === 'paid';
+    const courseHours = Number(item.training_hours) || 0;
 
-      // 判斷是否已經填寫過後五碼或現場付款
-      const hasAtm = item.payment_account && item.payment_account !== '未填寫' && String(item.payment_account).trim() !== '';
+    // 判斷是否已經填寫過後五碼或現場付款
+    const rawAtm = String(item.payment_account || '').trim();
+    const hasAtm = rawAtm && rawAtm !== '未填寫' && rawAtm !== '-';
 
-      const todayStr = new Date().toISOString().split('T')[0];
-      const signupEndStr = safeFormatDate(item.signup_end);
-      const isExpired = signupEndStr && todayStr > signupEndStr;
+    const todayStr = new Date().toISOString().split('T')[0];
+    const signupEndStr = safeFormatDate(item.signup_end);
+    const isExpired = signupEndStr && todayStr > signupEndStr;
 
-      let attendanceBadge = '';
-      if (isCancelled) {
-        attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-100 text-slate-500">已取消</span>`;
-      } else if (isWaitlist) {
-        attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800">候補中</span>`;
-      } else if (hasCheckin && hasCheckout) {
-        attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800">已完訓</span>`;
-      } else if (hasCheckin && !hasCheckout) {
-        attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800">未簽退</span>`;
+    let attendanceBadge = '';
+    if (isCancelled) {
+      attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-100 text-slate-500">已取消</span>`;
+    } else if (isWaitlist) {
+      attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800">候補中</span>`;
+    } else if (hasCheckin && hasCheckout) {
+      attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800">已完訓</span>`;
+    } else if (hasCheckin && !hasCheckout) {
+      attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800">未簽退</span>`;
+    } else {
+      attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-100 text-blue-800">已報名</span>`;
+    }
+
+    const scoreVal = item.score !== undefined && item.score !== '' && item.score !== null ? String(item.score).trim() : '';
+    const scoreNum = scoreVal !== '' && !isNaN(Number(scoreVal)) ? Number(scoreVal) : null;
+    const isFailed = scoreNum !== null && scoreNum < 60;
+    const isVerified = String(item.certificate_verified || '').toLowerCase() === 'verified';
+
+    let rawCertType = String(item.certificate_type || '').trim();
+    let rawLevel = String(item.certificate_level || '').trim();
+    let certLevel = '';
+    if (rawCertType.toLowerCase().includes('general') && rawCertType.toUpperCase().includes('C')) {
+      certLevel = 'C';
+    }
+    if (rawLevel && rawLevel.toLowerCase() !== 'none' && rawLevel.toLowerCase() !== 'null') {
+      certLevel = rawLevel;
+    }
+    const formattedLevel = certLevel ? (certLevel.includes('級') ? certLevel : `${certLevel}級`) : '';
+
+    let certHtml = '';
+    if (formattedLevel) {
+      if (isVerified) {
+        certHtml = `<span class="text-emerald-700 font-bold">📜 裁判${formattedLevel} (已取得)</span>`;
+      } else if (isFailed) {
+        certHtml = `<span class="text-rose-600 font-bold">📜 裁判${formattedLevel} (未過)</span>`;
       } else {
-        attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-100 text-blue-800">已報名</span>`;
+        certHtml = `<span class="text-amber-700 font-bold">📜 裁判${formattedLevel} (審核中)</span>`;
       }
+    } else {
+      certHtml = `<span class="text-slate-500">一般培訓 (無證照)</span>`;
+    }
 
-      const scoreVal = item.score !== undefined && item.score !== '' && item.score !== null ? String(item.score).trim() : '';
-      const scoreNum = scoreVal !== '' && !isNaN(Number(scoreVal)) ? Number(scoreVal) : null;
-      const isFailed = scoreNum !== null && scoreNum < 60;
-      const isVerified = String(item.certificate_verified || '').toLowerCase() === 'verified';
+    // 💡 繳費狀態文字呈現
+    let payStatusText = '尚未繳費';
+    let payStatusClass = 'text-amber-600';
 
-      let rawCertType = String(item.certificate_type || '').trim();
-      let rawLevel = String(item.certificate_level || '').trim();
-      let certLevel = '';
-      if (rawCertType.toLowerCase().includes('general') && rawCertType.toUpperCase().includes('C')) {
-        certLevel = 'C';
-      }
-      if (rawLevel && rawLevel.toLowerCase() !== 'none' && rawLevel.toLowerCase() !== 'null') {
-        certLevel = rawLevel;
-      }
-      const formattedLevel = certLevel ? (certLevel.includes('級') ? certLevel : `${certLevel}級`) : '';
+    if (isPaid) {
+      payStatusText = '已繳費';
+      payStatusClass = 'text-emerald-600';
+    } else if (hasAtm) {
+      payStatusText = '繳費確認中';
+      payStatusClass = 'text-blue-600 font-black';
+    }
 
-      let certHtml = '';
-      if (formattedLevel) {
-        if (isVerified) {
-          certHtml = `<span class="text-emerald-700 font-bold">📜 裁判${formattedLevel} (已取得)</span>`;
-        } else if (isFailed) {
-          certHtml = `<span class="text-rose-600 font-bold">📜 裁判${formattedLevel} (未過)</span>`;
-        } else {
-          certHtml = `<span class="text-amber-700 font-bold">📜 裁判${formattedLevel} (審核中)</span>`;
-        }
-      } else {
-        certHtml = `<span class="text-slate-500">一般培訓 (無證照)</span>`;
-      }
-
-      // 💡 根據有無填寫後五碼與繳費狀態控制操作按鈕與顯示文字
-      let actionCellHtml = '<span class="text-slate-400 text-[11px]">-</span>';
-      let payStatusText = '待繳費';
-      let payStatusClass = 'text-amber-600';
-
-      if (isPaid) {
-        payStatusText = '已繳費';
-        payStatusClass = 'text-emerald-600';
-      } else if (hasAtm) {
-        payStatusText = '確認中'; // 💡 依需求改為確認中
-        payStatusClass = 'text-blue-600 font-black';
-      }
-
-      if (isCancelled) {
-        actionCellHtml = '<span class="text-slate-400 text-[11px]">已取消</span>';
-      } else if (isPaid) {
-        actionCellHtml = '<span class="text-slate-500 text-[11px] font-bold">已繳費(需洽主辦)</span>';
-      } else if (hasAtm) {
-        // 💡 已經填過後五碼，鎖定不能再次更新
-        actionCellHtml = `<span class="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg">🔒 已提交審核</span>`;
-      } else if (isExpired) {
-        actionCellHtml = '<span class="text-rose-500 text-[11px] font-bold">已過截止日</span>';
-      } else {
-        actionCellHtml = `
-          <div class="flex items-center justify-end gap-1.5 flex-wrap">
-            <button onclick="openPaymentUpdateModal('${item.log_id || item.enrollment_id}', '${item.course_name}')" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 font-extrabold rounded text-[11px] transition cursor-pointer">繳費資訊更新</button>
-            <button onclick="cancelEnrollment('${item.log_id || item.enrollment_id}', '${item.course_name}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold rounded text-[11px] transition cursor-pointer">取消報名</button>
-          </div>
-        `;
-      }
-
-      const displayDate = safeFormatDate(item.date) || '未定';
-      const payAccDisplay = hasAtm ? ` (後五碼: ${item.payment_account})` : '';
-
-      return `
-        <tr class="hover:bg-slate-50/80 transition">
-          <td class="p-3">
-            <div class="font-extrabold text-slate-900">${item.course_name || '課程場次'}</div>
-            <div class="text-[11px] text-slate-400 font-mono">${displayDate}</div>
-          </td>
-          <td class="p-3 whitespace-nowrap">
-            <div class="space-y-1">
-              <div>${attendanceBadge}</div>
-              <div class="text-[11px] ${payStatusClass} font-bold">${payStatusText}${payAccDisplay}</div>
-            </div>
-          </td>
-          <td class="p-3 whitespace-nowrap">
-            <div class="font-bold text-slate-700">${courseHours} hr</div>
-            <div class="text-[11px] ${isFailed ? 'text-rose-600 font-black' : 'text-blue-600'}">${scoreNum !== null ? scoreNum + ' 分' : '未登錄'}</div>
-          </td>
-          <td class="p-3">
-            <div class="text-[11px]">${certHtml}</div>
-          </td>
-          <td class="p-3 text-right whitespace-nowrap">
-            ${actionCellHtml}
-          </td>
-        </tr>
+    let actionCellHtml = '<span class="text-slate-400 text-[11px]">-</span>';
+    if (isCancelled) {
+      actionCellHtml = '<span class="text-slate-400 text-[11px]">已取消</span>';
+    } else if (isPaid) {
+      actionCellHtml = '<span class="text-slate-500 text-[11px] font-bold">已繳費(需洽主辦)</span>';
+    } else if (hasAtm) {
+      // 💡 已經填過後五碼或選擇現場付款，鎖定不能再次更新
+      actionCellHtml = `<span class="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg">🔒 已提交審核</span>`;
+    } else if (isExpired) {
+      actionCellHtml = '<span class="text-rose-500 text-[11px] font-bold">已過截止日</span>';
+    } else {
+      actionCellHtml = `
+        <div class="flex items-center justify-end gap-1.5 flex-wrap">
+          <button onclick="openPaymentUpdateModal('${item.log_id || item.enrollment_id}', '${item.course_name}')" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 font-extrabold rounded text-[11px] transition cursor-pointer">繳費資訊更新</button>
+          <button onclick="cancelEnrollment('${item.log_id || item.enrollment_id}', '${item.course_name}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold rounded text-[11px] transition cursor-pointer">取消報名</button>
+        </div>
       `;
     }
+
+    const displayDate = safeFormatDate(item.date) || '未定';
+    const payAccDisplay = rawAtm === '99999' ? ' (現場繳費)' : (hasAtm ? ` (後五碼: ${rawAtm})` : '');
+
+    return `
+      <tr class="hover:bg-slate-50/80 transition">
+        <td class="p-3">
+          <div class="font-extrabold text-slate-900">${item.course_name || '課程場次'}</div>
+          <div class="text-[11px] text-slate-400 font-mono">${displayDate}</div>
+        </td>
+        <td class="p-3 whitespace-nowrap">
+          <div class="space-y-1">
+            <div>${attendanceBadge}</div>
+            <div class="text-[11px] ${payStatusClass} font-bold">${payStatusText}${payAccDisplay}</div>
+          </div>
+        </td>
+        <td class="p-3 whitespace-nowrap">
+          <div class="font-bold text-slate-700">${courseHours} hr</div>
+          <div class="text-[11px] ${isFailed ? 'text-rose-600 font-black' : 'text-blue-600'}">${scoreNum !== null ? scoreNum + ' 分' : '未登錄'}</div>
+        </td>
+        <td class="p-3">
+          <div class="text-[11px]">${certHtml}</div>
+        </td>
+        <td class="p-3 text-right whitespace-nowrap">
+          ${actionCellHtml}
+        </td>
+      </tr>
+    `;
+  }
 
     
     function openPaymentUpdateModal(logId, courseName) {
