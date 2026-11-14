@@ -621,6 +621,7 @@
     }
 
     // 💡 支援年度折疊分群與累計完訓時數
+// 💡 支援年度折疊分群與精簡表格呈現的學習歷程
     function renderMyRecords() {
       const body = document.getElementById('myRecordsBody');
       if (!myRegistrations.length) {
@@ -681,14 +682,111 @@
                 <span class="text-slate-400 text-xs transition-transform group-open:rotate-180">▼</span>
               </div>
             </summary>
-            <div class="p-3.5 space-y-3 bg-slate-50/40 border-t border-slate-200/70">
-              ${group.items.map(item => renderMyEnrollmentCard(item)).join('')}
+            <!-- 💡 響應式表格容器：手機可左右滑動檢視 -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-50 text-slate-500 border-b border-slate-200 font-bold">
+                    <th class="p-3 whitespace-nowrap">課程名稱 / 日期</th>
+                    <th class="p-3 whitespace-nowrap">狀態 / 繳費</th>
+                    <th class="p-3 whitespace-nowrap">時數 / 成績</th>
+                    <th class="p-3 whitespace-nowrap">證照 / 性質</th>
+                    <th class="p-3 text-right whitespace-nowrap">操作</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${group.items.map(item => renderMyEnrollmentTableRow(item)).join('')}
+                </tbody>
+              </table>
             </div>
           </details>
         `;
       });
 
       body.innerHTML = html;
+    }
+
+    // 💡 表格單行渲染函式
+    function renderMyEnrollmentTableRow(item) {
+      const rawCheckin = String(item.checkin_time || item.checkinTime || item.check_in || '').trim();
+      const rawCheckout = String(item.checkout_time || item.checkoutTime || item.check_out || '').trim();
+
+      const hasCheckin = rawCheckin !== '' && rawCheckin !== '-' && rawCheckin !== 'undefined' && rawCheckin !== 'null';
+      const hasCheckout = rawCheckout !== '' && rawCheckout !== '-' && rawCheckout !== 'undefined' && rawCheckout !== 'null';
+
+      const isCancelled = item.status === 'cancelled';
+      const isWaitlist = item.status === 'waitlist';
+      const isPaid = item.payment_status === 'paid';
+      const courseHours = Number(item.training_hours) || 0;
+
+      let attendanceBadge = '';
+      if (isCancelled) {
+        attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-100 text-slate-500">已取消</span>`;
+      } else if (isWaitlist) {
+        attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800">候補中</span>`;
+      } else if (hasCheckin && hasCheckout) {
+        attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800">已完訓</span>`;
+      } else if (hasCheckin && !hasCheckout) {
+        attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800">未簽退</span>`;
+      } else {
+        attendanceBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-100 text-blue-800">已報名</span>`;
+      }
+
+      const scoreVal = item.score !== undefined && item.score !== '' && item.score !== null ? String(item.score).trim() : '';
+      const scoreNum = scoreVal !== '' && !isNaN(Number(scoreVal)) ? Number(scoreVal) : null;
+      const isFailed = scoreNum !== null && scoreNum < 60;
+      const isVerified = String(item.certificate_verified || '').toLowerCase() === 'verified';
+
+      let rawCertType = String(item.certificate_type || '').trim();
+      let rawLevel = String(item.certificate_level || '').trim();
+      let certLevel = '';
+      if (rawCertType.toLowerCase().includes('general') && rawCertType.toUpperCase().includes('C')) {
+        certLevel = 'C';
+      }
+      if (rawLevel && rawLevel.toLowerCase() !== 'none' && rawLevel.toLowerCase() !== 'null') {
+        certLevel = rawLevel;
+      }
+      const formattedLevel = certLevel ? (certLevel.includes('級') ? certLevel : `${certLevel}級`) : '';
+
+      let certHtml = '';
+      if (formattedLevel) {
+        if (isVerified) {
+          certHtml = `<span class="text-emerald-700 font-bold">📜 裁判${formattedLevel} (已取得)</span>`;
+        } else if (isFailed) {
+          certHtml = `<span class="text-rose-600 font-bold">📜 裁判${formattedLevel} (未過)</span>`;
+        } else {
+          certHtml = `<span class="text-amber-700 font-bold">📜 裁判${formattedLevel} (審核中)</span>`;
+        }
+      } else {
+        certHtml = `<span class="text-slate-500">一般培訓 (無證照)</span>`;
+      }
+
+      const displayDate = safeFormatDate(item.date) || '未定';
+
+      return `
+        <tr class="hover:bg-slate-50/80 transition">
+          <td class="p-3">
+            <div class="font-extrabold text-slate-900">${item.course_name || '課程場次'}</div>
+            <div class="text-[11px] text-slate-400 font-mono">${displayDate}</div>
+          </td>
+          <td class="p-3 whitespace-nowrap">
+            <div class="space-y-1">
+              <div>${attendanceBadge}</div>
+              <div class="text-[11px] ${isPaid ? 'text-emerald-600' : 'text-amber-600'} font-bold">${isPaid ? '已繳費' : '待繳費'}</div>
+            </div>
+          </td>
+          <td class="p-3 whitespace-nowrap">
+            <div class="font-bold text-slate-700">${courseHours} hr</div>
+            <div class="text-[11px] ${isFailed ? 'text-rose-600 font-black' : 'text-blue-600'}">${scoreNum !== null ? scoreNum + ' 分' : '未登錄'}</div>
+          </td>
+          <td class="p-3">
+            <div class="text-[11px]">${certHtml}</div>
+          </td>
+          <td class="p-3 text-right whitespace-nowrap">
+            ${!isCancelled && !isPaid ? `<button onclick="cancelEnrollment('${item.log_id || item.enrollment_id}', '${item.course_name}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold rounded text-[11px] transition cursor-pointer">取消</button>` : '<span class="text-slate-400 text-[11px]">-</span>'}
+          </td>
+        </tr>
+      `;
     }
 
     function cancelEnrollment(targetId, courseName) {
