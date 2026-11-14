@@ -1722,12 +1722,11 @@ function updateMailRecipientsPreview() {
     }
   }
 
-  function applyMailTemplate() {
+function applyMailTemplate() {
     if (!activeMailCourse) return;
     const tpl = document.getElementById('mailTemplateSelect').value;
     const cName = activeMailCourse.course_name || '培訓課程';
     const cDate = activeMailCourse.date ? activeMailCourse.date.split('T')[0] : '依公告日期';
-    // const cTime = activeMailCourse.time || '請提前 15 分鐘報到';
     const rawTime = activeMailCourse.time ? String(activeMailCourse.time).trim() : '';
     const cTime = rawTime ? `${rawTime}（請提前 30 分鐘到場）` : '依公告時間（請提前 30 分鐘到場）';
     const cLoc = activeMailCourse.location || '依聯盟公告地點';
@@ -1736,10 +1735,10 @@ function updateMailRecipientsPreview() {
     const bodyEl = document.getElementById('mailBodyInput');
 
     if (tpl === 'standard') {
-      subjectEl.value = `【BBT聯盟行前通知】${cName}（${cDate}）上課資訊提醒`;
+      subjectEl.value = `【BBT軟式棒球聯盟行前通知】${cName}（${cDate}）上課資訊提醒`;
       bodyEl.value = `{name} 您好：
 
-提醒您已報名參加 BBT 聯盟舉辦之「{course_name}」，以下為本次課程資訊，請準時出席：
+提醒您已報名參加 BBT 軟式棒球聯盟舉辦之「{course_name}」，以下為本次課程資訊，請準時出席：
 
 📅 上課日期：${cDate}
 ⏰ 上課時間：${cTime}
@@ -1750,7 +1749,7 @@ function updateMailRecipientsPreview() {
 2. 請攜帶個人文具與水壺。
 3. 若臨時不克前來，請儘早聯繫聯盟主辦單位。
 
-BBT 聯盟 敬上`;
+BBT 軟式棒球聯盟 敬上`;
     } else if (tpl === 'payment') {
       subjectEl.value = `【繳費與報到提醒】${cName}（${cDate}）報名確認通知`;
       bodyEl.value = `{name} 您好：
@@ -1763,7 +1762,7 @@ BBT 聯盟 敬上`;
 
 如已完成繳費請忽略此提醒，期待在課程中見到您！
 
-BBT 聯盟 敬上`;
+BBT 軟式棒球聯盟 敬上`;
     } else if (tpl === 'online') {
       subjectEl.value = `【線上課程通知】${cName}（${cDate}）視訊會議連結與須知`;
       bodyEl.value = `{name} 您好：
@@ -1771,16 +1770,16 @@ BBT 聯盟 敬上`;
 您報名的「{course_name}」即將開始，本次採線上視訊方式進行：
 
 📅 上課日期：${cDate}
-⏰ 會議時間：${}
+⏰ 會議時間：${cTime}
 🔗 視訊連結：（請在此貼上 Google Meet / Zoom 連結）
 
 【線上上課須知】
 1. 進入會議室時，請將顯示名稱改為您的「真實姓名」，以利工作人員核對簽到。
 2. 課程期間請保持麥克風靜音，並依講師指示開啟鏡頭。
 
-BBT 聯盟 敬上`;
+BBT 軟式棒球聯盟 敬上`;
     } else {
-      subjectEl.value = `【BBT聯盟通知】${cName}`;
+      subjectEl.value = `【BBT軟式棒球聯盟通知】${cName}`;
       bodyEl.value = `{name} 您好：
 
 `;
