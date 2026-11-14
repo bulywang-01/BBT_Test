@@ -149,7 +149,7 @@
     </div>
   </div>
 
-  <!-- 我的報名紀錄 Modal (支援年度分群) -->
+  <!-- 我的報名紀錄 Modal (支援年度折疊分群與完整學習歷程) -->
   <div id="myRecordsModal" class="modal hidden">
     <div class="modal-dialog">
       <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
@@ -620,7 +620,7 @@
       document.body.appendChild(script);
     }
 
-    // 💡 支援年度分群 (Group by Year) 的個人報名與學習歷程渲染
+    // 💡 支援年度折疊分群與累計完訓時數
     function renderMyRecords() {
       const body = document.getElementById('myRecordsBody');
       if (!myRegistrations.length) {
@@ -630,33 +630,61 @@
 
       const groupedByYear = {};
       myRegistrations.forEach(item => {
+        // 從全域 allCourses 補齊可能缺失的課程證照與時數資訊
+        const courseInfo = allCourses.find(c => String(c.course_id) === String(item.course_id)) || {};
+        const mergedItem = {
+          ...item,
+          date: item.date || courseInfo.date || '',
+          training_hours: item.training_hours || courseInfo.training_hours || 0,
+          certificate_type: item.certificate_type || courseInfo.certificate_type || '',
+          certificate_level: item.certificate_level || courseInfo.certificate_level || ''
+        };
+
         let year = '其他年度';
-        if (item.date && item.date.length >= 4) {
-          year = item.date.substring(0, 4) + '年度';
-        } else if (item.created_at && item.created_at.length >= 4) {
-          year = item.created_at.substring(0, 4) + '年度';
+        const dStr = safeFormatDate(mergedItem.date) || safeFormatDate(mergedItem.created_at);
+        if (dStr && dStr.length >= 4) {
+          year = dStr.substring(0, 4) + '年度';
         }
+
         if (!groupedByYear[year]) {
-          groupedByYear[year] = [];
+          groupedByYear[year] = { items: [], totalEarnedHours: 0 };
         }
-        groupedByYear[year].push(item);
+        groupedByYear[year].items.push(mergedItem);
+
+        // 計算該年度已完訓（有簽到且有簽退）的累計時數
+        const rawIn = String(mergedItem.checkin_time || mergedItem.checkinTime || '').trim();
+        const rawOut = String(mergedItem.checkout_time || mergedItem.checkoutTime || '').trim();
+        const isDone = (rawIn && rawIn !== '-' && rawIn !== 'null') && (rawOut && rawOut !== '-' && rawOut !== 'null');
+        if (isDone && mergedItem.status !== 'cancelled') {
+          groupedByYear[year].totalEarnedHours += (Number(mergedItem.training_hours) || 0);
+        }
       });
 
       const sortedYears = Object.keys(groupedByYear).sort().reverse();
 
       let html = '';
-      sortedYears.forEach(year => {
-        const items = groupedByYear[year];
+      sortedYears.forEach((year, idx) => {
+        const group = groupedByYear[year];
+        const isOpen = idx === 0; // 預設展開最新年度，其他收合
+
         html += `
-          <div class="mb-5 last:mb-0">
-            <div class="flex items-center gap-2 mb-2.5 px-1">
-              <span class="text-sm font-black text-slate-800 tracking-wide">📂 ${year}</span>
-              <span class="text-xs font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">共 ${items.length} 門課程</span>
+          <details ${isOpen ? 'open' : ''} class="group bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4 last:mb-0">
+            <summary class="flex items-center justify-between px-4 py-3 bg-slate-100/80 hover:bg-slate-100 cursor-pointer select-none list-none">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-black text-slate-800">📂 ${year}</span>
+                <span class="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">共 ${group.items.length} 門</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-extrabold text-emerald-700 bg-emerald-100/80 px-2.5 py-0.5 rounded-full">
+                  累計時數：${group.totalEarnedHours} hr
+                </span>
+                <span class="text-slate-400 text-xs transition-transform group-open:rotate-180">▼</span>
+              </div>
+            </summary>
+            <div class="p-3.5 space-y-3 bg-slate-50/40 border-t border-slate-200/70">
+              ${group.items.map(item => renderMyEnrollmentCard(item)).join('')}
             </div>
-            <div class="space-y-3">
-              ${items.map(item => renderMyEnrollmentCard(item)).join('')}
-            </div>
-          </div>
+          </details>
         `;
       });
 
@@ -693,7 +721,7 @@
       document.body.appendChild(script);
     }
 
-    // 💡 完整豐富的學習歷程卡片（包含時數、成績、繳費狀態與證照資格）
+    // 💡 完整豐富的學習歷程卡片（包含時數、成績、繳費狀態與明確的證照解鎖狀態）
     function renderMyEnrollmentCard(item) {
       const rawCheckin = String(item.checkin_time || item.checkinTime || item.check_in || '').trim();
       const rawCheckout = String(item.checkout_time || item.checkoutTime || item.check_out || '').trim();
@@ -704,76 +732,102 @@
       const isCancelled = item.status === 'cancelled';
       const isWaitlist = item.status === 'waitlist';
       const isPaid = item.payment_status === 'paid';
+      const courseHours = Number(item.training_hours) || 0;
 
       let attendanceBadge = '';
-      let earnedHours = 0;
+      let earnedHoursText = '';
 
       if (isCancelled) {
         attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-500">已取消報名</span>`;
+        earnedHoursText = `<span class="text-slate-400">0 hr</span>`;
       } else if (isWaitlist) {
         attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">⏳ 候補中</span>`;
+        earnedHoursText = `<span class="text-slate-400">0 / ${courseHours} hr</span>`;
       } else if (hasCheckin && hasCheckout) {
         attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">✅ 已完成 (完訓)</span>`;
-        earnedHours = Number(item.training_hours) || 4;
+        earnedHoursText = `<span class="text-emerald-600 font-black">${courseHours} hr（已採計）</span>`;
       } else if (hasCheckin && !hasCheckout) {
-        attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">⚠️ 報到未完全（未簽退）</span>`;
-        earnedHours = 0;
+        attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">⚠️ 未簽退</span>`;
+        earnedHoursText = `<span class="text-amber-600 font-bold">0 / ${courseHours} hr（未完訓）</span>`;
       } else {
         attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800">📌 已報名</span>`;
-        earnedHours = 0;
+        earnedHoursText = `<span class="text-slate-600">0 / ${courseHours} hr</span>`;
       }
 
       const scoreVal = item.score !== undefined && item.score !== '' && item.score !== null ? String(item.score).trim() : '';
       const scoreNum = scoreVal !== '' && !isNaN(Number(scoreVal)) ? Number(scoreVal) : null;
-      
-      const isPassed = scoreNum !== null && scoreNum >= 60;
+      const isFailed = scoreNum !== null && scoreNum < 60;
       const isVerified = String(item.certificate_verified || '').toLowerCase() === 'verified';
 
       // 智慧解析證照級別
+      let rawCertType = String(item.certificate_type || '').trim();
       let rawLevel = String(item.certificate_level || '').trim();
-      let certLevelBadge = '';
-      if (rawLevel && rawLevel.toLowerCase() !== 'none' && rawLevel.toLowerCase() !== 'null') {
-        const formattedLevel = rawLevel.includes('級') ? rawLevel : `${rawLevel}級`;
-        certLevelBadge = `<span class="px-2 py-0.5 rounded text-xs font-extrabold bg-purple-100 text-purple-700">📜 證照：裁判 ${formattedLevel}</span>`;
+      let certLevel = '';
+      if (rawCertType.toLowerCase().includes('general') && rawCertType.toUpperCase().includes('C')) {
+        certLevel = 'C';
       }
+      if (rawLevel && rawLevel.toLowerCase() !== 'none' && rawLevel.toLowerCase() !== 'null') {
+        certLevel = rawLevel;
+      }
+      const formattedLevel = certLevel ? (certLevel.includes('級') ? certLevel : `${certLevel}級`) : '';
+
+      // 💡 明確顯示證照資格或一般培訓性質
+      let certSectionHtml = '';
+      if (formattedLevel) {
+        let certStatusHtml = '';
+        let boxStyle = 'bg-purple-50/80 border-purple-200 text-purple-900';
+
+        if (isVerified) {
+          certStatusHtml = `<span class="font-black text-emerald-600">✨ 已取得證照</span>`;
+          boxStyle = 'bg-emerald-50/70 border-emerald-200 text-emerald-900';
+        } else if (isFailed) {
+          certStatusHtml = `<span class="font-black text-rose-600">❌ 未通過（未達 60 分）</span>`;
+          boxStyle = 'bg-rose-50/70 border-rose-200 text-rose-900';
+        } else {
+          certStatusHtml = `<span class="font-bold text-amber-600">⏳ 審核發證中</span>`;
+        }
+
+        certSectionHtml = `
+          <div class="flex flex-wrap items-center justify-between gap-1.5 border px-3 py-2 rounded-xl text-xs ${boxStyle}">
+            <span class="font-extrabold">📜 對應證照：裁判 ${formattedLevel}</span>
+            ${certStatusHtml}
+          </div>
+        `;
+      } else {
+        certSectionHtml = `
+          <div class="flex items-center justify-between bg-slate-100/80 border border-slate-200/80 px-3 py-2 rounded-xl text-xs text-slate-600">
+            <span class="font-bold">🎓 課程性質：一般培訓（無證照核發）</span>
+            <span class="font-bold text-slate-500">採計研習時數</span>
+          </div>
+        `;
+      }
+
+      const displayDate = safeFormatDate(item.date) || '未定';
 
       return `
         <article class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
-          <div class="flex items-center justify-between">
-            <div class="font-black text-slate-900 text-base">${item.course_name || '課程場次'}</div>
-            <div>${attendanceBadge}</div>
+          <div class="flex items-start justify-between gap-2">
+            <div class="font-black text-slate-900 text-base leading-snug">${item.course_name || '課程場次'}</div>
+            <div class="shrink-0">${attendanceBadge}</div>
           </div>
 
-          <!-- 💡 學習歷程核心資訊區 -->
-          <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 grid grid-cols-2 gap-2 text-xs text-slate-700">
-            <div class="flex items-center gap-1.5 font-bold">
-              <span>📅 日期：</span>
-              <span class="font-mono">${item.date || '未定'}</span>
+          <!-- 💡 學習歷程核心資訊區（防折行） -->
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 space-y-2 text-xs text-slate-700">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold whitespace-nowrap">📅 上課日期：<span class="font-mono font-normal">${displayDate}</span></span>
+              <span class="font-bold whitespace-nowrap">💰 繳費：<span class="${isPaid ? 'text-emerald-600' : 'text-amber-600'}">${isPaid ? '已繳費' : '待繳費'}</span></span>
             </div>
-            <div class="flex items-center gap-1.5 font-bold">
-              <span>⏱️ 培訓時數：</span>
-              <span class="text-blue-600">${item.training_hours || 4} hr</span>
-            </div>
-            <div class="flex items-center gap-1.5 font-bold">
-              <span>📝 測驗成績：</span>
-              <span class="${scoreNum !== null && scoreNum < 60 ? 'text-rose-600 font-black' : 'text-slate-900'}">${scoreNum !== null ? scoreNum + ' 分' : '未登錄'}</span>
-            </div>
-            <div class="flex items-center gap-1.5 font-bold">
-              <span>💰 繳費狀態：</span>
-              <span class="${isPaid ? 'text-emerald-600' : 'text-amber-600'}">${isPaid ? '已繳費' : '待繳費'}</span>
+            <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-200/60">
+              <span class="font-bold whitespace-nowrap">⏱️ 時數：${earnedHoursText}</span>
+              <span class="font-bold whitespace-nowrap">📝 成績：<span class="${isFailed ? 'text-rose-600 font-black' : 'text-blue-600 font-black'}">${scoreNum !== null ? scoreNum + ' 分' : '未登錄'}</span></span>
             </div>
           </div>
 
-          <!-- 💡 證照解鎖與審核狀態提示 -->
-          ${certLevelBadge ? `
-            <div class="flex items-center justify-between bg-purple-50/70 border border-purple-100 px-3 py-2 rounded-xl text-xs">
-              <span class="font-bold text-purple-900 flex items-center gap-1">取得資格：${certLevelBadge}</span>
-              <span class="font-bold ${isVerified ? 'text-emerald-600' : 'text-amber-600'}">${isVerified ? '✨ 證照已發放/驗證' : '⏳ 證照審核中'}</span>
-            </div>
-          ` : ''}
+          <!-- 💡 證照狀態與課程性質區塊 -->
+          ${certSectionHtml}
 
           <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-400">
-            <span>報名紀錄編號：#${item.log_id || item.enrollment_id || '-'}</span>
+            <span>報名編號：#${item.log_id || item.enrollment_id || '-'}</span>
             ${!isCancelled && isPaid ? '<span class="text-slate-500 font-bold">已繳費紀錄，無法線上取消</span>' : ''}
             ${!isCancelled && !isPaid ? `<button onclick="cancelEnrollment('${item.log_id || item.enrollment_id}', '${item.course_name}')" class="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold rounded-lg transition cursor-pointer">取消報名</button>` : ''}
           </div>
