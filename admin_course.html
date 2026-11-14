@@ -1332,7 +1332,6 @@ function renderEnrollmentTable() {
       const payStatus = item.payment_status;
       const isWaitlist = item.status === 'waitlist';
       
-      // 💡 雙重保險：只要後端 status 是 cancelled，或是繳費狀態是 refunded，一律判定為已取消！
       const isCancelled = item.status === 'cancelled' || payStatus === 'refunded' || item.status === 'refunded';
 
       let statusBadge = `<span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">正取</span>`;
@@ -1342,11 +1341,23 @@ function renderEnrollmentTable() {
         statusBadge = `<span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">已取消</span>`;
       }
 
-      let payBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">待繳費</span>`;
+      // 💡 處理後五碼呈現：99999 顯示為「現場繳費」
+      const rawAtm = String(item.payment_account || '').trim();
+      let atmDisplay = rawAtm;
+      if (rawAtm === '99999') {
+        atmDisplay = '現場繳費';
+      } else if (!rawAtm || rawAtm === '未填寫' || rawAtm === '-') {
+        atmDisplay = '未填寫';
+      }
+
+      // 💡 依據有無資訊調整繳費狀態與顏色
+      let payBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">尚未繳費</span>`;
       if (payStatus === 'paid') {
         payBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已繳費</span>`;
       } else if (payStatus === 'refunded') {
         payBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800">已退費</span>`;
+      } else if (rawAtm && rawAtm !== '未填寫' && rawAtm !== '-') {
+        payBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800">繳費確認中</span>`;
       }
 
       const courseObj = allCourses.find(c => String(c.course_id) === String(item.course_id));
@@ -1394,7 +1405,7 @@ function renderEnrollmentTable() {
             <div class="text-xs text-slate-500">${item.phone || '-'}</div>
           </td>
           <td class="p-4">
-            <span class="px-2.5 py-1 rounded-lg bg-slate-100 font-mono font-bold text-slate-800 text-xs">${item.payment_account || '未填寫'}</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-100 font-mono font-bold text-slate-800 text-xs">${atmDisplay}</span>
           </td>
           <td class="p-4 text-xs font-bold text-slate-700">${item.dietary || '葷食'}</td>
           <td class="p-4">${statusBadge}</td>
