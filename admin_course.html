@@ -241,10 +241,17 @@
             </div>
           </section>
 
-          <section class="table-panel">
+ <section class="table-panel">
             <div class="table-header">
               <div class="table-title">📋 課程清單</div>
-              <div><button class="btn-primary" onclick="openCourseModal('create')">＋ 新增課程</button></div>
+              <!-- 💡 並排放置「財務報表」與「新增課程」按鈕 -->
+              <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="openFinanceReportModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                  <span>📊</span>
+                  <span>財務收費／退費報表</span>
+                </button>
+                <button class="btn-primary" onclick="openCourseModal('create')">＋ 新增課程</button>
+              </div>
             </div>
             <div class="table-wrapper">
               <table class="user-table">
@@ -704,6 +711,8 @@
   <div class="loading-box" id="loadingText">處理中...</div>
 </div>
 
+// 
+
 <!-- Scripts -->
 <script src="js/auth.js"></script>
 <script src="js/config.js"></script>
@@ -992,7 +1001,12 @@ function renderCourseTable() {
           </td>
           <td class="whitespace-nowrap"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${statusClass}">${statusText}</span></td>
           <td class="action-col whitespace-nowrap">
-            <div class="action-group">
+            <div class="action-group flex items-center gap-1.5">
+              <!-- 💡 新增：針對該門課程發送行前通知 -->
+              <button onclick="openEmailReminderModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm transition flex items-center gap-1 cursor-pointer" title="發送行前通知">
+                <span>✉️</span>
+                <span>通知</span>
+              </button>
               <button class="action-btn edit" onclick="openCourseModal('edit', '${c.course_id}')" title="編輯課程">✏️</button>
               <button class="action-btn delete" onclick="deleteCourse('${c.course_id}', '${c.course_name}')" title="刪除課程">🗑</button>
             </div>
