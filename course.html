@@ -620,8 +620,7 @@
       document.body.appendChild(script);
     }
 
-    // 💡 支援年度折疊分群與累計完訓時數
-// 💡 支援年度折疊分群與精簡表格呈現的學習歷程
+// 💡 支援年度折疊分群、累計時數與正確抓取報名截止日
     function renderMyRecords() {
       const body = document.getElementById('myRecordsBody');
       if (!myRegistrations.length) {
@@ -631,11 +630,12 @@
 
       const groupedByYear = {};
       myRegistrations.forEach(item => {
-        // 從全域 allCourses 補齊可能缺失的課程證照與時數資訊
+        // 從全域 allCourses 補齊課程的報名截止日、證照與時數資訊
         const courseInfo = allCourses.find(c => String(c.course_id) === String(item.course_id)) || {};
         const mergedItem = {
           ...item,
           date: item.date || courseInfo.date || '',
+          signup_end: item.signup_end || courseInfo.signup_end || courseInfo.signupEnd || '',
           training_hours: item.training_hours || courseInfo.training_hours || 0,
           certificate_type: item.certificate_type || courseInfo.certificate_type || '',
           certificate_level: item.certificate_level || courseInfo.certificate_level || ''
@@ -666,7 +666,7 @@
       let html = '';
       sortedYears.forEach((year, idx) => {
         const group = groupedByYear[year];
-        const isOpen = idx === 0; // 預設展開最新年度，其他收合
+        const isOpen = idx === 0; // 預設展開最新年度
 
         html += `
           <details ${isOpen ? 'open' : ''} class="group bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4 last:mb-0">
@@ -682,7 +682,6 @@
                 <span class="text-slate-400 text-xs transition-transform group-open:rotate-180">▼</span>
               </div>
             </summary>
-            <!-- 💡 響應式表格容器：手機可左右滑動檢視 -->
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse text-xs">
                 <thead>
@@ -706,7 +705,7 @@
       body.innerHTML = html;
     }
 
-    // 💡 表格單行渲染函式
+    // 💡 表格單行渲染：嚴格管制取消報名條件（未繳費且在截止日前）
     function renderMyEnrollmentTableRow(item) {
       const rawCheckin = String(item.checkin_time || item.checkinTime || item.check_in || '').trim();
       const rawCheckout = String(item.checkout_time || item.checkoutTime || item.check_out || '').trim();
@@ -718,6 +717,11 @@
       const isWaitlist = item.status === 'waitlist';
       const isPaid = item.payment_status === 'paid';
       const courseHours = Number(item.training_hours) || 0;
+
+      // 檢查是否超過報名截止日
+      const todayStr = new Date().toISOString().split('T')[0];
+      const signupEndStr = safeFormatDate(item.signup_end);
+      const isExpired = signupEndStr && todayStr > signupEndStr;
 
       let attendanceBadge = '';
       if (isCancelled) {
@@ -761,6 +765,18 @@
         certHtml = `<span class="text-slate-500">一般培訓 (無證照)</span>`;
       }
 
+      // 💡 嚴格控制操作欄位：已取消、已繳費、或超過截止日，皆不提供線上取消
+      let actionCellHtml = '<span class="text-slate-400 text-[11px]">-</span>';
+      if (isCancelled) {
+        actionCellHtml = '<span class="text-slate-400 text-[11px]">已取消</span>';
+      } else if (isPaid) {
+        actionCellHtml = '<span class="text-slate-500 text-[11px] font-bold" title="已繳費如需取消請洽主辦方">已繳費(需洽主辦)</span>';
+      } else if (isExpired) {
+        actionCellHtml = '<span class="text-rose-500 text-[11px] font-bold" title="已過報名截止日">已過截止日</span>';
+      } else {
+        actionCellHtml = `<button onclick="cancelEnrollment('${item.log_id || item.enrollment_id}', '${item.course_name}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold rounded text-[11px] transition cursor-pointer">取消報名</button>`;
+      }
+
       const displayDate = safeFormatDate(item.date) || '未定';
 
       return `
@@ -783,7 +799,7 @@
             <div class="text-[11px]">${certHtml}</div>
           </td>
           <td class="p-3 text-right whitespace-nowrap">
-            ${!isCancelled && !isPaid ? `<button onclick="cancelEnrollment('${item.log_id || item.enrollment_id}', '${item.course_name}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold rounded text-[11px] transition cursor-pointer">取消</button>` : '<span class="text-slate-400 text-[11px]">-</span>'}
+            ${actionCellHtml}
           </td>
         </tr>
       `;
