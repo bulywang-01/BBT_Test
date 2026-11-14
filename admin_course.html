@@ -196,7 +196,11 @@
           </div>
           <div class="flex items-center gap-2 flex-wrap">
             <button id="tabBtnCourses" onclick="switchTab('courses')" class="tab-btn active">📅 課程場次管理</button>
-            <button id="tabBtnEnrollments" onclick="switchTab('enrollments')" class="tab-btn">🛡️ 報名與後五碼</button>
+            <button id="tabBtnEnrollments" onclick="switchTab('enrollments')" class="tab-btn">🛡️ 報名繳費資訊</button>
+            <button onclick="openFinanceReportModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+               <span>📊</span>
+               <span>財務收費／退費報表</span>
+            </button>
             <button id="tabBtnAttendance" onclick="switchTab('attendance')" class="tab-btn">⏰ 出勤與簽到</button>
             <button id="tabBtnCertificates" onclick="switchTab('certificates')" class="tab-btn">🎓 成績與證書</button>
           </div>
@@ -245,10 +249,6 @@
             <div class="table-header">
               <div class="table-title">📋 課程清單</div>
               <div class="flex items-center gap-2 flex-wrap">
-                <button onclick="openFinanceReportModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
-                  <span>📊</span>
-                  <span>財務收費／退費報表</span>
-                </button>
                 <button class="btn-primary" onclick="openCourseModal('create')">＋ 新增課程</button>
               </div>
             </div>
