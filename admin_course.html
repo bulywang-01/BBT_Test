@@ -1643,8 +1643,7 @@
       return;
     }
 
-    let csv = '﻿報名編號,課程名稱,學員姓名,聯絡電話,匯款後五碼,帳務狀態,應收費用,退費金額,退費時間
-';
+    let csv = '\uFEFF報名編號,課程名稱,學員姓名,聯絡電話,匯款後五碼,帳務狀態,應收費用,退費金額,退費時間\n';
     rows.forEach(item => {
       const cInfo = allCourses.find(c => String(c.course_id) === String(item.course_id)) || {};
       const fee = Number(item.payment_amount !== undefined && item.payment_amount !== '' ? item.payment_amount : (cInfo.fee || 0));
@@ -1652,8 +1651,7 @@
       const statusText = pStatus === 'paid' ? '已繳費' : (pStatus === 'refunded' ? '已退費' : '待繳費');
       const refAmt = pStatus === 'refunded' ? Number(item.refund_amount !== undefined ? item.refund_amount : fee) : 0;
 
-      csv += `"#${item.log_id}","${item.course_name || cInfo.course_name || ''}","${item.name || ''}","${item.phone || ''}","${item.payment_account || ''}","${statusText}",${fee},${refAmt},"${item.refund_date || ''}"
-`;
+      csv += `"#${item.log_id}","${item.course_name || cInfo.course_name || ''}","${item.name || ''}","${item.phone || ''}","${item.payment_account || ''}","${statusText}",${fee},${refAmt},"${item.refund_date || ''}"\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
