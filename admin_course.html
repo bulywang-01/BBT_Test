@@ -1681,7 +1681,7 @@
     document.getElementById('emailReminderModal').classList.remove('hidden');
   }
 
-  function updateMailRecipientsPreview() {
+function updateMailRecipientsPreview() {
     if (!activeMailCourse) return;
     const filterType = document.getElementById('mailTargetFilter').value;
 
@@ -1695,18 +1695,27 @@
       return true;
     });
 
+    // 透過多重欄位對應，避免因大小寫或中英文不同而抓不到 0
     validMailRecipients = filtered
-      .filter(e => e.email && String(e.email).includes('@'))
-      .map(e => ({ name: e.name || '學員', email: String(e.email).trim() }));
+      .map(e => {
+        const emailVal = e.email || e.Email || e.mail || e.電子郵件 || e.信箱 || '';
+        const nameVal = e.name || e.Name || e.姓名 || '學員';
+        return { name: nameVal, email: String(emailVal).trim() };
+      })
+      .filter(r => r.email && r.email.includes('@'));
 
     const noEmailCount = filtered.length - validMailRecipients.length;
 
     document.getElementById('mailRecipientCountBadge').textContent = `有效收件人：${validMailRecipients.length} 位`;
     
     if (validMailRecipients.length === 0) {
-      document.getElementById('mailRecipientsListText').innerHTML = `<span class="text-rose-500 font-bold">目前篩選條件下沒有任何填寫 Email 的學員。</span>`;
+      document.getElementById('mailRecipientsListText').innerHTML = `
+        <span class="text-rose-600 font-bold">
+          目前篩選條件下沒有任何填寫 Email 的學員。<br>
+          <span class="text-[11px] text-slate-500 font-normal">（提示：請檢查 Google 試算表中的 Email 欄位標題是否為 email 或 Email）</span>
+        </span>`;
     } else {
-      const namesStr = validMailRecipients.map(r => `${r.name} <${r.email}>`).join('、');
+      const namesStr = validMailRecipients.map(r => `${r.name} &lt;${r.email}&gt;`).join('、');
       const warnStr = noEmailCount > 0 ? `<div class="text-amber-600 font-bold mt-1">※ 另有 ${noEmailCount} 位學員未填寫信箱，系統將自動略過。</div>` : '';
       document.getElementById('mailRecipientsListText').innerHTML = namesStr + warnStr;
     }
