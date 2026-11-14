@@ -17,12 +17,12 @@
     body{ margin:0; padding:0; background:#f8fafc; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#0f172a; }
     .hidden{ display:none!important; }
 
-    /* Toast */
-    .toast{ position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-10px); min-width:280px; max-width:90vw; padding:12px 18px; border-radius:12px; text-align:center; color:#fff; font-size:14px; font-weight:700; box-shadow:0 10px 25px rgba(0,0,0,.15); opacity:0; transition:.25s; z-index:10000; }
-    .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
-    .toast.success{ background:#16a34a; }
-    .toast.error{ background:#dc2626; }
-    .toast.warn{ background:#f59e0b; }
+    /* Toast 提示專屬樣式 */
+    .toast{ position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-20px); min-width:280px; max-width:90vw; padding:14px 20px; border-radius:14px; text-align:center; color:#fff; font-size:14px; font-weight:800; box-shadow:0 15px 35px rgba(0,0,0,0.25); opacity:0; transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index:30000; pointer-events:none; display:none; }
+    .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); display:block; }
+    .toast.success{ background:#16a34a; border:1px solid #15803d; }
+    .toast.error{ background:#dc2626; border:1px solid #b91c1c; }
+    .toast.warn{ background:#f59e0b; border:1px solid #d97706; }
 
     #loadingMask{ position:fixed; inset:0; background:rgba(15,23,42,.3); backdrop-filter:blur(2px); display:flex; justify-content:center; align-items:center; z-index:20000; }
     #loadingMask.hidden{ display:none; }
@@ -746,7 +746,7 @@
       body.innerHTML = html;
     }
 
-    function renderMyEnrollmentTableRow(item) {
+function renderMyEnrollmentTableRow(item) {
       const rawCheckin = String(item.checkin_time || item.checkinTime || item.check_in || '').trim();
       const rawCheckout = String(item.checkout_time || item.checkoutTime || item.check_out || '').trim();
 
@@ -757,6 +757,9 @@
       const isWaitlist = item.status === 'waitlist';
       const isPaid = item.payment_status === 'paid';
       const courseHours = Number(item.training_hours) || 0;
+
+      // 判斷是否已經填寫過後五碼或現場付款
+      const hasAtm = item.payment_account && item.payment_account !== '未填寫' && String(item.payment_account).trim() !== '';
 
       const todayStr = new Date().toISOString().split('T')[0];
       const signupEndStr = safeFormatDate(item.signup_end);
@@ -804,13 +807,28 @@
         certHtml = `<span class="text-slate-500">一般培訓 (無證照)</span>`;
       }
 
+      // 💡 根據有無填寫後五碼與繳費狀態控制操作按鈕與顯示文字
       let actionCellHtml = '<span class="text-slate-400 text-[11px]">-</span>';
+      let payStatusText = '待繳費';
+      let payStatusClass = 'text-amber-600';
+
+      if (isPaid) {
+        payStatusText = '已繳費';
+        payStatusClass = 'text-emerald-600';
+      } else if (hasAtm) {
+        payStatusText = '確認中'; // 💡 依需求改為確認中
+        payStatusClass = 'text-blue-600 font-black';
+      }
+
       if (isCancelled) {
         actionCellHtml = '<span class="text-slate-400 text-[11px]">已取消</span>';
       } else if (isPaid) {
-        actionCellHtml = '<span class="text-slate-500 text-[11px] font-bold" title="已繳費如需取消請洽主辦方">已繳費(需洽主辦)</span>';
+        actionCellHtml = '<span class="text-slate-500 text-[11px] font-bold">已繳費(需洽主辦)</span>';
+      } else if (hasAtm) {
+        // 💡 已經填過後五碼，鎖定不能再次更新
+        actionCellHtml = `<span class="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg">🔒 已提交審核</span>`;
       } else if (isExpired) {
-        actionCellHtml = '<span class="text-rose-500 text-[11px] font-bold" title="已過報名截止日">已過截止日</span>';
+        actionCellHtml = '<span class="text-rose-500 text-[11px] font-bold">已過截止日</span>';
       } else {
         actionCellHtml = `
           <div class="flex items-center justify-end gap-1.5 flex-wrap">
@@ -821,7 +839,7 @@
       }
 
       const displayDate = safeFormatDate(item.date) || '未定';
-      const payAccDisplay = item.payment_account && item.payment_account !== '未填寫' ? ` (後五碼: ${item.payment_account})` : '';
+      const payAccDisplay = hasAtm ? ` (後五碼: ${item.payment_account})` : '';
 
       return `
         <tr class="hover:bg-slate-50/80 transition">
@@ -832,7 +850,7 @@
           <td class="p-3 whitespace-nowrap">
             <div class="space-y-1">
               <div>${attendanceBadge}</div>
-              <div class="text-[11px] ${isPaid ? 'text-emerald-600' : 'text-amber-600'} font-bold">${isPaid ? '已繳費' : '待繳費'}${payAccDisplay}</div>
+              <div class="text-[11px] ${payStatusClass} font-bold">${payStatusText}${payAccDisplay}</div>
             </div>
           </td>
           <td class="p-3 whitespace-nowrap">
@@ -849,6 +867,7 @@
       `;
     }
 
+    
     function openPaymentUpdateModal(logId, courseName) {
       document.getElementById('payUpdateLogId').value = logId;
       document.getElementById('payUpdateCourseName').textContent = `課程：${courseName}`;
