@@ -1476,7 +1476,7 @@ function loadAllData() {
     changePaymentStatus(logId, 'refunded', refundAmt, cancelSeat);
   }
 
-  function changePaymentStatus(logId, newStatus, refundAmount = 0, cancelSeat = false) {
+function changePaymentStatus(logId, newStatus, refundAmount = 0, cancelSeat = false) {
     showLoading('更新帳務狀態中...');
     const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
     const cb = 'jsonp_pay_' + Math.round(100000 * Math.random());
@@ -1498,19 +1498,25 @@ function loadAllData() {
 
       if (res && (res.result === 'ok' || res.result === 'success')) {
         showToast('帳務狀態已更新！', 'success');
+        
+        // 💡 同步更新前端暫存陣列中的狀態與身分，並立刻重新載入以即時呈現
         const target = allEnrollments.find(i => String(i.log_id) === String(logId));
         if (target) {
           target.payment_status = newStatus;
           if (newStatus === 'refunded') {
             target.refund_amount = refundAmount;
             target.refund_date = new Date().toISOString().slice(0, 19).replace('T', ' ');
-            if (cancelSeat) target.status = 'cancelled';
+            if (cancelSeat) {
+              target.status = 'cancelled'; // 👈 讓畫面即時將身分改為取消
+            }
           } else if (newStatus === 'unpaid') {
             target.refund_amount = 0;
             target.refund_date = '';
           }
         }
-        renderEnrollmentTable();
+        
+        // 💡 關鍵：呼叫這行讓表格跟 KPI 數據即時重新整理渲染！
+        loadEnrollmentData('enrollments');
       } else {
         showToast(res ? res.message : '更新失敗', 'error');
       }
