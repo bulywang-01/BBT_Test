@@ -1400,31 +1400,50 @@ function doAttendanceAction(logId, actionType) {
     }
 
     tbody.innerHTML = filtered.map(item => {
-      const val = String(item.certificate_verified || '').trim().toLowerCase();
-      const isVerified = (val === 'verified' || val === 'yes' || val === 'true');
-      
-      const certBadge = isVerified
-        ? `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已確認 (verified)</span>`
-        : `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">待確認 (pending)</span>`;
-
-      return `
-        <tr class="hover:bg-slate-50 transition">
-          <td class="p-4 text-xs font-bold text-slate-700">#${item.log_id || '-'}</td>
-          <td class="p-4">
-            <div class="font-extrabold text-slate-900">${item.name || '未填'}</div>
-            <div class="text-xs text-slate-500">${item.phone || '-'}</div>
-          </td>
-          <td class="p-4 font-black text-blue-600 text-base">${item.score !== undefined && item.score !== '' && item.score !== null ? item.score : '<span class="text-slate-400 font-normal text-xs">未登錄</span>'}</td>
-          <td class="p-4">${certBadge}</td>
-          <td class="p-4 text-xs font-mono text-slate-600">${item.certificate_verified_date || '-'}</td>
-          <td class="p-4 text-right">
-            <button onclick="openScoreCertModal('${item.log_id}', '${item.name || ''}', '${item.score !== undefined && item.score !== null ? item.score : ''}', '${item.certificate_verified || 'pending'}')" class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-extrabold transition">
-              編輯成績與證書
-            </button>
-          </td>
-        </tr>
-      `;
-    }).join('');
+          const val = String(item.certificate_verified || '').trim().toLowerCase();
+          const scoreNum = Number(item.score);
+          const hasScore = item.score !== undefined && item.score !== '' && item.score !== null && !isNaN(scoreNum);
+    
+          // 💡 智慧判定邏輯：
+          // 1. 如果有成績且低於 60 分，強制判定為未通過 (rejected)
+          // 2. 否則依據後端資料庫的設定 (verified / rejected / pending)
+          let finalStatus = val;
+          if (hasScore && scoreNum < 60 && finalStatus === 'pending') {
+            finalStatus = 'rejected';
+          }
+    
+          const isVerified = (finalStatus === 'verified' || finalStatus === 'yes' || finalStatus === 'true');
+          const isRejected = (finalStatus === 'rejected' || finalStatus === 'no' || (hasScore && scoreNum < 60));
+    
+          let certBadge = '';
+          if (isVerified) {
+            certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已確認 (verified)</span>`;
+          } else if (isRejected) {
+            certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800">未通過 (rejected)</span>`;
+          } else {
+            certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">待確認 (pending)</span>`;
+          }
+    
+          return `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="p-4 text-xs font-bold text-slate-700">#${item.log_id || '-'}</td>
+              <td class="p-4">
+                <div class="font-extrabold text-slate-900">${item.name || '未填'}</div>
+                <div class="text-xs text-slate-500">${item.phone || '-'}</div>
+              </td>
+              <td class="p-4 font-black ${hasScore && scoreNum < 60 ? 'text-rose-600' : 'text-blue-600'} text-base">
+                ${hasScore ? item.score : '<span class="text-slate-400 font-normal text-xs">未登錄</span>'}
+              </td>
+              <td class="p-4">${certBadge}</td>
+              <td class="p-4 text-xs font-mono text-slate-600">${item.certificate_verified_date || '-'}</td>
+              <td class="p-4 text-right">
+                <button onclick="openScoreCertModal('${item.log_id}', '${item.name || ''}', '${hasScore ? item.score : ''}', '${item.certificate_verified || 'pending'}')" class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-extrabold transition">
+                  編輯成績與證書
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
   }
 
   function openScoreCertModal(logId, studentName, score, verified) {
