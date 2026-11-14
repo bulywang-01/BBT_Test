@@ -1309,14 +1309,13 @@ function loadAllData() {
     if (fSelect) fSelect.innerHTML = html;
   }
 
-  function renderEnrollmentTable() {
+function renderEnrollmentTable() {
     const tbody = document.getElementById('enrollmentTableBody');
     const cFilter = document.getElementById('filterCourseSelect').value;
     const pFilter = document.getElementById('filterPaymentStatus').value;
     const keyword = (document.getElementById('txtEnrollSearch').value || '').toLowerCase();
 
     const filtered = allEnrollments.filter(item => {
-      if (item.status === 'cancelled' && item.payment_status !== 'refunded') return false;
       const matchC = cFilter === 'all' || String(item.course_id) === String(cFilter);
       const matchP = pFilter === 'all' || String(item.payment_status) === String(pFilter);
       const text = [item.name, item.phone, item.payment_account, item.course_name].join(' ').toLowerCase();
@@ -1332,6 +1331,16 @@ function loadAllData() {
     tbody.innerHTML = filtered.map(item => {
       const payStatus = item.payment_status;
       const isWaitlist = item.status === 'waitlist';
+      
+      // 💡 關鍵修正：確實判斷後端傳來的 status 是否為 cancelled，或是繳費狀態為 refunded
+      const isCancelled = item.status === 'cancelled' || payStatus === 'refunded';
+
+      let statusBadge = `<span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">正取</span>`;
+      if (isWaitlist) {
+        statusBadge = `<span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">候補</span>`;
+      } else if (isCancelled) {
+        statusBadge = `<span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">已取消</span>`;
+      }
 
       let payBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">待繳費</span>`;
       if (payStatus === 'paid') {
@@ -1339,10 +1348,6 @@ function loadAllData() {
       } else if (payStatus === 'refunded') {
         payBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800">已退費</span>`;
       }
-
-      const statusBadge = isWaitlist
-        ? `<span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">候補</span>`
-        : `<span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">正取</span>`;
 
       const courseObj = allCourses.find(c => String(c.course_id) === String(item.course_id));
       const defaultFee = courseObj ? (courseObj.fee || 0) : 0;
@@ -1400,6 +1405,7 @@ function loadAllData() {
     }).join('');
   }
 
+  
   function openPaymentModal(logId, studentName, courseName, payAccount, defaultAmount) {
     document.getElementById('modal_pay_log_id').value = logId;
     document.getElementById('modal_pay_student_info').textContent = `${studentName} (${courseName})`;
