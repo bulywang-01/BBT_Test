@@ -7,10 +7,8 @@
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  
   <!-- 共用 CSS -->
   <link rel="stylesheet" href="common.css">
 
@@ -78,7 +76,7 @@
       </div>
     </div>
 
-    <!-- Courses Container (Grouped by Date) -->
+    <!-- Courses Container -->
     <div id="coursesContainer" class="space-y-8">
       <div class="text-center py-12 text-slate-400 font-bold">載入課程資料中...</div>
     </div>
@@ -118,13 +116,13 @@
             <input type="email" id="signupEmail" placeholder="example@email.com" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500">
           </div>
 
-          <!-- 動態欄位：匯款後五碼 -->
+          <!-- 匯款後五碼 -->
           <div id="fieldPaymentSection" class="hidden">
             <label class="block text-xs font-bold text-slate-700 mb-1">匯款帳號後五碼 <span class="text-rose-500">*</span></label>
             <input type="text" id="signupAtm" maxlength="5" placeholder="請輸入您的轉帳帳號後五碼" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500">
           </div>
 
-          <!-- 動態欄位：飲食習慣 -->
+          <!-- 飲食習慣 -->
           <div id="fieldMealSection" class="hidden">
             <label class="block text-xs font-bold text-slate-700 mb-1">飲食習慣 / 餐點需求</label>
             <select id="signupMeal" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500">
@@ -149,7 +147,7 @@
     </div>
   </div>
 
-  <!-- 我的報名紀錄 Modal (支援年度折疊分群與完整學習歷程) -->
+  <!-- 我的報名紀錄 Modal -->
   <div id="myRecordsModal" class="modal hidden">
     <div class="modal-dialog">
       <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
@@ -167,6 +165,52 @@
       <div class="px-5 py-3.5 bg-white border-t border-slate-200 flex justify-end">
         <button onclick="closeModal('myRecordsModal')" class="px-4 py-2 rounded-xl bg-slate-800 text-white font-bold text-sm hover:bg-slate-700">關閉視窗</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 繳費資訊更新 Modal -->
+  <div id="paymentUpdateModal" class="modal hidden">
+    <div class="modal-dialog max-w-md">
+      <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <h3 class="font-extrabold text-base flex items-center gap-2">
+          <span>💳</span>
+          <span>繳費資訊更新</span>
+        </h3>
+        <button onclick="closeModal('paymentUpdateModal')" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
+      </div>
+      
+      <form id="paymentUpdateForm" onsubmit="submitPaymentUpdate(event)" class="p-5 space-y-4">
+        <input type="hidden" id="payUpdateLogId">
+        
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-1">
+          <div class="font-black text-slate-900 text-sm" id="payUpdateCourseName">-</div>
+          <div class="text-slate-500">請選擇您的付款方式並填寫相關資訊：</div>
+        </div>
+
+        <div class="space-y-3">
+          <label class="block text-xs font-bold text-slate-700">選擇付款方式 <span class="text-rose-500">*</span></label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="flex items-center gap-2 p-3 border border-slate-300 rounded-xl cursor-pointer hover:bg-slate-50 font-bold text-xs">
+              <input type="radio" name="payMethod" value="onsite" onchange="togglePayMethod()" checked class="accent-blue-600">
+              <span>現場付款 (自動填入 99999)</span>
+            </label>
+            <label class="flex items-center gap-2 p-3 border border-slate-300 rounded-xl cursor-pointer hover:bg-slate-50 font-bold text-xs">
+              <input type="radio" name="payMethod" value="transfer" onchange="togglePayMethod()" class="accent-blue-600">
+              <span>銀行轉帳匯款</span>
+            </label>
+          </div>
+
+          <div id="transferAccountSection" class="hidden space-y-1 pt-2">
+            <label class="block text-xs font-bold text-slate-700">匯款帳號後五碼 <span class="text-rose-500">*</span></label>
+            <input type="text" id="payUpdateAtmInput" maxlength="5" placeholder="請輸入轉帳後五碼" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-blue-500">
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end gap-2.5">
+          <button type="button" onclick="closeModal('paymentUpdateModal')" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50">取消</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm shadow-md shadow-blue-600/20">確認儲存</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -620,7 +664,6 @@
       document.body.appendChild(script);
     }
 
-// 💡 支援年度折疊分群、累計時數與正確抓取報名截止日
     function renderMyRecords() {
       const body = document.getElementById('myRecordsBody');
       if (!myRegistrations.length) {
@@ -630,7 +673,6 @@
 
       const groupedByYear = {};
       myRegistrations.forEach(item => {
-        // 從全域 allCourses 補齊課程的報名截止日、證照與時數資訊
         const courseInfo = allCourses.find(c => String(c.course_id) === String(item.course_id)) || {};
         const mergedItem = {
           ...item,
@@ -652,7 +694,6 @@
         }
         groupedByYear[year].items.push(mergedItem);
 
-        // 計算該年度已完訓（有簽到且有簽退）的累計時數
         const rawIn = String(mergedItem.checkin_time || mergedItem.checkinTime || '').trim();
         const rawOut = String(mergedItem.checkout_time || mergedItem.checkoutTime || '').trim();
         const isDone = (rawIn && rawIn !== '-' && rawIn !== 'null') && (rawOut && rawOut !== '-' && rawOut !== 'null');
@@ -666,7 +707,7 @@
       let html = '';
       sortedYears.forEach((year, idx) => {
         const group = groupedByYear[year];
-        const isOpen = idx === 0; // 預設展開最新年度
+        const isOpen = idx === 0;
 
         html += `
           <details ${isOpen ? 'open' : ''} class="group bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4 last:mb-0">
@@ -690,7 +731,7 @@
                     <th class="p-3 whitespace-nowrap">狀態 / 繳費</th>
                     <th class="p-3 whitespace-nowrap">時數 / 成績</th>
                     <th class="p-3 whitespace-nowrap">證照 / 性質</th>
-                    <th class="p-3 text-right whitespace-nowrap">取消報名</th>
+                    <th class="p-3 text-right whitespace-nowrap">操作管理</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -705,7 +746,6 @@
       body.innerHTML = html;
     }
 
-    // 💡 表格單行渲染：嚴格管制取消報名條件（未繳費且在截止日前）
     function renderMyEnrollmentTableRow(item) {
       const rawCheckin = String(item.checkin_time || item.checkinTime || item.check_in || '').trim();
       const rawCheckout = String(item.checkout_time || item.checkoutTime || item.check_out || '').trim();
@@ -718,7 +758,6 @@
       const isPaid = item.payment_status === 'paid';
       const courseHours = Number(item.training_hours) || 0;
 
-      // 檢查是否超過報名截止日
       const todayStr = new Date().toISOString().split('T')[0];
       const signupEndStr = safeFormatDate(item.signup_end);
       const isExpired = signupEndStr && todayStr > signupEndStr;
@@ -765,7 +804,6 @@
         certHtml = `<span class="text-slate-500">一般培訓 (無證照)</span>`;
       }
 
-      // 💡 嚴格控制操作欄位：已取消、已繳費、或超過截止日，皆不提供線上取消
       let actionCellHtml = '<span class="text-slate-400 text-[11px]">-</span>';
       if (isCancelled) {
         actionCellHtml = '<span class="text-slate-400 text-[11px]">已取消</span>';
@@ -774,10 +812,16 @@
       } else if (isExpired) {
         actionCellHtml = '<span class="text-rose-500 text-[11px] font-bold" title="已過報名截止日">已過截止日</span>';
       } else {
-        actionCellHtml = `<button onclick="cancelEnrollment('${item.log_id || item.enrollment_id}', '${item.course_name}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold rounded text-[11px] transition cursor-pointer">取消報名</button>`;
+        actionCellHtml = `
+          <div class="flex items-center justify-end gap-1.5 flex-wrap">
+            <button onclick="openPaymentUpdateModal('${item.log_id || item.enrollment_id}', '${item.course_name}')" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 font-extrabold rounded text-[11px] transition cursor-pointer">繳費資訊更新</button>
+            <button onclick="cancelEnrollment('${item.log_id || item.enrollment_id}', '${item.course_name}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold rounded text-[11px] transition cursor-pointer">取消報名</button>
+          </div>
+        `;
       }
 
       const displayDate = safeFormatDate(item.date) || '未定';
+      const payAccDisplay = item.payment_account && item.payment_account !== '未填寫' ? ` (後五碼: ${item.payment_account})` : '';
 
       return `
         <tr class="hover:bg-slate-50/80 transition">
@@ -788,7 +832,7 @@
           <td class="p-3 whitespace-nowrap">
             <div class="space-y-1">
               <div>${attendanceBadge}</div>
-              <div class="text-[11px] ${isPaid ? 'text-emerald-600' : 'text-amber-600'} font-bold">${isPaid ? '已繳費' : '待繳費'}</div>
+              <div class="text-[11px] ${isPaid ? 'text-emerald-600' : 'text-amber-600'} font-bold">${isPaid ? '已繳費' : '待繳費'}${payAccDisplay}</div>
             </div>
           </td>
           <td class="p-3 whitespace-nowrap">
@@ -803,6 +847,75 @@
           </td>
         </tr>
       `;
+    }
+
+    function openPaymentUpdateModal(logId, courseName) {
+      document.getElementById('payUpdateLogId').value = logId;
+      document.getElementById('payUpdateCourseName').textContent = `課程：${courseName}`;
+      document.querySelector('input[name="payMethod"][value="onsite"]').checked = true;
+      document.getElementById('payUpdateAtmInput').value = '';
+      document.getElementById('transferAccountSection').classList.add('hidden');
+      document.getElementById('paymentUpdateModal').classList.remove('hidden');
+    }
+
+    function togglePayMethod() {
+      const method = document.querySelector('input[name="payMethod"]:checked').value;
+      const transferSec = document.getElementById('transferAccountSection');
+      const atmInput = document.getElementById('payUpdateAtmInput');
+      if (method === 'transfer') {
+        transferSec.classList.remove('hidden');
+        atmInput.required = true;
+      } else {
+        transferSec.classList.add('hidden');
+        atmInput.required = false;
+        atmInput.value = '';
+      }
+    }
+
+    function submitPaymentUpdate(e) {
+      e.preventDefault();
+      const logId = document.getElementById('payUpdateLogId').value;
+      const method = document.querySelector('input[name="payMethod"]:checked').value;
+      const atmTail = method === 'onsite' ? '99999' : document.getElementById('payUpdateAtmInput').value.trim();
+
+      if (method === 'transfer' && (!atmTail || atmTail.length < 5)) {
+        showToast('請輸入完整的 5 碼轉帳帳號', 'warn');
+        return;
+      }
+
+      showLoading('更新繳費資訊...');
+      const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+      const cb = 'jsonp_pay_update_' + Math.round(100000 * Math.random());
+      const params = new URLSearchParams({
+        action: 'updatePaymentAccount',
+        log_id: logId,
+        payment_account: atmTail,
+        callback: cb,
+        _t: new Date().getTime()
+      });
+
+      window[cb] = function(res) {
+        delete window[cb];
+        if (script.parentNode) script.parentNode.removeChild(script);
+        hideLoading();
+        closeModal('paymentUpdateModal');
+        if (res && (res.result === 'ok' || res.result === 'success')) {
+          showToast('繳費資訊已成功更新！', 'success');
+          openMyRegistrations();
+        } else {
+          showToast(res ? res.message : '更新失敗', 'error');
+        }
+      };
+
+      const script = document.createElement('script');
+      script.src = `${baseUrl}?${params.toString()}`;
+      script.onerror = function() {
+        delete window[cb];
+        if (script.parentNode) script.parentNode.removeChild(script);
+        hideLoading();
+        showToast('網路連線異常請重試', 'error');
+      };
+      document.body.appendChild(script);
     }
 
     function cancelEnrollment(targetId, courseName) {
@@ -833,120 +946,6 @@
         showToast('網路連線異常', 'error');
       };
       document.body.appendChild(script);
-    }
-
-    // 💡 完整豐富的學習歷程卡片（包含時數、成績、繳費狀態與明確的證照解鎖狀態）
-    function renderMyEnrollmentCard(item) {
-      const rawCheckin = String(item.checkin_time || item.checkinTime || item.check_in || '').trim();
-      const rawCheckout = String(item.checkout_time || item.checkoutTime || item.check_out || '').trim();
-
-      const hasCheckin = rawCheckin !== '' && rawCheckin !== '-' && rawCheckin !== 'undefined' && rawCheckin !== 'null';
-      const hasCheckout = rawCheckout !== '' && rawCheckout !== '-' && rawCheckout !== 'undefined' && rawCheckout !== 'null';
-
-      const isCancelled = item.status === 'cancelled';
-      const isWaitlist = item.status === 'waitlist';
-      const isPaid = item.payment_status === 'paid';
-      const courseHours = Number(item.training_hours) || 0;
-
-      let attendanceBadge = '';
-      let earnedHoursText = '';
-
-      if (isCancelled) {
-        attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-500">已取消報名</span>`;
-        earnedHoursText = `<span class="text-slate-400">0 hr</span>`;
-      } else if (isWaitlist) {
-        attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">⏳ 候補中</span>`;
-        earnedHoursText = `<span class="text-slate-400">0 / ${courseHours} hr</span>`;
-      } else if (hasCheckin && hasCheckout) {
-        attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">✅ 已完成 (完訓)</span>`;
-        earnedHoursText = `<span class="text-emerald-600 font-black">${courseHours} hr（已採計）</span>`;
-      } else if (hasCheckin && !hasCheckout) {
-        attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">⚠️ 未簽退</span>`;
-        earnedHoursText = `<span class="text-amber-600 font-bold">0 / ${courseHours} hr（未完訓）</span>`;
-      } else {
-        attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800">📌 已報名</span>`;
-        earnedHoursText = `<span class="text-slate-600">0 / ${courseHours} hr</span>`;
-      }
-
-      const scoreVal = item.score !== undefined && item.score !== '' && item.score !== null ? String(item.score).trim() : '';
-      const scoreNum = scoreVal !== '' && !isNaN(Number(scoreVal)) ? Number(scoreVal) : null;
-      const isFailed = scoreNum !== null && scoreNum < 60;
-      const isVerified = String(item.certificate_verified || '').toLowerCase() === 'verified';
-
-      // 智慧解析證照級別
-      let rawCertType = String(item.certificate_type || '').trim();
-      let rawLevel = String(item.certificate_level || '').trim();
-      let certLevel = '';
-      if (rawCertType.toLowerCase().includes('general') && rawCertType.toUpperCase().includes('C')) {
-        certLevel = 'C';
-      }
-      if (rawLevel && rawLevel.toLowerCase() !== 'none' && rawLevel.toLowerCase() !== 'null') {
-        certLevel = rawLevel;
-      }
-      const formattedLevel = certLevel ? (certLevel.includes('級') ? certLevel : `${certLevel}級`) : '';
-
-      // 💡 明確顯示證照資格或一般培訓性質
-      let certSectionHtml = '';
-      if (formattedLevel) {
-        let certStatusHtml = '';
-        let boxStyle = 'bg-purple-50/80 border-purple-200 text-purple-900';
-
-        if (isVerified) {
-          certStatusHtml = `<span class="font-black text-emerald-600">✨ 已取得證照</span>`;
-          boxStyle = 'bg-emerald-50/70 border-emerald-200 text-emerald-900';
-        } else if (isFailed) {
-          certStatusHtml = `<span class="font-black text-rose-600">❌ 未通過（未達 60 分）</span>`;
-          boxStyle = 'bg-rose-50/70 border-rose-200 text-rose-900';
-        } else {
-          certStatusHtml = `<span class="font-bold text-amber-600">⏳ 審核發證中</span>`;
-        }
-
-        certSectionHtml = `
-          <div class="flex flex-wrap items-center justify-between gap-1.5 border px-3 py-2 rounded-xl text-xs ${boxStyle}">
-            <span class="font-extrabold">📜 對應證照：裁判 ${formattedLevel}</span>
-            ${certStatusHtml}
-          </div>
-        `;
-      } else {
-        certSectionHtml = `
-          <div class="flex items-center justify-between bg-slate-100/80 border border-slate-200/80 px-3 py-2 rounded-xl text-xs text-slate-600">
-            <span class="font-bold">🎓 課程性質：一般培訓（無證照核發）</span>
-            <span class="font-bold text-slate-500">採計研習時數</span>
-          </div>
-        `;
-      }
-
-      const displayDate = safeFormatDate(item.date) || '未定';
-
-      return `
-        <article class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
-          <div class="flex items-start justify-between gap-2">
-            <div class="font-black text-slate-900 text-base leading-snug">${item.course_name || '課程場次'}</div>
-            <div class="shrink-0">${attendanceBadge}</div>
-          </div>
-
-          <!-- 💡 學習歷程核心資訊區（防折行） -->
-          <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 space-y-2 text-xs text-slate-700">
-            <div class="flex items-center justify-between gap-2">
-              <span class="font-bold whitespace-nowrap">📅 上課日期：<span class="font-mono font-normal">${displayDate}</span></span>
-              <span class="font-bold whitespace-nowrap">💰 繳費：<span class="${isPaid ? 'text-emerald-600' : 'text-amber-600'}">${isPaid ? '已繳費' : '待繳費'}</span></span>
-            </div>
-            <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-200/60">
-              <span class="font-bold whitespace-nowrap">⏱️ 時數：${earnedHoursText}</span>
-              <span class="font-bold whitespace-nowrap">📝 成績：<span class="${isFailed ? 'text-rose-600 font-black' : 'text-blue-600 font-black'}">${scoreNum !== null ? scoreNum + ' 分' : '未登錄'}</span></span>
-            </div>
-          </div>
-
-          <!-- 💡 證照狀態與課程性質區塊 -->
-          ${certSectionHtml}
-
-          <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-400">
-            <span>報名編號：#${item.log_id || item.enrollment_id || '-'}</span>
-            ${!isCancelled && isPaid ? '<span class="text-slate-500 font-bold">已繳費紀錄，無法線上取消</span>' : ''}
-            ${!isCancelled && !isPaid ? `<button onclick="cancelEnrollment('${item.log_id || item.enrollment_id}', '${item.course_name}')" class="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold rounded-lg transition cursor-pointer">取消報名</button>` : ''}
-          </div>
-        </article>
-      `;
     }
   </script>
 </body>
