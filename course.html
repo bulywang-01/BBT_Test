@@ -149,22 +149,22 @@
     </div>
   </div>
 
-  <!-- 我的報名紀錄 Modal -->
+  <!-- 我的報名紀錄 Modal (支援年度分群) -->
   <div id="myRecordsModal" class="modal hidden">
     <div class="modal-dialog">
       <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
         <h3 class="font-extrabold text-base flex items-center gap-2">
           <i data-lucide="bookmark-check" class="w-5 h-5 text-amber-400"></i>
-          <span>我的課程 / 報名紀錄</span>
+          <span>我的課程 / 學習歷程與報名紀錄</span>
         </h3>
         <button onclick="closeModal('myRecordsModal')" class="text-slate-400 hover:text-white p-1 rounded-lg">✕</button>
       </div>
       
-      <div id="myRecordsBody" class="p-5 overflow-y-auto space-y-3 min-h-[200px]">
+      <div id="myRecordsBody" class="p-5 overflow-y-auto space-y-4 min-h-[250px] bg-slate-50/50">
         <div class="text-center py-8 text-slate-400 font-bold">載入報名紀錄中...</div>
       </div>
 
-      <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end">
+      <div class="px-5 py-3.5 bg-white border-t border-slate-200 flex justify-end">
         <button onclick="closeModal('myRecordsModal')" class="px-4 py-2 rounded-xl bg-slate-800 text-white font-bold text-sm hover:bg-slate-700">關閉視窗</button>
       </div>
     </div>
@@ -286,7 +286,6 @@
         if (script.parentNode) script.parentNode.removeChild(script);
         hideLoading();
         if (res && res.result === 'ok') {
-          // 💡 取消過濾 closed 課程，讓所有課程（包含已截止的）都能順利顯示出來
           allCourses = res.data || [];
           renderCourses();
         } else {
@@ -305,7 +304,6 @@
       document.body.appendChild(script);
     }
 
-    // 💡 絕對安全的日期清洗工具
     function safeFormatDate(raw) {
       if (!raw) return '';
       let str = String(raw).trim();
@@ -381,8 +379,7 @@
       if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-function buildCourseCard(c) {
-      // 1. 課程型別中文化
+    function buildCourseCard(c) {
       const typeMap = {
         'judge': '裁判培訓',
         'record': '紀錄培訓',
@@ -391,24 +388,19 @@ function buildCourseCard(c) {
       const typeLabel = typeMap[c.course_name] || typeMap[c.course_type] || c.course_type || '一般課程';
       const typeBadgeColor = c.course_type === 'judge' ? 'bg-blue-100 text-blue-700' : (c.course_type === 'record' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700');
       
-      // 2. 智慧解析證照級別
       let rawCertType = String(c.certificate_type || '').trim();
       let rawLevel = String(c.certificate_level || '').trim();
       let certLevel = '';
 
-      // 如果 certificate_type 裡面藏了等級（例如 "general C"）
       if (rawCertType.toLowerCase().includes('general') && rawCertType.toUpperCase().includes('C')) {
         certLevel = 'C';
       }
 
-      // 解析級別欄位
       if (rawLevel && rawLevel.toLowerCase() !== 'none' && rawLevel.toLowerCase() !== 'null') {
         certLevel = rawLevel;
       }
 
       const formattedLevel = certLevel ? (certLevel.includes('級') ? certLevel : `${certLevel}級`) : '';
-      
-      // 💡 嚴格規定：必須要有具體的「證照級別」（如 C、B、A），才顯示證照標籤！沒有級別的課程會自動隱藏。
       const hasValidCert = (formattedLevel !== '');
 
       const enrolled = Number(c.current_enrollment) || 0;
@@ -447,7 +439,6 @@ function buildCourseCard(c) {
             <div class="flex items-center justify-between gap-2">
               <div class="flex flex-wrap items-center gap-1.5">
                 <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${typeBadgeColor}">${typeLabel}</span>
-                <!-- 💡 只有當具備有效證照級別時才會渲染 -->
                 ${hasValidCert ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-purple-100 text-purple-700">證照：裁判 ${formattedLevel}</span>` : ''}
               </div>
               <span class="text-xs font-bold text-slate-500">培訓時數：${c.training_hours || 0} hr</span>
@@ -629,13 +620,47 @@ function buildCourseCard(c) {
       document.body.appendChild(script);
     }
 
+    // 💡 支援年度分群 (Group by Year) 的個人報名與學習歷程渲染
     function renderMyRecords() {
       const body = document.getElementById('myRecordsBody');
       if (!myRegistrations.length) {
         body.innerHTML = `<div class="text-center py-10 text-slate-400 font-bold">尚無任何課程報名紀錄</div>`;
         return;
       }
-      body.innerHTML = myRegistrations.map(item => renderMyEnrollmentCard(item)).join('');
+
+      const groupedByYear = {};
+      myRegistrations.forEach(item => {
+        let year = '其他年度';
+        if (item.date && item.date.length >= 4) {
+          year = item.date.substring(0, 4) + '年度';
+        } else if (item.created_at && item.created_at.length >= 4) {
+          year = item.created_at.substring(0, 4) + '年度';
+        }
+        if (!groupedByYear[year]) {
+          groupedByYear[year] = [];
+        }
+        groupedByYear[year].push(item);
+      });
+
+      const sortedYears = Object.keys(groupedByYear).sort().reverse();
+
+      let html = '';
+      sortedYears.forEach(year => {
+        const items = groupedByYear[year];
+        html += `
+          <div class="mb-5 last:mb-0">
+            <div class="flex items-center gap-2 mb-2.5 px-1">
+              <span class="text-sm font-black text-slate-800 tracking-wide">📂 ${year}</span>
+              <span class="text-xs font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">共 ${items.length} 門課程</span>
+            </div>
+            <div class="space-y-3">
+              ${items.map(item => renderMyEnrollmentCard(item)).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      body.innerHTML = html;
     }
 
     function cancelEnrollment(targetId, courseName) {
@@ -668,6 +693,7 @@ function buildCourseCard(c) {
       document.body.appendChild(script);
     }
 
+    // 💡 完整豐富的學習歷程卡片（包含時數、成績、繳費狀態與證照資格）
     function renderMyEnrollmentCard(item) {
       const rawCheckin = String(item.checkin_time || item.checkinTime || item.check_in || '').trim();
       const rawCheckout = String(item.checkout_time || item.checkoutTime || item.check_out || '').trim();
@@ -675,52 +701,83 @@ function buildCourseCard(c) {
       const hasCheckin = rawCheckin !== '' && rawCheckin !== '-' && rawCheckin !== 'undefined' && rawCheckin !== 'null';
       const hasCheckout = rawCheckout !== '' && rawCheckout !== '-' && rawCheckout !== 'undefined' && rawCheckout !== 'null';
 
+      const isCancelled = item.status === 'cancelled';
+      const isWaitlist = item.status === 'waitlist';
+      const isPaid = item.payment_status === 'paid';
+
       let attendanceBadge = '';
       let earnedHours = 0;
 
-      if (hasCheckin && hasCheckout) {
+      if (isCancelled) {
+        attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-500">已取消報名</span>`;
+      } else if (isWaitlist) {
+        attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">⏳ 候補中</span>`;
+      } else if (hasCheckin && hasCheckout) {
         attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">✅ 已完成 (完訓)</span>`;
         earnedHours = Number(item.training_hours) || 4;
       } else if (hasCheckin && !hasCheckout) {
         attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">⚠️ 報到未完全（未簽退）</span>`;
         earnedHours = 0;
       } else {
-        attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-600">❌ 缺課</span>`;
+        attendanceBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800">📌 已報名</span>`;
         earnedHours = 0;
       }
 
       const scoreVal = item.score !== undefined && item.score !== '' && item.score !== null ? String(item.score).trim() : '';
-      const scoreDisplay = (scoreVal !== '' && scoreVal !== '-') 
-        ? `<strong class="text-blue-600 font-black">${scoreVal} 分</strong>` 
-        : `<span class="text-slate-400">尚無成績</span>`;
+      const scoreNum = scoreVal !== '' && !isNaN(Number(scoreVal)) ? Number(scoreVal) : null;
+      
+      const isPassed = scoreNum !== null && scoreNum >= 60;
+      const isVerified = String(item.certificate_verified || '').toLowerCase() === 'verified';
 
-      const isPaid = String(item.payment_status || '').trim() === 'paid';
-      const isConfirmed = String(item.status || '').trim() === 'confirmed' || String(item.status || '').trim() === 'applied';
-      const canCancel = !(isPaid && isConfirmed) && item.allow_cancel !== 'N';
-
-      const cancelButtonHtml = canCancel 
-        ? `<button onclick="cancelEnrollment('${item.enrollment_id || item.log_id || item.course_id}', '${item.course_name}')" class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-extrabold transition">取消報名</button>` 
-        : `<span class="text-xs text-slate-400 font-bold bg-slate-100 px-2.5 py-1 rounded-lg">已繳費錄取，無法取消</span>`;
+      // 智慧解析證照級別
+      let rawLevel = String(item.certificate_level || '').trim();
+      let certLevelBadge = '';
+      if (rawLevel && rawLevel.toLowerCase() !== 'none' && rawLevel.toLowerCase() !== 'null') {
+        const formattedLevel = rawLevel.includes('級') ? rawLevel : `${rawLevel}級`;
+        certLevelBadge = `<span class="px-2 py-0.5 rounded text-xs font-extrabold bg-purple-100 text-purple-700">📜 證照：裁判 ${formattedLevel}</span>`;
+      }
 
       return `
-        <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
+        <article class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
           <div class="flex items-center justify-between">
-            <div class="font-black text-slate-900 text-base">${item.course_name || '課程名稱'}</div>
+            <div class="font-black text-slate-900 text-base">${item.course_name || '課程場次'}</div>
             <div>${attendanceBadge}</div>
           </div>
-          
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
-            <div>📅 日期：<strong class="text-slate-800">${item.date ? item.date.split('T')[0] : '未定'}</strong></div>
-            <div>⏱️ 採計時數：<strong class="text-blue-600">${earnedHours} hr</strong></div>
-            <div>📝 測驗成績：${scoreDisplay}</div>
-            <div>💰 繳費狀態：<strong class="${isPaid ? 'text-emerald-600' : 'text-amber-600'}">${isPaid ? '已繳費' : '待繳費'}</strong></div>
+
+          <!-- 💡 學習歷程核心資訊區 -->
+          <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 grid grid-cols-2 gap-2 text-xs text-slate-700">
+            <div class="flex items-center gap-1.5 font-bold">
+              <span>📅 日期：</span>
+              <span class="font-mono">${item.date || '未定'}</span>
+            </div>
+            <div class="flex items-center gap-1.5 font-bold">
+              <span>⏱️ 培訓時數：</span>
+              <span class="text-blue-600">${item.training_hours || 4} hr</span>
+            </div>
+            <div class="flex items-center gap-1.5 font-bold">
+              <span>📝 測驗成績：</span>
+              <span class="${scoreNum !== null && scoreNum < 60 ? 'text-rose-600 font-black' : 'text-slate-900'}">${scoreNum !== null ? scoreNum + ' 分' : '未登錄'}</span>
+            </div>
+            <div class="flex items-center gap-1.5 font-bold">
+              <span>💰 繳費狀態：</span>
+              <span class="${isPaid ? 'text-emerald-600' : 'text-amber-600'}">${isPaid ? '已繳費' : '待繳費'}</span>
+            </div>
           </div>
 
-          <div class="flex items-center justify-between pt-1 border-t border-slate-100">
-            <div class="text-[11px] text-slate-400">報名紀錄編號：#${item.log_id || item.enrollment_id || '-'}</div>
-            <div>${cancelButtonHtml}</div>
+          <!-- 💡 證照解鎖與審核狀態提示 -->
+          ${certLevelBadge ? `
+            <div class="flex items-center justify-between bg-purple-50/70 border border-purple-100 px-3 py-2 rounded-xl text-xs">
+              <span class="font-bold text-purple-900 flex items-center gap-1">取得資格：${certLevelBadge}</span>
+              <span class="font-bold ${isVerified ? 'text-emerald-600' : 'text-amber-600'}">${isVerified ? '✨ 證照已發放/驗證' : '⏳ 證照審核中'}</span>
+            </div>
+          ` : ''}
+
+          <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-400">
+            <span>報名紀錄編號：#${item.log_id || item.enrollment_id || '-'}</span>
+            ${!isCancelled && isPaid ? '<span class="text-slate-500 font-bold">已繳費紀錄，無法線上取消</span>' : ''}
+            ${!isCancelled && !isPaid ? `<button onclick="cancelEnrollment('${item.log_id || item.enrollment_id}', '${item.course_name}')" class="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold rounded-lg transition cursor-pointer">取消報名</button>` : ''}
           </div>
-        </div>
+        </article>
       `;
     }
   </script>
