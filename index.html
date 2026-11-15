@@ -253,50 +253,61 @@
     }
     .close-btn.full:hover { background: #1d4ed8; }
 
-    /* ===== ⚾ 本週聯盟班表（升級版高質感賽事看板風格） ===== */
+    /* ===== 🏆 極致精緻的本週聯盟賽事班表卡片樣式 ===== */
     #weeklyContent {
       font-size: 13px;
-      color: #334155;
-      line-height: 1.5;
+      color: #1e293b;
+      line-height: 1.6;
     }
-    /* 日期標題 (例如 2026/11/15) */
-    #weeklyContent div:has(> strong), #weeklyContent > div[style*="font-size: 16px"], #weeklyContent h3, #weeklyContent .weekly-date {
-      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%) !important;
-      color: #ffffff !important;
+    .league-schedule-date-badge {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      color: #ffffff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 900;
+      margin: 16px 0 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 6px rgba(30, 58, 138, 0.2);
+    }
+    .league-schedule-venue-badge {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
       padding: 8px 12px;
       border-radius: 8px;
-      font-size: 14px;
-      font-weight: 800;
-      margin: 14px 0 8px 0;
-      box-shadow: 0 2px 4px rgba(30, 58, 138, 0.15);
-    }
-    /* 場地標籤 (例如 三峽台北大學 (2場)) */
-    #weeklyContent div:has(> span[style*="color"]), #weeklyContent .weekly-venue {
-      background: #eff6ff !important;
-      border: 1px solid #bfdbfe !important;
-      color: #1e40af !important;
-      padding: 6px 10px;
-      border-radius: 6px;
       font-weight: 800;
       font-size: 13px;
-      margin: 10px 0 6px 0;
+      margin: 10px 0 8px 0;
       display: flex;
       align-items: center;
       gap: 6px;
     }
-    /* 單場比賽卡片 */
-    #weeklyContent .weekly-match-card, #weeklyContent div[style*="border"], #weeklyContent p {
+    .league-match-card {
       background: #ffffff;
       border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-      transition: all 0.2s;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+      transition: all 0.2s ease;
     }
-    #weeklyContent .weekly-match-card:hover {
+    .league-match-card:hover {
       border-color: #94a3b8;
-      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.08);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+    }
+    .league-match-teams {
+      font-weight: 900;
+      color: #0f172a;
+      font-size: 14px;
+      margin-bottom: 8px;
+      background: #f8fafc;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      text-align: center;
     }
 
     /* 個人數據分析彈窗美化 */
@@ -326,7 +337,6 @@
     }
     .footer .title { font-size: 14px; font-weight: 800; color: #334155; }
 
-    /* 📱 RWD 響應式調整 */
     @media (max-width: 900px) {
       .dashboard-mid-grid { grid-template-columns: 1fr; }
       .welcome-actions { grid-template-columns: repeat(3, 1fr); }
@@ -346,7 +356,6 @@
 
 <body>
 
-  <!-- Header 容器 -->
   <div id="header-container"></div>
 
   <script>
@@ -397,6 +406,23 @@
         if (el) progressObserver.observe(el, { childList: true, characterData: true, subtree: true });
       });
       updateRealProgressBars();
+    });
+
+    // 🏆 自動智慧美化本週聯盟賽事班表格式的 MutationObserver 腳本
+    window.addEventListener('DOMContentLoaded', () => {
+      const weeklyEl = document.getElementById('weeklyContent');
+      if (weeklyEl) {
+        const obs = new MutationObserver(() => {
+          let html = weeklyEl.innerHTML;
+          if (html && !html.includes('league-schedule-date-badge')) {
+            // 自動將日期與球場文字包裝成精美徽章與卡片
+            weeklyEl.innerHTML = html
+              .replace(/(\d{4}\/\d{2}\/\d{2})/g, '<div class="league-schedule-date-badge">📅 $1</div>')
+              .replace(/(📍[^<]+)/g, '<div class="league-schedule-venue-badge">$1</div>');
+          }
+        });
+        obs.observe(weeklyEl, { childList: true, subtree: true, characterData: true });
+      }
     });
   </script>
 
@@ -839,7 +865,7 @@
         <ul>
           <li>報名前請確認日期、時間、球場與職務。</li>
           <li>報名成功後請再次確認自己的姓名已顯示於正確位置。</li>
-          <li>若看到<span>已有人報名</span>，請以系統最新畫面為準。</li>
+          <li>若看到「已有人報名」，請以系統最新畫面為準。</li>
           <li>若出現時間衝突或母隊迴避提醒，請改選其他場次。</li>
         </ul>
         <div style="margin-top:16px; padding:12px; border-radius:10px; background:#f5f8ff; border:1px solid #dbeafe; color:#1e40af; line-height:1.6;">
