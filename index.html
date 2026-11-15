@@ -253,57 +253,62 @@
     }
     .close-btn.full:hover { background: #1d4ed8; }
 
-    /* ===== 🏆 本週聯盟賽事班表極致高密度精簡樣式 (消除大量留白) ===== */
+    /* ===== 🏆 本週聯盟賽事班表：極致清晰且結構分明的賽事面板 ===== */
     #weeklyContent {
-      font-size: 12px;
+      font-size: 13px;
       color: #1e293b;
-      line-height: 1.4;
+      line-height: 1.5;
     }
     .league-schedule-wrapper {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 10px;
     }
     .sch-date-header {
       background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
       color: #ffffff;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
       font-weight: 900;
       margin-top: 8px;
+      box-shadow: 0 2px 4px rgba(30, 58, 138, 0.15);
     }
-    .sch-venue-badge {
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      color: #1e40af;
-      padding: 5px 8px;
-      border-radius: 6px;
+    .sch-venue-card {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-top: 6px;
+    }
+    .sch-venue-title {
+      font-size: 13px;
       font-weight: 800;
-      font-size: 12px;
-      margin-top: 4px;
+      color: #1e40af;
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 6px;
     }
-    .sch-match-card {
+    .sch-match-item {
       background: #ffffff;
-      border: 1px solid #cbd5e1;
+      border: 1px solid #e2e8f0;
       border-radius: 8px;
       padding: 8px 10px;
-      margin-top: 4px;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+      margin-bottom: 6px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
     }
-    .sch-match-top {
+    .sch-match-item:last-child {
+      margin-bottom: 0;
+    }
+    .sch-match-info-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
       margin-bottom: 6px;
-      background: #f8fafc;
-      padding: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid #e2e8f0;
     }
     .sch-time-badge {
       background: #1e3a8a;
@@ -316,38 +321,46 @@
     }
     .sch-teams {
       font-weight: 900;
-      color: #1e3a8a;
+      color: #0f172a;
       font-size: 13px;
       flex: 1;
       text-align: right;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     .sch-roles-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr); /* 3欄緊湊並排，省空間 */
+      grid-template-columns: repeat(5, 1fr); /* 5欄完美並排：主審、一壘、紀錄、見習、影像 */
       gap: 4px;
     }
-    .sch-role-item {
+    .sch-role-box {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      padding: 3px 6px;
+      border-radius: 5px;
+      padding: 4px 6px;
+      text-align: center;
       display: flex;
       flex-direction: column;
-      font-size: 11px;
+      gap: 2px;
     }
-    .sch-role-item.filled-role {
+    .sch-role-box.assigned {
       background: #f0fdf4;
       border-color: #bbf7d0;
       color: #166534;
     }
-    .sch-role-item.empty-role {
+    .sch-role-box.unassigned {
       color: #94a3b8;
     }
-    .role-title { font-size: 10px; font-weight: 700; color: #64748b; }
-    .role-name { font-size: 11px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sch-role-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .sch-role-name {
+      font-size: 11px;
+      font-weight: 800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
     /* 個人數據分析彈窗美化 */
     #userContent table {
@@ -389,7 +402,7 @@
       .welcome-actions { grid-template-columns: repeat(2, 1fr); }
       .download-grid { grid-template-columns: 1fr; }
       .system-center { grid-template-columns: repeat(2, 1fr); }
-      .sch-roles-grid { grid-template-columns: repeat(2, 1fr); } /* 手機版改為2欄 */
+      .sch-roles-grid { grid-template-columns: repeat(3, 1fr); } /* 手機版改為 3 欄配置 */
     }
   </style>
 </head>
@@ -448,7 +461,7 @@
       updateRealProgressBars();
     });
 
-    // 🏆 高密度精簡版本週聯盟班表解析引擎（絕對安全、不卡網頁）
+    // 🏆 高效且結構清晰的本週聯盟班表場地群組解析引擎（絕對安全、絕不卡網頁）
     function beautifyWeeklySchedule() {
       const container = document.getElementById('weeklyContent');
       if (!container) return;
@@ -460,63 +473,106 @@
       if (lines.length === 0) return;
       
       let outputHtml = '<div class="league-schedule-wrapper">';
+      let currentDate = '';
+      let currentVenue = null;
       let currentMatch = null;
       
+      let pushMatch = () => {
+        if (currentMatch && currentVenue) {
+          currentVenue.matches.push(currentMatch);
+          currentMatch = null;
+        }
+      };
+      
+      let pushVenue = () => {
+        if (currentVenue) {
+          pushMatch();
+          outputHtml += renderVenueCard(currentVenue);
+          currentVenue = null;
+        }
+      };
+
+      let venuesList = [];
+      
       lines.forEach(line => {
+        // 判斷日期
         if (/^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/.test(line)) {
-          if (currentMatch) { outputHtml += renderMatchCard(currentMatch); currentMatch = null; }
+          if (currentVenue) pushVenue();
           outputHtml += `<div class="sch-date-header">📅 ${line}</div>`;
         } 
+        // 判斷場地
         else if (line.includes('場') || line.includes('大學') || line.includes('綜合') || line.includes('球場') || line.includes('📍')) {
-          if (currentMatch) { outputHtml += renderMatchCard(currentMatch); currentMatch = null; }
-          let venueText = line.replace('📍', '').trim();
-          outputHtml += `<div class="sch-venue-badge">📍 ${venueText}</div>`;
+          if (currentVenue) pushVenue();
+          currentVenue = { venueName: line.replace('📍', '').trim(), matches: [] };
         } 
+        // 判斷時間與代碼
         else if (/^\d{2}:\d{2}/.test(line) && line.length < 25 && !line.includes('：')) {
-          if (currentMatch) { outputHtml += renderMatchCard(currentMatch); }
-          currentMatch = { timeCode: line, teams: '', roles: [] };
+          if (currentMatch) pushMatch();
+          currentMatch = { timeCode: line, teams: '', roles: {} };
         } 
+        // 判斷對戰組合
         else if ((line.includes('VS') || line.includes('ＶＳ') || line.includes('vs')) && currentMatch && !currentMatch.teams) {
           currentMatch.teams = line;
         } 
+        // 判斷職務與人員
         else if (line.includes('：') || line.includes(':')) {
-          if (!currentMatch) { currentMatch = { timeCode: '賽事', teams: '', roles: [] }; }
-          currentMatch.roles.push(line);
+          if (!currentMatch) {
+            currentMatch = { timeCode: '賽事', teams: '', roles: {} };
+          }
+          let parts = line.split(/[:：]/);
+          let title = parts[0] ? parts[0].trim() : '';
+          let name = parts[1] ? parts[1].trim() : '－';
+          currentMatch.roles[title] = name;
         } 
         else {
           if (currentMatch && !currentMatch.teams) {
             currentMatch.teams = line;
-          } else if (currentMatch) {
-            currentMatch.roles.push(line);
           }
         }
       });
       
-      if (currentMatch) { outputHtml += renderMatchCard(currentMatch); }
-      outputHtml += '</div>';
+      if (currentMatch) pushMatch();
+      if (currentVenue) {
+        outputHtml += renderVenueCard(currentVenue);
+      }
       
+      outputHtml += '</div>';
       container.innerHTML = outputHtml;
       container.dataset.processed = 'true';
     }
 
-    function renderMatchCard(match) {
-      let rolesHtml = match.roles.map(r => {
-        let parts = r.split(/[:：]/);
-        let title = parts[0] ? parts[0].trim() : '';
-        let name = parts[1] ? parts[1].trim() : '－';
-        let badgeClass = (name === '－' || name === '-') ? 'empty-role' : 'filled-role';
-        return `<div class="sch-role-item ${badgeClass}"><span class="role-title">${title}</span><span class="role-name">${name}</span></div>`;
+    function renderVenueCard(venue) {
+      let matchesHtml = venue.matches.map(m => {
+        let roleKeys = ['主審', '一壘', '紀錄', '見習', '影像'];
+        let rolesGridHtml = roleKeys.map(key => {
+          let name = m.roles[key] || '－';
+          let isAssigned = (name !== '－' && name !== '-');
+          let boxClass = isAssigned ? 'sch-role-box assigned' : 'sch-role-box unassigned';
+          return `
+            <div class="${boxClass}">
+              <span class="sch-role-label">${key}</span>
+              <span class="sch-role-name">${name}</span>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="sch-match-item">
+            <div class="sch-match-info-row">
+              <span class="sch-time-badge">⏰ ${m.timeCode}</span>
+              <span class="sch-teams">${m.teams || '對戰組合未定'}</span>
+            </div>
+            <div class="sch-roles-grid">
+              ${rolesGridHtml}
+            </div>
+          </div>
+        `;
       }).join('');
-      
+
       return `
-        <div class="sch-match-card">
-          <div class="sch-match-top">
-            <span class="sch-time-badge">⏰ ${match.timeCode || '時間'}</span>
-            <span class="sch-teams">${match.teams || '對戰組合未定'}</span>
-          </div>
-          <div class="sch-roles-grid">
-            ${rolesHtml}
-          </div>
+        <div class="sch-venue-card">
+          <div class="sch-venue-title">📍 ${venue.venueName}</div>
+          ${matchesHtml}
         </div>
       `;
     }
@@ -529,7 +585,7 @@
         const observer = new MutationObserver((mutations, obs) => {
           if (isFormatting) return;
           let html = weeklyEl.innerHTML;
-          if (html && !html.includes('sch-match-card') && !html.includes('載入中')) {
+          if (html && !html.includes('sch-venue-card') && !html.includes('載入中')) {
             isFormatting = true;
             obs.disconnect(); // 暫停監聽以防迴圈
             beautifyWeeklySchedule();
@@ -857,7 +913,7 @@
           <li>選出 MVP（勝隊）與 SVP（敗隊）並頒獎與拍照</li>
           <li>比賽用球全部收回</li>
           <li>
-            群組回報：比數、勝投、中繼、後援、MVP、SVP<br>
+            群組回報：比數, 勝投, 中繼, 後援, MVP, SVP<br>
             （可手寫拍照回傳）
           </li>
         </ul>
