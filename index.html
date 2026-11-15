@@ -253,6 +253,49 @@
     }
     .close-btn.full:hover { background: #1d4ed8; }
 
+    /* ===== 🛠️ 修復本週班表與個人數據分析彈窗的排版跑版問題 ===== */
+    #weeklyContent, #userContent {
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.6;
+    }
+    /* 讓本週班表的場次與日期區塊更有層次 */
+    #weeklyContent > div, #weeklyContent table {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+    #weeklyContent h3, #weeklyContent h4 {
+      color: #1e3a8a;
+      font-size: 14px;
+      font-weight: 800;
+      margin: 6px 0;
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 4px;
+    }
+    /* 讓個人數據分析內的文字與表格自動化卡片整理 */
+    #userContent table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      background: #ffffff;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
+    }
+    #userContent th, #userContent td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    #userContent th {
+      background: #f1f5f9;
+      color: #1e293b;
+      font-weight: 800;
+    }
+
     .footer {
       text-align: center; padding: 20px 12px 24px;
       color: #64748b; font-size: 12px; line-height: 1.6;
