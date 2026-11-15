@@ -253,7 +253,7 @@
     }
     .close-btn.full:hover { background: #1d4ed8; }
 
-    /* ===== 🏆 本週聯盟賽事班表：極致清晰且結構分明的賽事面板 ===== */
+    /* ===== 🏆 本週聯盟賽事班表：裁判與紀錄分行獨立顯示 ===== */
     #weeklyContent {
       font-size: 13px;
       color: #1e293b;
@@ -297,7 +297,7 @@
       border: 1px solid #e2e8f0;
       border-radius: 8px;
       padding: 8px 10px;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
     }
     .sch-match-item:last-child {
@@ -326,9 +326,18 @@
       flex: 1;
       text-align: right;
     }
+    .sch-role-group-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: #475569;
+      margin: 6px 0 3px 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
     .sch-roles-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr); /* 5欄完美並排：主審、一壘、紀錄、見習、影像 */
+      grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
       gap: 4px;
     }
     .sch-role-box {
@@ -402,7 +411,6 @@
       .welcome-actions { grid-template-columns: repeat(2, 1fr); }
       .download-grid { grid-template-columns: 1fr; }
       .system-center { grid-template-columns: repeat(2, 1fr); }
-      .sch-roles-grid { grid-template-columns: repeat(3, 1fr); } /* 手機版改為 3 欄配置 */
     }
   </style>
 </head>
@@ -461,7 +469,7 @@
       updateRealProgressBars();
     });
 
-    // 🏆 高效且結構清晰的本週聯盟班表場地群組解析引擎（絕對安全、絕不卡網頁）
+    // 🏆 將裁判與紀錄獨立分行的本週聯盟班表解析引擎
     function beautifyWeeklySchedule() {
       const container = document.getElementById('weeklyContent');
       if (!container) return;
@@ -473,7 +481,6 @@
       if (lines.length === 0) return;
       
       let outputHtml = '<div class="league-schedule-wrapper">';
-      let currentDate = '';
       let currentVenue = null;
       let currentMatch = null;
       
@@ -491,8 +498,6 @@
           currentVenue = null;
         }
       };
-
-      let venuesList = [];
       
       lines.forEach(line => {
         // 判斷日期
@@ -543,18 +548,27 @@
 
     function renderVenueCard(venue) {
       let matchesHtml = venue.matches.map(m => {
-        let roleKeys = ['主審', '一壘', '紀錄', '見習', '影像'];
-        let rolesGridHtml = roleKeys.map(key => {
+        let refBoxes = [];
+        let recBoxes = [];
+        
+        Object.keys(m.roles).forEach(key => {
           let name = m.roles[key] || '－';
           let isAssigned = (name !== '－' && name !== '-');
           let boxClass = isAssigned ? 'sch-role-box assigned' : 'sch-role-box unassigned';
-          return `
+          let boxHtml = `
             <div class="${boxClass}">
               <span class="sch-role-label">${key}</span>
               <span class="sch-role-name">${name}</span>
             </div>
           `;
-        }).join('');
+          
+          // 分流：包含「審」歸類為裁判組，其餘歸類為紀錄與影像組
+          if (key.includes('審') || key.includes('裁判')) {
+            refBoxes.push(boxHtml);
+          } else {
+            recBoxes.push(boxHtml);
+          }
+        });
 
         return `
           <div class="sch-match-item">
@@ -562,9 +576,14 @@
               <span class="sch-time-badge">⏰ ${m.timeCode}</span>
               <span class="sch-teams">${m.teams || '對戰組合未定'}</span>
             </div>
-            <div class="sch-roles-grid">
-              ${rolesGridHtml}
-            </div>
+            ${refBoxes.length > 0 ? `
+              <div class="sch-role-group-title">🧑‍⚖️ 裁判組</div>
+              <div class="sch-roles-grid">${refBoxes.join('')}</div>
+            ` : ''}
+            ${recBoxes.length > 0 ? `
+              <div class="sch-role-group-title">📝 紀錄與影像組</div>
+              <div class="sch-roles-grid">${recBoxes.join('')}</div>
+            ` : ''}
           </div>
         `;
       }).join('');
@@ -913,7 +932,7 @@
           <li>選出 MVP（勝隊）與 SVP（敗隊）並頒獎與拍照</li>
           <li>比賽用球全部收回</li>
           <li>
-            群組回報：比數, 勝投, 中繼, 後援, MVP, SVP<br>
+            群組回報：比數、勝投、中繼、後援、MVP、SVP<br>
             （可手寫拍照回傳）
           </li>
         </ul>
