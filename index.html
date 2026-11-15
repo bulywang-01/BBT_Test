@@ -253,29 +253,53 @@
     }
     .close-btn.full:hover { background: #1d4ed8; }
 
-    /* ===== 🛠️ 修復本週班表與個人數據分析彈窗的排版跑版問題 ===== */
-    #weeklyContent, #userContent {
+    /* ===== ⚾ 本週聯盟班表（升級版高質感賽事看板風格） ===== */
+    #weeklyContent {
       font-size: 13px;
       color: #334155;
-      line-height: 1.6;
+      line-height: 1.5;
     }
-    /* 讓本週班表的場次與日期區塊更有層次 */
-    #weeklyContent > div, #weeklyContent table {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
+    /* 日期標題 (例如 2026/11/15) */
+    #weeklyContent div:has(> strong), #weeklyContent > div[style*="font-size: 16px"], #weeklyContent h3, #weeklyContent .weekly-date {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%) !important;
+      color: #ffffff !important;
+      padding: 8px 12px;
       border-radius: 8px;
-      padding: 10px 12px;
-      margin-bottom: 10px;
-    }
-    #weeklyContent h3, #weeklyContent h4 {
-      color: #1e3a8a;
       font-size: 14px;
       font-weight: 800;
-      margin: 6px 0;
-      border-bottom: 1px solid #cbd5e1;
-      padding-bottom: 4px;
+      margin: 14px 0 8px 0;
+      box-shadow: 0 2px 4px rgba(30, 58, 138, 0.15);
     }
-    /* 讓個人數據分析內的文字與表格自動化卡片整理 */
+    /* 場地標籤 (例如 三峽台北大學 (2場)) */
+    #weeklyContent div:has(> span[style*="color"]), #weeklyContent .weekly-venue {
+      background: #eff6ff !important;
+      border: 1px solid #bfdbfe !important;
+      color: #1e40af !important;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 13px;
+      margin: 10px 0 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    /* 單場比賽卡片 */
+    #weeklyContent .weekly-match-card, #weeklyContent div[style*="border"], #weeklyContent p {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      transition: all 0.2s;
+    }
+    #weeklyContent .weekly-match-card:hover {
+      border-color: #94a3b8;
+      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.08);
+    }
+
+    /* 個人數據分析彈窗美化 */
     #userContent table {
       width: 100%;
       border-collapse: collapse;
@@ -815,7 +839,7 @@
         <ul>
           <li>報名前請確認日期、時間、球場與職務。</li>
           <li>報名成功後請再次確認自己的姓名已顯示於正確位置。</li>
-          <li>若看到「已有人報名」，請以系統最新畫面為準。</li>
+          <li>若看到<span>已有人報名</span>，請以系統最新畫面為準。</li>
           <li>若出現時間衝突或母隊迴避提醒，請改選其他場次。</li>
         </ul>
         <div style="margin-top:16px; padding:12px; border-radius:10px; background:#f5f8ff; border:1px solid #dbeafe; color:#1e40af; line-height:1.6;">
