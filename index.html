@@ -1364,8 +1364,18 @@
           </div>
 
           <div style="margin-bottom:10px;">
-            <label style="font-size:11px; font-weight:700; color:#475569;">公告內文（支援純文字或 HTML 標籤如 &lt;strong&gt;、&lt;a&gt;）*</label>
-            <textarea id="cms-content" rows="3" placeholder="請輸入公告內容..." style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; font-family:inherit;"></textarea>
+            <label style="font-size:11px; font-weight:700; color:#475569; display:block; margin-bottom:4px;">公告內文（支援純文字或 HTML 標籤）*</label>
+            
+            <!-- 🎨 格式化快捷工具列 -->
+            <div style="display:flex; gap:4px; margin-bottom:4px; background:#f1f5f9; padding:4px; border-radius:6px; border:1px solid #cbd5e1;">
+              <button type="button" onclick="formatText('strong')" title="粗體" style="padding:4px 10px; font-weight:bold; background:#fff; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">B</button>
+              <button type="button" onclick="formatText('em')" title="斜體" style="padding:4px 10px; font-style:italic; background:#fff; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">I</button>
+              <button type="button" onclick="formatText('u')" title="底線" style="padding:4px 10px; text-decoration:underline; background:#fff; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">U</button>
+              <button type="button" onclick="formatText('a')" title="插入超連結" style="padding:4px 10px; background:#fff; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">🔗 連結</button>
+              <button type="button" onclick="formatText('br')" title="插入換行" style="padding:4px 10px; background:#fff; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">↩ 換行</button>
+            </div>
+
+            <textarea id="cms-content" rows="4" placeholder="請輸入公告內容..." style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; font-family:inherit;"></textarea>
           </div>
 
           <div style="display:flex; gap:8px; justify-content:flex-end;">
