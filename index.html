@@ -700,7 +700,7 @@
         </div>
       </div>
 
-      <!-- 右欄：最新公告 -->
+      <!-- 右欄：最新公告
       <div class="panel">
         <div class="section-header">
           <h3>📢 最新公告</h3>
@@ -709,6 +709,19 @@
           <div class="notice-item">⚾ <strong>系統更新</strong>：首頁現已整合「聯盟開課資訊」快速預覽，方便各位夥伴掌握培訓動態。</div>
           <div class="notice-item">⚾ <strong>10/16</strong> - 十一月份賽程將於 10/17 (六) 12:00 起開放報名，請點選上方班表，詳細資訊請看Line群組。</div>
           <div class="notice-item">⚾ <strong>8/13</strong> - 由於三峽北大的租金屬於高單價，該場地舉辦的 "例行賽" 賽事將調整為安排四場比賽。</div>
+        </div>
+      </div> -->
+      
+      <!-- 右欄：最新公告 -->
+      <div class="panel">
+        <div class="section-header">
+          <h3>📢 最新公告</h3>
+          <button id="open-cms-btn" onclick="openAnnouncementAdmin()" style="display:none; padding:4px 10px; font-size:12px; font-weight:800; color:#1e3a8a; background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; cursor:pointer;">
+            ⚙️ 管理公告
+          </button>
+        </div>
+        <div id="home-notice-list" class="notice-list">
+          <div style="color: #64748b; font-size: 13px; padding: 8px;">⏳ 載入最新公告中...</div>
         </div>
       </div>
     </div>
@@ -1308,5 +1321,67 @@
     </div>
 
   </div>
+
+    <!-- ===============================
+    📢 系統公告管理後台 (CMS Overlay) - 僅限管理員
+    =============================== -->
+    <div id="cms-announcement-overlay" class="overlay">
+      <div class="overlay-box system-guide-box">
+        <h2>📢 系統公告管理 (CMS)</h2>
+
+        <!-- 新增 / 編輯表單 -->
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:14px; margin-bottom:16px;">
+          <div style="font-weight:800; color:#1e3a8a; margin-bottom:10px; font-size:14px;" id="cms-form-title">➕ 新增公告</div>
+          <input type="hidden" id="cms-id" value="" />
+
+          <div style="display:grid; grid-template-columns: 1fr 100px 110px; gap:8px; margin-bottom:8px;">
+            <div>
+              <label style="font-size:11px; font-weight:700; color:#475569;">公告標題 / 標籤（如：系統更新、10/16）</label>
+              <input type="text" id="cms-title" placeholder="選填，留空則無粗體前綴" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;" />
+            </div>
+            <div>
+              <label style="font-size:11px; font-weight:700; color:#475569;">優先權 (數字)</label>
+              <input type="number" id="cms-priority" value="1" min="1" max="999" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;" />
+            </div>
+            <div>
+              <label style="font-size:11px; font-weight:700; color:#475569;">發布狀態</label>
+              <select id="cms-status" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">
+                <option value="Y">Y (顯示)</option>
+                <option value="N">N (隱藏)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+            <div>
+              <label style="font-size:11px; font-weight:700; color:#475569;">上架日期（選填，留空立即生效）</label>
+              <input type="date" id="cms-start" style="width:100%; padding:7px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;" />
+            </div>
+            <div>
+              <label style="font-size:11px; font-weight:700; color:#475569;">下架日期（選填，過期自動隱藏）</label>
+              <input type="date" id="cms-end" style="width:100%; padding:7px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;" />
+            </div>
+          </div>
+
+          <div style="margin-bottom:10px;">
+            <label style="font-size:11px; font-weight:700; color:#475569;">公告內文（支援純文字或 HTML 標籤如 &lt;strong&gt;、&lt;a&gt;）*</label>
+            <textarea id="cms-content" rows="3" placeholder="請輸入公告內容..." style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; font-family:inherit;"></textarea>
+          </div>
+
+          <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button type="button" onclick="resetCmsForm()" style="padding:8px 14px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; color:#475569; font-weight:700; cursor:pointer; font-size:13px;">清空重填</button>
+            <button type="button" onclick="submitAnnouncementForm()" id="cms-submit-btn" style="padding:8px 18px; border-radius:6px; border:none; background:#1e3a8a; color:#fff; font-weight:800; cursor:pointer; font-size:13px;">💾 儲存公告</button>
+          </div>
+        </div>
+
+        <!-- 既有公告列表 -->
+        <div style="font-weight:800; color:#1e293b; margin-bottom:8px; font-size:14px;">📋 公告列表（依優先權 ＞ 編號排序）</div>
+        <div id="cms-admin-list" style="display:flex; flex-direction:column; gap:8px; max-height:320px; overflow-y:auto;">
+          <div style="color:#64748b; font-size:13px; text-align:center; padding:12px;">載入中...</div>
+        </div>
+
+        <button class="close-btn full" onclick="hideOverlay('cms-announcement-overlay')">關閉</button>
+      </div>
+    </div>
 </body>
 </html>
