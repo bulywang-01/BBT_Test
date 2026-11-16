@@ -1232,7 +1232,8 @@ function loadAllData() {
       if (res && (res.result === 'ok' || res.result === 'success')) {
         allEnrollments = (res.data || []).map(item => ({
           ...item,
-          payment_status: String(item.payment_status || 'unpaid').trim().toLowerCase()
+          payment_status: String(item.payment_status || 'unpaid').trim().toLowerCase(),
+          admin_note: item.admin_note !== undefined && item.admin_note !== null ? item.admin_note : ''
         }));
         
         updateEnrollmentStats();
