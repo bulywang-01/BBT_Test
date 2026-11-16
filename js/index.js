@@ -952,11 +952,14 @@ function checkAdminPermission() {
   return roles.includes('admin');
 }
 
+/*********************************************************
+ * ✅ 強化版：首頁載入最新公告（含防卡死與錯誤提示）
+ *********************************************************/
 function loadHomeAnnouncements() {
   const container = document.getElementById('home-notice-list');
   const adminBtn = document.getElementById('open-cms-btn');
 
-  // 🔒 權限控制：只有當身份包含 admin 時才顯示「管理公告」按鈕
+  // 權限控制
   if (adminBtn) {
     if (checkAdminPermission()) {
       adminBtn.style.display = 'inline-block';
@@ -967,16 +970,31 @@ function loadHomeAnnouncements() {
 
   if (!container) return;
 
+  // 設定 8 秒逾時防護，避免無限載入
+  let isCompleted = false;
+  const timeoutTimer = setTimeout(() => {
+    if (!isCompleted) {
+      container.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 8px;">⚠️ 載入公告逾時，請檢查網路或重新整理。</div>`;
+    }
+  }, 8000);
+
   callApi({ action: 'getAnnouncements' }, res => {
+    isCompleted = true;
+    clearTimeout(timeoutTimer);
+
     const list = res?.announcements || [];
 
-    if (!res || res.result !== 'ok' || list.length === 0) {
+    if (!res || res.result !== 'ok') {
+      container.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 8px;">載入失敗：${res?.message || '未知錯誤'}</div>`;
+      return;
+    }
+
+    if (list.length === 0) {
       container.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 8px;">目前尚無最新公告。</div>`;
       return;
     }
 
     container.innerHTML = list.map(item => {
-      // 優先權大於 1 顯示紅色「置頂」小標籤
       const pinBadge = Number(item.priority) > 1
         ? `<span style="background:#fee2e2; color:#dc2626; font-size:11px; font-weight:800; padding:1px 6px; border-radius:4px; margin-right:6px;">置頂</span>`
         : '';
