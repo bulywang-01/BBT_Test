@@ -2385,7 +2385,7 @@ BBT 軟式棒球聯盟 敬上`;
     document.body.appendChild(script);
   }
 
-  function exportEnrollmentsCSV() {
+function exportEnrollmentsCSV() {
     const cFilter = document.getElementById('filterCourseSelect').value;
     const pFilter = document.getElementById('filterPaymentStatus').value;
     const keyword = (document.getElementById('txtEnrollSearch').value || '').toLowerCase();
@@ -2410,7 +2410,11 @@ BBT 軟式棒球聯盟 敬上`;
       const atm = item.payment_account === '99999' ? '現場繳費' : (item.payment_account || '未填寫');
       const note = (item.admin_note || '').replace(/"/g, '""');
 
-      csv += `"#${item.log_id}","${item.created_at || ''}","${item.course_name || ''}","${item.name || ''}","${item.phone || ''}","${atm}","${item.dietary || '葷食'}","${statusText}","${payText}","${note}"\n`;
+      // 💡 關鍵修正：在電話前面加上 \t (Tab字元) 或單引號，強迫 Excel 視為文字格式，保留開頭的 0
+      const rawPhone = String(item.phone || '').trim();
+      const phoneText = rawPhone ? `\t${rawPhone}` : '';
+
+      csv += `"#${item.log_id}","${item.created_at || ''}","${item.course_name || ''}","${item.name || ''}","${phoneText}","${atm}","${item.dietary || '葷食'}","${statusText}","${payText}","${note}"\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
