@@ -990,16 +990,30 @@ function loadHomeAnnouncements() {
       }
 
       container.innerHTML = list.map(item => {
-        const pinBadge = Number(item.priority) > 1
-          ? `<span style="background:#fee2e2; color:#dc2626; font-size:11px; font-weight:800; padding:1px 6px; border-radius:4px; margin-right:6px;">置頂</span>`
-          : '';
-        const titleHtml = item.title ? `<strong>${item.title}</strong> - ` : '';
-        return `
-          <div class="notice-item">
-            ⚾ ${pinBadge}${titleHtml}${item.content_html}
-          </div>
-        `;
-      }).join('');
+          // 優先權大於 1 顯示紅色「置頂」小標籤
+          const pinBadge = Number(item.priority) > 1
+            ? `<span style="background:#fee2e2; color:#dc2626; font-size:11px; font-weight:800; padding:2px 7px; border-radius:4px;">置頂</span>`
+            : '';
+          const titleText = item.title ? item.title : '';
+    
+          // 標題與內文上下分層排版
+          const headerRow = (pinBadge || titleText) ? `
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 5px;">
+              ${pinBadge}
+              ${titleText ? `<span style="font-weight: 900; color: #1e3a8a; font-size: 13.5px;">📢 ${titleText}</span>` : ''}
+            </div>
+          ` : '';
+    
+          return `
+            <div class="notice-item">
+              ${headerRow}
+              <div style="color: #334155; font-size: 13px; line-height: 1.6; word-break: break-word;">
+                ${item.content_html}
+              </div>
+            </div>
+          `;
+        }).join('');
+      
     });
   } catch (err) {
     console.error("❌ [Debug] 呼叫 callApi 發生例外錯誤:", err);
