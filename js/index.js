@@ -955,57 +955,66 @@ function checkAdminPermission() {
 /*********************************************************
  * ✅ 強化版：首頁載入最新公告（含防卡死與錯誤提示）
  *********************************************************/
+/*********************************************************
+ * 🛠️ 除錯防護版：首頁載入最新公告
+ *********************************************************/
 function loadHomeAnnouncements() {
   const container = document.getElementById('home-notice-list');
   const adminBtn = document.getElementById('open-cms-btn');
+
+  console.log("🔍 [Debug] 當前 Session 資料:", session);
 
   // 權限控制
   if (adminBtn) {
     if (checkAdminPermission()) {
       adminBtn.style.display = 'inline-block';
+      console.log("✅ [Debug] 已成功顯示「管理公告」按鈕");
     } else {
       adminBtn.style.display = 'none';
+      console.log("🔒 [Debug] 非管理員身分，隱藏管理按鈕");
     }
   }
 
   if (!container) return;
 
-  // 設定 8 秒逾時防護，避免無限載入
-  let isCompleted = false;
-  const timeoutTimer = setTimeout(() => {
-    if (!isCompleted) {
-      container.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 8px;">⚠️ 載入公告逾時，請檢查網路或重新整理。</div>`;
-    }
-  }, 8000);
+  container.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 8px;">⏳ 正在向後端請求公告資料...</div>`;
 
-  callApi({ action: 'getAnnouncements' }, res => {
-    isCompleted = true;
-    clearTimeout(timeoutTimer);
+  try {
+    callApi({ action: 'getAnnouncements' }, res => {
+      console.log("📥 [Debug] 後端回傳的公告 API 結果:", res);
 
-    const list = res?.announcements || [];
+      if (!res) {
+        container.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 8px;">⚠️ 錯誤：後端回傳空白 (null)</div>`;
+        return;
+      }
 
-    if (!res || res.result !== 'ok') {
-      container.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 8px;">載入失敗：${res?.message || '未知錯誤'}</div>`;
-      return;
-    }
+      if (res.result !== 'ok') {
+        container.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 8px;">⚠️ 後端回傳錯誤：${res.message || '未知錯誤'}</div>`;
+        return;
+      }
 
-    if (list.length === 0) {
-      container.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 8px;">目前尚無最新公告。</div>`;
-      return;
-    }
+      const list = res.announcements || [];
+      if (list.length === 0) {
+        container.innerHTML = `<div style="color: #64748b; font-size: 13px; padding: 8px;">目前尚無最新公告。</div>`;
+        return;
+      }
 
-    container.innerHTML = list.map(item => {
-      const pinBadge = Number(item.priority) > 1
-        ? `<span style="background:#fee2e2; color:#dc2626; font-size:11px; font-weight:800; padding:1px 6px; border-radius:4px; margin-right:6px;">置頂</span>`
-        : '';
-      const titleHtml = item.title ? `<strong>${item.title}</strong> - ` : '';
-      return `
-        <div class="notice-item">
-          ⚾ ${pinBadge}${titleHtml}${item.content_html}
-        </div>
-      `;
-    }).join('');
-  });
+      container.innerHTML = list.map(item => {
+        const pinBadge = Number(item.priority) > 1
+          ? `<span style="background:#fee2e2; color:#dc2626; font-size:11px; font-weight:800; padding:1px 6px; border-radius:4px; margin-right:6px;">置頂</span>`
+          : '';
+        const titleHtml = item.title ? `<strong>${item.title}</strong> - ` : '';
+        return `
+          <div class="notice-item">
+            ⚾ ${pinBadge}${titleHtml}${item.content_html}
+          </div>
+        `;
+      }).join('');
+    });
+  } catch (err) {
+    console.error("❌ [Debug] 呼叫 callApi 發生例外錯誤:", err);
+    container.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 8px;">⚠️ 程式例外：${err.message}</div>`;
+  }
 }
 
 function openAnnouncementAdmin() {
