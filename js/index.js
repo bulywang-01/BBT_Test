@@ -1150,3 +1150,39 @@ function removeAnnouncementItem(id) {
     loadHomeAnnouncements();
   });
 }
+
+/*********************************************************
+ * 🎨 CMS 公告內文格式化工具列輔助函式
+ *********************************************************/
+function formatText(tag) {
+  const textarea = document.getElementById('cms-content');
+  if (!textarea) return;
+
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const text = textarea.value;
+  const selectedText = text.substring(start, end);
+
+  let replacement = '';
+  if (tag === 'strong') {
+    replacement = `<strong>${selectedText || '粗體文字'}</strong>`;
+  } else if (tag === 'em') {
+    replacement = `<em>${selectedText || '斜體文字'}</em>`;
+  } else if (tag === 'u') {
+    replacement = `<u>${selectedText || '底線文字'}</u>`;
+  } else if (tag === 'a') {
+    const url = prompt('請輸入連結網址 (URL):', 'https://');
+    if (!url) return;
+    replacement = `<a href="${url}" target="_blank">${selectedText || '連結文字'}</a>`;
+  } else if (tag === 'br') {
+    replacement = '<br>';
+  }
+
+  // 將標籤包覆或插入至游標/選取位置
+  textarea.value = text.substring(0, start) + replacement + text.substring(end);
+  textarea.focus();
+  
+  // 設定游標位置至插入內容的結尾
+  const newCursorPos = start + replacement.length;
+  textarea.setSelectionRange(newCursorPos, newCursorPos);
+}
