@@ -24,23 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initHeader();
   }
 
-  // ✅ Welcome
-  renderWelcome();
-
-  // ✅ 綁按鈕事件
-  bindButtons();
-
-  // ✅ 載入統計
-  loadDashboard();
-
-  // ✅ 載入本週出勤提醒
-  loadWeeklyReminder();
-  
-  // ✅ 載入個人數據分析
-  loadHomeUserAnalysis();
-
-  // ✅ 首頁載入聯盟開課資訊
-  loadHomeCourses();
+  renderWelcome();  // ✅ Welcome
+  bindButtons();  // ✅ 綁按鈕事件
+  loadDashboard();  // ✅ 載入統計
+  loadWeeklyReminder();  // ✅ 載入本週出勤提醒
+  loadHomeUserAnalysis();  // ✅ 載入個人數據分析
+  loadHomeCourses();  // ✅ 首頁載入聯盟開課資訊
+  loadHomeAnnouncements();  // 載入公告
 
 });
 
