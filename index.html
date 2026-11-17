@@ -111,7 +111,7 @@
     .kpi-progress-fill-amber { background: #d97706; width: 0%; height: 100%; transition: width 0.4s ease; }
     .kpi-progress-fill-purple { background: #7c3aed; width: 100%; height: 100%; }
 
-    /* 🔔 本週執法訊息提示樣式 (強制單一橫向一列，不換行) */
+    /* 🔔 本週執法訊息提示樣式 (強制所有子元素單一橫向一列，絕對不換行) */
     #welcome-alert {
       background: #eff6ff;
       border: 1px solid #bfdbfe;
@@ -130,12 +130,14 @@
       overflow-x: auto;
       flex-wrap: nowrap;
     }
-    #welcome-alert a, #welcome-alert span {
+    #welcome-alert *, #welcome-alert a, #welcome-alert span {
+      display: inline !important;
+      white-space: nowrap !important;
       color: #1d4ed8;
       text-decoration: underline;
       cursor: pointer;
-      white-space: nowrap;
     }
+    #welcome-alert a:hover { color: #1e3a8a; }
 
     /* 讓 index.js 能正常掛載個人數據分析，避免 JS 報錯 */
     #home-user-analysis { display: none; }
@@ -820,7 +822,7 @@
       <!-- 隱藏原生容器供 index.js 掛載，防止 JS 報錯 -->
       <div id="home-user-analysis"></div>
 
-      <!-- 提示訊息（強制單一橫向一列） -->
+      <!-- 提示訊息（強制單一橫向一列，不換行） -->
       <div id="welcome-alert">🔔 載入本週執法訊息中...</div>
 
       <!-- 三顆按鈕放同一列：固定大小不自動放大 -->
