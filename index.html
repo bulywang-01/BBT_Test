@@ -62,17 +62,19 @@
       font-family: inherit;
     }
 
-    /* ===== 頂部歡迎與統計儀表板 (Executive Navy + 緊湊三欄樞紐看板) ===== */
+    /* ===== 頂部歡迎與統計儀表板 (Executive Navy + 超緊湊單層樞紐看板) ===== */
     .welcome-box {
       background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
       border-top: 4px solid #1e3a8a;
+      padding: 14px 18px !important;
+      margin-bottom: 14px !important;
     }
     
     .stat-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
       border-radius: 8px;
-      padding: 6px 8px;
+      padding: 8px 10px;
       text-align: left;
       display: flex;
       flex-direction: column;
@@ -84,9 +86,9 @@
     }
     .stat-card:hover { border-color: #94a3b8; }
     
-    .stat-title { font-size: 10px; font-weight: 700; color: #475569; white-space: nowrap; font-family: inherit; }
+    .stat-title { font-size: 11px; font-weight: 700; color: #475569; white-space: nowrap; font-family: inherit; }
     .stat-val-row { display: flex; align-items: baseline; justify-content: space-between; gap: 4px; flex-wrap: wrap; }
-    .stat-value { font-size: 18px; font-weight: 900; color: #1e3a8a; line-height: 1.1; font-family: inherit; }
+    .stat-value { font-size: 20px; font-weight: 900; color: #1e3a8a; line-height: 1.1; font-family: inherit; }
     .stat-sub { font-size: 10px; color: #64748b; font-weight: 700; white-space: nowrap; font-family: inherit; }
 
     .kpi-progress-track {
@@ -94,13 +96,34 @@
       border-radius: 999px;
       height: 3px;
       overflow: hidden;
-      margin-top: 2px;
+      margin-top: 3px;
     }
     .kpi-progress-fill-blue { background: #2563eb; width: 0%; height: 100%; transition: width 0.4s ease; }
     .kpi-progress-fill-green { background: #10b981; width: 0%; height: 100%; transition: width 0.4s ease; }
     .kpi-progress-fill-amber { background: #d97706; width: 0%; height: 100%; transition: width 0.4s ease; }
 
-    /* 個人分析區（完全移除外框與多餘背景） */
+    /* 🔔 本週執法訊息提示樣式 (#welcome-alert) */
+    #welcome-alert {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid #2563eb;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #welcome-alert a, #welcome-alert span {
+      color: #1d4ed8;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* 個人分析區（維持 js/index.js 注入時的乾淨排版） */
     #home-user-analysis {
       background: transparent !important;
       border: none !important;
@@ -664,7 +687,7 @@
     <div id="content"></div>
     
     <!-- 1️⃣ 歡迎與核心儀表板 (Executive Navy 緊湊超精煉單層樞紐看板，高度縮減近 50%) -->
-    <div class="panel welcome-box" style="padding: 12px 18px; margin-bottom: 12px;">
+    <div class="panel welcome-box">
       <!-- 頂部精簡列：標題、使用者身分與提示合一 -->
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -678,67 +701,52 @@
         </div>
       </div>
 
-      <!-- 6合1 超緊湊高效儀表板矩陣 (2行3欄，資訊100%保留且高度縮減超過50%) -->
+      <!-- 3合1 緊湊高效儀表板矩陣 (單行3欄，高度精簡) -->
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 6px;">
         <!-- 1. 裁判場次 -->
-        <div class="stat-card" style="padding: 6px 8px; gap: 2px;">
+        <div class="stat-card">
           <div class="stat-title">🧑‍⚖️ 裁判場次</div>
           <div class="stat-val-row">
-            <span class="stat-value" id="stat-judge" style="font-size: 18px;">--</span>
+            <span class="stat-value" id="stat-judge">--</span>
             <span class="stat-sub" id="stat-judge-sub"></span>
           </div>
-          <div class="kpi-progress-track" style="height: 3px; margin-top: 2px;">
+          <div class="kpi-progress-track">
             <div class="kpi-progress-fill-blue" id="fill-judge"></div>
           </div>
         </div>
         <!-- 2. 紀錄場次 -->
-        <div class="stat-card" style="padding: 6px 8px; gap: 2px;">
+        <div class="stat-card">
           <div class="stat-title">📝 紀錄場次</div>
           <div class="stat-val-row">
-            <span class="stat-value" id="stat-record" style="font-size: 18px;">--</span>
+            <span class="stat-value" id="stat-record">--</span>
             <span class="stat-sub" id="stat-record-sub"></span>
           </div>
-          <div class="kpi-progress-track" style="height: 3px; margin-top: 2px;">
+          <div class="kpi-progress-track">
             <div class="kpi-progress-fill-green" id="fill-record"></div>
           </div>
         </div>
         <!-- 3. 年度總計 -->
-        <div class="stat-card" style="padding: 6px 8px; gap: 2px;">
+        <div class="stat-card">
           <div class="stat-title">📊 年度總計</div>
           <div class="stat-val-row">
-            <span class="stat-value" id="stat-total" style="font-size: 18px;">--</span>
+            <span class="stat-value" id="stat-total">--</span>
             <span class="stat-sub" id="stat-total-sub">100%</span>
           </div>
-          <div class="kpi-progress-track" style="height: 3px; margin-top: 2px;">
+          <div class="kpi-progress-track">
             <div class="kpi-progress-fill-amber" id="fill-total"></div>
           </div>
         </div>
       </div>
 
-      <!-- 第二層：經驗值、參與度、出勤率 -->
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px;">
-        <div class="stat-card" style="padding: 6px 8px; gap: 2px;">
-          <div class="stat-title">💡 經驗值</div>
-          <div class="stat-val-row"><span class="stat-value" id="stat-exp" style="font-size: 18px;">101</span></div>
-        </div>
-        <div class="stat-card" style="padding: 6px 8px; gap: 2px;">
-          <div class="stat-title">🎯 參與度</div>
-          <div class="stat-val-row"><span class="stat-value" id="stat-part" style="font-size: 18px;">17</span></div>
-        </div>
-        <div class="stat-card" style="padding: 6px 8px; gap: 2px;">
-          <div class="stat-title">📈 出勤率</div>
-          <div class="stat-val-row"><span class="stat-value" id="stat-rate" style="font-size: 18px;">100%</span></div>
-        </div>
-      </div>
-
-      <div id="welcome-alert" style="margin-bottom: 6px; font-size: 12px;"></div>
+      <!-- 本週執法訊息提示框 (已套用精美商務風樣式) -->
+      <div id="welcome-alert">🔔 載入本週執法訊息中...</div>
 
       <!-- 個人分析摘要與快捷按鈕整合列 -->
       <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; background: #f8fafc; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
-        <div id="home-user-analysis" style="font-size: 12px; color: #334155; margin: 0; background: transparent !important; border: none !important; padding: 0 !important;">⏳ 個人數據載入中...</div>
+        <div id="home-user-analysis">⏳ 個人數據載入中...</div>
         <div style="display: flex; gap: 6px;">
-          <button id="open-schedule" class="pill pill-orange" style="padding: 6px 12px; font-size: 12px;">📅 我的班表</button>
-          <button id="open-weekly" class="pill pill-orange" style="padding: 6px 12px; font-size: 12px;">📊 本週聯盟班表</button>
+          <button id="open-schedule" class="pill pill-orange">📅 我的班表</button>
+          <button id="open-weekly" class="pill pill-orange">📊 本週聯盟班表</button>
         </div>
       </div>
     </div>
@@ -1105,13 +1113,13 @@
       <div class="overlay-box system-guide-box">
         <h2>ℹ️ BBT 出勤管理系統功能說明</h2>
         <p>
-          本系統提供裁判員與紀錄員進行賽事報名, 取消, 查詢與出勤管理,
-          並透過各項防呆機制與貼心功能, 協助維持報名公平與資料正確。
+          本系統提供裁判員與紀錄員進行賽事報名、取消、查詢與出勤管理，
+          並透過各項防呆機制與貼心功能，協助維持報名公平與資料正確。
         </p>
         <h3>🛡️ 報名防呆機制</h3>
         <ul>
           <li><strong>同位置唯一報名</strong>：同一場、同一位置只保留一位報名者。</li>
-          <li><strong>雙人同時搶位保護</strong>：多人同時報名時, 以先完成者為準。</li>
+          <li><strong>雙人同時搶位保護</strong>：多人同時報名時，以先完成者為準。</li>
           <li><strong>防重覆點擊</strong>：避免因網路延遲或重覆按鈕造成重覆報名。</li>
           <li><strong>同場裁判單一位置限制</strong>：同一場僅能擔任一個裁判位置。</li>
           <li><strong>裁判／紀錄職務互斥</strong>：同一場不可同時擔任裁判與紀錄職務。</li>
@@ -1134,12 +1142,12 @@
         <ul>
           <li>報名前請確認日期、時間、球場與職務。</li>
           <li>報名成功後請再次確認您的姓名已顯示於正確位置。</li>
-          <li>若看到<strong>已有人報名</strong>, 請以系統最新畫面為準。</li>
-          <li>若出現時間衝突或母隊迴避提醒, 請改選其他場次。</li>
+          <li>若看到<strong>已有人報名</strong>，請以系統最新畫面為準。</li>
+          <li>若出現時間衝突或母隊迴避提醒，請改選其他場次。</li>
         </ul>
         <div style="margin-top:16px; padding:12px; border-radius:10px; background:#f5f8ff; border:1px solid #dbeafe; color:#1e40af; line-height:1.6;">
-          ✅ 系統會協助把關報名規則, 避免重覆報名、衝堂、趕場與誤報名。<br>
-          ✅ 若發現異常或有功能建議, 歡迎向聯盟反映。
+          ✅ 系統會協助把關報名規則，避免重覆報名、衝堂、趕場與誤報名。<br>
+          ✅ 若發現異常或有功能建議，歡迎向聯盟反映。
         </div>
         <button class="close-btn full" onclick="hideOverlay('system-guide-overlay')">關閉</button>
       </div>
@@ -1151,7 +1159,7 @@
     <div id="system-history-overlay" class="overlay">
       <div class="overlay-box system-guide-box">
         <h2>📜 BBT 出勤管理系統開發日誌</h2>
-        <p>本系統由聯盟實際營運需求出發, 逐步發展成整合裁判、紀錄員、出勤管理、培訓課程與統計分析的平台。</p>
+        <p>本系統由聯盟實際營運需求出發，逐步發展成整合裁判、紀錄員、出勤管理、培訓課程與統計分析的平台。</p>
         <h3>🚀 第一階段｜人工管理時期</h3>
         <ul><li>裁判與紀錄員透過群組以人工方式報名。</li></ul>
         <h3>💻 第二階段｜報名系統建立</h3>
@@ -1229,7 +1237,7 @@
         </ul>
         <div style="margin-top:16px; padding:12px; border-radius:10px; background:#f5f8ff; border:1px solid #dbeafe; color:#1e40af; line-height:1.6;">
           📅 2025 ~ 2026 持續開發中<br>
-          感謝阿信聯盟長、又田裁判長及各位前輩們與聯盟管理團隊, 提供寶貴建議與實際使用回饋, 讓系統持續進化與成長。
+          感謝阿信聯盟長、又田裁判長及各位前輩們與聯盟管理團隊，提供寶貴建議與實際使用回饋，讓系統持續進化與成長。
         </div>
         <button class="close-btn full" onclick="hideOverlay('system-history-overlay')">關閉</button>
       </div>
@@ -1241,12 +1249,12 @@
     <div id="analysis-guide-overlay" class="overlay">
       <div class="overlay-box system-guide-box">
         <h2>📊 數據分析說明</h2>
-        <p>為協助裁判員與紀錄員掌握個人出勤狀況, 系統提供各項統計分析功能, 所有數據均依實際報名、指派及出勤紀錄自動計算。</p>
+        <p>為協助裁判員與紀錄員掌握個人出勤狀況，系統提供各項統計分析功能，所有數據均依實際報名、指派及出勤紀錄自動計算。</p>
         <h3>📈 首頁統計數據</h3>
         <ul>
-          <li><strong>🧑‍⚖️ 裁判場次</strong>：統計本年度已完成之裁判執勤場次, 包含主審、一壘審、二壘審及三壘審。</li>
-          <li><strong>📝 紀錄場次</strong>：統計本年度已完成之紀錄工作場次, 包含紀錄員、見習紀錄員及影像紀錄員。</li>
-          <li><strong>📊 年度總計</strong>：裁判場次與紀錄場次之合計, 用於快速了解年度參與程度。</li>
+          <li><strong>🧑‍⚖️ 裁判場次</strong>：統計本年度已完成之裁判執勤場次，包含主審、一壘審、二壘審及三壘審。</li>
+          <li><strong>📝 紀錄場次</strong>：統計本年度已完成之紀錄工作場次，包含紀錄員、見習紀錄員及影像紀錄員。</li>
+          <li><strong>📊 年度總計</strong>：裁判場次與紀錄場次之合計，用於快速了解年度參與程度。</li>
         </ul>
         <h3>📅 我的班表分析</h3>
         <ul>
@@ -1276,8 +1284,8 @@
         <h3>⚠️ 數據判讀提醒</h3>
         <ul>
           <li>大部分統計資料均會於報名、取消、出勤確認後自動更新。</li>
-          <li>統計資料以年度為單位計算, 不同年度將分開統計。</li>
-          <li>若發現統計數據異常, 請向聯盟管理人員反映協助確認。</li>
+          <li>統計資料以年度為單位計算，不同年度將分開統計。</li>
+          <li>若發現統計數據異常，請向聯盟管理人員反映協助確認。</li>
         </ul>
         <div style="margin-top:16px; padding:12px; border-radius:10px; background:#f5f8ff; border:1px solid #dbeafe; color:#1e40af; line-height:1.7;">
           ✅ 協助掌握個人出勤狀況<br>
@@ -1295,7 +1303,7 @@
     <div id="user-guide-overlay" class="overlay">
       <div class="overlay-box system-guide-box">
         <h2>📖 BBT 出勤系統使用教學</h2>
-        <div class="guide-tip">歡迎使用 BBT 軟式棒球大聯盟出勤系統, 本教學將帶您完成登入、報名、取消報名及查詢班表等操作。</div>
+        <div class="guide-tip">歡迎使用 BBT 軟式棒球大聯盟出勤系統，本教學將帶您完成登入、報名、取消報名及查詢班表等操作。</div>
         
         <div class="guide-step">
           <h3>🔐 Step 1｜登入系統</h3>
@@ -1313,7 +1321,7 @@
         <div class="guide-step">
           <h3>📅 Step 2｜進入出勤報名</h3>
           <img src="img/guide-02.jpg" class="guide-img">
-          <div class="guide-tip">點選「出勤報名」即可查看當月份賽程, 並可切換瀏覽其他月份班表。</div>
+          <div class="guide-tip">點選「出勤報名」即可查看當月份賽程，並可切換瀏覽其他月份班表。</div>
         </div>
 
         <div class="guide-step">
@@ -1322,7 +1330,7 @@
           <div class="guide-tip">
             ✅ 點選主審、一壘審、二壘審或三壘審即可完成報名<br>
             ✅ 顯示自己姓名代表報名成功<br>
-            ✅ 若多人同時報名, 以先完成者為準<br>
+            ✅ 若多人同時報名，以先完成者為準<br>
             ✅ 點擊姓名下方【取消】可取消報名
           </div>
         </div>
@@ -1330,7 +1338,7 @@
         <div class="guide-step">
           <h3>📱 Step 4｜裁判員報名（手機版）</h3>
           <img src="img/guide-04.jpg" class="guide-img">
-          <div class="guide-tip">手機版操作方式與桌機版相同, 找到欲執勤場次後直接點選職務即可完成報名。</div>
+          <div class="guide-tip">手機版操作方式與桌機版相同，找到欲執勤場次後直接點選職務即可完成報名。</div>
         </div>
 
         <div class="guide-step">
@@ -1339,7 +1347,7 @@
           <div class="guide-tip">
             ✅ 點擊「+報名」即可完成報名<br>
             ✅ 顯示自己姓名代表報名成功<br>
-            ✅ 如需取消, 可點選姓名下方【取消】
+            ✅ 如需取消，可點選姓名下方【取消】
           </div>
         </div>
 
@@ -1366,11 +1374,11 @@
           <h3>❓ Step 8｜常見問題 FAQ</h3>
           <div class="guide-tip">
             <strong>Q：什麼是「待位中」？</strong><br>
-            A：表示您已報名該場比賽, 目前正在等待其他職務補齊。<br><br>
+            A：表示您已報名該場比賽，目前正在等待其他職務補齊。<br><br>
             <strong>Q：為什麼有些位置沒有顯示？</strong><br>
             A：該場比賽依規定不需要該職務。<br><br>
             <strong>Q：可以改站位嗎？</strong><br>
-            A：請先取消原位置, 再重新報名新位置即可。
+            A：請先取消原位置，再重新報名新位置即可。
           </div>
         </div>
 
@@ -1395,7 +1403,7 @@
           <div style="display:grid; grid-template-columns: 1fr 100px 110px; gap:8px; margin-bottom:8px;">
             <div>
               <label style="font-size:11px; font-weight:700; color:#475569;">公告標題 / 標籤（如：系統更新、10/16）</label>
-              <input type="text" id="cms-title" placeholder="選填, 留空則無粗體前綴" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;" />
+              <input type="text" id="cms-title" placeholder="選填，留空則無粗體前綴" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;" />
             </div>
             <div>
               <label style="font-size:11px; font-weight:700; color:#475569;">優先權 (數字)</label>
@@ -1412,11 +1420,11 @@
 
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
             <div>
-              <label style="font-size:11px; font-weight:700; color:#475569;">上架日期（選填, 留空立即生效）</label>
+              <label style="font-size:11px; font-weight:700; color:#475569;">上架日期（選填，留空立即生效）</label>
               <input type="date" id="cms-start" style="width:100%; padding:7px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;" />
             </div>
             <div>
-              <label style="font-size:11px; font-weight:700; color:#475569;">下架日期（選填, 過期自動隱藏）</label>
+              <label style="font-size:11px; font-weight:700; color:#475569;">下架日期（選填，過期自動隱藏）</label>
               <input type="date" id="cms-end" style="width:100%; padding:7px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;" />
             </div>
           </div>
@@ -1429,7 +1437,7 @@
               <button type="button" onclick="formatText('strong')" style="padding:4px 10px; font-weight:bold; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">粗體 (B)</button>
               <button type="button" onclick="formatText('em')" style="padding:4px 10px; font-style:italic; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">斜體 (I)</button>
               <button type="button" onclick="formatText('u')" style="padding:4px 10px; text-decoration:underline; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">底線 (U)</button>
-              <button type="button" onclick="formatText('a')" style="padding:4px 10px; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">🔗 超連結</button>
+              <button type="button" onclick="formatTest('a')" style="padding:4px 10px; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">🔗 超連結</button>
               <button type="button" onclick="formatText('br')" style="padding:4px 10px; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">↩ 換行</button>
             </div>
 
