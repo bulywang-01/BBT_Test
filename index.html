@@ -70,24 +70,24 @@
       margin-bottom: 14px !important;
     }
     
-    /* 6宮格統計數據 (桌機 6 欄) */
-    .stats-grid-6 {
+    /* 4宮格統計數據 (桌機 4 欄) */
+    .stats-grid-4 {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 6px;
-      margin-bottom: 6px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
     }
 
     .stat-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
       border-radius: 8px;
-      padding: 8px 10px;
+      padding: 10px 12px;
       text-align: left;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 2px;
+      gap: 4px;
       transition: transform 0.2s, border-color 0.2s;
       min-width: 0;
       font-family: inherit;
@@ -96,7 +96,7 @@
     
     .stat-title { font-size: 11px; font-weight: 700; color: #475569; white-space: nowrap; font-family: inherit; }
     .stat-val-row { display: flex; align-items: baseline; justify-content: space-between; gap: 4px; flex-wrap: wrap; }
-    .stat-value { font-size: 20px; font-weight: 900; color: #1e3a8a; line-height: 1.1; font-family: inherit; }
+    .stat-value { font-size: 22px; font-weight: 900; color: #1e3a8a; line-height: 1.1; font-family: inherit; }
     .stat-sub { font-size: 10px; color: #64748b; font-weight: 700; white-space: nowrap; font-family: inherit; }
 
     .kpi-progress-track {
@@ -109,14 +109,15 @@
     .kpi-progress-fill-blue { background: #2563eb; width: 0%; height: 100%; transition: width 0.4s ease; }
     .kpi-progress-fill-green { background: #10b981; width: 0%; height: 100%; transition: width 0.4s ease; }
     .kpi-progress-fill-amber { background: #d97706; width: 0%; height: 100%; transition: width 0.4s ease; }
+    .kpi-progress-fill-purple { background: #7c3aed; width: 100%; height: 100%; }
 
-    /* 🔔 本週執法訊息提示樣式 (強制單列不折行) */
+    /* 🔔 本週執法訊息提示樣式 (一列呈現) */
     #welcome-alert {
       background: #eff6ff;
       border: 1px solid #bfdbfe;
       border-left: 4px solid #2563eb;
       border-radius: 6px;
-      padding: 8px 12px;
+      padding: 9px 12px;
       font-size: 12px;
       font-weight: 700;
       color: #1e40af;
@@ -133,7 +134,7 @@
       cursor: pointer;
     }
 
-    /* 讓 index.js 能正常掛載個人數據分析，避免 JS 報錯，同時保持簡潔 */
+    /* 讓 index.js 能正常掛載個人數據分析，避免 JS 報錯 */
     #home-user-analysis { display: none; }
 
     /* 三顆按鈕同一列排版：固定大小不自動放大 */
@@ -500,10 +501,10 @@
     }
     .footer .title { font-size: 14px; font-weight: 800; color: #334155; font-family: inherit; }
 
-    /* 📱 手機版 RWD：6格統計改為一列 3 個 (共兩行) */
+    /* 📱 手機版 RWD：4格統計改為 2×2 網格 */
     @media (max-width: 768px) {
-      .stats-grid-6 {
-        grid-template-columns: repeat(3, 1fr) !important;
+      .stats-grid-4 {
+        grid-template-columns: repeat(2, 1fr) !important;
       }
     }
 
@@ -515,8 +516,8 @@
 
     @media (max-width: 600px) {
       .main { padding: 12px; }
-      .stat-card { padding: 6px 8px; }
-      .stat-value { font-size: 18px; }
+      .stat-card { padding: 8px 10px; }
+      .stat-value { font-size: 20px; }
       .download-grid { grid-template-columns: 1fr; }
       .system-center { grid-template-columns: repeat(2, 1fr); }
       .welcome-actions-row { gap: 6px; }
@@ -785,8 +786,8 @@
         </div>
       </div>
 
-      <!-- 6合1 統一高效數據資訊矩陣 -->
-      <div class="stats-grid-6">
+      <!-- 4合1 統一高效數據資訊矩陣 (精簡拿掉經驗值與參與度) -->
+      <div class="stats-grid-4">
         <!-- 1. 裁判場次 -->
         <div class="stat-card">
           <div class="stat-title">🧑‍⚖️ 裁判場次</div>
@@ -805,27 +806,18 @@
           <div class="stat-val-row"><span class="stat-value" id="stat-total">--</span></div>
           <div class="kpi-progress-track"><div class="kpi-progress-fill-amber" id="fill-total"></div></div>
         </div>
-        <!-- 4. 經驗值 -->
-        <div class="stat-card">
-          <div class="stat-title">💡 經驗值</div>
-          <div class="stat-val-row"><span class="stat-value" id="stat-exp">101</span></div>
-        </div>
-        <!-- 5. 參與度 -->
-        <div class="stat-card">
-          <div class="stat-title">🎯 參與度</div>
-          <div class="stat-val-row"><span class="stat-value" id="stat-part">17</span></div>
-        </div>
-        <!-- 6. 出勤率 -->
+        <!-- 4. 出勤率 -->
         <div class="stat-card">
           <div class="stat-title">📈 出勤率</div>
           <div class="stat-val-row"><span class="stat-value" id="stat-rate">100%</span></div>
+          <div class="kpi-progress-track"><div class="kpi-progress-fill-purple" style="width: 100%;"></div></div>
         </div>
       </div>
 
       <!-- 隱藏原生容器供 index.js 掛載，防止 JS 報錯 -->
       <div id="home-user-analysis"></div>
 
-      <!-- 提示訊息（夾在數據與按鈕之間，強制單列不折行） -->
+      <!-- 提示訊息（夾在數據與按鈕之間，一列呈現） -->
       <div id="welcome-alert">🔔 載入本週執法訊息中...</div>
 
       <!-- 三顆按鈕放同一列：固定大小不自動放大 -->
