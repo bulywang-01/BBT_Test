@@ -169,7 +169,7 @@
     .pill-orange { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
     .pill-blue-action { background: #eff6ff; color: #1e3a8a; border-color: #bfdbfe; }
 
-    /* ===== 📅 我的班表專屬美化樣式 (升級版卡片) ===== */
+    /* ===== 📅 我的班表專屬美化樣式 (極致突顯日期/時間/站位) ===== */
     #my-schedule-list {
       font-size: 13px;
       color: #1e293b;
@@ -178,58 +178,60 @@
       gap: 10px;
     }
     .my-sch-card {
-      background: #f8fafc;
+      background: #ffffff;
       border: 1px solid #cbd5e1;
-      border-left: 4px solid #2563eb;
+      border-left: 5px solid #1e3a8a;
       border-radius: 8px;
       padding: 12px 14px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+      gap: 8px;
+      box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
     }
-    .my-sch-top-row {
+    .my-sch-header-main {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 8px;
-      border-bottom: 1px dashed #e2e8f0;
-      padding-bottom: 6px;
-    }
-    .my-sch-date-badge {
-      background: #1e3a8a;
-      color: #fff;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-    .my-sch-role-badge {
-      background: #dbeafe;
-      color: #1e40af;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-    .my-sch-venue {
-      font-weight: 800;
-      color: #334155;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .my-sch-match-info {
-      font-weight: 900;
-      color: #0f172a;
-      font-size: 13px;
-      background: #ffffff;
-      padding: 6px 10px;
+      background: #f8fafc;
+      padding: 8px 10px;
       border-radius: 6px;
       border: 1px solid #e2e8f0;
+    }
+    .my-sch-datetime {
+      font-size: 14px;
+      font-weight: 900;
+      color: #1e3a8a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .my-sch-role {
+      font-size: 13px;
+      font-weight: 900;
+      color: #c2410c;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      padding: 2px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .my-sch-details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-left: 2px;
+    }
+    .my-sch-venue {
+      font-size: 12px;
+      font-weight: 800;
+      color: #475569;
+    }
+    .my-sch-teams {
+      font-size: 13px;
+      font-weight: 900;
+      color: #0f172a;
     }
 
     /* ===== 中段雙欄並排：開課資訊 + 最新公告 ===== */
@@ -737,7 +739,7 @@
       `;
     }
 
-    // 📅 強固版「我的班表」格式化引擎 (支援非同步載入攔截)
+    // 📅 「我的班表」格式化引擎：將日期、時間、站位列為第一視覺核心
     function beautifyMySchedule() {
       const container = document.getElementById('my-schedule-list');
       if (!container) return;
@@ -778,12 +780,16 @@
 
         outputHtml += `
           <div class="my-sch-card">
-            <div class="my-sch-top-row">
-              <span class="my-sch-date-badge">📅 ${datePart} ${timePart ? ' ⏰ ' + timePart : ''}</span>
-              ${role ? `<span class="my-sch-role-badge">🧑‍⚖️ ${role}</span>` : ''}
+            <!-- 核心重點區：日期、時間、站位/紀錄位 -->
+            <div class="my-sch-header-main">
+              <span class="my-sch-datetime">📅 ${datePart} ${timePart ? ' ⏰ ' + timePart : ''}</span>
+              ${role ? `<span class="my-sch-role">🧑‍⚖️ ${role}</span>` : ''}
             </div>
-            ${venue ? `<div class="my-sch-venue">📍 ${venue}</div>` : ''}
-            <div class="my-sch-match-info">⚾ ${line2 || line1}</div>
+            <!-- 次要資訊區：球場與對戰組合 -->
+            <div class="my-sch-details">
+              ${venue ? `<div class="my-sch-venue">📍 ${venue}</div>` : ''}
+              <div class="my-sch-teams">⚾ ${line2 || line1}</div>
+            </div>
           </div>
         `;
       }
