@@ -169,35 +169,67 @@
     .pill-orange { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
     .pill-blue-action { background: #eff6ff; color: #1e3a8a; border-color: #bfdbfe; }
 
-    /* ===== 📅 我的班表彈窗專屬美化樣式 ===== */
+    /* ===== 📅 我的班表專屬美化樣式 (升級版卡片) ===== */
     #my-schedule-list {
       font-size: 13px;
       color: #1e293b;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
-    .my-sch-item {
+    .my-sch-card {
       background: #f8fafc;
       border: 1px solid #cbd5e1;
       border-left: 4px solid #2563eb;
       border-radius: 8px;
-      padding: 10px 12px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+      gap: 6px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
     }
-    .my-sch-date-time {
+    .my-sch-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px dashed #e2e8f0;
+      padding-bottom: 6px;
+    }
+    .my-sch-date-badge {
+      background: #1e3a8a;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
       font-weight: 800;
-      color: #1e3a8a;
+      white-space: nowrap;
+    }
+    .my-sch-role-badge {
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .my-sch-venue {
+      font-weight: 800;
+      color: #334155;
+      font-size: 12px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
-    .my-sch-teams {
+    .my-sch-match-info {
       font-weight: 900;
       color: #0f172a;
+      font-size: 13px;
+      background: #ffffff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
     }
 
     /* ===== 中段雙欄並排：開課資訊 + 最新公告 ===== */
@@ -663,7 +695,7 @@
         
         Object.keys(m.roles).forEach(key => {
           let name = m.roles[key] || '－';
-          let isAssigned = (name !== '－' && name !== '-' && name !== '');
+          let isAssigned = (name !== '─' && name !== '-' && name !== '');
           let boxClass = isAssigned ? 'sch-role-box assigned' : 'sch-role-box unassigned';
           let boxHtml = `
             <div class="${boxClass}">
@@ -705,7 +737,7 @@
       `;
     }
 
-    // 📅 強固版「我的班表」格式化引擎
+    // 📅 強固版「我的班表」格式化引擎 (升級為成對解析卡片)
     function beautifyMySchedule() {
       const container = document.getElementById('my-schedule-list');
       if (!container) return;
@@ -717,18 +749,50 @@
       if (lines.length === 0) return;
 
       let outputHtml = '';
-      lines.forEach(line => {
-        if (line.includes('本週') || line.includes('/') || line.includes('球場') || line.includes('主審') || line.includes('VS') || line.includes('組')) {
-          outputHtml += `
-            <div class="my-sch-item">
-              <div class="my-sch-date-time">📅 執勤賽事通知</div>
-              <div class="my-sch-teams">${line}</div>
-            </div>
-          `;
-        } else {
-          outputHtml += `<div class="my-sch-item"><div class="my-sch-teams">${line}</div></div>`;
+      
+      // 每兩行一組進行配對解析 (例如: Line 1 = 時間/球場/職務, Line 2 = 聯盟組別/對戰組合)
+      for (let i = 0; i < lines.length; i += 2) {
+        let line1 = lines[i] || '';
+        let line2 = lines[i + 1] || '';
+        
+        // 如果剛好只有單行孤兒文字，則直接自適應
+        if (!line2 && (line1.includes('VS') || line1.includes('組'))) {
+          line2 = line1;
+          line1 = '執勤賽事通知';
         }
-      });
+
+        // 解析 Line 1 中的日期時間、球場與職務
+        // 範例: 本週 11/22(日) | 13:50 | 八里國中棒球場 主審
+        let parts = line1.split('|').map(p => p.trim());
+        let datePart = parts[0] || '賽事通知';
+        let timePart = parts[1] || '';
+        let venueRolePart = parts[2] || '';
+        
+        let role = '';
+        let venue = venueRolePart;
+        
+        // 抓取常見職務關鍵字
+        const rolesList = ['主審', '一壘審', '二壘審', '三壘審', '裁判', '紀錄員', '記錄員', '影像紀錄'];
+        for (let r of rolesList) {
+          if (venueRolePart.includes(r)) {
+            role = r;
+            venue = venueRolePart.replace(r, '').trim();
+            break;
+          }
+        }
+
+        outputHtml += `
+          <div class="my-sch-card">
+            <div class="my-sch-top-row">
+              <span class="my-sch-date-badge">📅 ${datePart} ${timePart ? ' ⏰ ' + timePart : ''}</span>
+              ${role ? `<span class="my-sch-role-badge">🧑‍⚖️ ${role}</span>` : ''}
+            </div>
+            ${venue ? `<div class="my-sch-venue">📍 ${venue}</div>` : ''}
+            <div class="my-sch-match-info">⚾ ${line2}</div>
+          </div>
+        `;
+      }
+
       if (outputHtml) {
         container.innerHTML = outputHtml;
       }
@@ -738,7 +802,6 @@
     window.addEventListener('DOMContentLoaded', () => {
       const openWeeklyBtn = document.getElementById('open-weekly');
       const weeklyOverlay = document.getElementById('weekly-overlay');
-      const weeklyEl = document.getElementById('weeklyContent');
       
       const openScheduleBtn = document.getElementById('open-schedule');
       const scheduleOverlay = document.getElementById('schedule-overlay');
@@ -778,14 +841,14 @@
     
     <!-- 1️⃣ 歡迎與核心儀表板 (完美兩行左右對齊) -->
     <div class="panel welcome-box">
-      <!-- 第一行：左側「出勤管理系統」 | 右側「王紹文 您好，歡迎使用出勤管理系統」 -->
+      <!-- 第一行：左側「出勤管理系統」 | 右側「王韶文 您好，歡迎使用出勤管理系統」 -->
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 8px; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0;">
         <div style="display: flex; align-items: center; gap: 8px; overflow: hidden; white-space: nowrap;">
           <span style="font-size: 18px; flex-shrink: 0;">⚾</span>
           <div style="font-size: 16px; font-weight: 900; color: #1e3a8a; flex-shrink: 0;">出勤管理系統</div>
         </div>
         <div style="font-size: 13px; font-weight: 800; color: #0f172a; white-space: nowrap; flex-shrink: 0;">
-          王紹文 您好，歡迎使用出勤管理系統
+          王韶文 您好，歡迎使用出勤管理系統
         </div>
       </div>
 
@@ -1516,7 +1579,7 @@
             </div>
             <div>
               <label style="font-size:11px; font-weight:700; color:#475569;">下架日期（選填，過期自動隱藏）</label>
-              <input type="date" id="cms-end" style="width:100%; padding:7px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;" />
+              <input type="date" id="cms-end" style="width:100% ; padding:7px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;" />
             </div>
           </div>
 
