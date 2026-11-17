@@ -62,7 +62,7 @@
       font-family: inherit;
     }
 
-    /* ===== 頂部歡迎與統計儀表板 (Executive Navy + 超緊湊單層樞紐看板) ===== */
+    /* ===== 頂部歡迎與統計儀表板 (Executive Navy + 6合1 統一緊湊樞紐看板) ===== */
     .welcome-box {
       background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
       border-top: 4px solid #1e3a8a;
@@ -102,7 +102,7 @@
     .kpi-progress-fill-green { background: #10b981; width: 0%; height: 100%; transition: width 0.4s ease; }
     .kpi-progress-fill-amber { background: #d97706; width: 0%; height: 100%; transition: width 0.4s ease; }
 
-    /* 🔔 本週執法訊息提示樣式 (#welcome-alert) */
+    /* 🔔 本週執法訊息提示樣式 (精準夾在數據與按鈕之間) */
     #welcome-alert {
       background: #eff6ff;
       border: 1px solid #bfdbfe;
@@ -112,7 +112,7 @@
       font-size: 12px;
       font-weight: 700;
       color: #1e40af;
-      margin-bottom: 10px;
+      margin: 10px 0;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -123,28 +123,20 @@
       cursor: pointer;
     }
 
-    /* 個人分析區 */
-    #home-user-analysis {
-      background: transparent !important;
-      border: none !important;
-      border-radius: 0 !important;
-      padding: 0 !important;
-      font-size: 12px;
-      color: #334155;
-      margin: 0;
-      box-shadow: none !important;
-      font-family: inherit;
-    }
+    /* 隱藏原生多餘容器，交由頂部統整矩陣呈現 */
+    #home-user-analysis { display: none !important; }
 
-    /* 快捷按鈕列：同一列三顆按鈕排版 */
+    /* 三個按鈕同一列排版：固定大小不因畫面寬度而放大拉伸 */
     .welcome-actions-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: nowrap;
+      margin-top: 4px;
     }
     .pill {
-      padding: 8px 10px;
+      padding: 8px 16px;
       font-size: 12px;
       font-weight: 800;
       border-radius: 6px;
@@ -153,13 +145,15 @@
       transition: all 0.2s;
       text-align: center;
       white-space: nowrap;
+      width: 155px; /* 固定按鈕大小 */
+      flex-shrink: 0;
       font-family: inherit;
     }
     .pill:hover { background: #e2e8f0; border-color: #94a3b8; transform: translateY(-1px); }
     .pill-orange { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
     .pill-blue-action { background: #eff6ff; color: #1e3a8a; border-color: #bfdbfe; }
 
-    /* ===== 📅 我的班表彈窗專屬美化樣式 (解決沒有 style 的問題) ===== */
+    /* ===== 📅 我的班表彈窗專屬美化樣式 ===== */
     #my-schedule-list {
       font-size: 13px;
       color: #1e293b;
@@ -184,10 +178,6 @@
       display: flex;
       align-items: center;
       gap: 6px;
-    }
-    .my-sch-venue-role {
-      color: #475569;
-      font-weight: 700;
     }
     .my-sch-teams {
       font-weight: 900;
@@ -504,7 +494,6 @@
       .dashboard-mid-grid { grid-template-columns: 1fr; }
       .rules-shortcut-grid { grid-template-columns: 1fr; }
       .download-grid { grid-template-columns: repeat(2, 1fr); }
-      .welcome-actions-row { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 600px) {
@@ -513,6 +502,8 @@
       .stat-value { font-size: 19px; }
       .download-grid { grid-template-columns: 1fr; }
       .system-center { grid-template-columns: repeat(2, 1fr); }
+      .welcome-actions-row { gap: 6px; }
+      .pill { width: 105px; padding: 8px 6px; font-size: 11px; }
     }
   </style>
 </head>
@@ -691,7 +682,7 @@
       `;
     }
 
-    // 📅 強固版「我的班表」格式化引擎 (解決沒有 style 的問題)
+    // 📅 強固版「我的班表」格式化引擎
     function beautifyMySchedule() {
       const container = document.getElementById('my-schedule-list');
       if (!container) return;
@@ -703,7 +694,6 @@
       if (lines.length === 0) return;
 
       let outputHtml = '';
-      // 若文字中包含賽事資訊，自動轉換為精美卡片
       lines.forEach(line => {
         if (line.includes('本週') || line.includes('/') || line.includes('球場') || line.includes('主審') || line.includes('VS') || line.includes('組')) {
           outputHtml += `
@@ -729,7 +719,6 @@
       
       const openScheduleBtn = document.getElementById('open-schedule');
       const scheduleOverlay = document.getElementById('schedule-overlay');
-      const myScheduleEl = document.getElementById('my-schedule-list');
 
       if (openWeeklyBtn) {
         openWeeklyBtn.addEventListener('click', () => {
@@ -745,7 +734,6 @@
         overlayObserver.observe(weeklyOverlay, { attributes: true, attributeFilter: ['style', 'class'] });
       }
 
-      // 「我的班表」彈窗監聽與自動排版
       if (openScheduleBtn) {
         openScheduleBtn.addEventListener('click', () => {
           [50, 200, 500].forEach(delay => setTimeout(beautifyMySchedule, delay));
@@ -765,7 +753,7 @@
   <div class="main">
     <div id="content"></div>
     
-    <!-- 1️⃣ 歡迎與核心儀表板 (Executive Navy 緊湊單層樞紐看板) -->
+    <!-- 1️⃣ 歡迎與核心儀表板 (統一資料區、夾在中間的提示訊息、同一列固定大小按鈕) -->
     <div class="panel welcome-box">
       <!-- 頂部精簡列：標題、使用者身分與提示合一 -->
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
@@ -780,52 +768,47 @@
         </div>
       </div>
 
-      <!-- 3合1 緊湊高效儀表板矩陣 (單行3欄，已完全移除舊的紅色框直式卡片) -->
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 6px;">
+      <!-- 6合1 統一高效數據資訊矩陣 (裁判場次、紀錄場次、年度總計、經驗值、參與度、出勤率完美並排) -->
+      <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 6px;">
         <!-- 1. 裁判場次 -->
         <div class="stat-card">
           <div class="stat-title">🧑‍⚖️ 裁判場次</div>
-          <div class="stat-val-row">
-            <span class="stat-value" id="stat-judge">--</span>
-            <span class="stat-sub" id="stat-judge-sub"></span>
-          </div>
-          <div class="kpi-progress-track">
-            <div class="kpi-progress-fill-blue" id="fill-judge"></div>
-          </div>
+          <div class="stat-val-row"><span class="stat-value" id="stat-judge">--</span></div>
+          <div class="kpi-progress-track"><div class="kpi-progress-fill-blue" id="fill-judge"></div></div>
         </div>
         <!-- 2. 紀錄場次 -->
         <div class="stat-card">
           <div class="stat-title">📝 紀錄場次</div>
-          <div class="stat-val-row">
-            <span class="stat-value" id="stat-record">--</span>
-            <span class="stat-sub" id="stat-record-sub"></span>
-          </div>
-          <div class="kpi-progress-track">
-            <div class="kpi-progress-fill-green" id="fill-record"></div>
-          </div>
+          <div class="stat-val-row"><span class="stat-value" id="stat-record">--</span></div>
+          <div class="kpi-progress-track"><div class="kpi-progress-fill-green" id="fill-record"></div></div>
         </div>
         <!-- 3. 年度總計 -->
         <div class="stat-card">
           <div class="stat-title">📊 年度總計</div>
-          <div class="stat-val-row">
-            <span class="stat-value" id="stat-total">--</span>
-            <span class="stat-sub" id="stat-total-sub">100%</span>
-          </div>
-          <div class="kpi-progress-track">
-            <div class="kpi-progress-fill-amber" id="fill-total"></div>
-          </div>
+          <div class="stat-val-row"><span class="stat-value" id="stat-total">--</span></div>
+          <div class="kpi-progress-track"><div class="kpi-progress-fill-amber" id="fill-total"></div></div>
+        </div>
+        <!-- 4. 經驗值 -->
+        <div class="stat-card">
+          <div class="stat-title">💡 經驗值</div>
+          <div class="stat-val-row"><span class="stat-value" id="stat-exp">101</span></div>
+        </div>
+        <!-- 5. 參與度 -->
+        <div class="stat-card">
+          <div class="stat-title">🎯 參與度</div>
+          <div class="stat-val-row"><span class="stat-value" id="stat-part">17</span></div>
+        </div>
+        <!-- 6. 出勤率 -->
+        <div class="stat-card">
+          <div class="stat-title">📈 出勤率</div>
+          <div class="stat-val-row"><span class="stat-value" id="stat-rate">100%</span></div>
         </div>
       </div>
 
-      <!-- 本週執法訊息提示框 -->
+      <!-- 提示訊息（精準夾在數據資訊與按鈕之間） -->
       <div id="welcome-alert">🔔 載入本週執法訊息中...</div>
 
-      <!-- 個人分析摘要 -->
-      <div style="background: #f8fafc; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 6px;">
-        <div id="home-user-analysis">⏳ 個人數據載入中...</div>
-      </div>
-
-      <!-- 快捷按鈕列：個人數據分析、我的班表、本週聯盟班表同一列 -->
+      <!-- 三顆按鈕放同一列：固定大小不自動放大 -->
       <div class="welcome-actions-row">
         <button id="open-user-analysis-modal" onclick="openUserModal()" class="pill pill-blue-action">📊 個人數據分析</button>
         <button id="open-schedule" class="pill pill-orange">📅 我的班表</button>
