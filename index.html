@@ -169,7 +169,7 @@
     .pill-orange { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
     .pill-blue-action { background: #eff6ff; color: #1e3a8a; border-color: #bfdbfe; }
 
-    /* ===== 📅 我的班表：極簡單層卡片（一張卡＝一場賽事，不層層嵌套） ===== */
+    /* ===== 📅 我的班表：單層卡片＋本週底色區分＋大字位置 ===== */
     #my-schedule-list {
       font-size: 13px;
       color: #1e293b;
@@ -182,24 +182,35 @@
       border: 1px solid #cbd5e1;
       border-left: 4px solid #1e3a8a;
       border-radius: 8px;
-      padding: 10px 14px;
+      padding: 11px 14px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
+    }
+    /* 本週場次專屬底色凸顯 */
+    .my-sch-card.is-this-week {
+      background: #fffbeb;
+      border-color: #fcd34d;
+      border-left: 4px solid #d97706;
     }
     .my-sch-primary {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      gap: 8px;
+      flex-wrap: wrap;
+      gap: 6px;
       font-size: 14px;
-      font-weight: 900;
+      font-weight: 800;
       color: #1e3a8a;
     }
-    .my-sch-role-text {
-      color: #c2410c;
+    .my-sch-divider {
+      color: #94a3b8;
+      font-weight: 400;
+    }
+    .my-sch-role-highlight {
+      font-size: 16px;
       font-weight: 900;
-      white-space: nowrap;
+      color: #c2410c;
+      letter-spacing: 0.5px;
     }
     .my-sch-secondary {
       font-size: 12px;
@@ -712,7 +723,7 @@
       `;
     }
 
-    // 📅 「我的班表」格式化引擎：單層俐落卡片，突顯日期、時間與站位／紀錄位
+    // 📅 「我的班表」格式化引擎：移除「本週」文字改以底色凸顯、場地與位置加｜且位置字體加大
     function beautifyMySchedule() {
       const container = document.getElementById('my-schedule-list');
       if (!container) return;
@@ -731,10 +742,14 @@
         
         if (!line2 && (line1.includes('VS') || line1.includes('組') || line1.includes('球場'))) {
           line2 = line1;
-          line1 = '執勤賽事通知';
+          line1 = '';
         }
 
-        let parts = line1.split('|').map(p => p.trim());
+        // 偵測是否為「本週」，若是則套用專屬底色，並移除「本週」二字
+        let isThisWeek = line1.includes('本週');
+        let cleanLine1 = line1.replace(/本週/g, '').trim();
+
+        let parts = cleanLine1.split('|').map(p => p.trim()).filter(Boolean);
         let datePart = parts[0] || '';
         let timePart = parts[1] || '';
         let venueRolePart = parts[2] || '';
@@ -742,7 +757,7 @@
         let role = '';
         let venue = venueRolePart;
         
-        const rolesList = ['主審', '一壘審', '二壘審', '三壘審', '裁判', '紀錄員', '記錄員', '影像紀錄'];
+        const rolesList = ['主審', '一壘審', '二壘審', '三壘審', '裁判', '見習紀錄員', '影像紀錄員', '紀錄員', '記錄員', '影像紀錄'];
         for (let r of rolesList) {
           if (venueRolePart.includes(r)) {
             role = r;
@@ -751,15 +766,19 @@
           }
         }
 
-        let subInfo = [venue ? `📍 ${venue}` : '', line2].filter(Boolean).join(' ｜ ');
+        // 組合第一行：📅 日期 | 時間 | 場地 | 位置(加大)
+        let primarySegments = [];
+        if (datePart) primarySegments.push(`<span>📅 ${datePart}</span>`);
+        if (timePart) primarySegments.push(`<span>${timePart}</span>`);
+        if (venue) primarySegments.push(`<span>${venue}</span>`);
+        if (role) primarySegments.push(`<span class="my-sch-role-highlight">${role}</span>`);
+
+        let primaryHtml = primarySegments.join('<span class="my-sch-divider">｜</span>');
 
         outputHtml += `
-          <div class="my-sch-card">
-            <div class="my-sch-primary">
-              <span>📅 ${datePart} ${timePart}</span>
-              ${role ? `<span class="my-sch-role-text">${role}</span>` : ''}
-            </div>
-            ${subInfo ? `<div class="my-sch-secondary">${subInfo}</div>` : ''}
+          <div class="my-sch-card ${isThisWeek ? 'is-this-week' : ''}">
+            <div class="my-sch-primary">${primaryHtml}</div>
+            ${line2 ? `<div class="my-sch-secondary">${line2}</div>` : ''}
           </div>
         `;
       }
