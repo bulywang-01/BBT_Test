@@ -73,23 +73,15 @@
       gap: 8px;
       margin-bottom: 10px;
     }
-    
-    /* 👑 標題防斷行優化：強制不換行，並在手機上適度縮放字體 */
     .welcome-title-container {
       display: flex;
       align-items: center;
       gap: 8px;
       white-space: nowrap;
     }
-    .welcome-title { 
-      font-size: 20px; 
-      font-weight: 900; 
-      color: #1e3a8a; 
-      white-space: nowrap; 
-      display: inline-block;
-    }
-    .welcome-role { font-size: 13px; color: #2563eb; font-weight: 800; margin-top: 2px; }
-    .welcome-name { font-size: 16px; font-weight: 700; color: #0f172a; margin-top: 4px; }
+    .welcome-title { font-size: 22px; font-weight: 900; color: #1e3a8a; white-space: nowrap; display: inline-block; }
+    .welcome-role { font-size: 14px; color: #2563eb; font-weight: 800; margin-top: 2px; }
+    .welcome-name { font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 4px; }
     .welcome-sub { font-size: 12px; color: #64748b; font-weight: 700; }
 
     /* 📊 緊湊三欄樞紐表格看板：固定 3 欄並排，絕不垂直堆疊，極致節省空間 */
@@ -146,10 +138,10 @@
       box-shadow: none !important;
     }
 
-    /* 快捷按鈕列 */
+    /* 快捷按鈕列：保留高頻操作按鈕 */
     .welcome-actions {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 8px;
     }
     .pill {
@@ -164,8 +156,6 @@
       white-space: nowrap;
     }
     .pill:hover { background: #e2e8f0; border-color: #94a3b8; transform: translateY(-1px); }
-    .pill-blue { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
-    .pill-green { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
     .pill-orange { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
 
     /* ===== 中段雙欄並排：開課資訊 + 最新公告 ===== */
@@ -218,7 +208,33 @@
       box-shadow: 0 3px 8px rgba(15, 23, 42, 0.05);
     }
 
-    /* ===== 文件中心 ===== */
+    /* ===== 文件中心（已納入規章捷徑） ===== */
+    .rules-shortcut-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .rule-card {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 12px;
+      text-decoration: none;
+      color: #0f172a;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .rule-card:hover { border-color: #1e3a8a; background: #ffffff; }
+    .rule-card-title { font-size: 13px; font-weight: 800; color: #1e3a8a; }
+    .rule-card-desc { font-size: 11px; color: #64748b; }
+
     .download-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -420,7 +436,7 @@
 
     @media (max-width: 900px) {
       .dashboard-mid-grid { grid-template-columns: 1fr; }
-      .welcome-actions { grid-template-columns: repeat(3, 1fr); }
+      .rules-shortcut-grid { grid-template-columns: 1fr; }
       .download-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
@@ -431,7 +447,6 @@
       .welcome-actions { grid-template-columns: repeat(2, 1fr); }
       .download-grid { grid-template-columns: 1fr; }
       .system-center { grid-template-columns: repeat(2, 1fr); }
-      .welcome-title { font-size: 18px; }
     }
   </style>
 </head>
@@ -498,7 +513,8 @@
       let text = container.innerText || container.textContent;
       if (!text || text.trim() === '' || text.includes('載入中')) return;
       
-      let lines = text.split('\n').map(l => l.trim()).filter(l => l !== '');
+      let lines = text.split('
+').map(l => l.trim()).filter(l => l !== '');
       if (lines.length === 0) return;
       
       let outputHtml = '<div class="league-schedule-wrapper">';
@@ -652,7 +668,6 @@
     <div class="panel welcome-box">
       <div class="welcome-top">
         <div>
-          <!-- 👑 修改此處：確保標題容器絕不換行 -->
           <div class="welcome-title-container">
             <span style="font-size: 22px;">⚾</span>
             <div class="welcome-title">BBT 出勤管理系統</div>
@@ -702,13 +717,10 @@
       <!-- 個人分析區（已移除額外包覆的外框與背景） -->
       <div id="home-user-analysis">⏳ 個人數據資料載入中...</div>
 
+      <!-- 高頻快捷按鈕列：保留「我的班表」與「本週聯盟班表」 -->
       <div class="welcome-actions">
         <button id="open-schedule" class="pill pill-orange">📅 我的班表</button>
         <button id="open-weekly" class="pill pill-orange">📊 本週聯盟班表</button>
-        <button onclick="location.href='course.html'" class="pill pill-blue">📚 課程專區</button>
-        <button id="open-league" class="pill pill-blue">📘 聯盟賽制</button>
-        <button id="open-rules" class="pill pill-green">🧑‍⚖️ 裁判守則</button>
-        <button id="open-record-rules" class="pill pill-green">📝 紀錄守則</button>
       </div>
     </div>
 
@@ -739,14 +751,28 @@
       </div>
     </div>
 
-    <!-- 3️⃣ 文件中心 -->
+    <!-- 3️⃣ 文件與手冊中心（已納入規章捷徑） -->
     <div class="panel">
       <div class="section-header">
         <h3>📚 文件與手冊中心</h3>
       </div>
+      <div class="rules-shortcut-grid">
+        <button id="open-league" class="rule-card">
+          <div class="rule-card-title">📘 聯盟賽事規章</div>
+          <div class="rule-card-desc">BBT聯盟正式競賽規章</div>
+        </button>
+        <button id="open-rules" class="rule-card">
+          <div class="rule-card-title">🧑‍⚖️ 裁判守則</div>
+          <div class="rule-card-desc">執法規範與吹判指南</div>
+        </button>
+        <button id="open-record-rules" class="rule-card">
+          <div class="rule-card-title">📝 紀錄守則</div>
+          <div class="rule-card-desc">記分表填寫與規範說明</div>
+        </button>
+      </div>
       <div class="download-grid">
         <a href="https://bbtls.com/a03.php" target="_blank" class="download-card">
-          <div class="download-title">📘 聯盟賽事規章</div>
+          <div class="download-title">📘 聯盟賽事規章 (外部)</div>
           <div class="download-desc">BBT聯盟正式競賽規章</div>
         </a>
         <a href="https://bbtls.com/" target="_blank" class="download-card">
@@ -1383,7 +1409,7 @@
             <div style="display:flex; gap:6px; margin-bottom:6px; background:#f1f5f9; padding:6px; border-radius:6px; border:1px solid #cbd5e1; flex-wrap:wrap;">
               <button type="button" onclick="formatText('strong')" style="padding:4px 10px; font-weight:bold; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">粗體 (B)</button>
               <button type="button" onclick="formatText('em')" style="padding:4px 10px; font-style:italic; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">斜體 (I)</button>
-              <button type="button" onclick="formatText('u')" style="padding:4px 10px; text-decoration:underline; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:6px; cursor:pointer; font-size:12px;">底線 (U)</button>
+              <button type="button" onclick="formatText('u')" style="padding:4px 10px; text-decoration:underline; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">底線 (U)</button>
               <button type="button" onclick="formatText('a')" style="padding:4px 10px; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">🔗 超連結</button>
               <button type="button" onclick="formatText('br')" style="padding:4px 10px; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">↩ 換行</button>
             </div>
