@@ -232,6 +232,22 @@
       cursor: pointer;
     }
     .rule-card:hover { border-color: #1e3a8a; background: #ffffff; }
+    .rule-card.rule-card-judge {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .rule-card.rule-card-judge:hover {
+      background: #dbeafe;
+      border-color: #3b82f6;
+    }
+    .rule-card.rule-card-record {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+    .rule-card.rule-card-record:hover {
+      background: #dcfce7;
+      border-color: #22c55e;
+    }
     .rule-card-title { font-size: 13px; font-weight: 800; color: #1e3a8a; }
     .rule-card-desc { font-size: 11px; color: #64748b; }
 
@@ -513,8 +529,7 @@
       let text = container.innerText || container.textContent;
       if (!text || text.trim() === '' || text.includes('載入中')) return;
       
-      let lines = text.split('
-').map(l => l.trim()).filter(l => l !== '');
+      let lines = text.split('\n').map(l => l.trim()).filter(l => l !== '');
       if (lines.length === 0) return;
       
       let outputHtml = '<div class="league-schedule-wrapper">';
@@ -758,14 +773,14 @@
       </div>
       <div class="rules-shortcut-grid">
         <button id="open-league" class="rule-card">
-          <div class="rule-card-title">📘 聯盟賽事規章</div>
+          <div class="rule-card-title">📘 聯盟賽事規章 (簡易)</div>
           <div class="rule-card-desc">BBT聯盟正式競賽規章</div>
         </button>
-        <button id="open-rules" class="rule-card">
+        <button id="open-rules" class="rule-card rule-card-judge">
           <div class="rule-card-title">🧑‍⚖️ 裁判守則</div>
           <div class="rule-card-desc">執法規範與吹判指南</div>
         </button>
-        <button id="open-record-rules" class="rule-card">
+        <button id="open-record-rules" class="rule-card rule-card-record">
           <div class="rule-card-title">📝 紀錄守則</div>
           <div class="rule-card-desc">記分表填寫與規範說明</div>
         </button>
@@ -1115,7 +1130,7 @@
         <ul>
           <li>報名前請確認日期、時間、球場與職務。</li>
           <li>報名成功後請再次確認您的姓名已顯示於正確位置。</li>
-          <li>若看到「已有人報名」，請以系統最新畫面為準。</li>
+          <li>若看到<strong>已有人報名</strong>，請以系統最新畫面為準。</li>
           <li>若出現時間衝突或母隊迴避提醒，請改選其他場次。</li>
         </ul>
         <div style="margin-top:16px; padding:12px; border-radius:10px; background:#f5f8ff; border:1px solid #dbeafe; color:#1e40af; line-height:1.6;">
