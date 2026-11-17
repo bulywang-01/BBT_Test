@@ -35,6 +35,7 @@
       margin-bottom: 16px;
       box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
       transition: all 0.2s ease;
+      font-family: inherit;
     }
     .panel:hover {
       border-color: #94a3b8;
@@ -58,6 +59,7 @@
       align-items: center;
       gap: 8px;
       white-space: nowrap;
+      font-family: inherit;
     }
 
     /* ===== 頂部歡迎與統計儀表板 (Executive Navy + 緊湊三欄樞紐看板) ===== */
@@ -79,10 +81,10 @@
       gap: 8px;
       white-space: nowrap;
     }
-    .welcome-title { font-size: 22px; font-weight: 900; color: #1e3a8a; white-space: nowrap; display: inline-block; }
-    .welcome-role { font-size: 14px; color: #2563eb; font-weight: 800; margin-top: 2px; }
-    .welcome-name { font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 4px; }
-    .welcome-sub { font-size: 12px; color: #64748b; font-weight: 700; }
+    .welcome-title { font-size: 22px; font-weight: 900; color: #1e3a8a; white-space: nowrap; display: inline-block; font-family: inherit; }
+    .welcome-role { font-size: 14px; color: #2563eb; font-weight: 800; margin-top: 2px; font-family: inherit; }
+    .welcome-name { font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 4px; font-family: inherit; }
+    .welcome-sub { font-size: 12px; color: #64748b; font-weight: 700; font-family: inherit; }
 
     /* 📊 緊湊三欄樞紐表格看板：固定 3 欄並排，絕不垂直堆疊，極致節省空間 */
     .user-stats {
@@ -107,13 +109,14 @@
       gap: 3px;
       transition: transform 0.2s, border-color 0.2s;
       min-width: 0;
+      font-family: inherit;
     }
     .stat-card:hover { border-color: #94a3b8; }
     
-    .stat-title { font-size: 11px; font-weight: 700; color: #475569; white-space: nowrap; }
+    .stat-title { font-size: 11px; font-weight: 700; color: #475569; white-space: nowrap; font-family: inherit; }
     .stat-val-row { display: flex; align-items: baseline; justify-content: space-between; gap: 4px; flex-wrap: wrap; }
-    .stat-value { font-size: 22px; font-weight: 900; color: #1e3a8a; line-height: 1.1; }
-    .stat-sub { font-size: 10px; color: #64748b; font-weight: 700; white-space: nowrap; }
+    .stat-value { font-size: 22px; font-weight: 900; color: #1e3a8a; line-height: 1.1; font-family: inherit; }
+    .stat-sub { font-size: 10px; color: #64748b; font-weight: 700; white-space: nowrap; font-family: inherit; }
 
     .kpi-progress-track {
       background: #e2e8f0;
@@ -136,6 +139,7 @@
       color: #334155;
       margin-bottom: 14px;
       box-shadow: none !important;
+      font-family: inherit;
     }
 
     /* 快捷按鈕列：保留高頻操作按鈕 */
@@ -154,6 +158,7 @@
       transition: all 0.2s;
       text-align: center;
       white-space: nowrap;
+      font-family: inherit;
     }
     .pill:hover { background: #e2e8f0; border-color: #94a3b8; transform: translateY(-1px); }
     .pill-orange { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
@@ -183,10 +188,11 @@
       border-radius: 10px;
       padding: 12px 14px;
       transition: all 0.2s ease;
+      font-family: inherit;
     }
     .home-course-card:hover { border-color: #94a3b8; }
-    .home-course-title { font-size: 14px; font-weight: 800; color: #1e3a8a; margin-bottom: 4px; }
-    .home-course-info { font-size: 12px; color: #475569; line-height: 1.5; }
+    .home-course-title { font-size: 14px; font-weight: 800; color: #1e3a8a; margin-bottom: 4px; font-family: inherit; }
+    .home-course-info { font-size: 12px; color: #475569; line-height: 1.5; font-family: inherit; }
 
     .notice-list { display: flex; flex-direction: column; gap: 10px; }
     .notice-item {
@@ -202,13 +208,14 @@
       border-bottom: 1px solid #e2e8f0;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
       transition: all 0.2s ease;
+      font-family: inherit;
     }
     .notice-item:hover {
       border-color: #cbd5e1;
       box-shadow: 0 3px 8px rgba(15, 23, 42, 0.05);
     }
 
-    /* ===== 文件中心（已納入規章捷徑） ===== */
+    /* ===== 文件與手冊中心（已納入規章捷徑） ===== */
     .rules-shortcut-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -230,6 +237,7 @@
       gap: 2px;
       text-align: left;
       cursor: pointer;
+      font-family: inherit;
     }
     .rule-card:hover { border-color: #1e3a8a; background: #ffffff; }
     .rule-card.rule-card-judge {
@@ -248,8 +256,8 @@
       background: #dcfce7;
       border-color: #22c55e;
     }
-    .rule-card-title { font-size: 13px; font-weight: 800; color: #1e3a8a; }
-    .rule-card-desc { font-size: 11px; color: #64748b; }
+    .rule-card-title { font-size: 13px; font-weight: 800; color: #1e3a8a; font-family: inherit; }
+    .rule-card-desc { font-size: 11px; color: #64748b; font-family: inherit; }
 
     .download-grid {
       display: grid;
@@ -267,14 +275,15 @@
       padding: 12px 14px;
       transition: all 0.2s;
       color: #0f172a;
+      font-family: inherit;
     }
     .download-card:hover {
       background: #ffffff;
       border-color: #1e3a8a;
       transform: translateY(-1px);
     }
-    .download-title { font-size: 14px; font-weight: 800; margin-bottom: 3px; color: #1e293b; }
-    .download-desc { font-size: 12px; color: #64748b; line-height: 1.4; }
+    .download-title { font-size: 14px; font-weight: 800; margin-bottom: 3px; color: #1e293b; font-family: inherit; }
+    .download-desc { font-size: 12px; color: #64748b; line-height: 1.4; font-family: inherit; }
 
     /* ===== 系統資訊中心 ===== */
     .system-center {
@@ -294,18 +303,20 @@
       border-radius: 14px; padding: 20px; overflow-y: auto;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
       border: 1px solid #cbd5e1;
+      font-family: inherit;
     }
-    .overlay-box h2 { margin-top: 0; font-size: 18px; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+    .overlay-box h2 { margin-top: 0; font-size: 18px; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; font-family: inherit; }
     .system-guide-box { width: 95vw !important; max-width: 860px !important; }
 
     .close-btn.full {
       width: 100%; padding: 12px 0; border-radius: 8px; border: none;
       background: #1e3a8a; color: #fff;
       font-size: 15px; font-weight: 800; margin-top: 14px; cursor: pointer;
+      font-family: inherit;
     }
     .close-btn.full:hover { background: #1d4ed8; }
 
-    /* ===== 🏆 專業精煉版週聯盟賽事班表（極致節省空間、高密度商務表格化設計，字體全頁統一） ===== */
+    /* ===== 🏆 專業精煉版週聯盟賽事班表（極致節省空間、高密度商務表格化設計） ===== */
     #weeklyContent {
       font-size: 12px;
       color: #1e293b;
@@ -441,23 +452,27 @@
       border-radius: 6px;
       overflow: hidden;
       border: 1px solid #cbd5e1;
+      font-family: inherit;
     }
     #userContent th, #userContent td {
       padding: 8px 10px;
       border-bottom: 1px solid #e2e8f0;
       text-align: left;
+      font-family: inherit;
     }
     #userContent th {
       background: #f1f5f9;
       color: #1e293b;
       font-weight: 800;
+      font-family: inherit;
     }
 
     .footer {
       text-align: center; padding: 20px 12px 24px;
       color: #64748b; font-size: 12px; line-height: 1.6;
+      font-family: inherit;
     }
-    .footer .title { font-size: 14px; font-weight: 800; color: #334155; }
+    .footer .title { font-size: 14px; font-weight: 800; color: #334155; font-family: inherit; }
 
     @media (max-width: 900px) {
       .dashboard-mid-grid { grid-template-columns: 1fr; }
