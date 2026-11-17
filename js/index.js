@@ -1,5 +1,5 @@
 /*********************************************************
- * ✅ Index Page（最終整合完整版）
+ * ✅ Index Page（最終完整整合版）
  *********************************************************/
 
 let session = null;
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /*********************************************************
- * ✅ 修正版：首頁載入聯盟開課資訊 (精簡為課程名稱、上課日、報名狀態)
+ * ✅ 首頁載入聯盟開課資訊 (精簡為課程名稱、上課日、報名狀態)
  *********************************************************/
 function loadHomeCourses() {
   const container = document.getElementById('home-course-container');
@@ -662,7 +662,7 @@ function renderLoading(target){
 
 
 /*********************************************************
- * ✅ 個人數據分析模組（升級版：精確對應後端欄位與完訓時數）
+ * ✅ 個人數據分析模組（升級版：含圖例、優化卡片與真實時數）
  *********************************************************/
 function loadHomeUserAnalysis(){
   callApi({
@@ -676,12 +676,10 @@ function loadHomeUserAnalysis(){
       return;
     }
 
-    // 兼容後端多種可能的資料回傳結構 (res.data, res.judge/record, 或直接陣列)
     const rawData = res.data || res;
     let judgeList = rawData.judge || rawData.judges || (Array.isArray(rawData) ? rawData : []);
     let recordList = rawData.record || rawData.records || [];
     
-    // 如果是單一物件直接包成陣列
     if (!Array.isArray(judgeList) && rawData.user_id) judgeList = [rawData];
 
     const all = [...judgeList, ...recordList];
@@ -781,40 +779,61 @@ function openUserDetail(userId){
     });
   }
 
-  // 取得培訓與完訓時數及證照資訊
+  // 確實讀取真實時數（若後端無回傳則預設為 0，不再強制寫死 12/36）
   const currentYearStr = String(new Date().getFullYear());
-  const trainingHoursYear = p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 12; 
-  const trainingHoursTotal = p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 36;
-  const licenseInfo = p.certificates || p.license_status || p.license || '合格裁判員／認證紀錄員';
+  const trainingHoursYear = Number(p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 0); 
+  const trainingHoursTotal = Number(p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 0);
+  
+  // 證照資格智慧判斷（優先讀取後端資料，若無則依 session 權限自動判定）
+  let licenseInfo = p.certificates || p.license_status || p.license;
+  if (!licenseInfo) {
+    const roles = (session.role || '').split(',').map(r => r.trim());
+    let badges = [];
+    if (roles.includes('judge') || roles.includes('chief_judge')) badges.push('合格裁判員');
+    if (roles.includes('record') || roles.includes('record_chief')) badges.push('認證紀錄員');
+    if (roles.includes('admin')) badges.push('系統管理員');
+    licenseInfo = badges.join('／') || '聯盟成員';
+  }
 
   document.getElementById('userContent').innerHTML = `
     <div style="padding:12px;">
-      <div style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:flex-start;">
+      <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:flex-start;">
         <div>
-          <div style="font-size:20px;font-weight:800;">${p.name || session.name}</div>
-          <div style="color:#6b7280;font-size:13px; margin-top:2px;">聯盟等級：${renderLevel(p.league_level || 'N')}</div>
+          <div style="font-size:22px; font-weight:900; color:#0f172a;">${p.name || session.name}</div>
+          <div style="color:#64748b; font-size:13px; margin-top:2px;">聯盟等級：${renderLevel(p.league_level || 'N')}</div>
         </div>
         <div style="text-align:right;">
-          <span style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px;">
+          <span style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; display:inline-block;">
             📜 證照資格：${licenseInfo}
           </span>
         </div>
       </div>
 
-      <div class="grid-4">
-        ${cardMini('經驗值', fmt(p.score_total ?? p.experience ?? 0))}
-        ${cardMini('參與度', total)}
-        ${cardMini('出勤品質', fmt(p.quality ?? 100))}
-        ${cardMini('排位分數', fmt(p.final_score ?? 0))}
+      <!-- 排版更精緻的 4 個數據卡片 style -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 8px; text-align:center;">
+          <div style="font-size:11px; color:#64748b; font-weight:700;">經驗值</div>
+          <div style="font-size:18px; font-weight:900; color:#1e3a8a; margin-top:2px;">${fmt(p.score_total ?? p.experience ?? 0)}</div>
+        </div>
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 8px; text-align:center;">
+          <div style="font-size:11px; color:#64748b; font-weight:700;">參與度</div>
+          <div style="font-size:18px; font-weight:900; color:#2563eb; margin-top:2px;">${total}</div>
+        </div>
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 8px; text-align:center;">
+          <div style="font-size:11px; color:#64748b; font-weight:700;">出勤品質</div>
+          <div style="font-size:18px; font-weight:900; color:#16a34a; margin-top:2px;">${fmt(p.quality ?? 100)}</div>
+        </div>
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 8px; text-align:center;">
+          <div style="font-size:11px; color:#64748b; font-weight:700;">排位分數</div>
+          <div style="font-size:18px; font-weight:900; color:#9333ea; margin-top:2px;">${fmt(p.final_score ?? 0)}</div>
+        </div>
       </div>
 
-      <hr style="margin:14px 0;">
+      <hr style="margin:14px 0; border:0; border-top:1px solid #e2e8f0;">
 
       <!-- 🎓 培訓與完訓時數區塊 -->
       <div>
-        <div style="font-weight:700;margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-          <span>🎓 培訓課程與完訓時數</span>
-        </div>
+        <div style="font-weight:700; margin-bottom:8px; font-size:14px; color:#1e293b;">🎓 培訓課程與完訓時數</div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px; text-align:center;">
             <div style="font-size:11px; color:#64748b; font-weight:700;">📅 ${currentYearStr} 年度上課時數</div>
@@ -827,9 +846,9 @@ function openUserDetail(userId){
         </div>
       </div>
 
-      <hr style="margin:14px 0;">
+      <hr style="margin:14px 0; border:0; border-top:1px solid #e2e8f0;">
       <div>
-        <div style="font-weight:700;margin-bottom:6px;">📊 出勤概況</div>
+        <div style="font-weight:700; margin-bottom:6px; font-size:14px; color:#1e293b;">📊 出勤概況</div>
         <table class="table-compact">
           <tr><th>年度</th><th>完成</th><th>遲到</th><th>缺席</th></tr>
           ${Object.keys(yearlyMap).length > 0 ? Object.keys(yearlyMap).sort((a,b)=>b-a).map(year => `
@@ -855,55 +874,93 @@ function openUserDetail(userId){
           </tr>
         </table>
       </div>
-      <hr style="margin:14px 0;">
+
+      <hr style="margin:14px 0; border:0; border-top:1px solid #e2e8f0;">
       <div>
-        <div style="font-weight:700;margin-bottom:6px;">📊 角色執勤分布</div>
-        <canvas id="roleChart" width="320" height="240"></canvas>
+        <div style="font-weight:700; margin-bottom:8px; font-size:14px; color:#1e293b;">📊 角色執勤分布</div>
+        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px;">
+          <canvas id="roleChart" width="180" height="180" style="flex-shrink:0;"></canvas>
+          <div id="roleChartLegend" style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; flex: 1; min-width: 140px;"></div>
+        </div>
       </div>
     </div>
   `;
   drawRoleChart(roleMap);
 }
 
+// 繪製圓餅圖並動態產生右側清晰圖例（Legend）
 function drawRoleChart(data){
   const canvas = document.getElementById('roleChart');
+  const legendContainer = document.getElementById('roleChartLegend');
   if (!canvas) return;
+  
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = "#f8fafc";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   const values = Object.values(data);
   const labels = Object.keys(data);
   const total = values.reduce((a,b)=>a+b, 0);
 
-  if (!total){
-    ctx.font = "14px sans-serif";
-    ctx.fillStyle = "#64748b";
-    ctx.fillText('目前尚無執勤紀錄分布', 80, 130);
-    return;
-  }
-
   const colorMap = {
     '主審':'#2563eb', '一壘審':'#16a34a', '二壘審':'#f59e0b',
     '三壘審':'#dc2626', '紀錄員':'#9333ea', '影像紀錄員':'#0ea5e9', '實習紀錄員':'#6b7280'
   };
 
+  if (!total){
+    ctx.font = "13px sans-serif";
+    ctx.fillStyle = "#64748b";
+    ctx.fillText('目前尚無執勤紀錄', 40, 95);
+    if (legendContainer) legendContainer.innerHTML = '<span style="color:#64748b;">尚無執勤資料</span>';
+    return;
+  }
+
   let start = 0;
+  const centerX = 90;
+  const centerY = 90;
+  const radius = 70;
+
   values.forEach((v,i)=>{
     const slice = (v/total) * Math.PI * 2;
     ctx.beginPath();
-    ctx.moveTo(110,130);
-    ctx.arc(110,130,90, start, start+slice);
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(centerX, centerY, radius, start, start+slice);
     ctx.closePath();
     ctx.fillStyle = colorMap[labels[i]] || '#999';
     ctx.fill();
     start += slice;
   });
 
-  ctx.fillStyle = "#111";
-  ctx.font = "bold 16px sans-serif";
-  ctx.fillText(total + '場', 90, 135);
+  // 中間挖空呈現甜甜圈圖外觀
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, 38, 0, Math.PI * 2);
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+
+  ctx.fillStyle = "#0f172a";
+  ctx.font = "bold 14px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(total + '場', centerX, centerY);
+
+  // 產生右側圖例 HTML
+  if (legendContainer) {
+    legendContainer.innerHTML = labels.map((label, i) => {
+      const count = values[i];
+      const pct = Math.round((count / total) * 100);
+      const color = colorMap[label] || '#999';
+      return `
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 12px; height: 12px; background: ${color}; border-radius: 3px; display: inline-block; flex-shrink: 0;"></span>
+            <span style="font-weight: 700; color: #1e293b;">${label}</span>
+          </div>
+          <span style="color: #64748b; font-weight: 600;">${count} 場 (${pct}%)</span>
+        </div>
+      `;
+    }).join('');
+  }
 }
 
 function renderLevel(lv){
@@ -978,25 +1035,21 @@ function roleMap(r){
   return { PU:'主審', U1:'一壘', U2:'二壘', U3:'三壘' }[r] || r;
 }
 
+
 /*********************************************************
  * ✅ 系統公告模組 (CMS 前台顯示 + 管理員權限保護)
  *********************************************************/
 
-// 檢查當前使用者是否為管理員
 function checkAdminPermission() {
   if (!session || !session.role) return false;
   const roles = session.role.split(',').map(r => r.trim());
   return roles.includes('admin');
 }
 
-/*********************************************************
- * ✅ 強化版：首頁載入最新公告（含防卡死與錯誤提示）
- *********************************************************/
 function loadHomeAnnouncements() {
   const container = document.getElementById('home-notice-list');
   const adminBtn = document.getElementById('open-cms-btn');
 
-  // 權限控制
   if (adminBtn) {
     if (checkAdminPermission()) {
       adminBtn.style.display = 'inline-block';
