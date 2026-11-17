@@ -731,7 +731,6 @@ function openUserDetail(userId){
   const p = all.find(x => String(x.user_id) === targetUid || String(x.id) === targetUid) || {
     name: session.name || '使用者',
     league_level: session.league_level || 'N',
-    level: session.level || session.user_level || 'N/N',
     score_total: 0,
     attendance: 0,
     completed: 0,
@@ -784,8 +783,8 @@ function openUserDetail(userId){
   const trainingHoursYear = Number(p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 0); 
   const trainingHoursTotal = Number(p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 0);
   
-  // ✅ 修正點：優先抓取後端抓回來的 p.level，若沒有才退回 session.level，確保讀到資料庫的 C,C
-  let rawLevel = p.level || (p === all[0] ? session.level : null) || 'N/N';
+  // ✅ 強制直接從 session 取得真實的 level（例如 "C,C"），並完美解析為「C級裁判／C級紀錄」
+  let rawLevel = session.level || p.level || 'N,N';
   let parts = rawLevel.split(/[\/／,，]/);
   let judgeLv = parts[0] ? parts[0].trim().toUpperCase() : 'N';
   let recordLv = parts[1] ? parts[1].trim().toUpperCase() : 'N';
