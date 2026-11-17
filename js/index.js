@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /*********************************************************
- * ✅ 修正版：首頁載入聯盟開課資訊 (支援報名截止日判斷與日期清洗)
+ * ✅ 修正版：首頁載入聯盟開課資訊 (精簡為課程名稱、上課日、報名狀態)
  *********************************************************/
 function loadHomeCourses() {
   const container = document.getElementById('home-course-container');
@@ -82,11 +82,9 @@ function loadHomeCourses() {
       return `
         <div class="home-course-card" onclick="location.href='course.html'" style="cursor: pointer;">
           <div class="home-course-title">🎓 ${c.course_name || c.title || c.name || '聯盟培訓課程'}</div>
-          <div class="home-course-info">
-            <div>🕒 上課：${courseDate || '另行公佈'}</div>
-            <div style="color: #e11d48; font-weight: 700;">⏳ 截止：${signupEnd || '未設定'}</div>
-            <div>📍 地點：${c.location || '線上/指定場地'}</div>
-            <div style="margin-top: 4px; color: ${statusColor}; font-weight: 700;">狀態：${statusText}</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 12px;">
+            <span style="color: #475569; font-weight: 700;">🕒 上課：${courseDate || '另行公佈'}</span>
+            <span style="font-weight: 800; color: ${statusColor};">狀態：${statusText}</span>
           </div>
         </div>
       `;
