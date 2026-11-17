@@ -1,5 +1,5 @@
 /*********************************************************
- * ✅ Index Page（最終完整整合版）
+ * ✅ Index Page（最終完整整合版：對應真實 Users.level 與時數）
  *********************************************************/
 
 let session = null;
@@ -486,7 +486,7 @@ function openMySchedule(){
     monday.setDate(now.getDate() - (day - 1));
     monday.setHours(0,0,0,0);
     const sunday = new Date(monday);
-    sunday.setDate(sunday.getDate() + 6);
+    sunday.setDate(monday.getDate() + 6);
     sunday.setHours(23,59,59,999);
 
     list.innerHTML = myGames.map(g => {
@@ -662,7 +662,7 @@ function renderLoading(target){
 
 
 /*********************************************************
- * ✅ 個人數據分析模組（升級版：含圖例、優化卡片與真實時數）
+ * ✅ 個人數據分析模組（精確對應 Users.level 證照與 Training_Log 時數）
  *********************************************************/
 function loadHomeUserAnalysis(){
   callApi({
@@ -731,6 +731,7 @@ function openUserDetail(userId){
   const p = all.find(x => String(x.user_id) === targetUid || String(x.id) === targetUid) || {
     name: session.name || '使用者',
     league_level: session.league_level || 'N',
+    level: session.level || 'N / N',  // 對應 Users.level (左裁判右紀錄)
     score_total: 0,
     attendance: 0,
     completed: 0,
@@ -779,20 +780,25 @@ function openUserDetail(userId){
     });
   }
 
-  // 確實讀取真實時數（若後端無回傳則預設為 0，不再強制寫死 12/36）
+  // ✅ 確實讀取 Training_Log 統計或後端回傳的真實時數（若無則為 0）
   const currentYearStr = String(new Date().getFullYear());
   const trainingHoursYear = Number(p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 0); 
   const trainingHoursTotal = Number(p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 0);
   
-  // 證照資格智慧判斷（優先讀取後端資料，若無則依 session 權限自動判定）
-  let licenseInfo = p.certificates || p.license_status || p.license;
-  if (!licenseInfo) {
-    const roles = (session.role || '').split(',').map(r => r.trim());
-    let badges = [];
-    if (roles.includes('judge') || roles.includes('chief_judge')) badges.push('合格裁判員');
-    if (roles.includes('record') || roles.includes('record_chief')) badges.push('認證紀錄員');
-    if (roles.includes('admin')) badges.push('系統管理員');
-    licenseInfo = badges.join('／') || '聯盟成員';
+  // ✅ 依照 Users.level 欄位（左邊裁判、右邊紀錄，N代表無）進行解析呈現
+  let userLevelStr = p.level || session.level || 'N / N';
+  let licenseInfo = '';
+  
+  if (userLevelStr.includes('/') || userLevelStr.includes('／')) {
+    let parts = userLevelStr.split(/[\/／]/);
+    let judgeLv = parts[0] ? parts[0].trim() : 'N';
+    let recordLv = parts[1] ? parts[1].trim() : 'N';
+    
+    let jText = judgeLv === 'N' ? '無裁判證' : `裁判 ${judgeLv}級`;
+    let rText = recordLv === 'N' ? '無紀錄證' : `紀錄 ${recordLv}級`;
+    licenseInfo = `${jText} ／ ${rText}`;
+  } else {
+    licenseInfo = userLevelStr === 'N' ? '無證照' : `證照等級：${userLevelStr}`;
   }
 
   document.getElementById('userContent').innerHTML = `
@@ -804,12 +810,12 @@ function openUserDetail(userId){
         </div>
         <div style="text-align:right;">
           <span style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; display:inline-block;">
-            📜 證照資格：${licenseInfo}
+            📜 證照資格 (Users.level)：${licenseInfo}
           </span>
         </div>
       </div>
 
-      <!-- 排版更精緻的 4 個數據卡片 style -->
+      <!-- 4 個精緻數據卡片 -->
       <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;">
         <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 8px; text-align:center;">
           <div style="font-size:11px; color:#64748b; font-weight:700;">經驗值</div>
@@ -831,12 +837,12 @@ function openUserDetail(userId){
 
       <hr style="margin:14px 0; border:0; border-top:1px solid #e2e8f0;">
 
-      <!-- 🎓 培訓與完訓時數區塊 -->
+      <!-- 🎓 培訓課程與完訓時數 (對應 Training_Log 驗證狀態) -->
       <div>
-        <div style="font-weight:700; margin-bottom:8px; font-size:14px; color:#1e293b;">🎓 培訓課程與完訓時數</div>
+        <div style="font-weight:700; margin-bottom:8px; font-size:14px; color:#1e293b;">🎓 培訓課程與完訓時數 (Training_Log)</div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px; text-align:center;">
-            <div style="font-size:11px; color:#64748b; font-weight:700;">📅 ${currentYearStr} 年度上課時數</div>
+            <div style="font-size:11px; color:#64748b; font-weight:700;">📅 ${currentYearStr} 年度完訓時數</div>
             <div style="font-size:20px; font-weight:900; color:#1e3a8a; margin-top:2px;">${trainingHoursYear} <span style="font-size:12px; font-weight:normal;">小時</span></div>
           </div>
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px; text-align:center;">
