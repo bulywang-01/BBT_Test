@@ -728,7 +728,7 @@
       `;
     }
 
-    // 📅 「我的班表」格式化引擎：移除「本週」改底色、場地與位置加｜且位置加大、對戰VS前後空格、底下置中
+    // 📅 「我的班表」格式化引擎：移除「本週」與「📅」圖示、場地與位置加｜且位置加大、對戰VS前後空格、底下置中
     function beautifyMySchedule() {
       const container = document.getElementById('my-schedule-list');
       if (!container) return;
@@ -750,9 +750,9 @@
           line1 = '';
         }
 
-        // 偵測是否為「本週」，若是則套用專屬底色，並移除「本週」二字
+        // 偵測是否為「本週」，若是則套用專屬底色，並移除「本週」與所有「📅」圖示
         let isThisWeek = line1.includes('本週');
-        let cleanLine1 = line1.replace(/本週/g, '').trim();
+        let cleanLine1 = line1.replace(/本週/g, '').replace(/[📅📆]/g, '').trim();
 
         // 支援半形 | 或全形 ｜ 分隔
         let parts = cleanLine1.split(/[|｜]/).map(p => p.trim()).filter(Boolean);
@@ -776,9 +776,9 @@
         // 對戰組合的 VS 前後自動加上空白（例如「颶風騎士VSTFT」->「颶風騎士 VS TFT」）
         let cleanLine2 = line2.replace(/\s*(VS|ＶＳ|vs)\s*/g, ' VS ');
 
-        // 組合第一行：📅 日期 | 時間 | 場地 | 位置(加大)
+        // 組合第一行：日期 | 時間 | 場地 | 位置(加大，無📅圖示)
         let primarySegments = [];
-        if (datePart) primarySegments.push(`<span>📅 ${datePart}</span>`);
+        if (datePart) primarySegments.push(`<span>${datePart}</span>`);
         if (timePart) primarySegments.push(`<span>${timePart}</span>`);
         if (venue) primarySegments.push(`<span>${venue}</span>`);
         if (role) primarySegments.push(`<span class="my-sch-role-highlight">${role}</span>`);
