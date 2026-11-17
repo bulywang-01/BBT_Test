@@ -169,7 +169,7 @@
     .pill-orange { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
     .pill-blue-action { background: #eff6ff; color: #1e3a8a; border-color: #bfdbfe; }
 
-    /* ===== 📅 我的班表：單層卡片＋本週底色區分＋大字位置 ===== */
+    /* ===== 📅 我的班表：單層卡片＋本週底色區分＋加大位置字體＋置中對戰 ===== */
     #my-schedule-list {
       font-size: 13px;
       color: #1e293b;
@@ -185,7 +185,7 @@
       padding: 11px 14px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
     }
     /* 本週場次專屬底色凸顯 */
     .my-sch-card.is-this-week {
@@ -196,6 +196,7 @@
     .my-sch-primary {
       display: flex;
       align-items: center;
+      justify-content: center;
       flex-wrap: wrap;
       gap: 6px;
       font-size: 14px;
@@ -207,15 +208,19 @@
       font-weight: 400;
     }
     .my-sch-role-highlight {
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 900;
       color: #c2410c;
       letter-spacing: 0.5px;
+      line-height: 1.1;
     }
     .my-sch-secondary {
       font-size: 12px;
       font-weight: 700;
       color: #475569;
+      text-align: center;
+      padding-top: 4px;
+      border-top: 1px dashed #e2e8f0;
     }
 
     /* ===== 中段雙欄並排：開課資訊 + 最新公告 ===== */
@@ -723,7 +728,7 @@
       `;
     }
 
-    // 📅 「我的班表」格式化引擎：移除「本週」文字改以底色凸顯、場地與位置加｜且位置字體加大
+    // 📅 「我的班表」格式化引擎：移除「本週」改底色、場地與位置加｜且位置加大、對戰VS前後空格、底下置中
     function beautifyMySchedule() {
       const container = document.getElementById('my-schedule-list');
       if (!container) return;
@@ -749,15 +754,17 @@
         let isThisWeek = line1.includes('本週');
         let cleanLine1 = line1.replace(/本週/g, '').trim();
 
-        let parts = cleanLine1.split('|').map(p => p.trim()).filter(Boolean);
+        // 支援半形 | 或全形 ｜ 分隔
+        let parts = cleanLine1.split(/[|｜]/).map(p => p.trim()).filter(Boolean);
         let datePart = parts[0] || '';
         let timePart = parts[1] || '';
-        let venueRolePart = parts[2] || '';
+        let venueRolePart = parts.slice(2).join(' ') || '';
         
         let role = '';
         let venue = venueRolePart;
         
-        const rolesList = ['主審', '一壘審', '二壘審', '三壘審', '裁判', '見習紀錄員', '影像紀錄員', '紀錄員', '記錄員', '影像紀錄'];
+        // 優先比對完整職稱，確保「八里國中棒球場 主審」能精準分離為「八里國中棒球場」與「主審」
+        const rolesList = ['見習紀錄員', '影像紀錄員', '一壘審', '二壘審', '三壘審', '主審', '紀錄員', '記錄員', '影像紀錄', '裁判'];
         for (let r of rolesList) {
           if (venueRolePart.includes(r)) {
             role = r;
@@ -765,6 +772,9 @@
             break;
           }
         }
+
+        // 對戰組合的 VS 前後自動加上空白（例如「颶風騎士VSTFT」->「颶風騎士 VS TFT」）
+        let cleanLine2 = line2.replace(/\s*(VS|ＶＳ|vs)\s*/g, ' VS ');
 
         // 組合第一行：📅 日期 | 時間 | 場地 | 位置(加大)
         let primarySegments = [];
@@ -778,7 +788,7 @@
         outputHtml += `
           <div class="my-sch-card ${isThisWeek ? 'is-this-week' : ''}">
             <div class="my-sch-primary">${primaryHtml}</div>
-            ${line2 ? `<div class="my-sch-secondary">${line2}</div>` : ''}
+            ${cleanLine2 ? `<div class="my-sch-secondary">${cleanLine2}</div>` : ''}
           </div>
         `;
       }
