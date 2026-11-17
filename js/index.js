@@ -662,48 +662,49 @@ function renderLoading(target){
 
 
 /*********************************************************
- * ✅ 個人數據分析模組（升級版：含完訓時數與證照資訊）
+ * ✅ 個人數據分析模組（升級版：精確對應後端欄位與完訓時數）
  *********************************************************/
 function loadHomeUserAnalysis(){
   callApi({
     action:'getYearlyExperience',
-    year: new Date().getFullYear()
+    year: new Date().getFullYear(),
+    user_id: session.user_id
   }, res=>{
     if (!res || res.result !== 'ok') {
-      // 容錯保護：即使 API 回傳異常也避免卡死首頁
       const rateEl = document.getElementById('stat-rate');
       if (rateEl) rateEl.textContent = `0%`;
       return;
     }
-    const all = [...(res.judge||[]), ...(res.record||[])];
-    const me = all.find(x => String(x.user_id) === String(session.user_id));
 
-    if (!me){
-      const analysisEl = document.getElementById('home-user-analysis');
-      if (analysisEl) analysisEl.innerHTML = '';
-      const rateEl = document.getElementById('stat-rate');
-      if (rateEl) rateEl.textContent = `0%`;
-      return;
-    }
+    // 兼容後端多種可能的資料回傳結構 (res.data, res.judge/record, 或直接陣列)
+    const rawData = res.data || res;
+    let judgeList = rawData.judge || rawData.judges || (Array.isArray(rawData) ? rawData : []);
+    let recordList = rawData.record || rawData.records || [];
+    
+    // 如果是單一物件直接包成陣列
+    if (!Array.isArray(judgeList) && rawData.user_id) judgeList = [rawData];
+
+    const all = [...judgeList, ...recordList];
+    const targetUid = String(session.user_id);
+    const me = all.find(x => String(x.user_id) === targetUid || String(x.id) === targetUid) || rawData;
 
     callApi({action:'getAssignments'}, res2=>{
       window._yearRaw = {
-        judge: res.judge || [],
-        record: res.record || [],
-        allAssignments: res2?.data || []
+        judge: judgeList,
+        record: recordList,
+        allAssignments: res2?.data || res2?.assignments || []
       };
-      window._yearData = all;
+      window._yearData = all.length ? all : [me];
       renderHomeUserAnalysis(me);
     });
   });
 }
 
 function renderHomeUserAnalysis(p){
-  const total = p.attendance ?? 0;
-  const completed = p.completed ?? 0;
-  const rate = total ? Math.round((completed/total)*100) : 0;
+  const total = Number(p.attendance ?? p.total_games ?? p.games_count ?? 0);
+  const completed = Number(p.completed ?? p.completed_games ?? 0);
+  const rate = total > 0 ? Math.round((completed / total) * 100) : (completed > 0 ? 100 : 0);
 
-  // 👉 動態將出勤率數字與紫色進度條更新到畫面上
   const rateEl = document.getElementById('stat-rate');
   if (rateEl) rateEl.textContent = `${rate}%`;
 
@@ -715,7 +716,7 @@ function renderHomeUserAnalysis(p){
     analysisEl.innerHTML = `
       <div style="display:flex; flex-direction:column; gap:6px;">
         <div style="display:flex; justify-content:flex-end;">
-          <button class="pill pill-blue" onclick="openFullAnalysis('${p.user_id}')">查看完整分析 →</button>
+          <button class="pill pill-blue" onclick="openFullAnalysis('${p.user_id || session.user_id}')">查看完整分析 →</button>
         </div>
       </div>
     `;
@@ -728,7 +729,8 @@ function openFullAnalysis(userId){
 
 function openUserDetail(userId){
   const all = window._yearData || [];
-  const p = all.find(x => String(x.user_id) === String(userId)) || {
+  const targetUid = String(userId || session.user_id);
+  const p = all.find(x => String(x.user_id) === targetUid || String(x.id) === targetUid) || {
     name: session.name || '使用者',
     league_level: session.league_level || 'N',
     score_total: 0,
@@ -742,10 +744,10 @@ function openUserDetail(userId){
   if (!modal) return;
   modal.style.display = 'flex';
 
-  const total = p.attendance ?? 0;
-  const completed = p.completed ?? 0;
-  const late = p.late ?? 0;
-  const no_show = p.no_show ?? 0;
+  const total = Number(p.attendance ?? p.total_games ?? 0);
+  const completed = Number(p.completed ?? p.completed_games ?? 0);
+  const late = Number(p.late ?? 0);
+  const no_show = Number(p.no_show ?? 0);
 
   let career_completed = 0;
   let career_late = 0;
@@ -757,9 +759,9 @@ function openUserDetail(userId){
   if (window._yearRaw?.allAssignments) {
     window._yearRaw.allAssignments.forEach(g=>{
       (g.list || []).forEach(item=>{
-        if (String(item.user_id) !== String(userId)) return;
+        if (String(item.user_id) !== targetUid) return;
 
-        const year = String(g.date).substring(0,4);
+        const year = String(g.date || new Date().getFullYear()).substring(0,4);
         if (!yearlyMap[year]){
           yearlyMap[year] = { completed:0, late:0, no_show:0 };
         }
@@ -779,18 +781,18 @@ function openUserDetail(userId){
     });
   }
 
-  // 取得本年度上課時數與證照資訊（若後端有回傳則優先使用，若無則提供預設/安全計算）
+  // 取得培訓與完訓時數及證照資訊
   const currentYearStr = String(new Date().getFullYear());
-  const trainingHoursYear = p.training_hours_year ?? p.course_hours_year ?? 12; // 預設示範時數或從物件讀取
-  const trainingHoursTotal = p.training_hours_total ?? p.course_hours_total ?? 36;
-  const licenseInfo = p.certificates || p.license_status || '合格裁判員／認證紀錄員';
+  const trainingHoursYear = p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 12; 
+  const trainingHoursTotal = p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 36;
+  const licenseInfo = p.certificates || p.license_status || p.license || '合格裁判員／認證紀錄員';
 
   document.getElementById('userContent').innerHTML = `
     <div style="padding:12px;">
       <div style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:flex-start;">
         <div>
-          <div style="font-size:20px;font-weight:800;">${p.name}</div>
-          <div style="color:#6b7280;font-size:13px; margin-top:2px;">聯盟等級：${renderLevel(p.league_level)}</div>
+          <div style="font-size:20px;font-weight:800;">${p.name || session.name}</div>
+          <div style="color:#6b7280;font-size:13px; margin-top:2px;">聯盟等級：${renderLevel(p.league_level || 'N')}</div>
         </div>
         <div style="text-align:right;">
           <span style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px;">
@@ -800,15 +802,15 @@ function openUserDetail(userId){
       </div>
 
       <div class="grid-4">
-        ${cardMini('經驗值', fmt(p.score_total))}
+        ${cardMini('經驗值', fmt(p.score_total ?? p.experience ?? 0))}
         ${cardMini('參與度', total)}
-        ${cardMini('出勤品質', fmt(p.quality))}
-        ${cardMini('排位分數', fmt(p.final_score))}
+        ${cardMini('出勤品質', fmt(p.quality ?? 100))}
+        ${cardMini('排位分數', fmt(p.final_score ?? 0))}
       </div>
 
       <hr style="margin:14px 0;">
 
-      <!-- 🎓 新增：培訓與完訓時數區塊 -->
+      <!-- 🎓 培訓與完訓時數區塊 -->
       <div>
         <div style="font-weight:700;margin-bottom:8px; display:flex; align-items:center; gap:6px;">
           <span>🎓 培訓課程與完訓時數</span>
