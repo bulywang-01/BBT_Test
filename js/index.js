@@ -728,8 +728,6 @@ function openFullAnalysis(userId){
 function openUserDetail(userId){
   const all = window._yearData || [];
   const targetUid = String(userId || session.user_id);
-  
-  // 試著從目前已載入的陣列中找到這一位使用者的完整物件
   const p = all.find(x => String(x.user_id) === targetUid || String(x.id) === targetUid) || {};
 
   const modal = document.getElementById('userModal');
@@ -777,17 +775,31 @@ function openUserDetail(userId){
   const trainingHoursYear = Number(p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 0); 
   const trainingHoursTotal = Number(p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 0);
   
-  // 如果您希望強制先讀資料庫，也可以在這裡直接檢查 p.level
-  const dbLevel = p.level || p.user_level || session.level || 'N,N'; 
-  console.log('目前抓到的證照原始字串 (dbLevel)：', dbLevel); // 您可以按 F12 看主控台輸出確認
-
+  // ✅ 證照解析與過濾邏輯
+  const dbLevel = p.level || p.user_level || session.level || 'N,N';
   let parts = String(dbLevel).split(/[\/／,，]/);
   let judgeLv = parts[0] ? parts[0].trim().toUpperCase() : 'N';
   let recordLv = parts[1] ? parts[1].trim().toUpperCase() : 'N';
 
-  let judgeText = (judgeLv === 'N' || !judgeLv) ? '無裁判證' : `${judgeLv}級裁判`;
-  let recordText = (recordLv === 'N' || !recordLv) ? '無紀錄證' : `${recordLv}級紀錄`;
-  let licenseInfo = `${judgeText}／${recordText}`;
+  let validCerts = [];
+  if (judgeLv && judgeLv !== 'N' && judgeLv !== '無') {
+    validCerts.push(`${judgeLv}級裁判`);
+  }
+  if (recordLv && recordLv !== 'N' && recordLv !== '無') {
+    validCerts.push(`${recordLv}級紀錄`);
+  }
+
+  // ✅ 如果有證照就組合（改用空白間隔）；若完全沒有則不呈現該 HTML 區塊
+  let licenseHtml = '';
+  if (validCerts.length > 0) {
+    licenseHtml = `
+      <div style="text-align:right;">
+        <span style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; display:inline-block;">
+          📜 證照資格：${validCerts.join(' ')}
+        </span>
+      </div>
+    `;
+  }
 
   document.getElementById('userContent').innerHTML = `
     <div style="padding:12px;">
@@ -796,11 +808,7 @@ function openUserDetail(userId){
           <div style="font-size:22px; font-weight:900; color:#0f172a;">${p.name || session.name}</div>
           <div style="color:#64748b; font-size:13px; margin-top:2px;">聯盟等級：${renderLevel(p.league_level || session.league_level || 'N')}</div>
         </div>
-        <div style="text-align:right;">
-          <span style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; display:inline-block;">
-            📜 證照資格：${licenseInfo}
-          </span>
-        </div>
+        ${licenseHtml}
       </div>
 
       <!-- 4 個精緻數據卡片 -->
