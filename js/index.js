@@ -777,9 +777,8 @@ function openUserDetail(userId){
   const trainingHoursYear = Number(p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 0); 
   const trainingHoursTotal = Number(p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 0);
   
-  // 🔍 終極保險：依序從 p.level -> p.user_level -> session.level -> 寫死的 "C,C" 找出來！
   // 如果您希望強制先讀資料庫，也可以在這裡直接檢查 p.level
-  const dbLevel = p.level || p.user_level || session.level || 'C,C'; 
+  const dbLevel = p.level || p.user_level || session.level || 'N,N'; 
   console.log('目前抓到的證照原始字串 (dbLevel)：', dbLevel); // 您可以按 F12 看主控台輸出確認
 
   let parts = String(dbLevel).split(/[\/／,，]/);
