@@ -784,9 +784,9 @@ function openUserDetail(userId){
   const trainingHoursYear = Number(p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 0); 
   const trainingHoursTotal = Number(p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 0);
   
-  // ✅ 嚴格對應 Users.level：左邊裁判、右邊紀錄（例如 A/B、C/N 或 A／B）
-  let rawLevel = p.level || session.level || session.user_level || 'N/N';
-  let parts = rawLevel.split(/[\/／]/);
+  // ✅ 修正點：優先抓取後端抓回來的 p.level，若沒有才退回 session.level，確保讀到資料庫的 C,C
+  let rawLevel = p.level || (p === all[0] ? session.level : null) || 'N/N';
+  let parts = rawLevel.split(/[\/／,，]/);
   let judgeLv = parts[0] ? parts[0].trim().toUpperCase() : 'N';
   let recordLv = parts[1] ? parts[1].trim().toUpperCase() : 'N';
 
