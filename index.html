@@ -73,9 +73,23 @@
       gap: 8px;
       margin-bottom: 10px;
     }
-    .welcome-title { font-size: 22px; font-weight: 900; color: #1e3a8a; }
-    .welcome-role { font-size: 14px; color: #2563eb; font-weight: 800; margin-top: 2px; }
-    .welcome-name { font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 4px; }
+    
+    /* 👑 標題防斷行優化：強制不換行，並在手機上適度縮放字體 */
+    .welcome-title-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .welcome-title { 
+      font-size: 20px; 
+      font-weight: 900; 
+      color: #1e3a8a; 
+      white-space: nowrap; 
+      display: inline-block;
+    }
+    .welcome-role { font-size: 13px; color: #2563eb; font-weight: 800; margin-top: 2px; }
+    .welcome-name { font-size: 16px; font-weight: 700; color: #0f172a; margin-top: 4px; }
     .welcome-sub { font-size: 12px; color: #64748b; font-weight: 700; }
 
     /* 📊 緊湊三欄樞紐表格看板：固定 3 欄並排，絕不垂直堆疊，極致節省空間 */
@@ -417,6 +431,7 @@
       .welcome-actions { grid-template-columns: repeat(2, 1fr); }
       .download-grid { grid-template-columns: 1fr; }
       .system-center { grid-template-columns: repeat(2, 1fr); }
+      .welcome-title { font-size: 18px; }
     }
   </style>
 </head>
@@ -637,7 +652,11 @@
     <div class="panel welcome-box">
       <div class="welcome-top">
         <div>
-          <div class="welcome-title">⚾ BBT 出勤管理系統</div>
+          <!-- 👑 修改此處：確保標題容器絕不換行 -->
+          <div class="welcome-title-container">
+            <span style="font-size: 22px;">⚾</span>
+            <div class="welcome-title">BBT 出勤管理系統</div>
+          </div>
           <div class="welcome-role" id="welcome-role"></div>
           <div class="welcome-name" id="welcome-name"></div>
         </div>
@@ -706,18 +725,6 @@
         </div>
       </div>
 
-      <!-- 右欄：最新公告
-      <div class="panel">
-        <div class="section-header">
-          <h3>📢 最新公告</h3>
-        </div>
-        <div class="notice-list">
-          <div class="notice-item">⚾ <strong>系統更新</strong>：首頁現已整合「聯盟開課資訊」快速預覽，方便各位夥伴掌握培訓動態。</div>
-          <div class="notice-item">⚾ <strong>10/16</strong> - 十一月份賽程將於 10/17 (六) 12:00 起開放報名，請點選上方班表，詳細資訊請看Line群組。</div>
-          <div class="notice-item">⚾ <strong>8/13</strong> - 由於三峽北大的租金屬於高單價，該場地舉辦的 "例行賽" 賽事將調整為安排四場比賽。</div>
-        </div>
-      </div> -->
-      
       <!-- 右欄：最新公告 -->
       <div class="panel">
         <div class="section-header">
@@ -1376,7 +1383,7 @@
             <div style="display:flex; gap:6px; margin-bottom:6px; background:#f1f5f9; padding:6px; border-radius:6px; border:1px solid #cbd5e1; flex-wrap:wrap;">
               <button type="button" onclick="formatText('strong')" style="padding:4px 10px; font-weight:bold; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">粗體 (B)</button>
               <button type="button" onclick="formatText('em')" style="padding:4px 10px; font-style:italic; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">斜體 (I)</button>
-              <button type="button" onclick="formatText('u')" style="padding:4px 10px; text-decoration:underline; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">底線 (U)</button>
+              <button type="button" onclick="formatText('u')" style="padding:4px 10px; text-decoration:underline; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:6px; cursor:pointer; font-size:12px;">底線 (U)</button>
               <button type="button" onclick="formatText('a')" style="padding:4px 10px; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">🔗 超連結</button>
               <button type="button" onclick="formatText('br')" style="padding:4px 10px; background:#ffffff; color:#0f172a; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer; font-size:12px;">↩ 換行</button>
             </div>
