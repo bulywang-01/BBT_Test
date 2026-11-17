@@ -62,7 +62,7 @@
       font-family: inherit;
     }
 
-    /* ===== 頂部歡迎與統計儀表板 (Executive Navy + 6合1 統一緊湊樞紐看板) ===== */
+    /* ===== 頂部歡迎與統計儀表板 ===== */
     .welcome-box {
       background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
       border-top: 4px solid #1e3a8a;
@@ -70,6 +70,14 @@
       margin-bottom: 14px !important;
     }
     
+    /* 6宮格統計數據 (預設桌機 6 欄) */
+    .stats-grid-6 {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
     .stat-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
@@ -102,7 +110,7 @@
     .kpi-progress-fill-green { background: #10b981; width: 0%; height: 100%; transition: width 0.4s ease; }
     .kpi-progress-fill-amber { background: #d97706; width: 0%; height: 100%; transition: width 0.4s ease; }
 
-    /* 🔔 本週執法訊息提示樣式 (精準夾在數據與按鈕之間) */
+    /* 🔔 本週執法訊息提示樣式 (強制不斷行，單列呈現) */
     #welcome-alert {
       background: #eff6ff;
       border: 1px solid #bfdbfe;
@@ -116,6 +124,8 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      white-space: nowrap;
+      overflow-x: auto;
     }
     #welcome-alert a, #welcome-alert span {
       color: #1d4ed8;
@@ -123,10 +133,9 @@
       cursor: pointer;
     }
 
-    /* 隱藏原生多餘容器，交由頂部統整矩陣呈現 */
     #home-user-analysis { display: none !important; }
 
-    /* 三個按鈕同一列排版：固定大小不因畫面寬度而放大拉伸 */
+    /* 三顆按鈕同一列排版：固定大小不自動放大 */
     .welcome-actions-row {
       display: flex;
       justify-content: center;
@@ -145,7 +154,7 @@
       transition: all 0.2s;
       text-align: center;
       white-space: nowrap;
-      width: 155px; /* 固定按鈕大小 */
+      width: 155px;
       flex-shrink: 0;
       font-family: inherit;
     }
@@ -490,6 +499,13 @@
     }
     .footer .title { font-size: 14px; font-weight: 800; color: #334155; font-family: inherit; }
 
+    /* 📱 手機版 RWD：6格統計改為一列 3 個 (共兩行) */
+    @media (max-width: 768px) {
+      .stats-grid-6 {
+        grid-template-columns: repeat(3, 1fr) !important;
+      }
+    }
+
     @media (max-width: 900px) {
       .dashboard-mid-grid { grid-template-columns: 1fr; }
       .rules-shortcut-grid { grid-template-columns: 1fr; }
@@ -499,11 +515,11 @@
     @media (max-width: 600px) {
       .main { padding: 12px; }
       .stat-card { padding: 6px 8px; }
-      .stat-value { font-size: 19px; }
+      .stat-value { font-size: 18px; }
       .download-grid { grid-template-columns: 1fr; }
       .system-center { grid-template-columns: repeat(2, 1fr); }
       .welcome-actions-row { gap: 6px; }
-      .pill { width: 105px; padding: 8px 6px; font-size: 11px; }
+      .pill { width: 105px; padding: 8px 4px; font-size: 11px; }
     }
   </style>
 </head>
@@ -753,7 +769,7 @@
   <div class="main">
     <div id="content"></div>
     
-    <!-- 1️⃣ 歡迎與核心儀表板 (統一資料區、夾在中間的提示訊息、同一列固定大小按鈕) -->
+    <!-- 1️⃣ 歡迎與核心儀表板 -->
     <div class="panel welcome-box">
       <!-- 頂部精簡列：標題、使用者身分與提示合一 -->
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
@@ -768,8 +784,8 @@
         </div>
       </div>
 
-      <!-- 6合1 統一高效數據資訊矩陣 (裁判場次、紀錄場次、年度總計、經驗值、參與度、出勤率完美並排) -->
-      <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 6px;">
+      <!-- 6合1 統一高效數據資訊矩陣 (桌機 6 列並排，手機版自動變為一列 3 個) -->
+      <div class="stats-grid-6">
         <!-- 1. 裁判場次 -->
         <div class="stat-card">
           <div class="stat-title">🧑‍⚖️ 裁判場次</div>
@@ -805,7 +821,7 @@
         </div>
       </div>
 
-      <!-- 提示訊息（精準夾在數據資訊與按鈕之間） -->
+      <!-- 提示訊息（夾在數據與按鈕之間，強制單列不折行） -->
       <div id="welcome-alert">🔔 載入本週執法訊息中...</div>
 
       <!-- 三顆按鈕放同一列：固定大小不自動放大 -->
