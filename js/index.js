@@ -1,5 +1,5 @@
 /*********************************************************
- * ✅ Index Page（最終完整整合版：對應真實 Users.level 與時數）
+ * ✅ Index Page（最終完整整合版：Users.level 證照直接對應）
  *********************************************************/
 
 let session = null;
@@ -486,7 +486,7 @@ function openMySchedule(){
     monday.setDate(now.getDate() - (day - 1));
     monday.setHours(0,0,0,0);
     const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
+    sunday.setDate(sunday.getDate() + 6);
     sunday.setHours(23,59,59,999);
 
     list.innerHTML = myGames.map(g => {
@@ -662,7 +662,7 @@ function renderLoading(target){
 
 
 /*********************************************************
- * ✅ 個人數據分析模組（精確對應 Users.level 證照與 Training_Log 時數）
+ * ✅ 個人數據分析模組（以 Users.level 欄位直接呈現證照：左裁判右紀錄）
  *********************************************************/
 function loadHomeUserAnalysis(){
   callApi({
@@ -731,7 +731,7 @@ function openUserDetail(userId){
   const p = all.find(x => String(x.user_id) === targetUid || String(x.id) === targetUid) || {
     name: session.name || '使用者',
     league_level: session.league_level || 'N',
-    level: session.level || 'N / N',  // 對應 Users.level (左裁判右紀錄)
+    level: session.level || session.user_level || 'N/N',
     score_total: 0,
     attendance: 0,
     completed: 0,
@@ -780,26 +780,19 @@ function openUserDetail(userId){
     });
   }
 
-  // ✅ 確實讀取 Training_Log 統計或後端回傳的真實時數（若無則為 0）
   const currentYearStr = String(new Date().getFullYear());
   const trainingHoursYear = Number(p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 0); 
   const trainingHoursTotal = Number(p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 0);
   
-  // ✅ 依照 Users.level 欄位（左邊裁判、右邊紀錄，N代表無）進行解析呈現
-  let userLevelStr = p.level || session.level || 'N / N';
-  let licenseInfo = '';
-  
-  if (userLevelStr.includes('/') || userLevelStr.includes('／')) {
-    let parts = userLevelStr.split(/[\/／]/);
-    let judgeLv = parts[0] ? parts[0].trim() : 'N';
-    let recordLv = parts[1] ? parts[1].trim() : 'N';
-    
-    let jText = judgeLv === 'N' ? '無裁判證' : `裁判 ${judgeLv}級`;
-    let rText = recordLv === 'N' ? '無紀錄證' : `紀錄 ${recordLv}級`;
-    licenseInfo = `${jText} ／ ${rText}`;
-  } else {
-    licenseInfo = userLevelStr === 'N' ? '無證照' : `證照等級：${userLevelStr}`;
-  }
+  // ✅ 嚴格對應 Users.level：左邊裁判、右邊紀錄（例如 A/B、C/N 或 A／B）
+  let rawLevel = p.level || session.level || session.user_level || 'N/N';
+  let parts = rawLevel.split(/[\/／]/);
+  let judgeLv = parts[0] ? parts[0].trim().toUpperCase() : 'N';
+  let recordLv = parts[1] ? parts[1].trim().toUpperCase() : 'N';
+
+  let judgeText = judgeLv === 'N' ? '無裁判證' : `${judgeLv}級裁判`;
+  let recordText = recordLv === 'N' ? '無紀錄證' : `${recordLv}級紀錄`;
+  let licenseInfo = `${judgeText}／${recordText}`;
 
   document.getElementById('userContent').innerHTML = `
     <div style="padding:12px;">
@@ -810,7 +803,7 @@ function openUserDetail(userId){
         </div>
         <div style="text-align:right;">
           <span style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; display:inline-block;">
-            📜 證照資格 (Users.level)：${licenseInfo}
+            📜 證照資格：${licenseInfo}
           </span>
         </div>
       </div>
@@ -837,9 +830,9 @@ function openUserDetail(userId){
 
       <hr style="margin:14px 0; border:0; border-top:1px solid #e2e8f0;">
 
-      <!-- 🎓 培訓課程與完訓時數 (對應 Training_Log 驗證狀態) -->
+      <!-- 🎓 培訓課程與完訓時數 -->
       <div>
-        <div style="font-weight:700; margin-bottom:8px; font-size:14px; color:#1e293b;">🎓 培訓課程與完訓時數 (Training_Log)</div>
+        <div style="font-weight:700; margin-bottom:8px; font-size:14px; color:#1e293b;">🎓 培訓課程與完訓時數</div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px; text-align:center;">
             <div style="font-size:11px; color:#64748b; font-weight:700;">📅 ${currentYearStr} 年度完訓時數</div>
