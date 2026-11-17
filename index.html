@@ -133,7 +133,8 @@
       cursor: pointer;
     }
 
-    #home-user-analysis { display: none !important; }
+    /* 讓 index.js 能正常掛載個人數據分析，避免 JS 報錯，同時保持簡潔 */
+    #home-user-analysis { display: none; }
 
     /* 三顆按鈕同一列排版：固定大小不自動放大 */
     .welcome-actions-row {
@@ -771,15 +772,15 @@
     
     <!-- 1️⃣ 歡迎與核心儀表板 -->
     <div class="panel welcome-box">
-      <!-- 頂部精簡列：標題、使用者身分與提示合一 (強制單列呈現，移除重複BBT) -->
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 8px; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; white-space: nowrap; overflow-x: auto;">
-        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+      <!-- 頂部精簡列：標題、使用者身分與提示合一 (支援自動換行) -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
           <span style="font-size: 18px;">⚾</span>
           <div style="font-size: 16px; font-weight: 900; color: #1e3a8a;">出勤管理系統</div>
           <span style="font-size: 12px; color: #2563eb; font-weight: 800;" id="welcome-role"></span>
           <span style="font-size: 13px; font-weight: 700; color: #0f172a;" id="welcome-name"></span>
         </div>
-        <div style="font-size: 12px; color: #64748b; font-weight: 700; flex-shrink: 0;">
+        <div style="font-size: 12px; color: #64748b; font-weight: 700;">
           感謝您協助維護聯盟賽事品質
         </div>
       </div>
@@ -820,6 +821,9 @@
           <div class="stat-val-row"><span class="stat-value" id="stat-rate">100%</span></div>
         </div>
       </div>
+
+      <!-- 隱藏原生容器供 index.js 掛載，防止 JS 報錯 -->
+      <div id="home-user-analysis"></div>
 
       <!-- 提示訊息（夾在數據與按鈕之間，強制單列不折行） -->
       <div id="welcome-alert">🔔 載入本週執法訊息中...</div>
