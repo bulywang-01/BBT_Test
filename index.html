@@ -864,23 +864,15 @@
     
     <!-- 1️⃣ 歡迎與核心儀表板 -->
     <div class="panel welcome-box">
-      <!-- 第一行：左側「出勤管理系統」 | 右側動態歡迎語 -->
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 8px; margin-bottom: 4px;">
-        <div style="display: flex; align-items: center; gap: 8px; overflow: hidden; white-space: nowrap; justify-content: flex-start; text-align: left;">
-          <span style="font-size: 18px; flex-shrink: 0;">⚾</span>
-          <div style="font-size: 16px; font-weight: 900; color: #1e3a8a; flex-shrink: 0; text-align: left;">出勤管理系統</div>
-        </div>
-        <div id="welcome-name-1" style="font-size: 13px; font-weight: 800; color: #0f172a; white-space: nowrap; flex-shrink: 0; text-align: left;">
-          載入中...
-        </div>
-      </div>
+      <!-- 上下垂直排列（兩行都靠左） -->
+      <div style="display: flex; flex-direction: column; gap: 6px; text-align: left; margin-bottom: 12px;">
+        
+        <!-- 第一行：裁判員／紀錄員（靠左） -->
+        <div id="welcome-role" style="font-size: 13px; color: #2563eb; font-weight: 800; text-align: left;">裁判員／紀錄員</div>
 
-      <!-- 第二行：左側「裁判員／紀錄員」身分 | 右側動態感謝語 -->
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 8px; margin-bottom: 12px; white-space: nowrap; overflow: hidden;">
-        <div style="font-size: 12px; color: #2563eb; font-weight: 800; flex-shrink: 0; text-align: left;" id="welcome-role">裁判員／紀錄員</div>
-        <div id="welcome-name-2" style="font-size: 12px; font-weight: 700; color: #475569; flex-shrink: 0; text-align: left;">
-          載入中...
-        </div>
+        <!-- 第二行：王韶文 您好，感謝您協助維護聯盟賽事公平與品質（靠左） -->
+        <div id="welcome-name-2" style="font-size: 12px; font-weight: 700; color: #475569; text-align: left;">載入中...</div>
+
       </div>
 
       <!-- 4合1 統一高效數據資訊矩陣 -->
