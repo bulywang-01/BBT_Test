@@ -111,7 +111,7 @@
     .kpi-progress-fill-amber { background: #d97706; width: 0%; height: 100%; transition: width 0.4s ease; }
     .kpi-progress-fill-purple { background: #7c3aed; width: 100%; height: 100%; }
 
-    /* 🔔 本週執法訊息提示樣式 (一列呈現) */
+    /* 🔔 本週執法訊息提示樣式 (強制單一橫向一列，不換行) */
     #welcome-alert {
       background: #eff6ff;
       border: 1px solid #bfdbfe;
@@ -124,14 +124,17 @@
       margin: 10px 0;
       display: flex;
       align-items: center;
+      justify-content: flex-start;
       gap: 6px;
       white-space: nowrap;
       overflow-x: auto;
+      flex-wrap: nowrap;
     }
     #welcome-alert a, #welcome-alert span {
       color: #1d4ed8;
       text-decoration: underline;
       cursor: pointer;
+      white-space: nowrap;
     }
 
     /* 讓 index.js 能正常掛載個人數據分析，避免 JS 報錯 */
@@ -773,7 +776,7 @@
     
     <!-- 1️⃣ 歡迎與核心儀表板 -->
     <div class="panel welcome-box">
-      <!-- 頂部精簡列：標題、使用者身分與提示合一 (支援自動換行) -->
+      <!-- 頂部精簡列：標題、身分與提示合一 (已移除歡迎問候語) -->
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
           <span style="font-size: 18px;">⚾</span>
@@ -786,7 +789,7 @@
         </div>
       </div>
 
-      <!-- 4合1 統一高效數據資訊矩陣 (精簡拿掉經驗值與參與度) -->
+      <!-- 4合1 統一高效數據資訊矩陣 -->
       <div class="stats-grid-4">
         <!-- 1. 裁判場次 -->
         <div class="stat-card">
@@ -817,7 +820,7 @@
       <!-- 隱藏原生容器供 index.js 掛載，防止 JS 報錯 -->
       <div id="home-user-analysis"></div>
 
-      <!-- 提示訊息（夾在數據與按鈕之間，一列呈現） -->
+      <!-- 提示訊息（強制單一橫向一列） -->
       <div id="welcome-alert">🔔 載入本週執法訊息中...</div>
 
       <!-- 三顆按鈕放同一列：固定大小不自動放大 -->
