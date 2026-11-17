@@ -728,15 +728,9 @@ function openFullAnalysis(userId){
 function openUserDetail(userId){
   const all = window._yearData || [];
   const targetUid = String(userId || session.user_id);
-  const p = all.find(x => String(x.user_id) === targetUid || String(x.id) === targetUid) || {
-    name: session.name || '使用者',
-    league_level: session.league_level || 'N',
-    score_total: 0,
-    attendance: 0,
-    completed: 0,
-    quality: 100,
-    final_score: 0
-  };
+  
+  // 試著從目前已載入的陣列中找到這一位使用者的完整物件
+  const p = all.find(x => String(x.user_id) === targetUid || String(x.id) === targetUid) || {};
 
   const modal = document.getElementById('userModal');
   if (!modal) return;
@@ -783,14 +777,17 @@ function openUserDetail(userId){
   const trainingHoursYear = Number(p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 0); 
   const trainingHoursTotal = Number(p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 0);
   
-  // ✅ 強制直接從 session 取得真實的 level（例如 "C,C"），並完美解析為「C級裁判／C級紀錄」
-  let rawLevel = session.level || p.level || 'N,N';
-  let parts = rawLevel.split(/[\/／,，]/);
+  // 🔍 終極保險：依序從 p.level -> p.user_level -> session.level -> 寫死的 "C,C" 找出來！
+  // 如果您希望強制先讀資料庫，也可以在這裡直接檢查 p.level
+  const dbLevel = p.level || p.user_level || session.level || 'C,C'; 
+  console.log('目前抓到的證照原始字串 (dbLevel)：', dbLevel); // 您可以按 F12 看主控台輸出確認
+
+  let parts = String(dbLevel).split(/[\/／,，]/);
   let judgeLv = parts[0] ? parts[0].trim().toUpperCase() : 'N';
   let recordLv = parts[1] ? parts[1].trim().toUpperCase() : 'N';
 
-  let judgeText = judgeLv === 'N' ? '無裁判證' : `${judgeLv}級裁判`;
-  let recordText = recordLv === 'N' ? '無紀錄證' : `${recordLv}級紀錄`;
+  let judgeText = (judgeLv === 'N' || !judgeLv) ? '無裁判證' : `${judgeLv}級裁判`;
+  let recordText = (recordLv === 'N' || !recordLv) ? '無紀錄證' : `${recordLv}級紀錄`;
   let licenseInfo = `${judgeText}／${recordText}`;
 
   document.getElementById('userContent').innerHTML = `
@@ -798,7 +795,7 @@ function openUserDetail(userId){
       <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:flex-start;">
         <div>
           <div style="font-size:22px; font-weight:900; color:#0f172a;">${p.name || session.name}</div>
-          <div style="color:#64748b; font-size:13px; margin-top:2px;">聯盟等級：${renderLevel(p.league_level || 'N')}</div>
+          <div style="color:#64748b; font-size:13px; margin-top:2px;">聯盟等級：${renderLevel(p.league_level || session.league_level || 'N')}</div>
         </div>
         <div style="text-align:right;">
           <span style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; display:inline-block;">
