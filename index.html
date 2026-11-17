@@ -695,7 +695,7 @@
         
         Object.keys(m.roles).forEach(key => {
           let name = m.roles[key] || '－';
-          let isAssigned = (name !== '─' && name !== '-' && name !== '');
+          let isAssigned = (name !== '－' && name !== '-' && name !== '');
           let boxClass = isAssigned ? 'sch-role-box assigned' : 'sch-role-box unassigned';
           let boxHtml = `
             <div class="${boxClass}">
@@ -737,32 +737,28 @@
       `;
     }
 
-    // 📅 強固版「我的班表」格式化引擎 (升級為成對解析卡片)
+    // 📅 強固版「我的班表」格式化引擎 (支援非同步載入攔截)
     function beautifyMySchedule() {
       const container = document.getElementById('my-schedule-list');
       if (!container) return;
       
       let text = container.innerText || container.textContent;
-      if (!text || text.trim() === '' || text.includes('載入中')) return;
+      if (!text || text.trim() === '' || text.includes('載入中') || container.dataset.beautified === 'true') return;
       
       let lines = text.split('\n').map(l => l.trim()).filter(l => l !== '');
       if (lines.length === 0) return;
 
       let outputHtml = '';
       
-      // 每兩行一組進行配對解析 (例如: Line 1 = 時間/球場/職務, Line 2 = 聯盟組別/對戰組合)
       for (let i = 0; i < lines.length; i += 2) {
         let line1 = lines[i] || '';
         let line2 = lines[i + 1] || '';
         
-        // 如果剛好只有單行孤兒文字，則直接自適應
-        if (!line2 && (line1.includes('VS') || line1.includes('組'))) {
+        if (!line2 && (line1.includes('VS') || line1.includes('組') || line1.includes('球場'))) {
           line2 = line1;
           line1 = '執勤賽事通知';
         }
 
-        // 解析 Line 1 中的日期時間、球場與職務
-        // 範例: 本週 11/22(日) | 13:50 | 八里國中棒球場 主審
         let parts = line1.split('|').map(p => p.trim());
         let datePart = parts[0] || '賽事通知';
         let timePart = parts[1] || '';
@@ -771,7 +767,6 @@
         let role = '';
         let venue = venueRolePart;
         
-        // 抓取常見職務關鍵字
         const rolesList = ['主審', '一壘審', '二壘審', '三壘審', '裁判', '紀錄員', '記錄員', '影像紀錄'];
         for (let r of rolesList) {
           if (venueRolePart.includes(r)) {
@@ -788,21 +783,35 @@
               ${role ? `<span class="my-sch-role-badge">🧑‍⚖️ ${role}</span>` : ''}
             </div>
             ${venue ? `<div class="my-sch-venue">📍 ${venue}</div>` : ''}
-            <div class="my-sch-match-info">⚾ ${line2}</div>
+            <div class="my-sch-match-info">⚾ ${line2 || line1}</div>
           </div>
         `;
       }
 
       if (outputHtml) {
+        container.dataset.beautified = 'true';
         container.innerHTML = outputHtml;
       }
     }
 
-    // 🛡️ 三重防禦機制：按鈕點擊、彈窗顯示、內容變動時自動格式化
+    // 🛡️ 即時攔截 MutationObserver：當非同步資料灌入 #my-schedule-list 時自動觸發格式化
     window.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('my-schedule-list');
+      if (container) {
+        const observer = new MutationObserver(() => {
+          if (!container.dataset.processing) {
+            container.dataset.processing = 'true';
+            setTimeout(() => {
+              beautifyMySchedule();
+              delete container.dataset.processing;
+            }, 50);
+          }
+        });
+        observer.observe(container, { childList: true, subtree: true, characterData: true });
+      }
+
       const openWeeklyBtn = document.getElementById('open-weekly');
       const weeklyOverlay = document.getElementById('weekly-overlay');
-      
       const openScheduleBtn = document.getElementById('open-schedule');
       const scheduleOverlay = document.getElementById('schedule-overlay');
 
@@ -822,12 +831,16 @@
 
       if (openScheduleBtn) {
         openScheduleBtn.addEventListener('click', () => {
+          const c = document.getElementById('my-schedule-list');
+          if (c) c.dataset.beautified = ''; // 重置標記以便重新格式化
           [50, 200, 500].forEach(delay => setTimeout(beautifyMySchedule, delay));
         });
       }
       if (scheduleOverlay) {
         const schedObserver = new MutationObserver(() => {
           if (scheduleOverlay.style.display === 'block' || window.getComputedStyle(scheduleOverlay).display === 'flex') {
+            const c = document.getElementById('my-schedule-list');
+            if (c) c.dataset.beautified = '';
             [50, 200, 500].forEach(delay => setTimeout(beautifyMySchedule, delay));
           }
         });
@@ -1579,7 +1592,7 @@
             </div>
             <div>
               <label style="font-size:11px; font-weight:700; color:#475569;">下架日期（選填，過期自動隱藏）</label>
-              <input type="date" id="cms-end" style="width:100% ; padding:7px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;" />
+              <input type="date" id="cms-end" style="width:100%; padding:7px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;" />
             </div>
           </div>
 
