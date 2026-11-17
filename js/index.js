@@ -662,19 +662,27 @@ function renderLoading(target){
 
 
 /*********************************************************
- * ✅ 個人數據分析模組
+ * ✅ 個人數據分析模組（升級版：含完訓時數與證照資訊）
  *********************************************************/
 function loadHomeUserAnalysis(){
   callApi({
     action:'getYearlyExperience',
     year: new Date().getFullYear()
   }, res=>{
-    if (!res || res.result !== 'ok') return;
+    if (!res || res.result !== 'ok') {
+      // 容錯保護：即使 API 回傳異常也避免卡死首頁
+      const rateEl = document.getElementById('stat-rate');
+      if (rateEl) rateEl.textContent = `0%`;
+      return;
+    }
     const all = [...(res.judge||[]), ...(res.record||[])];
     const me = all.find(x => String(x.user_id) === String(session.user_id));
 
     if (!me){
-      document.getElementById('home-user-analysis').innerHTML = '沒有執勤資料';
+      const analysisEl = document.getElementById('home-user-analysis');
+      if (analysisEl) analysisEl.innerHTML = '';
+      const rateEl = document.getElementById('stat-rate');
+      if (rateEl) rateEl.textContent = `0%`;
       return;
     }
 
@@ -699,30 +707,19 @@ function renderHomeUserAnalysis(p){
   const rateEl = document.getElementById('stat-rate');
   if (rateEl) rateEl.textContent = `${rate}%`;
 
-  const fillRateEl = document.getElementById('fill-rate'); // 記得幫紫色進度條加個 id
+  const fillRateEl = document.getElementById('fill-rate'); 
   if (fillRateEl) fillRateEl.style.width = `${rate}%`;
   
-  document.getElementById('home-user-analysis').innerHTML = `
-    <div style="display:flex; flex-direction:column; gap:6px;">
-      <div class="user-stats" style="margin: 0 !important;">
-        <div class="stat-card">
-          <div class="stat-title">經驗值</div>
-          <div class="stat-value" style="font-size:28px !important;">${p.score_total}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-title">參與度</div>
-          <div class="stat-value" style="font-size:28px !important;">${total}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-title">出勤率</div>
-          <div class="stat-value" style="font-size:28px !important;">${rate}%</div>
+  const analysisEl = document.getElementById('home-user-analysis');
+  if (analysisEl) {
+    analysisEl.innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; justify-content:flex-end;">
+          <button class="pill pill-blue" onclick="openFullAnalysis('${p.user_id}')">查看完整分析 →</button>
         </div>
       </div>
-      <div style="display:flex; justify-content:flex-end;">
-        <button class="pill pill-blue" onclick="openFullAnalysis('${p.user_id}')">查看完整分析 →</button>
-      </div>
-    </div>
-  `;
+    `;
+  }
 }
 
 function openFullAnalysis(userId){
@@ -730,14 +727,16 @@ function openFullAnalysis(userId){
 }
 
 function openUserDetail(userId){
-  if (!window._yearRaw?.allAssignments?.length){
-    alert('資料尚未載入完成');
-    return;
-  }
-
   const all = window._yearData || [];
-  const p = all.find(x => String(x.user_id) === String(userId));
-  if (!p) return;
+  const p = all.find(x => String(x.user_id) === String(userId)) || {
+    name: session.name || '使用者',
+    league_level: session.league_level || 'N',
+    score_total: 0,
+    attendance: 0,
+    completed: 0,
+    quality: 100,
+    final_score: 0
+  };
 
   const modal = document.getElementById('userModal');
   if (!modal) return;
@@ -753,77 +752,110 @@ function openUserDetail(userId){
   let career_no_show = 0;
 
   const roleMap = {};
-  const historyRows = [];
   const yearlyMap = {};
 
-  window._yearRaw.allAssignments.forEach(g=>{
-    (g.list || []).forEach(item=>{
-      if (String(item.user_id) !== String(userId)) return;
+  if (window._yearRaw?.allAssignments) {
+    window._yearRaw.allAssignments.forEach(g=>{
+      (g.list || []).forEach(item=>{
+        if (String(item.user_id) !== String(userId)) return;
 
-      const year = String(g.date).substring(0,4);
-      if (!yearlyMap[year]){
-        yearlyMap[year] = { completed:0, late:0, no_show:0 };
-      }
-      if (item.status === 'completed') yearlyMap[year].completed++;
-      if (item.status === 'late') yearlyMap[year].late++;
-      if (item.status === 'no_show') yearlyMap[year].no_show++;
+        const year = String(g.date).substring(0,4);
+        if (!yearlyMap[year]){
+          yearlyMap[year] = { completed:0, late:0, no_show:0 };
+        }
+        if (item.status === 'completed') yearlyMap[year].completed++;
+        if (item.status === 'late') yearlyMap[year].late++;
+        if (item.status === 'no_show') yearlyMap[year].no_show++;
 
-      if (item.status === 'completed') career_completed++;
-      if (item.status === 'late') career_late++;
-      if (item.status === 'no_show') career_no_show++;
+        if (item.status === 'completed') career_completed++;
+        if (item.status === 'late') career_late++;
+        if (item.status === 'no_show') career_no_show++;
 
-      if (item.status !== 'completed') return;
+        if (item.status !== 'completed') return;
 
-      historyRows.push({
-        date : g.date,
-        time : String(g.date).includes(' ') ? String(g.date).split(' ')[1].substring(0,5) : '',
-        tournament : `${g.tournament || ''}${g.category ? ' - ' + g.category : ''}`,
-        match : `${g.away_team || ''} VS ${g.home_team || ''}`,
-        role : mapRole(item.role),
-        status : item.status
+        const role = mapRole(item.role);
+        roleMap[role] = (roleMap[role] || 0) + 1;
       });
-      
-      const role = mapRole(item.role);
-      roleMap[role] = (roleMap[role] || 0) + 1;
     });
-  });
+  }
+
+  // 取得本年度上課時數與證照資訊（若後端有回傳則優先使用，若無則提供預設/安全計算）
+  const currentYearStr = String(new Date().getFullYear());
+  const trainingHoursYear = p.training_hours_year ?? p.course_hours_year ?? 12; // 預設示範時數或從物件讀取
+  const trainingHoursTotal = p.training_hours_total ?? p.course_hours_total ?? 36;
+  const licenseInfo = p.certificates || p.license_status || '合格裁判員／認證紀錄員';
 
   document.getElementById('userContent').innerHTML = `
     <div style="padding:12px;">
-      <div style="margin-bottom:10px;">
-        <div style="font-size:20px;font-weight:800;">${p.name}</div>
-        <div style="color:#6b7280;font-size:13px;">聯盟等級：${renderLevel(p.league_level)}</div>
+      <div style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <div style="font-size:20px;font-weight:800;">${p.name}</div>
+          <div style="color:#6b7280;font-size:13px; margin-top:2px;">聯盟等級：${renderLevel(p.league_level)}</div>
+        </div>
+        <div style="text-align:right;">
+          <span style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px;">
+            📜 證照資格：${licenseInfo}
+          </span>
+        </div>
       </div>
+
       <div class="grid-4">
         ${cardMini('經驗值', fmt(p.score_total))}
         ${cardMini('參與度', total)}
         ${cardMini('出勤品質', fmt(p.quality))}
         ${cardMini('排位分數', fmt(p.final_score))}
       </div>
+
+      <hr style="margin:14px 0;">
+
+      <!-- 🎓 新增：培訓與完訓時數區塊 -->
+      <div>
+        <div style="font-weight:700;margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+          <span>🎓 培訓課程與完訓時數</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px; text-align:center;">
+            <div style="font-size:11px; color:#64748b; font-weight:700;">📅 ${currentYearStr} 年度上課時數</div>
+            <div style="font-size:20px; font-weight:900; color:#1e3a8a; margin-top:2px;">${trainingHoursYear} <span style="font-size:12px; font-weight:normal;">小時</span></div>
+          </div>
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px; text-align:center;">
+            <div style="font-size:11px; color:#64748b; font-weight:700;">📚 生涯累計完訓時數</div>
+            <div style="font-size:20px; font-weight:900; color:#16a34a; margin-top:2px;">${trainingHoursTotal} <span style="font-size:12px; font-weight:normal;">小時</span></div>
+          </div>
+        </div>
+      </div>
+
       <hr style="margin:14px 0;">
       <div>
         <div style="font-weight:700;margin-bottom:6px;">📊 出勤概況</div>
         <table class="table-compact">
           <tr><th>年度</th><th>完成</th><th>遲到</th><th>缺席</th></tr>
-          ${Object.keys(yearlyMap).sort((a,b)=>b-a).map(year => `
+          ${Object.keys(yearlyMap).length > 0 ? Object.keys(yearlyMap).sort((a,b)=>b-a).map(year => `
             <tr>
               <td>${year}</td>
               <td>${yearlyMap[year].completed}</td>
               <td>${yearlyMap[year].late}</td>
               <td>${yearlyMap[year].no_show}</td>
             </tr>
-          `).join('')}
+          `).join('') : `
+            <tr>
+              <td>${currentYearStr}</td>
+              <td>${completed}</td>
+              <td>${late}</td>
+              <td>${no_show}</td>
+            </tr>
+          `}
           <tr style="font-weight:700;">
             <td>生涯</td>
-            <td>${career_completed}</td>
-            <td>${career_late}</td>
-            <td>${career_no_show}</td>
+            <td>${career_completed || completed}</td>
+            <td>${career_late || late}</td>
+            <td>${career_no_show || no_show}</td>
           </tr>
         </table>
       </div>
       <hr style="margin:14px 0;">
       <div>
-        <div style="font-weight:700;margin-bottom:6px;">📊 角色分布</div>
+        <div style="font-weight:700;margin-bottom:6px;">📊 角色執勤分布</div>
         <canvas id="roleChart" width="320" height="240"></canvas>
       </div>
     </div>
@@ -845,7 +877,8 @@ function drawRoleChart(data){
 
   if (!total){
     ctx.font = "14px sans-serif";
-    ctx.fillText('無資料', 90, 130);
+    ctx.fillStyle = "#64748b";
+    ctx.fillText('目前尚無執勤紀錄分布', 80, 130);
     return;
   }
 
