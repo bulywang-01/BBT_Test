@@ -134,3 +134,20 @@ body.role-admin  #app-header .record { display: flex !important; }
     </a>
   </div>
 </header>
+
+<script>
+// ✅ 自動把登入者的真實姓名填入 header 中
+(function(){
+  try {
+    const s = (typeof getSession === 'function' ? getSession() : null) || JSON.parse(localStorage.getItem('session_user') || '{}');
+    if (s && s.name) {
+      const nameEl = document.getElementById('header-username');
+      if (nameEl) {
+        nameEl.textContent = s.name;
+      }
+    }
+  } catch(e) {
+    console.error('載入使用者名稱失敗', e);
+  }
+})();
+</script>
