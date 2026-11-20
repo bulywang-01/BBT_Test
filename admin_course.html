@@ -822,6 +822,86 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 </div>
 </div>
 </div>
+<div id="assignStudentsModal" class="modal hidden">
+<div class="modal-dialog max-w-3xl">
+<div class="modal-header">
+<div id="assignModalTitle" class="table-title">👤 指定上課學員</div>
+<button type="button" class="modal-close" onclick="closeModal('assignStudentsModal')">✕</button>
+</div>
+<div class="modal-body space-y-5">
+<input type="hidden" id="assign_course_id" value="">
+<input type="hidden" id="assign_default_fee" value="0">
+
+<!-- 區塊一：系統帳號成員 -->
+<div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="font-extrabold text-sm text-slate-800">1. 挑選系統帳號成員</div>
+<input id="assignUserSearch" type="text" placeholder="搜尋姓名、帳號、電話、Email..." oninput="renderAssignUserCandidates()" class="h-9 px-3 text-xs border border-slate-300 rounded-xl bg-white w-full sm:w-64">
+</div>
+<div id="assignSystemUserList" class="max-h-44 overflow-y-auto divide-y divide-slate-200 bg-white rounded-xl border border-slate-200">
+<div class="p-3 text-xs text-slate-400">載入系統帳號中...</div>
+</div>
+</div>
+
+<!-- 區塊二：非系統帳號外部學員（僅限本課程） -->
+<div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-3">
+<div class="flex items-center justify-between gap-2 flex-wrap">
+<div class="font-extrabold text-sm text-amber-950">2. 輸入非系統帳號外部學員（僅限指定此課程，不會建立系統帳號）</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+<div>
+<label class="block text-xs font-bold text-slate-700 mb-1">外部學員姓名 <span class="text-rose-500">*</span></label>
+<input id="ext_student_name" type="text" placeholder="必填，例：林大明" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-xl bg-white">
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-700 mb-1">聯絡電話</label>
+<input id="ext_student_phone" type="text" placeholder="例：0912345678" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-xl bg-white">
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-700 mb-1">電子郵件</label>
+<input id="ext_student_email" type="email" placeholder="選填，供行前通知信使用" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-xl bg-white">
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+<div>
+<label class="block text-xs font-bold text-slate-700 mb-1">餐飲習慣</label>
+<select id="ext_student_dietary" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-xl bg-white">
+<option value="葷食">葷食</option>
+<option value="素食">素食</option>
+<option value="不需餐點">不需餐點</option>
+</select>
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-700 mb-1">指派報名狀態</label>
+<select id="ext_student_status" class="w-full h-10 px-3 text-sm border border-slate-300 rounded-xl bg-white">
+<option value="confirmed">已錄取 (confirmed)</option>
+<option value="applied">已申請 (applied)</option>
+<option value="waitlist">候補 (waitlist)</option>
+</select>
+</div>
+<button type="button" onclick="addExternalStudentToQueue()" class="btn-outline h-10 w-full">
+＋ 加入待指派清單
+</button>
+</div>
+</div>
+
+<!-- 區塊三：待指派學員清單 -->
+<div class="border border-slate-200 rounded-2xl p-4 space-y-2.5 bg-white">
+<div class="flex items-center justify-between">
+<div class="font-extrabold text-sm text-slate-800">待指派學員清單（<span id="pendingAssignCount">0</span> 人）</div>
+<button type="button" onclick="clearPendingAssignQueue()" class="text-xs font-bold text-rose-600 hover:underline cursor-pointer">清空清單</button>
+</div>
+<div id="pendingAssignList" class="divide-y divide-slate-100 text-xs">
+<div class="py-4 text-center text-slate-400">尚未加入任何學員</div>
+</div>
+</div>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn-outline" onclick="closeModal('assignStudentsModal')">取消</button>
+<button type="button" class="btn-primary" onclick="submitAssignCourseStudents()">確認指派學員</button>
+</div>
+</div>
+</div>
 <div id="loadingMask" class="hidden">
 <div class="loading-box" id="loadingText">處理中...</div>
 </div>
@@ -834,6 +914,8 @@ let selectedAttendanceCourseId = '';
 let selectedCertCourseId = '';
 let activeMailCourse = null;
 let validMailRecipients = [];
+let allSystemUsers = [];
+let pendingAssignStudents = [];
 document.addEventListener('DOMContentLoaded', () => {
 if (typeof lucide !== 'undefined') lucide.createIcons();
 loadUserInfo();
@@ -1068,6 +1150,10 @@ ${hasValidCert ? `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 
 <td class="whitespace-nowrap"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${statusClass}">${statusText}</span></td>
 <td class="action-col whitespace-nowrap">
 <div class="action-group flex items-center gap-1.5">
+<button onclick="openAssignStudentsModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-sm transition flex items-center gap-1 cursor-pointer" title="指定上課學員（含系統帳號與非系統外部學員）">
+<span>👤</span>
+<span>指定學員</span>
+</button>
 <button onclick="openEmailReminderModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm transition flex items-center gap-1 cursor-pointer" title="發送行前通知">
 <span>✉️</span>
 <span>通知</span>
@@ -1176,7 +1262,7 @@ if (selectAllEl) selectAllEl.checked = false;
 const filtered = allEnrollments.filter(item => {
 const matchC = cFilter === 'all' || String(item.course_id) === String(cFilter);
 const matchP = pFilter === 'all' || String(item.payment_status) === String(pFilter);
-const text = [item.name, item.phone, item.payment_account, item.course_name, item.admin_note].join(' ').toLowerCase();
+const text = [item.name, item.external_name, item.member_type, item.phone, item.payment_account, item.course_name, item.admin_note].join(' ').toLowerCase();
 const matchKw = !keyword || text.includes(keyword);
 return matchC && matchP && matchKw;
 });
@@ -1222,7 +1308,7 @@ actionHtml = `
 actionHtml = `
 <div class="flex items-center justify-end gap-1.5 flex-wrap">
 <span class="text-xs font-bold text-rose-600">已退 NT$${item.refund_amount || defaultFee}</span>
-<button onclick="changePaymentStatus('${item.log_id}', 'unpaid')" class="px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 text-[11px] font-bold transition cursor-pointer">
+<button onclick="changePaymentStatus('${item.log_id}', 'unpaid')" class="px-2 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 text-[11px] font-bold transition cursor-pointer">
 重設未繳
 </button>
 </div>
@@ -1235,6 +1321,7 @@ actionHtml = `
 `;
 }
 const safeNote = String(item.admin_note || '').replace(/"/g, '&quot;');
+const isExternalStudent = (String(item.member_type || '').toLowerCase() === 'external') || !!item.is_external;
 return `
 <tr class="hover:bg-slate-50 transition">
 <td class="p-4 text-center">${checkboxHtml}</td>
@@ -1244,7 +1331,10 @@ return `
 </td>
 <td class="p-4 font-bold text-slate-900">${item.course_name || '-'}</td>
 <td class="p-4">
-<div class="font-extrabold text-slate-900">${item.name || '未填'}</div>
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-extrabold text-slate-900">${item.name || '未填'}</span>
+${isExternalStudent ? '<span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-extrabold">外部學員</span>' : ''}
+</div>
 <div class="text-xs text-slate-500">${item.phone || '-'}</div>
 </td>
 <td class="p-4">
@@ -2077,6 +2167,220 @@ a.download = `BBT課程報名與餐飲名單_${new Date().toISOString().split('T
 a.click();
 URL.revokeObjectURL(url);
 showToast('報名名單 CSV 已匯出！', 'success');
+}
+function openAssignStudentsModal(courseId) {
+const course = allCourses.find(c => String(c.course_id) === String(courseId));
+document.getElementById('assign_course_id').value = courseId;
+document.getElementById('assign_default_fee').value = (course && course.fee !== undefined) ? course.fee : 0;
+document.getElementById('assignModalTitle').textContent = `👤 指定上課學員${course ? ' - ' + course.course_name : ''}`;
+document.getElementById('assignUserSearch').value = '';
+document.getElementById('ext_student_name').value = '';
+document.getElementById('ext_student_phone').value = '';
+document.getElementById('ext_student_email').value = '';
+document.getElementById('ext_student_dietary').value = '葷食';
+document.getElementById('ext_student_status').value = 'confirmed';
+pendingAssignStudents = [];
+renderPendingAssignList();
+document.getElementById('assignStudentsModal').classList.remove('hidden');
+
+if (!allSystemUsers.length) {
+loadSystemUsersForAssign();
+} else {
+renderAssignUserCandidates();
+}
+}
+function loadSystemUsersForAssign() {
+const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+const cb = 'jsonp_users_assign_' + Math.round(100000 * Math.random());
+const script = document.createElement('script');
+window[cb] = function(res) {
+delete window[cb];
+if (script.parentNode) script.parentNode.removeChild(script);
+if (res && (res.result === 'ok' || res.result === 'success')) {
+allSystemUsers = res.data || res.users || [];
+renderAssignUserCandidates();
+} else {
+document.getElementById('assignSystemUserList').innerHTML = '<div class="p-3 text-xs text-rose-600">無法載入系統帳號清單</div>';
+}
+};
+script.src = `${baseUrl}?action=getUsers&callback=${cb}&_t=${Date.now()}`;
+script.onerror = function() {
+delete window[cb];
+if (script.parentNode) script.parentNode.removeChild(script);
+document.getElementById('assignSystemUserList').innerHTML = '<div class="p-3 text-xs text-rose-600">系統帳號載入逾時，請稍後再試</div>';
+};
+document.body.appendChild(script);
+}
+function renderAssignUserCandidates() {
+const container = document.getElementById('assignSystemUserList');
+const kw = (document.getElementById('assignUserSearch').value || '').trim().toLowerCase();
+const list = allSystemUsers.filter(u => {
+const uid = String(u.user_id || '').trim();
+if (!uid) return false;
+const text = [uid, u.name, u.username, u.email, u.phone].join(' ').toLowerCase();
+return !kw || text.includes(kw);
+});
+
+if (!list.length) {
+container.innerHTML = '<div class="p-3 text-xs text-slate-400">查無符合的系統帳號</div>';
+return;
+}
+
+container.innerHTML = list.slice(0, 60).map(u => {
+const uid = String(u.user_id || '').trim();
+const name = String(u.name || u.username || uid).trim();
+const phone = String(u.phone || '').trim();
+const email = String(u.email || '').trim();
+const alreadyQueued = pendingAssignStudents.some(s => s.member_type === 'system' && s.user_id === uid);
+return `
+<div class="p-2.5 flex items-center justify-between gap-2 hover:bg-slate-50">
+<div class="text-xs">
+<span class="font-extrabold text-slate-900">${name}</span>
+<span class="text-slate-400 ml-1">(${uid})</span>
+${phone ? `<span class="text-slate-500 ml-2">${phone}</span>` : ''}
+${email ? `<span class="text-slate-400 ml-2">${email}</span>` : ''}
+</div>
+<button type="button" onclick="addSystemUserToQueue('${uid.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${alreadyQueued ? 'bg-slate-100 text-slate-400' : 'bg-blue-50 text-blue-700 hover:bg-blue-100'}">
+${alreadyQueued ? '已加入' : '加入'}
+</button>
+</div>
+`;
+}).join('');
+}
+function addSystemUserToQueue(userId) {
+if (pendingAssignStudents.some(s => s.member_type === 'system' && s.user_id === userId)) return;
+const u = allSystemUsers.find(item => String(item.user_id).trim() === String(userId).trim());
+if (!u) return;
+const defaultFee = Number(document.getElementById('assign_default_fee').value) || 0;
+pendingAssignStudents.push({
+member_type: 'system',
+user_id: String(u.user_id).trim(),
+name: String(u.name || u.username || u.user_id).trim(),
+phone: String(u.phone || '').trim(),
+email: String(u.email || '').trim(),
+dietary: '葷食',
+status: 'confirmed',
+payment_status: 'unpaid',
+payment_amount: defaultFee
+});
+renderPendingAssignList();
+renderAssignUserCandidates();
+}
+function addExternalStudentToQueue() {
+const name = document.getElementById('ext_student_name').value.trim();
+const phone = document.getElementById('ext_student_phone').value.trim();
+const email = document.getElementById('ext_student_email').value.trim();
+const dietary = document.getElementById('ext_student_dietary').value;
+const status = document.getElementById('ext_student_status').value;
+const defaultFee = Number(document.getElementById('assign_default_fee').value) || 0;
+
+if (!name) {
+showToast('請填寫非系統帳號學員姓名', 'error');
+return;
+}
+
+pendingAssignStudents.push({
+member_type: 'external',
+user_id: '',
+external_name: name,
+external_phone: phone,
+external_email: email,
+name: name,
+phone: phone,
+email: email,
+dietary: dietary,
+status: status,
+payment_status: 'unpaid',
+payment_amount: defaultFee
+});
+
+document.getElementById('ext_student_name').value = '';
+document.getElementById('ext_student_phone').value = '';
+document.getElementById('ext_student_email').value = '';
+renderPendingAssignList();
+}
+function removePendingStudent(idx) {
+pendingAssignStudents.splice(idx, 1);
+renderPendingAssignList();
+renderAssignUserCandidates();
+}
+function clearPendingAssignQueue() {
+pendingAssignStudents = [];
+renderPendingAssignList();
+renderAssignUserCandidates();
+}
+function renderPendingAssignList() {
+const listEl = document.getElementById('pendingAssignList');
+const countEl = document.getElementById('pendingAssignCount');
+countEl.textContent = pendingAssignStudents.length;
+
+if (!pendingAssignStudents.length) {
+listEl.innerHTML = '<div class="py-4 text-center text-slate-400">尚未加入任何學員</div>';
+return;
+}
+
+listEl.innerHTML = pendingAssignStudents.map((s, idx) => {
+const badge = s.member_type === 'external'
+? '<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold mr-1.5">外部學員</span>'
+: '<span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold mr-1.5">系統帳號</span>';
+return `
+<div class="py-2 flex items-center justify-between gap-2">
+<div>
+${badge}
+<span class="font-extrabold text-slate-900">${s.name}</span>
+${s.phone ? `<span class="text-slate-500 ml-2">${s.phone}</span>` : ''}
+${s.email ? `<span class="text-slate-400 ml-2">${s.email}</span>` : ''}
+<span class="text-slate-500 ml-2">(${s.dietary} / ${s.status})</span>
+</div>
+<button type="button" onclick="removePendingStudent(${idx})" class="text-rose-600 font-bold hover:underline cursor-pointer">移除</button>
+</div>
+`;
+}).join('');
+}
+function submitAssignCourseStudents() {
+const courseId = document.getElementById('assign_course_id').value.trim();
+if (!courseId) {
+showToast('缺少課程編號', 'error');
+return;
+}
+if (!pendingAssignStudents.length) {
+showToast('請先加入至少一位學員', 'error');
+return;
+}
+
+showLoading(`正在指派 ${pendingAssignStudents.length} 位學員...`);
+const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
+const cb = 'jsonp_assign_students_' + Math.round(100000 * Math.random());
+const params = new URLSearchParams({
+action: 'assignCourseStudents',
+course_id: courseId,
+students: JSON.stringify(pendingAssignStudents),
+callback: cb,
+_t: Date.now()
+});
+
+const script = document.createElement('script');
+window[cb] = function(res) {
+delete window[cb];
+if (script.parentNode) script.parentNode.removeChild(script);
+hideLoading();
+if (res && (res.result === 'ok' || res.result === 'success')) {
+showToast(res.message || '學員指派完成！', 'success');
+closeModal('assignStudentsModal');
+loadCourses();
+loadEnrollmentData('enrollments');
+} else {
+showToast((res ? res.message : '指派失敗') + '，請稍後再試', 'error');
+}
+};
+script.src = `${baseUrl}?${params.toString()}`;
+script.onerror = function() {
+delete window[cb];
+if (script.parentNode) script.parentNode.removeChild(script);
+hideLoading();
+showToast('網路連線異常，請重試', 'error');
+};
+document.body.appendChild(script);
 }
 </script>
 </body>
