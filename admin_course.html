@@ -70,11 +70,11 @@ body{ margin:0; padding:0; background:#f8fafc; font-family:system-ui,-apple-syst
 #loadingMask{ position:fixed; inset:0; background:rgba(15,23,42,.25); display:flex; justify-content:center; align-items:center; z-index:20000; }
 #loadingMask.hidden{ display:none; }
 .loading-box{ background:#fff; padding:20px 28px; border-radius:16px; font-weight:700; box-shadow:0 8px 24px rgba(0,0,0,.15); }
-.action-btn{ font-size:14px; width:34px; height:34px; border:none; border-radius:10px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; justify-content:center; }
+.action-btn{ font-size:13px; width:32px; height:32px; border:none; border-radius:10px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; justify-content:center; }
 .action-btn:hover{ transform:translateY(-1px); }
 .action-btn.edit{ background:#ffedd5; color:#c2410c; }
 .action-btn.delete{ background:#fee2e2; color:#991b1b; }
-.action-group{ display:flex; gap:6px; }
+.action-group{ display:flex; flex-wrap:wrap; gap:6px; max-width:360px; }
 button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; filter: grayscale(50%); }
 </style>
 </head>
@@ -155,14 +155,10 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 <div class="page-desc">建立培訓課程、管理報名、審核繳費與退費、記錄出勤打卡、評分及結訓證書發放</div>
 </div>
 <div class="flex items-center gap-2 flex-wrap">
-<button id="tabBtnCourses" onclick="switchTab('courses')" class="tab-btn active">📅 課程場次管理</button>
-<button id="tabBtnEnrollments" onclick="switchTab('enrollments')" class="tab-btn">🛡️ 報名繳費資訊</button>
-<button id="tabBtnAttendance" onclick="switchTab('attendance')" class="tab-btn">⏰ 出勤與簽到</button>
-<button id="tabBtnCertificates" onclick="switchTab('certificates')" class="tab-btn">🎓 成績與證書</button>
-<button onclick="openFinanceReportModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
-<span>📊</span>
-<span>財務收／退費報表</span>
-</button>
+<button id="tabBtnCourses" onclick="switchTab('courses')" class="tab-btn active">📅 課程清單</button>
+<button id="tabBtnEnrollments" onclick="switchTab('enrollments')" class="tab-btn">🛡️ 繳費資訊</button>
+<button id="tabBtnAttendance" onclick="switchTab('attendance')" class="tab-btn">⏰ 出勤簽到</button>
+<button id="tabBtnCertificates" onclick="switchTab('certificates')" class="tab-btn">🎓 成績證書</button>
 </div>
 </div>
 <div id="tabContentCourses" class="space-y-6">
@@ -309,8 +305,8 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 <div>
-<h3 class="font-black text-lg text-slate-900">🎯 請選擇欲進行出勤簽到的課程場次</h3>
-<p class="text-xs text-slate-500 mt-0.5">點選下方課程場次，即可載入該場次的報名學員名單並進行打卡簽到與簽退</p>
+<h3 class="font-black text-lg text-slate-900">🎯 課程出勤簽到場次</h3>
+<p class="text-xs text-slate-500 mt-0.5">亦可在此切換其他課程場次進行打卡簽到與簽退</p>
 </div>
 <div class="w-full sm:w-72">
 <select id="selectAttendanceCourseDropdown" onchange="onAttendanceCourseSelect(this.value)" class="w-full h-11 border border-slate-300 rounded-xl px-3 font-bold text-slate-800 bg-white shadow-sm">
@@ -325,8 +321,8 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 <div class="text-xs font-bold text-blue-600">目前檢視中的課程場次</div>
 <div id="activeCourseTitleBanner" class="text-lg font-black text-slate-900 mt-0.5">-</div>
 </div>
-<button onclick="resetAttendanceSelection()" class="px-3 py-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition shadow-sm">
-切換其他課程
+<button onclick="switchTab('courses')" class="px-3 py-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition shadow-sm">
+返回課程清單
 </button>
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -385,8 +381,8 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 <div>
-<h3 class="font-black text-lg text-slate-900">🎓 請選擇欲管理成績與證書的課程場次</h3>
-<p class="text-xs text-slate-500 mt-0.5">點選下方課程場次，即可載入該場次學員名單並進行測驗成績登錄與證書發放</p>
+<h3 class="font-black text-lg text-slate-900">🎓 課程成績與證書管理</h3>
+<p class="text-xs text-slate-500 mt-0.5">亦可在此切換其他課程場次進行測驗成績登錄與證書發放</p>
 </div>
 <div class="w-full sm:w-72">
 <select id="selectCertCourseDropdown" onchange="onCertCourseSelect(this.value)" class="w-full h-11 border border-slate-300 rounded-xl px-3 font-bold text-slate-800 bg-white shadow-sm">
@@ -401,8 +397,8 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 <div class="text-xs font-bold text-blue-600">目前檢視中的課程場次</div>
 <div id="activeCertCourseTitleBanner" class="text-lg font-black text-slate-900 mt-0.5">-</div>
 </div>
-<button onclick="resetCertSelection()" class="px-3 py-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition shadow-sm">
-切換其他課程
+<button onclick="switchTab('courses')" class="px-3 py-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition shadow-sm">
+返回課程清單
 </button>
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -975,6 +971,43 @@ if (tab === 'enrollments' || tab === 'attendance' || tab === 'certificates') {
 loadEnrollmentData(tab);
 }
 }
+function openCourseEnrollments(courseId) {
+switchTab('enrollments');
+const selectEl = document.getElementById('filterCourseSelect');
+if (selectEl) {
+const hasOption = Array.from(selectEl.options).some(opt => String(opt.value) === String(courseId));
+selectEl.value = hasOption ? String(courseId) : 'all';
+}
+renderEnrollmentTable();
+}
+function openCourseAttendance(courseId) {
+selectedAttendanceCourseId = String(courseId);
+switchTab('attendance');
+const dropdown = document.getElementById('selectAttendanceCourseDropdown');
+if (dropdown) dropdown.value = String(courseId);
+const activeSec = document.getElementById('attendanceActiveSection');
+if (activeSec) activeSec.classList.remove('hidden');
+const courseObj = allCourses.find(c => String(c.course_id) === String(courseId));
+if (courseObj) {
+document.getElementById('activeCourseTitleBanner').textContent = `${courseObj.course_name} (${courseObj.date ? courseObj.date.split('T')[0] : '未定日期'})`;
+}
+updateAttendanceStatsForActiveCourse();
+renderAttendanceTable();
+}
+function openCourseCertificates(courseId) {
+selectedCertCourseId = String(courseId);
+switchTab('certificates');
+const dropdown = document.getElementById('selectCertCourseDropdown');
+if (dropdown) dropdown.value = String(courseId);
+const activeSec = document.getElementById('certActiveSection');
+if (activeSec) activeSec.classList.remove('hidden');
+const courseObj = allCourses.find(c => String(c.course_id) === String(courseId));
+if (courseObj) {
+document.getElementById('activeCertCourseTitleBanner').textContent = `${courseObj.course_name} (${courseObj.date ? courseObj.date.split('T')[0] : '未定日期'})`;
+}
+updateCertificateStatsForActiveCourse();
+renderCertificateTable();
+}
 function loadAllData() {
 loadCourses();
 loadEnrollmentData('enrollments');
@@ -1049,11 +1082,6 @@ document.getElementById('activeCourseTitleBanner').textContent = `${courseObj.co
 }
 loadEnrollmentData('attendance');
 }
-function resetAttendanceSelection() {
-selectedAttendanceCourseId = '';
-document.getElementById('selectAttendanceCourseDropdown').value = '';
-document.getElementById('attendanceActiveSection').classList.add('hidden');
-}
 function onCertCourseSelect(courseId) {
 selectedCertCourseId = courseId;
 const activeSec = document.getElementById('certActiveSection');
@@ -1067,11 +1095,6 @@ if (courseObj) {
 document.getElementById('activeCertCourseTitleBanner').textContent = `${courseObj.course_name} (${courseObj.date ? courseObj.date.split('T')[0] : '未定日期'})`;
 }
 loadEnrollmentData('certificates');
-}
-function resetCertSelection() {
-selectedCertCourseId = '';
-document.getElementById('selectCertCourseDropdown').value = '';
-document.getElementById('certActiveSection').classList.add('hidden');
 }
 function renderCourseTable() {
 const tbody = document.getElementById('courseTableBody');
@@ -1125,6 +1148,7 @@ const statusText = isExpired ? '已截止' : (c.course_status === 'closed' ? '�
 let statusClass = 'bg-emerald-100 text-emerald-800';
 if (isExpired || c.course_status === 'closed') statusClass = 'bg-rose-100 text-rose-800';
 else if (c.course_status === 'finished') statusClass = 'bg-slate-100 text-slate-600';
+const safeName = String(c.course_name || '').replace(/'/g, "\\'");
 return `
 <tr>
 <td class="font-bold text-slate-600 whitespace-nowrap">#${c.course_id || '-'}</td>
@@ -1148,18 +1172,28 @@ ${hasValidCert ? `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 
 <div class="text-slate-500 mt-0.5">👥 已報名 ${c.current_enrollment || 0} / 正取 ${c.capacity || 30}</div>
 </td>
 <td class="whitespace-nowrap"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${statusClass}">${statusText}</span></td>
-<td class="action-col whitespace-nowrap">
-<div class="action-group flex items-center gap-1.5">
-<button onclick="openAssignStudentsModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-sm transition flex items-center gap-1 cursor-pointer" title="指定上課學員（含系統帳號與非系統外部學員）">
-<span>👤</span>
-<span>指定學員</span>
+<td class="action-col">
+<div class="action-group">
+<button onclick="openCourseEnrollments('${c.course_id}')" class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-extrabold transition cursor-pointer">
+繳費資訊
 </button>
-<button onclick="openEmailReminderModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm transition flex items-center gap-1 cursor-pointer" title="發送行前通知">
-<span>✉️</span>
-<span>通知</span>
+<button onclick="openCourseAttendance('${c.course_id}')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-extrabold transition cursor-pointer">
+出勤簽到
+</button>
+<button onclick="openCourseCertificates('${c.course_id}')" class="px-2.5 py-1 rounded-lg bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200 text-xs font-extrabold transition cursor-pointer">
+成績證書
+</button>
+<button onclick="openFinanceReportModal('${c.course_id}')" class="px-2.5 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 text-xs font-extrabold transition cursor-pointer">
+財務報表
+</button>
+<button onclick="openAssignStudentsModal('${c.course_id}')" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-sm transition cursor-pointer">
+指定學員
+</button>
+<button onclick="openEmailReminderModal('${c.course_id}')" class="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm transition cursor-pointer">
+課程通知
 </button>
 <button class="action-btn edit" onclick="openCourseModal('edit', '${c.course_id}')" title="編輯課程">✏️</button>
-<button class="action-btn delete" onclick="deleteCourse('${c.course_id}', '${c.course_name}')" title="刪除課程">🗑</button>
+<button class="action-btn delete" onclick="deleteCourse('${c.course_id}', '${safeName}')" title="刪除課程">🗑</button>
 </div>
 </td>
 </tr>
@@ -1179,7 +1213,13 @@ payment_status: String(item.payment_status || 'unpaid').trim().toLowerCase(),
 admin_note: item.admin_note !== undefined ? item.admin_note : (item.adminNote !== undefined ? item.adminNote : (item.note !== undefined ? item.note : ''))
 }));
 updateEnrollmentStats();
+const prevCourseFilter = document.getElementById('filterCourseSelect')?.value || 'all';
 populateAllFilters(allEnrollments);
+const fSelect = document.getElementById('filterCourseSelect');
+if (fSelect && prevCourseFilter !== 'all') {
+const exists = Array.from(fSelect.options).some(opt => String(opt.value) === String(prevCourseFilter));
+if (exists) fSelect.value = prevCourseFilter;
+}
 if (activeTab === 'enrollments') renderEnrollmentTable();
 else if (activeTab === 'attendance') {
 updateAttendanceStatsForActiveCourse();
@@ -1240,14 +1280,18 @@ document.getElementById('statCertVerifiedCount').textContent = verified;
 document.getElementById('statCertPendingCount').textContent = pending;
 }
 function populateAllFilters(logs) {
-const set = new Set();
+const map = new Map();
+allCourses.forEach(c => {
+if (c.course_id) map.set(String(c.course_id), c.course_name || `課程 #${c.course_id}`);
+});
 logs.forEach(l => {
-if (l.course_name) set.add(JSON.stringify({ id: l.course_id, name: l.course_name }));
+if (l.course_id && l.course_name && !map.has(String(l.course_id))) {
+map.set(String(l.course_id), l.course_name);
+}
 });
 let html = `<option value="all">所有課程 (${logs.length}筆)</option>`;
-set.forEach(item => {
-const c = JSON.parse(item);
-html += `<option value="${c.id}">${c.name}</option>`;
+map.forEach((name, id) => {
+html += `<option value="${id}">${name}</option>`;
 });
 const fSelect = document.getElementById('filterCourseSelect');
 if (fSelect) fSelect.innerHTML = html;
@@ -1463,11 +1507,13 @@ showToast('網路連線異常，請重試', 'error');
 };
 document.body.appendChild(script);
 }
-function openFinanceReportModal() {
+function openFinanceReportModal(courseId = 'all') {
 const courseSelect = document.getElementById('financeCourseFilter');
 if (courseSelect) {
 courseSelect.innerHTML = `<option value="all">全部課程總覽（共 ${allCourses.length} 門）</option>` +
 allCourses.map(c => `<option value="${c.course_id}">${c.course_name} (${c.date ? c.date.split('T')[0] : '未定'})</option>`).join('');
+const hasCourse = courseId && courseId !== 'all' && Array.from(courseSelect.options).some(opt => String(opt.value) === String(courseId));
+courseSelect.value = hasCourse ? String(courseId) : 'all';
 }
 const statusFilter = document.getElementById('financeStatusFilter');
 if (statusFilter) statusFilter.value = 'all';
