@@ -46,9 +46,11 @@ body{ margin:0; padding:0; background:#f8fafc; font-family:system-ui,-apple-syst
 .user-table td{ padding:14px 16px; vertical-align:middle; border-bottom:1px solid #e2e8f0; font-size:14px; }
 .user-table tbody tr:hover{ background:#f8fafc; }
 
-/* 操作圖示說明列 */
-.icon-guide-bar{ display:flex; align-items:center; gap:8px 14px; flex-wrap:wrap; padding:10px 20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; font-size:12px; color:#475569; }
-.icon-guide-item{ display:inline-flex; align-items:center; gap:5px; font-weight:600; }
+/* 簡潔操作圖示對照列 */
+.icon-legend-strip{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:8px 20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; font-size:12px; color:#64748b; }
+.icon-legend-tag{ display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:6px; background:#fff; border:1px solid #e2e8f0; color:#475569; font-weight:700; cursor:pointer; transition:.15s; }
+.icon-legend-tag:hover, .icon-legend-tag.active{ border-color:#93c5fd; background:#eff6ff; color:#1d4ed8; }
+.icon-legend-sep{ color:#cbd5e1; user-select:none; }
 
 /* 風格 C：緊湊高密度儀表板樣式 */
 .desktop-course-view{ display:none; }
@@ -63,9 +65,6 @@ body{ margin:0; padding:0; background:#f8fafc; font-family:system-ui,-apple-syst
 .compact-table td{ padding:10px 10px; vertical-align:middle; border-bottom:1px solid #f1f5f9; color:#0f172a; }
 .compact-table tbody tr:last-child td{ border-bottom:none; }
 .compact-table tbody tr:hover{ background:#f8fafc; }
-.legend-chip{ display:inline-flex; align-items:center; gap:4px; padding:3px 7px; border-radius:7px; font-size:11px; font-weight:700; color:#cbd5e1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); cursor:pointer; transition:all .15s ease; user-select:none; }
-.legend-chip:hover, .legend-chip.active{ color:#ffffff; background:rgba(59,130,246,0.28); border-color:rgba(96,165,250,0.65); }
-.legend-chip.danger:hover, .legend-chip.danger.active{ color:#fecaca; background:rgba(239,68,68,0.25); border-color:rgba(248,113,113,0.6); }
 .c-icon-btn{ position:relative; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:7px; border:1px solid transparent; color:#64748b; background:transparent; cursor:pointer; transition:all .15s ease; }
 .c-icon-btn:hover{ background:#f1f5f9; color:#0f172a; border-color:#e2e8f0; }
 .c-icon-btn.accent-btn{ color:#2563eb; background:#eff6ff; border-color:#dbeafe; }
@@ -223,33 +222,28 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 <section class="table-panel">
 <div class="table-header">
 <div class="table-title"><i data-lucide="clipboard-list" class="w-4 h-4 text-blue-400"></i><span>課程清單</span></div>
-<div id="compactIconLegend" class="hidden xl:flex items-center gap-1 flex-wrap" title="滑鼠移入或點擊可高亮對應操作圖示">
-<span class="text-[11px] text-slate-400 font-semibold mr-1">圖示對照：</span>
-<button type="button" data-legend="payment" onmouseenter="highlightActionIcon('payment', true)" onmouseleave="highlightActionIcon('payment', false)" onclick="toggleLegendLock('payment')" class="legend-chip"><i data-lucide="credit-card" class="w-3 h-3"></i><span>繳費資訊</span></button>
-<button type="button" data-legend="attendance" onmouseenter="highlightActionIcon('attendance', true)" onmouseleave="highlightActionIcon('attendance', false)" onclick="toggleLegendLock('attendance')" class="legend-chip"><i data-lucide="clipboard-check" class="w-3 h-3"></i><span>出勤簽到</span></button>
-<button type="button" data-legend="certificate" onmouseenter="highlightActionIcon('certificate', true)" onmouseleave="highlightActionIcon('certificate', false)" onclick="toggleLegendLock('certificate')" class="legend-chip"><i data-lucide="award" class="w-3 h-3"></i><span>成績證書</span></button>
-<button type="button" data-legend="finance" onmouseenter="highlightActionIcon('finance', true)" onmouseleave="highlightActionIcon('finance', false)" onclick="toggleLegendLock('finance')" class="legend-chip"><i data-lucide="receipt" class="w-3 h-3"></i><span>財務報表</span></button>
-<button type="button" data-legend="assign" onmouseenter="highlightActionIcon('assign', true)" onmouseleave="highlightActionIcon('assign', false)" onclick="toggleLegendLock('assign')" class="legend-chip"><i data-lucide="user-plus" class="w-3 h-3"></i><span>指定學員</span></button>
-<button type="button" data-legend="mail" onmouseenter="highlightActionIcon('mail', true)" onmouseleave="highlightActionIcon('mail', false)" onclick="toggleLegendLock('mail')" class="legend-chip"><i data-lucide="mail" class="w-3 h-3"></i><span>課程通知</span></button>
-<button type="button" data-legend="edit" onmouseenter="highlightActionIcon('edit', true)" onmouseleave="highlightActionIcon('edit', false)" onclick="toggleLegendLock('edit')" class="legend-chip"><i data-lucide="pencil" class="w-3 h-3"></i><span>修改課程</span></button>
-<button type="button" data-legend="delete" onmouseenter="highlightActionIcon('delete', true)" onmouseleave="highlightActionIcon('delete', false)" onclick="toggleLegendLock('delete')" class="legend-chip danger"><i data-lucide="trash-2" class="w-3 h-3"></i><span>刪除課程</span></button>
-</div>
 <div class="flex items-center gap-2 flex-wrap">
 <button class="btn-primary inline-flex items-center gap-1.5" onclick="openCourseModal('create')"><i data-lucide="plus" class="w-4 h-4"></i><span>新增課程</span></button>
 </div>
 </div>
 
-<!-- 操作圖示功能說明列：清楚標示每個操作圖示的作用 -->
-<div class="icon-guide-bar" aria-label="快捷操作圖示功能說明">
-<span class="font-extrabold text-slate-700">操作圖示說明：</span>
-<span class="icon-guide-item"><i data-lucide="credit-card" class="w-3.5 h-3.5 text-slate-600"></i><strong>繳費資訊</strong>（查看報名與對帳）</span>
-<span class="icon-guide-item"><i data-lucide="clipboard-check" class="w-3.5 h-3.5 text-slate-600"></i><strong>出勤簽到</strong>（記錄簽到與簽退）</span>
-<span class="icon-guide-item"><i data-lucide="award" class="w-3.5 h-3.5 text-slate-600"></i><strong>成績證書</strong>（登錄成績與發證）</span>
-<span class="icon-guide-item"><i data-lucide="receipt" class="w-3.5 h-3.5 text-slate-600"></i><strong>財務報表</strong>（查看收款與退費明細）</span>
-<span class="icon-guide-item"><i data-lucide="user-plus" class="w-3.5 h-3.5 text-blue-600"></i><strong>指定學員</strong>（指派系統或外部學員）</span>
-<span class="icon-guide-item"><i data-lucide="mail" class="w-3.5 h-3.5 text-slate-600"></i><strong>課程通知</strong>（寄發行前通知信）</span>
-<span class="icon-guide-item"><i data-lucide="pencil" class="w-3.5 h-3.5 text-slate-600"></i><strong>修改課程</strong>（編輯課程內容與名額）</span>
-<span class="icon-guide-item"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-600"></i><strong>刪除課程</strong>（移除此課程場次）</span>
+<!-- 精簡圖示對照列 -->
+<div class="icon-legend-strip" id="compactIconLegend">
+<button type="button" data-legend="payment" onclick="toggleLegendLock('payment')" class="icon-legend-tag"><i data-lucide="credit-card" class="w-3.5 h-3.5"></i><span>繳費</span></button>
+<span class="icon-legend-sep">|</span>
+<button type="button" data-legend="attendance" onclick="toggleLegendLock('attendance')" class="icon-legend-tag"><i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i><span>簽到</span></button>
+<span class="icon-legend-sep">|</span>
+<button type="button" data-legend="certificate" onclick="toggleLegendLock('certificate')" class="icon-legend-tag"><i data-lucide="award" class="w-3.5 h-3.5"></i><span>證書</span></button>
+<span class="icon-legend-sep">|</span>
+<button type="button" data-legend="finance" onclick="toggleLegendLock('finance')" class="icon-legend-tag"><i data-lucide="receipt" class="w-3.5 h-3.5"></i><span>財務</span></button>
+<span class="icon-legend-sep">|</span>
+<button type="button" data-legend="assign" onclick="toggleLegendLock('assign')" class="icon-legend-tag"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i><span>指定</span></button>
+<span class="icon-legend-sep">|</span>
+<button type="button" data-legend="mail" onclick="toggleLegendLock('mail')" class="icon-legend-tag"><i data-lucide="mail" class="w-3.5 h-3.5"></i><span>通知</span></button>
+<span class="icon-legend-sep">|</span>
+<button type="button" data-legend="edit" onclick="toggleLegendLock('edit')" class="icon-legend-tag"><i data-lucide="pencil" class="w-3.5 h-3.5"></i><span>修改</span></button>
+<span class="icon-legend-sep">|</span>
+<button type="button" data-legend="delete" onclick="toggleLegendLock('delete')" class="icon-legend-tag"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i><span>刪除</span></button>
 </div>
 
 <!-- 桌機/平板版：風格 C 緊湊高密度表格 -->
@@ -851,7 +845,6 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 <input type="hidden" id="assign_course_id" value="">
 <input type="hidden" id="assign_default_fee" value="0">
 
-<!-- 區塊一：系統帳號成員 -->
 <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
 <div class="font-extrabold text-sm text-slate-800">1. 挑選系統帳號成員</div>
@@ -862,7 +855,6 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 </div>
 </div>
 
-<!-- 區塊二：非系統帳號外部學員（僅限本課程） -->
 <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 space-y-3">
 <div class="flex items-center justify-between gap-2 flex-wrap">
 <div class="font-extrabold text-sm text-amber-950">2. 輸入非系統帳號外部學員（僅限指定此課程，不會建立系統帳號）</div>
@@ -904,7 +896,6 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 </div>
 </div>
 
-<!-- 區塊三：待指派學員清單 -->
 <div class="border border-slate-200 rounded-2xl p-4 space-y-2.5 bg-white">
 <div class="flex items-center justify-between">
 <div class="font-extrabold text-sm text-slate-800">待指派學員清單（<span id="pendingAssignCount">0</span> 人）</div>
@@ -953,17 +944,9 @@ return String(str ?? '')
   .replace(/>/g, '&gt;');
 }
 
-function highlightActionIcon(actionKey, active) {
-if (lockedLegendAction && lockedLegendAction !== actionKey) return;
-const effectiveActive = lockedLegendAction === actionKey ? true : active;
-document.querySelectorAll(`.c-icon-btn[data-action="${actionKey}"]`).forEach(btn => {
-btn.classList.toggle('highlighted', effectiveActive);
-});
-}
-
 function toggleLegendLock(actionKey) {
 lockedLegendAction = (lockedLegendAction === actionKey) ? null : actionKey;
-document.querySelectorAll('#compactIconLegend .legend-chip').forEach(chip => {
+document.querySelectorAll('#compactIconLegend .icon-legend-tag').forEach(chip => {
 chip.classList.toggle('active', chip.dataset.legend === lockedLegendAction);
 });
 document.querySelectorAll('.c-icon-btn').forEach(btn => {
@@ -1239,22 +1222,22 @@ ${hasValidCert ? `<div class="text-[11px] text-slate-500 mt-0.5 truncate">證照
 <td class="whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${statusClass}">${statusText}</span></td>
 <td class="text-right whitespace-nowrap">
 <div class="inline-flex items-center gap-0.5">
-<!-- 1. 繳費資訊圖示：開啟該課程報名與對帳清單 -->
-<button type="button" data-action="payment" data-tip="繳費資訊：查看報名與對帳" aria-label="繳費資訊" onclick="openCourseEnrollments('${c.course_id}')" class="c-icon-btn"><i data-lucide="credit-card" class="w-3.5 h-3.5"></i></button>
-<!-- 2. 出勤簽到圖示：記錄學員簽到與簽退 -->
-<button type="button" data-action="attendance" data-tip="出勤簽到：記錄簽到與簽退" aria-label="出勤簽到" onclick="openCourseAttendance('${c.course_id}')" class="c-icon-btn"><i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i></button>
-<!-- 3. 成績證書圖示：登錄測驗成績與核發證書 -->
-<button type="button" data-action="certificate" data-tip="成績證書：登錄成績與發證" aria-label="成績證書" onclick="openCourseCertificates('${c.course_id}')" class="c-icon-btn"><i data-lucide="award" class="w-3.5 h-3.5"></i></button>
-<!-- 4. 財務報表圖示：查看該課程收費與退費統計 -->
-<button type="button" data-action="finance" data-tip="財務報表：查看收款與退費" aria-label="財務報表" onclick="openFinanceReportModal('${c.course_id}')" class="c-icon-btn"><i data-lucide="receipt" class="w-3.5 h-3.5"></i></button>
-<!-- 5. 指定學員圖示：指派系統帳號或外部學員上課 -->
-<button type="button" data-action="assign" data-tip="指定學員：指派系統或外部學員" aria-label="指定學員" onclick="openAssignStudentsModal('${c.course_id}')" class="c-icon-btn accent-btn"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i></button>
-<!-- 6. 課程通知圖示：寄發行前通知信給報名學員 -->
-<button type="button" data-action="mail" data-tip="課程通知：寄發行前通知信" aria-label="課程通知" onclick="openEmailReminderModal('${c.course_id}')" class="c-icon-btn"><i data-lucide="mail" class="w-3.5 h-3.5"></i></button>
-<!-- 7. 修改課程圖示：編輯課程資訊、時間、費用與名額 -->
-<button type="button" data-action="edit" data-tip="修改課程：編輯課程資料" aria-label="修改課程" onclick="openCourseModal('edit', '${c.course_id}')" class="c-icon-btn"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
-<!-- 8. 刪除課程圖示：刪除此課程場次 -->
-<button type="button" data-action="delete" data-tip="刪除課程：移除此課程" aria-label="刪除課程" onclick="deleteCourse('${c.course_id}', '${safeJsName}')" class="c-icon-btn delete-btn"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+<!-- 繳費 -->
+<button type="button" data-action="payment" data-tip="繳費" aria-label="繳費" onclick="openCourseEnrollments('${c.course_id}')" class="c-icon-btn"><i data-lucide="credit-card" class="w-3.5 h-3.5"></i></button>
+<!-- 簽到 -->
+<button type="button" data-action="attendance" data-tip="簽到" aria-label="簽到" onclick="openCourseAttendance('${c.course_id}')" class="c-icon-btn"><i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i></button>
+<!-- 證書 -->
+<button type="button" data-action="certificate" data-tip="證書" aria-label="證書" onclick="openCourseCertificates('${c.course_id}')" class="c-icon-btn"><i data-lucide="award" class="w-3.5 h-3.5"></i></button>
+<!-- 財務 -->
+<button type="button" data-action="finance" data-tip="財務" aria-label="財務" onclick="openFinanceReportModal('${c.course_id}')" class="c-icon-btn"><i data-lucide="receipt" class="w-3.5 h-3.5"></i></button>
+<!-- 指定 -->
+<button type="button" data-action="assign" data-tip="指定" aria-label="指定" onclick="openAssignStudentsModal('${c.course_id}')" class="c-icon-btn accent-btn"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i></button>
+<!-- 通知 -->
+<button type="button" data-action="mail" data-tip="通知" aria-label="通知" onclick="openEmailReminderModal('${c.course_id}')" class="c-icon-btn"><i data-lucide="mail" class="w-3.5 h-3.5"></i></button>
+<!-- 修改 -->
+<button type="button" data-action="edit" data-tip="修改" aria-label="修改" onclick="openCourseModal('edit', '${c.course_id}')" class="c-icon-btn"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+<!-- 刪除 -->
+<button type="button" data-action="delete" data-tip="刪除" aria-label="刪除" onclick="deleteCourse('${c.course_id}', '${safeJsName}')" class="c-icon-btn delete-btn"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
 </div>
 </td>
 </tr>
@@ -1294,14 +1277,14 @@ return `
 <div><span class="text-slate-400">名額/費用：</span><span class="font-bold text-slate-900">${Number(c.current_enrollment) || 0}/${Number(c.capacity) || 30}・${Number(c.fee) === 0 ? '免費' : 'NT$' + Number(c.fee).toLocaleString()}</span></div>
 </div>
 <div class="flex flex-wrap gap-1.5 pt-1">
-<button type="button" onclick="openCourseEnrollments('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">繳費資訊（查看報名與對帳）</button>
-<button type="button" onclick="openCourseAttendance('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">出勤簽到（簽到與簽退）</button>
-<button type="button" onclick="openCourseCertificates('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">成績證書（成績與發證）</button>
-<button type="button" onclick="openFinanceReportModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">財務報表（收款與退費）</button>
-<button type="button" onclick="openAssignStudentsModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg bg-blue-50 text-xs font-bold text-blue-700">指定學員（指派名單）</button>
-<button type="button" onclick="openEmailReminderModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">課程通知（行前信）</button>
-<button type="button" onclick="openCourseModal('edit', '${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">修改課程</button>
-<button type="button" onclick="deleteCourse('${c.course_id}', '${safeJsName}')" class="px-2.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50 text-xs font-bold text-rose-600">刪除課程</button>
+<button type="button" onclick="openCourseEnrollments('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">繳費</button>
+<button type="button" onclick="openCourseAttendance('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">簽到</button>
+<button type="button" onclick="openCourseCertificates('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">證書</button>
+<button type="button" onclick="openFinanceReportModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">財務</button>
+<button type="button" onclick="openAssignStudentsModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg bg-blue-50 text-xs font-bold text-blue-700">指定</button>
+<button type="button" onclick="openEmailReminderModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">通知</button>
+<button type="button" onclick="openCourseModal('edit', '${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">修改</button>
+<button type="button" onclick="deleteCourse('${c.course_id}', '${safeJsName}')" class="px-2.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50 text-xs font-bold text-rose-600">刪除</button>
 </div>
 </div>
 `;
