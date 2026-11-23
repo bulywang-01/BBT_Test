@@ -37,23 +37,40 @@ body{ margin:0; padding:0; background:#f8fafc; font-family:system-ui,-apple-syst
 .btn-primary:hover{ background:#1d4ed8; }
 .btn-outline{ border:1px solid #cbd5e1; background:#fff; color:#334155; border-radius:12px; padding:9px 16px; font-weight:700; font-size:14px; cursor:pointer; transition:.2s; white-space:nowrap; }
 .btn-outline:hover{ background:#f8fafc; border-color:#94a3b8; }
-.table-panel{ background:#fff; border:1px solid #e2e8f0; border-radius:18px; overflow:hidden; box-shadow:0 4px 14px rgba(15,23,42,.04); }
-.table-header{ display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#0f172a; border-bottom:1px solid #1e293b; color:#fff; gap:12px; }
+.table-panel{ background:#fff; border:1px solid #e2e8f0; border-radius:18px; overflow:visible; box-shadow:0 4px 14px rgba(15,23,42,.04); }
+.table-header{ display:flex; justify-content:space-between; align-items:center; padding:14px 20px; background:#0f172a; border-bottom:1px solid #1e293b; border-radius:18px 18px 0 0; color:#fff; gap:12px; flex-wrap:wrap; }
 .table-title{ font-size:16px; font-weight:800; letter-spacing:0.01em; display:flex; align-items:center; gap:8px; }
 .table-wrapper{ width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
 .user-table{ width:100%; min-width:900px; border-collapse:collapse; }
 .user-table th{ background:#f8fafc; padding:12px 16px; text-align:left; font-size:12px; color:#64748b; font-weight:800; letter-spacing:0.03em; border-bottom:1px solid #e2e8f0; white-space:nowrap; }
-.user-table td{ padding:16px; vertical-align:middle; border-bottom:1px solid #f1f5f9; font-size:14px; }
+.user-table td{ padding:14px 16px; vertical-align:middle; border-bottom:1px solid #f1f5f9; font-size:14px; }
 .user-table tbody tr:last-child td{ border-bottom:none; }
 .user-table tbody tr{ transition:background-color .15s ease; }
 .user-table tbody tr:hover{ background:#f8fafc; }
+
+/* 風格 C：緊湊高密度儀表板樣式（僅桌機表格啟用，不影響手機版） */
+.compact-table{ width:100%; min-width:980px; border-collapse:collapse; font-size:12.5px; }
+.compact-table th{ background:#f8fafc; padding:10px 10px; text-align:left; font-size:11px; color:#64748b; font-weight:800; letter-spacing:0.03em; border-bottom:1px solid #e2e8f0; white-space:nowrap; }
+.compact-table td{ padding:10px 10px; vertical-align:middle; border-bottom:1px solid #f1f5f9; }
+.compact-table tbody tr:last-child td{ border-bottom:none; }
+.compact-table tbody tr:hover{ background:#f8fafc; }
+.legend-chip{ display:inline-flex; align-items:center; gap:4px; padding:3px 7px; border-radius:7px; font-size:11px; font-weight:700; color:#cbd5e1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); cursor:pointer; transition:all .15s ease; user-select:none; }
+.legend-chip:hover, .legend-chip.active{ color:#ffffff; background:rgba(59,130,246,0.28); border-color:rgba(96,165,250,0.65); }
+.legend-chip.danger:hover, .legend-chip.danger.active{ color:#fecaca; background:rgba(239,68,68,0.25); border-color:rgba(248,113,113,0.6); }
+.c-icon-btn{ position:relative; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:7px; border:1px solid transparent; color:#64748b; background:transparent; cursor:pointer; transition:all .15s ease; }
+.c-icon-btn:hover{ background:#f1f5f9; color:#0f172a; border-color:#e2e8f0; }
+.c-icon-btn.accent-btn{ color:#2563eb; background:#eff6ff; border-color:#dbeafe; }
+.c-icon-btn.accent-btn:hover{ background:#dbeafe; color:#1d4ed8; }
+.c-icon-btn.delete-btn{ color:#94a3b8; }
+.c-icon-btn.delete-btn:hover{ background:#fef2f2; color:#dc2626; border-color:#fecaca; }
+.c-icon-btn.highlighted{ background:#eff6ff !important; color:#1d4ed8 !important; border-color:#93c5fd !important; box-shadow:0 0 0 2px rgba(59,130,246,0.22); transform:translateY(-1px); }
+.c-icon-btn.delete-btn.highlighted{ background:#fef2f2 !important; color:#dc2626 !important; border-color:#fca5a5 !important; box-shadow:0 0 0 2px rgba(239,68,68,0.2); transform:translateY(-1px); }
+.c-icon-btn[data-tip]:hover::after{ content:attr(data-tip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:#0f172a; color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; white-space:nowrap; z-index:60; pointer-events:none; box-shadow:0 4px 12px rgba(15,23,42,0.2); }
+
 .role-badge{ display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:6px; font-size:11px; font-weight:700; white-space:nowrap; }
 .badge-judge{ background:#eff6ff; color:#1d4ed8; border:1px solid #dbeafe; }
 .badge-record{ background:#f5f3ff; color:#6d28d9; border:1px solid #ede9fe; }
 .badge-general{ background:#f8fafc; color:#475569; border:1px solid #e2e8f0; }
-.meta-row{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:#334155; line-height:1.45; }
-.meta-sub{ display:flex; align-items:center; gap:6px; font-size:12px; color:#64748b; margin-top:4px; line-height:1.4; }
-.meta-icon{ width:14px; height:14px; color:#94a3b8; flex-shrink:0; }
 .modal{ position:fixed; inset:0; background:rgba(15,23,42,.45); display:flex; justify-content:center; align-items:center; z-index:9999; padding:16px; }
 .modal.hidden{ display:none; }
 .modal-dialog{ width:100%; max-width:850px; background:#ffffff; border-radius:18px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.2); max-height:90vh; display:flex; flex-direction:column; }
@@ -75,14 +92,6 @@ body{ margin:0; padding:0; background:#f8fafc; font-family:system-ui,-apple-syst
 #loadingMask{ position:fixed; inset:0; background:rgba(15,23,42,.25); display:flex; justify-content:center; align-items:center; z-index:20000; }
 #loadingMask.hidden{ display:none; }
 .loading-box{ background:#fff; padding:20px 28px; border-radius:16px; font-weight:700; box-shadow:0 8px 24px rgba(0,0,0,.15); }
-.action-stack{ display:flex; flex-direction:column; gap:6px; align-items:flex-end; }
-.action-row{ display:flex; flex-wrap:wrap; gap:5px; justify-content:flex-end; }
-.action-btn{ font-size:11.5px; line-height:1.2; font-weight:700; padding:5px 9px; border-radius:7px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; justify-content:center; gap:4px; white-space:nowrap; border:1px solid #e2e8f0; background:#fff; color:#334155; }
-.action-btn:hover{ background:#f8fafc; border-color:#cbd5e1; color:#0f172a; }
-.action-btn.accent{ background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe; }
-.action-btn.accent:hover{ background:#dbeafe; }
-.action-btn.delete{ background:#fff; color:#64748b; border-color:#e2e8f0; }
-.action-btn.delete:hover{ background:#fef2f2; color:#b91c1c; border-color:#fecaca; }
 button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; filter: grayscale(50%); }
 </style>
 </head>
@@ -205,27 +214,50 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 <section class="table-panel">
 <div class="table-header">
 <div class="table-title"><i data-lucide="clipboard-list" class="w-4 h-4 text-blue-400"></i><span>課程清單</span></div>
+<!-- 桌機版精簡圖示對照列（手機版隱藏，不佔空間也不影響手機排版） -->
+<div id="compactIconLegend" class="hidden xl:flex items-center gap-1 flex-wrap" title="滑鼠移入或點擊可高亮對應操作圖示">
+<span class="text-[11px] text-slate-400 font-semibold mr-1">圖示對照：</span>
+<button type="button" data-legend="payment" onmouseenter="highlightActionIcon('payment', true)" onmouseleave="highlightActionIcon('payment', false)" onclick="toggleLegendLock('payment')" class="legend-chip"><i data-lucide="credit-card" class="w-3 h-3"></i><span>繳費</span></button>
+<button type="button" data-legend="attendance" onmouseenter="highlightActionIcon('attendance', true)" onmouseleave="highlightActionIcon('attendance', false)" onclick="toggleLegendLock('attendance')" class="legend-chip"><i data-lucide="clipboard-check" class="w-3 h-3"></i><span>簽到</span></button>
+<button type="button" data-legend="certificate" onmouseenter="highlightActionIcon('certificate', true)" onmouseleave="highlightActionIcon('certificate', false)" onclick="toggleLegendLock('certificate')" class="legend-chip"><i data-lucide="award" class="w-3 h-3"></i><span>證書</span></button>
+<button type="button" data-legend="finance" onmouseenter="highlightActionIcon('finance', true)" onmouseleave="highlightActionIcon('finance', false)" onclick="toggleLegendLock('finance')" class="legend-chip"><i data-lucide="receipt" class="w-3 h-3"></i><span>財務</span></button>
+<button type="button" data-legend="assign" onmouseenter="highlightActionIcon('assign', true)" onmouseleave="highlightActionIcon('assign', false)" onclick="toggleLegendLock('assign')" class="legend-chip"><i data-lucide="user-plus" class="w-3 h-3"></i><span>指定</span></button>
+<button type="button" data-legend="mail" onmouseenter="highlightActionIcon('mail', true)" onmouseleave="highlightActionIcon('mail', false)" onclick="toggleLegendLock('mail')" class="legend-chip"><i data-lucide="mail" class="w-3 h-3"></i><span>通知</span></button>
+<button type="button" data-legend="edit" onmouseenter="highlightActionIcon('edit', true)" onmouseleave="highlightActionIcon('edit', false)" onclick="toggleLegendLock('edit')" class="legend-chip"><i data-lucide="pencil" class="w-3 h-3"></i><span>修改</span></button>
+<button type="button" data-legend="delete" onmouseenter="highlightActionIcon('delete', true)" onmouseleave="highlightActionIcon('delete', false)" onclick="toggleLegendLock('delete')" class="legend-chip danger"><i data-lucide="trash-2" class="w-3 h-3"></i><span>刪除</span></button>
+</div>
 <div class="flex items-center gap-2 flex-wrap">
 <button class="btn-primary inline-flex items-center gap-1.5" onclick="openCourseModal('create')"><i data-lucide="plus" class="w-4 h-4"></i><span>新增課程</span></button>
 </div>
 </div>
-<div class="table-wrapper">
-<table class="user-table">
+
+<!-- 桌機/平板版：風格 C 緊湊高密度表格 -->
+<div class="hidden md:block table-wrapper">
+<table class="compact-table">
 <thead>
 <tr>
-<th>編號</th>
-<th>課程名稱 / 類型</th>
-<th>日期與時間</th>
-<th>地點 / 講師</th>
-<th>名額與費用</th>
-<th>報名狀態</th>
-<th class="text-right">操作</th>
+<th>#</th>
+<th>課程名稱</th>
+<th>類型</th>
+<th>上課日期</th>
+<th>截止日期</th>
+<th>地點</th>
+<th>講師</th>
+<th>費用</th>
+<th>名額</th>
+<th>狀態</th>
+<th class="text-right">快捷操作</th>
 </tr>
 </thead>
 <tbody id="courseTableBody">
-<tr><td colspan="7" class="text-center py-6 text-slate-400">載入課程中...</td></tr>
+<tr><td colspan="11" class="text-center py-6 text-slate-400">載入課程中...</td></tr>
 </tbody>
 </table>
+</div>
+
+<!-- 手機版：獨立卡片式列表，保持清楚好點按，不受高密度表格影響 -->
+<div id="courseMobileList" class="block md:hidden divide-y divide-slate-100">
+<div class="text-center py-8 text-slate-400 font-bold text-sm">載入課程中...</div>
 </div>
 </section>
 </div>
@@ -883,9 +915,34 @@ let activeMailCourse = null;
 let validMailRecipients = [];
 let allSystemUsers = [];
 let pendingAssignStudents = [];
+let lockedLegendAction = null;
+
 function refreshIcons() {
 if (typeof lucide !== 'undefined') lucide.createIcons();
 }
+
+function highlightActionIcon(actionKey, active) {
+if (lockedLegendAction && lockedLegendAction !== actionKey) return;
+const effectiveActive = lockedLegendAction === actionKey ? true : active;
+document.querySelectorAll(`.c-icon-btn[data-action="${actionKey}"]`).forEach(btn => {
+btn.classList.toggle('highlighted', effectiveActive);
+});
+}
+
+function toggleLegendLock(actionKey) {
+if (lockedLegendAction === actionKey) {
+lockedLegendAction = null;
+} else {
+lockedLegendAction = actionKey;
+}
+document.querySelectorAll('#compactIconLegend .legend-chip').forEach(chip => {
+chip.classList.toggle('active', chip.dataset.legend === lockedLegendAction);
+});
+document.querySelectorAll('.c-icon-btn').forEach(btn => {
+btn.classList.toggle('highlighted', lockedLegendAction !== null && btn.dataset.action === lockedLegendAction);
+});
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 refreshIcons();
 loadUserInfo();
@@ -1074,13 +1131,15 @@ document.getElementById('kpiTotalEnrollments').textContent = enrollments;
 }
 function renderCourseTable() {
 const tbody = document.getElementById('courseTableBody');
+const mobileList = document.getElementById('courseMobileList');
 const keyword = (document.getElementById('txtSearch').value || '').toLowerCase();
 const filtered = allCourses.filter(c => {
 const match = [c.course_name, c.instructor, c.location].join(' ').toLowerCase();
 return !keyword || match.includes(keyword);
 });
 if (!filtered.length) {
-tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-bold">目前無符合條件的課程</td></tr>`;
+tbody.innerHTML = `<tr><td colspan="11" class="text-center py-8 text-slate-400 font-bold">目前無符合條件的課程</td></tr>`;
+if (mobileList) mobileList.innerHTML = `<div class="text-center py-8 text-slate-400 font-bold text-sm">目前無符合條件的課程</div>`;
 return;
 }
 const todayStr = new Date().toISOString().split('T')[0];
@@ -1106,6 +1165,7 @@ if (y > 2020) return `${y}-${m}-${day}`;
 }
 return str.split(' ')[0] || '';
 };
+
 tbody.innerHTML = filtered.map(c => {
 const typeBadge = c.course_type === 'judge' ? 'badge-judge' : (c.course_type === 'record' ? 'badge-record' : 'badge-general');
 const typeMap = { 'judge': '裁判培訓', 'record': '紀錄培訓', 'general': '通識教育' };
@@ -1128,46 +1188,87 @@ const safeName = String(c.course_name || '').replace(/'/g, "\\'");
 return `
 <tr>
 <td class="font-mono text-xs font-bold text-slate-400 whitespace-nowrap">#${c.course_id || '-'}</td>
-<td class="min-w-[190px]">
-<div class="font-extrabold text-slate-900 text-[15px] leading-snug">${c.course_name || '-'}</div>
-<div class="flex flex-wrap items-center gap-1.5 mt-1.5">
-<span class="role-badge ${typeBadge}">${typeLabel}</span>
-${hasValidCert ? `<span class="text-[11px] bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-md font-semibold whitespace-nowrap">證照：裁判 ${formattedLevel}</span>` : ''}
-</div>
+<td class="max-w-[220px]">
+<div class="font-extrabold text-slate-900 text-[13px] truncate" title="${c.course_name || '-'}">${c.course_name || '-'}</div>
+${hasValidCert ? `<div class="text-[11px] text-slate-500 mt-0.5 truncate">證照：裁判 ${formattedLevel}</div>` : ''}
 </td>
-<td class="whitespace-nowrap">
-<div class="meta-row font-semibold text-slate-800"><i data-lucide="calendar" class="meta-icon"></i><span>上課：${startDate || '未定'}</span></div>
-<div class="meta-sub ${endDate ? 'text-rose-600 font-semibold' : ''}"><i data-lucide="clock" class="meta-icon ${endDate ? 'text-rose-400' : ''}"></i><span>截止：${endDate || '未設定'}</span></div>
-</td>
-<td class="min-w-[150px]">
-<div class="meta-row font-semibold text-slate-800"><i data-lucide="map-pin" class="meta-icon"></i><span>${c.location || '實體/線上'}</span></div>
-<div class="meta-sub"><i data-lucide="user" class="meta-icon"></i><span>${c.instructor || '未指定'}</span></div>
-</td>
-<td class="whitespace-nowrap">
-<div class="meta-row font-bold text-slate-900"><i data-lucide="wallet" class="meta-icon"></i><span>${c.fee == 0 ? '免費' : 'NT$ ' + Number(c.fee).toLocaleString()}</span></div>
-<div class="meta-sub"><i data-lucide="users" class="meta-icon"></i><span>已報 ${c.current_enrollment || 0} / 正取 ${c.capacity || 30}</span></div>
-</td>
-<td class="whitespace-nowrap"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${statusClass}">${statusText}</span></td>
-<td class="action-col">
-<div class="action-stack">
-<div class="action-row">
-<button type="button" onclick="openCourseEnrollments('${c.course_id}')" class="action-btn">繳費資訊</button>
-<button type="button" onclick="openCourseAttendance('${c.course_id}')" class="action-btn">出勤簽到</button>
-<button type="button" onclick="openCourseCertificates('${c.course_id}')" class="action-btn">成績證書</button>
-<button type="button" onclick="openFinanceReportModal('${c.course_id}')" class="action-btn">財務報表</button>
-</div>
-<div class="action-row">
-<button type="button" onclick="openAssignStudentsModal('${c.course_id}')" class="action-btn accent"><i data-lucide="user-plus" class="w-3 h-3"></i><span>指定學員</span></button>
-<button type="button" onclick="openEmailReminderModal('${c.course_id}')" class="action-btn"><i data-lucide="mail" class="w-3 h-3"></i><span>課程通知</span></button>
-<button type="button" class="action-btn" onclick="openCourseModal('edit', '${c.course_id}')"><i data-lucide="pencil" class="w-3 h-3"></i><span>修改</span></button>
-<button type="button" class="action-btn delete" onclick="deleteCourse('${c.course_id}', '${safeName}')"><i data-lucide="trash-2" class="w-3 h-3"></i><span>刪除</span></button>
-</div>
+<td class="whitespace-nowrap"><span class="role-badge ${typeBadge}">${typeLabel}</span></td>
+<td class="font-mono text-xs font-semibold text-slate-700 whitespace-nowrap">${startDate || '未定'}</td>
+<td class="font-mono text-xs whitespace-nowrap ${endDate && isExpired ? 'text-rose-600 font-bold' : 'text-slate-500'}">${endDate || '未設定'}</td>
+<td class="text-xs text-slate-700 max-w-[165px] truncate" title="${c.location || '實體/線上'}">${c.location || '實體/線上'}</td>
+<td class="text-xs text-slate-700 whitespace-nowrap">${c.instructor || '未指定'}</td>
+<td class="font-bold text-xs text-slate-900 whitespace-nowrap">${c.fee == 0 ? '免費' : 'NT$ ' + Number(c.fee).toLocaleString()}</td>
+<td class="font-mono text-xs text-slate-700 whitespace-nowrap">${c.current_enrollment || 0}/${c.capacity || 30}</td>
+<td class="whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${statusClass}">${statusText}</span></td>
+<td class="text-right whitespace-nowrap">
+<div class="inline-flex items-center gap-0.5">
+<button type="button" data-action="payment" data-tip="繳費資訊" onclick="openCourseEnrollments('${c.course_id}')" class="c-icon-btn"><i data-lucide="credit-card" class="w-3.5 h-3.5"></i></button>
+<button type="button" data-action="attendance" data-tip="出勤簽到" onclick="openCourseAttendance('${c.course_id}')" class="c-icon-btn"><i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i></button>
+<button type="button" data-action="certificate" data-tip="成績證書" onclick="openCourseCertificates('${c.course_id}')" class="c-icon-btn"><i data-lucide="award" class="w-3.5 h-3.5"></i></button>
+<button type="button" data-action="finance" data-tip="財務報表" onclick="openFinanceReportModal('${c.course_id}')" class="c-icon-btn"><i data-lucide="receipt" class="w-3.5 h-3.5"></i></button>
+<button type="button" data-action="assign" data-tip="指定學員" onclick="openAssignStudentsModal('${c.course_id}')" class="c-icon-btn accent-btn"><i data-lucide="user-plus" class="w-3.5 h-3.5"></i></button>
+<button type="button" data-action="mail" data-tip="課程通知" onclick="openEmailReminderModal('${c.course_id}')" class="c-icon-btn"><i data-lucide="mail" class="w-3.5 h-3.5"></i></button>
+<button type="button" data-action="edit" data-tip="修改課程" onclick="openCourseModal('edit', '${c.course_id}')" class="c-icon-btn"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+<button type="button" data-action="delete" data-tip="刪除課程" onclick="deleteCourse('${c.course_id}', '${safeName}')" class="c-icon-btn delete-btn"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
 </div>
 </td>
 </tr>
 `;
 }).join('');
+
+if (mobileList) {
+mobileList.innerHTML = filtered.map(c => {
+const typeBadge = c.course_type === 'judge' ? 'badge-judge' : (c.course_type === 'record' ? 'badge-record' : 'badge-general');
+const typeMap = { 'judge': '裁判培訓', 'record': '紀錄培訓', 'general': '通識教育' };
+const typeLabel = typeMap[c.course_type] || c.course_type || '一般課程';
+const startDate = cleanDate(c.date);
+const endDate = cleanDate(c.signup_end || c.signupEnd || c.end_date);
+const isExpired = endDate && todayStr > endDate;
+const statusText = isExpired ? '已截止' : (c.course_status === 'closed' ? '已關閉' : (c.course_status === 'finished' ? '已結束' : '開放報名'));
+let statusClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+if (isExpired || c.course_status === 'closed') statusClass = 'bg-rose-50 text-rose-700 border border-rose-200';
+else if (c.course_status === 'finished') statusClass = 'bg-slate-100 text-slate-600 border border-slate-200';
+const safeName = String(c.course_name || '').replace(/'/g, "\\'");
+return `
+<div class="p-4 space-y-3 bg-white">
+<div class="flex items-start justify-between gap-2">
+<div>
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-mono text-xs font-bold text-slate-400">#${c.course_id || '-'}</span>
+<span class="role-badge ${typeBadge}">${typeLabel}</span>
+</div>
+<div class="font-extrabold text-slate-900 text-base mt-1">${c.course_name || '-'}</div>
+</div>
+<span class="px-2.5 py-0.5 rounded-full text-xs font-bold shrink-0 ${statusClass}">${statusText}</span>
+</div>
+<div class="grid grid-cols-2 gap-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
+<div><span class="text-slate-400">上課：</span><span class="font-semibold text-slate-800">${startDate || '未定'}</span></div>
+<div><span class="text-slate-400">截止：</span><span class="font-semibold ${isExpired ? 'text-rose-600' : 'text-slate-800'}">${endDate || '未設定'}</span></div>
+<div class="col-span-2"><span class="text-slate-400">地點：</span><span class="font-semibold text-slate-800">${c.location || '實體/線上'}</span></div>
+<div><span class="text-slate-400">講師：</span><span class="font-semibold text-slate-800">${c.instructor || '未指定'}</span></div>
+<div><span class="text-slate-400">名額/費用：</span><span class="font-bold text-slate-900">${c.current_enrollment || 0}/${c.capacity || 30}・${c.fee == 0 ? '免費' : 'NT$' + Number(c.fee).toLocaleString()}</span></div>
+</div>
+<div class="flex flex-wrap gap-1.5 pt-1">
+<button type="button" onclick="openCourseEnrollments('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">繳費資訊</button>
+<button type="button" onclick="openCourseAttendance('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">出勤簽到</button>
+<button type="button" onclick="openCourseCertificates('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">成績證書</button>
+<button type="button" onclick="openFinanceReportModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">財務報表</button>
+<button type="button" onclick="openAssignStudentsModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg bg-blue-50 text-xs font-bold text-blue-700">指定學員</button>
+<button type="button" onclick="openEmailReminderModal('${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">課程通知</button>
+<button type="button" onclick="openCourseModal('edit', '${c.course_id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700">修改</button>
+<button type="button" onclick="deleteCourse('${c.course_id}', '${safeName}')" class="px-2.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50 text-xs font-bold text-rose-600">刪除</button>
+</div>
+</div>
+`;
+}).join('');
+}
+
 refreshIcons();
+if (lockedLegendAction) {
+document.querySelectorAll(`.c-icon-btn[data-action="${lockedLegendAction}"]`).forEach(btn => {
+btn.classList.add('highlighted');
+});
+}
 }
 function loadEnrollmentData(activeTab = 'enrollments') {
 const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
