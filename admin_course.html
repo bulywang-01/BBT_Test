@@ -300,14 +300,9 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 </div>
 <div id="tabContentAttendance" class="space-y-6 hidden">
 <div id="attendanceActiveSection" class="space-y-6">
-<div class="flex items-center justify-between bg-blue-50 border border-blue-200 px-5 py-3.5 rounded-2xl">
-<div>
+<div class="bg-blue-50 border border-blue-200 px-5 py-3.5 rounded-2xl">
 <div class="text-xs font-bold text-blue-600">目前檢視中的課程場次</div>
 <div id="activeCourseTitleBanner" class="text-lg font-black text-slate-900 mt-0.5">-</div>
-</div>
-<button onclick="switchTab('courses')" class="px-3 py-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
-返回課程清單
-</button>
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
@@ -363,14 +358,9 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 </div>
 <div id="tabContentCertificates" class="space-y-6 hidden">
 <div id="certActiveSection" class="space-y-6">
-<div class="flex items-center justify-between bg-blue-50 border border-blue-200 px-5 py-3.5 rounded-2xl">
-<div>
+<div class="bg-blue-50 border border-blue-200 px-5 py-3.5 rounded-2xl">
 <div class="text-xs font-bold text-blue-600">目前檢視中的課程場次</div>
 <div id="activeCertCourseTitleBanner" class="text-lg font-black text-slate-900 mt-0.5">-</div>
-</div>
-<button onclick="switchTab('courses')" class="px-3 py-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
-返回課程清單
-</button>
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
@@ -761,7 +751,7 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 <div class="bg-blue-50/80 p-3.5 rounded-2xl border border-blue-200 shadow-sm">
 <div class="text-xs font-bold text-blue-700">課程實收淨額</div>
 <div id="finNetIncome" class="text-xl font-black text-blue-700 mt-1">NT$ 0</div>
-<div class="text-[11px] text-blue-500 mt-0.5">已收 － 退費</div>
+<div id="finNetIncomeSub" class="text-[11px] text-blue-500 mt-0.5">已收 － 退費</div>
 </div>
 </div>
 <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
@@ -2191,7 +2181,7 @@ return;
 }
 
 container.innerHTML = list.slice(0, 60).map(u => {
-const uid = String(u.user_id || '').trim();
+const uid = String(u.user_id).trim();
 const name = String(u.name || u.username || uid).trim();
 const phone = String(u.phone || '').trim();
 const email = String(u.email || '').trim();
