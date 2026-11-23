@@ -154,11 +154,8 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 <div class="page-title">📚 課程與報名管理中心</div>
 <div class="page-desc">建立培訓課程、管理報名、審核繳費與退費、記錄出勤打卡、評分及結訓證書發放</div>
 </div>
-<div class="flex items-center gap-2 flex-wrap">
-<button id="tabBtnCourses" onclick="switchTab('courses')" class="tab-btn active">📅 課程清單</button>
-<button id="tabBtnEnrollments" onclick="switchTab('enrollments')" class="tab-btn">🛡️ 繳費資訊</button>
-<button id="tabBtnAttendance" onclick="switchTab('attendance')" class="tab-btn">⏰ 出勤簽到</button>
-<button id="tabBtnCertificates" onclick="switchTab('certificates')" class="tab-btn">🎓 成績證書</button>
+<div id="topBackCourseBar" class="flex items-center gap-2 flex-wrap hidden">
+<button id="tabBtnCourses" onclick="switchTab('courses')" class="tab-btn">📅 返回課程清單</button>
 </div>
 </div>
 <div id="tabContentCourses" class="space-y-6">
@@ -302,26 +299,13 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 </section>
 </div>
 <div id="tabContentAttendance" class="space-y-6 hidden">
-<section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-<div>
-<h3 class="font-black text-lg text-slate-900">🎯 課程出勤簽到場次</h3>
-<p class="text-xs text-slate-500 mt-0.5">亦可在此切換其他課程場次進行打卡簽到與簽退</p>
-</div>
-<div class="w-full sm:w-72">
-<select id="selectAttendanceCourseDropdown" onchange="onAttendanceCourseSelect(this.value)" class="w-full h-11 border border-slate-300 rounded-xl px-3 font-bold text-slate-800 bg-white shadow-sm">
-<option value="">-- 請選擇課程場次 --</option>
-</select>
-</div>
-</div>
-</section>
-<div id="attendanceActiveSection" class="space-y-6 hidden">
+<div id="attendanceActiveSection" class="space-y-6">
 <div class="flex items-center justify-between bg-blue-50 border border-blue-200 px-5 py-3.5 rounded-2xl">
 <div>
 <div class="text-xs font-bold text-blue-600">目前檢視中的課程場次</div>
 <div id="activeCourseTitleBanner" class="text-lg font-black text-slate-900 mt-0.5">-</div>
 </div>
-<button onclick="switchTab('courses')" class="px-3 py-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition shadow-sm">
+<button onclick="switchTab('courses')" class="px-3 py-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
 返回課程清單
 </button>
 </div>
@@ -370,7 +354,7 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 </tr>
 </thead>
 <tbody id="attendanceTableBody">
-<tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">請先選擇上方課程場次</td></tr>
+<tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">載入學員名單中...</td></tr>
 </tbody>
 </table>
 </div>
@@ -378,26 +362,13 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 </div>
 </div>
 <div id="tabContentCertificates" class="space-y-6 hidden">
-<section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-<div>
-<h3 class="font-black text-lg text-slate-900">🎓 課程成績與證書管理</h3>
-<p class="text-xs text-slate-500 mt-0.5">亦可在此切換其他課程場次進行測驗成績登錄與證書發放</p>
-</div>
-<div class="w-full sm:w-72">
-<select id="selectCertCourseDropdown" onchange="onCertCourseSelect(this.value)" class="w-full h-11 border border-slate-300 rounded-xl px-3 font-bold text-slate-800 bg-white shadow-sm">
-<option value="">-- 請選擇課程場次 --</option>
-</select>
-</div>
-</div>
-</section>
-<div id="certActiveSection" class="space-y-6 hidden">
+<div id="certActiveSection" class="space-y-6">
 <div class="flex items-center justify-between bg-blue-50 border border-blue-200 px-5 py-3.5 rounded-2xl">
 <div>
 <div class="text-xs font-bold text-blue-600">目前檢視中的課程場次</div>
 <div id="activeCertCourseTitleBanner" class="text-lg font-black text-slate-900 mt-0.5">-</div>
 </div>
-<button onclick="switchTab('courses')" class="px-3 py-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition shadow-sm">
+<button onclick="switchTab('courses')" class="px-3 py-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
 返回課程清單
 </button>
 </div>
@@ -446,7 +417,7 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 </tr>
 </thead>
 <tbody id="certificateTableBody">
-<tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">請先選擇上方課程場次</td></tr>
+<tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">載入學員名單中...</td></tr>
 </tbody>
 </table>
 </div>
@@ -957,16 +928,17 @@ setTimeout(() => t.remove(), 400);
 function switchTab(tab) {
 const tabs = ['courses', 'enrollments', 'attendance', 'certificates'];
 tabs.forEach(t => {
-const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
 const con = document.getElementById('tabContent' + t.charAt(0).toUpperCase() + t.slice(1));
-if (t === tab) {
-if (btn) btn.className = 'tab-btn active';
-if (con) con.classList.remove('hidden');
-} else {
-if (btn) btn.className = 'tab-btn';
-if (con) con.classList.add('hidden');
+if (con) {
+if (t === tab) con.classList.remove('hidden');
+else con.classList.add('hidden');
 }
 });
+const topBackBar = document.getElementById('topBackCourseBar');
+if (topBackBar) {
+if (tab === 'courses') topBackBar.classList.add('hidden');
+else topBackBar.classList.remove('hidden');
+}
 if (tab === 'enrollments' || tab === 'attendance' || tab === 'certificates') {
 loadEnrollmentData(tab);
 }
@@ -983,10 +955,6 @@ renderEnrollmentTable();
 function openCourseAttendance(courseId) {
 selectedAttendanceCourseId = String(courseId);
 switchTab('attendance');
-const dropdown = document.getElementById('selectAttendanceCourseDropdown');
-if (dropdown) dropdown.value = String(courseId);
-const activeSec = document.getElementById('attendanceActiveSection');
-if (activeSec) activeSec.classList.remove('hidden');
 const courseObj = allCourses.find(c => String(c.course_id) === String(courseId));
 if (courseObj) {
 document.getElementById('activeCourseTitleBanner').textContent = `${courseObj.course_name} (${courseObj.date ? courseObj.date.split('T')[0] : '未定日期'})`;
@@ -997,10 +965,6 @@ renderAttendanceTable();
 function openCourseCertificates(courseId) {
 selectedCertCourseId = String(courseId);
 switchTab('certificates');
-const dropdown = document.getElementById('selectCertCourseDropdown');
-if (dropdown) dropdown.value = String(courseId);
-const activeSec = document.getElementById('certActiveSection');
-if (activeSec) activeSec.classList.remove('hidden');
 const courseObj = allCourses.find(c => String(c.course_id) === String(courseId));
 if (courseObj) {
 document.getElementById('activeCertCourseTitleBanner').textContent = `${courseObj.course_name} (${courseObj.date ? courseObj.date.split('T')[0] : '未定日期'})`;
@@ -1024,7 +988,6 @@ if (res && (res.result === 'ok' || res.result === 'success')) {
 allCourses = res.data || [];
 updateKpi();
 renderCourseTable();
-populateAllCourseDropdowns();
 } else {
 showToast((res ? res.message : '載入課程失敗') + '，請重整頁面', 'error');
 }
@@ -1050,51 +1013,6 @@ document.getElementById('kpiOpenCourses').textContent = open;
 document.getElementById('kpiJudgeCourses').textContent = judge;
 document.getElementById('kpiRecordCourses').textContent = record;
 document.getElementById('kpiTotalEnrollments').textContent = enrollments;
-}
-function populateAllCourseDropdowns() {
-let html = `<option value="">-- 請選擇課程場次 (${allCourses.length}個場次) --</option>`;
-allCourses.forEach(c => {
-const dateStr = c.date ? c.date.split('T')[0] : '未定日期';
-html += `<option value="${c.course_id}">${c.course_name} [${dateStr}]</option>`;
-});
-const attDropdown = document.getElementById('selectAttendanceCourseDropdown');
-if (attDropdown) {
-attDropdown.innerHTML = html;
-if (selectedAttendanceCourseId) attDropdown.value = selectedAttendanceCourseId;
-}
-const certDropdown = document.getElementById('selectCertCourseDropdown');
-if (certDropdown) {
-certDropdown.innerHTML = html;
-if (selectedCertCourseId) certDropdown.value = selectedCertCourseId;
-}
-}
-function onAttendanceCourseSelect(courseId) {
-selectedAttendanceCourseId = courseId;
-const activeSec = document.getElementById('attendanceActiveSection');
-if (!courseId) {
-activeSec.classList.add('hidden');
-return;
-}
-activeSec.classList.remove('hidden');
-const courseObj = allCourses.find(c => String(c.course_id) === String(courseId));
-if (courseObj) {
-document.getElementById('activeCourseTitleBanner').textContent = `${courseObj.course_name} (${courseObj.date ? courseObj.date.split('T')[0] : '未定日期'})`;
-}
-loadEnrollmentData('attendance');
-}
-function onCertCourseSelect(courseId) {
-selectedCertCourseId = courseId;
-const activeSec = document.getElementById('certActiveSection');
-if (!courseId) {
-activeSec.classList.add('hidden');
-return;
-}
-activeSec.classList.remove('hidden');
-const courseObj = allCourses.find(c => String(c.course_id) === String(courseId));
-if (courseObj) {
-document.getElementById('activeCertCourseTitleBanner').textContent = `${courseObj.course_name} (${courseObj.date ? courseObj.date.split('T')[0] : '未定日期'})`;
-}
-loadEnrollmentData('certificates');
 }
 function renderCourseTable() {
 const tbody = document.getElementById('courseTableBody');
@@ -1766,7 +1684,7 @@ document.body.appendChild(script);
 function renderAttendanceTable() {
 const tbody = document.getElementById('attendanceTableBody');
 if (!selectedAttendanceCourseId) {
-tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">請先選擇上方課程場次</td></tr>`;
+tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">請從課程清單選擇課程場次</td></tr>`;
 return;
 }
 const keyword = (document.getElementById('txtAttSearch').value || '').toLowerCase();
@@ -1891,7 +1809,7 @@ document.body.appendChild(script);
 function renderCertificateTable() {
 const tbody = document.getElementById('certificateTableBody');
 if (!selectedCertCourseId) {
-tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">請先選擇上方課程場次</td></tr>`;
+tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">請從課程清單選擇課程場次</td></tr>`;
 return;
 }
 const keyword = (document.getElementById('txtCertSearch').value || '').toLowerCase();
