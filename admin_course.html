@@ -1109,11 +1109,15 @@ window[cb] = function(res) {
 delete window[cb];
 if (script.parentNode) script.parentNode.removeChild(script);
 if (res && (res.result === 'ok' || res.result === 'success')) {
-allEnrollments = (res.data || []).map(item => ({
+allEnrollments = (res.data || []).map(item => {
+const rawNote = [item.remark, item.admin_note, item.adminNote, item.note]
+.find(v => v !== undefined && v !== null && String(v).trim() !== '');
+return {
 ...item,
 payment_status: String(item.payment_status || 'unpaid').trim().toLowerCase(),
-admin_note: item.admin_note !== undefined ? item.admin_note : (item.adminNote !== undefined ? item.adminNote : (item.note !== undefined ? item.note : ''))
-}));
+admin_note: rawNote !== undefined ? String(rawNote) : ''
+};
+});
 updateEnrollmentStats();
 const prevCourseFilter = document.getElementById('filterCourseSelect')?.value || 'all';
 populateAllFilters(allEnrollments);
