@@ -70,11 +70,14 @@ body{ margin:0; padding:0; background:#f8fafc; font-family:system-ui,-apple-syst
 #loadingMask{ position:fixed; inset:0; background:rgba(15,23,42,.25); display:flex; justify-content:center; align-items:center; z-index:20000; }
 #loadingMask.hidden{ display:none; }
 .loading-box{ background:#fff; padding:20px 28px; border-radius:16px; font-weight:700; box-shadow:0 8px 24px rgba(0,0,0,.15); }
-.action-btn{ font-size:13px; width:32px; height:32px; border:none; border-radius:10px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; justify-content:center; }
+.action-btn{ font-size:12px; font-weight:800; padding:5px 10px; border:none; border-radius:8px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; justify-content:center; white-space:nowrap; }
 .action-btn:hover{ transform:translateY(-1px); }
-.action-btn.edit{ background:#ffedd5; color:#c2410c; }
-.action-btn.delete{ background:#fee2e2; color:#991b1b; }
-.action-group{ display:flex; flex-wrap:wrap; gap:6px; max-width:360px; }
+.action-btn.edit{ background:#ffedd5; color:#c2410c; border:1px solid #fed7aa; }
+.action-btn.edit:hover{ background:#fed7aa; }
+.action-btn.delete{ background:#fee2e2; color:#991b1b; border:1px solid #fecaca; }
+.action-btn.delete:hover{ background:#fecaca; }
+.action-group{ display:flex; flex-wrap:wrap; gap:6px; min-width:240px; max-width:360px; }
+.action-group button{ white-space:nowrap; }
 button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; filter: grayscale(50%); }
 </style>
 </head>
@@ -1100,8 +1103,8 @@ ${hasValidCert ? `<span class="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 
 <button onclick="openEmailReminderModal('${c.course_id}')" class="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm transition cursor-pointer">
 課程通知
 </button>
-<button class="action-btn edit" onclick="openCourseModal('edit', '${c.course_id}')" title="編輯課程">✏️</button>
-<button class="action-btn delete" onclick="deleteCourse('${c.course_id}', '${safeName}')" title="刪除課程">🗑</button>
+<button class="action-btn edit" onclick="openCourseModal('edit', '${c.course_id}')">修改課程</button>
+<button class="action-btn delete" onclick="deleteCourse('${c.course_id}', '${safeName}')">刪除課程</button>
 </div>
 </td>
 </tr>
@@ -1260,7 +1263,7 @@ actionHtml = `
 actionHtml = `
 <div class="flex items-center justify-end gap-1.5 flex-wrap">
 <span class="text-xs font-bold text-rose-600">已退 NT$${item.refund_amount || defaultFee}</span>
-<button onclick="changePaymentStatus('${item.log_id}', 'unpaid')" class="px-2 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 text-[11px] font-bold transition cursor-pointer">
+<button onclick="changePaymentStatus('${item.log_id}', 'unpaid')" class="px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 text-[11px] font-bold transition cursor-pointer">
 重設未繳
 </button>
 </div>
@@ -1902,7 +1905,7 @@ document.body.appendChild(script);
 }
 function openCourseModal(mode, courseId = '') {
 document.getElementById('courseModal').classList.remove('hidden');
-document.getElementById('courseModalTitle').textContent = mode === 'create' ? '新增課程' : '編輯課程';
+document.getElementById('courseModalTitle').textContent = mode === 'create' ? '新增課程' : '修改課程';
 if (mode === 'create') {
 document.getElementById('course-form').reset();
 document.getElementById('course_id').value = '';
