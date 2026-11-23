@@ -1035,6 +1035,7 @@ renderEnrollmentTable();
 function syncEnrollmentCourseFilter() {
 const map = new Map();
 allCourses.forEach(c => {
+if (String(c.course_status || '').trim().toLowerCase() === 'deleted') return;
 if (c.course_id !== undefined && c.course_id !== null && String(c.course_id).trim() !== '') {
 map.set(String(c.course_id), c.course_name || `課程 #${c.course_id}`);
 }
@@ -1102,8 +1103,8 @@ function loadAllData() {
 loadCourses();
 loadEnrollmentData('enrollments');
 }
-function loadCourses() {
-showLoading('載入課程資料中...');
+function loadCourses(showMask = true) {
+if (showMask) showLoading('載入課程資料中...');
 const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE : (typeof API_URL !== 'undefined' ? API_URL : '');
 const cb = 'jsonp_courses_' + Math.round(100000 * Math.random());
 const script = document.createElement('script');
@@ -1112,7 +1113,9 @@ delete window[cb];
 if (script.parentNode) script.parentNode.removeChild(script);
 hideLoading();
 if (res && (res.result === 'ok' || res.result === 'success')) {
-allCourses = Array.isArray(res.data) ? res.data : [];
+allCourses = (Array.isArray(res.data) ? res.data : []).filter(
+c => String(c.course_status || '').trim().toLowerCase() !== 'deleted'
+);
 updateKpi();
 renderCourseTable();
 syncEnrollmentCourseFilter();
@@ -1122,7 +1125,8 @@ renderEnrollmentTable();
 showToast((res ? res.message : '載入課程失敗') + '，請重整頁面', 'error');
 }
 };
-script.src = `${baseUrl}?action=getCourses&callback=${cb}`;
+const sep = baseUrl.includes('?') ? '&' : '?';
+script.src = `${baseUrl}${sep}action=getCourses&callback=${cb}&_t=${Date.now()}`;
 script.onerror = function() {
 delete window[cb];
 if (script.parentNode) script.parentNode.removeChild(script);
@@ -1132,11 +1136,12 @@ showToast('網路連線異常，請重整頁面', 'error');
 document.body.appendChild(script);
 }
 function updateKpi() {
-const total = allCourses.length;
-const open = allCourses.filter(c => c.course_status === 'open' || !c.course_status).length;
-const judge = allCourses.filter(c => c.course_type === 'judge').length;
-const record = allCourses.filter(c => c.course_type === 'record').length;
-const enrollments = allCourses.reduce((sum, c) => sum + (Number(c.current_enrollment) || 0), 0);
+const activeCourses = allCourses.filter(c => String(c.course_status || '').trim().toLowerCase() !== 'deleted');
+const total = activeCourses.length;
+const open = activeCourses.filter(c => c.course_status === 'open' || !c.course_status).length;
+const judge = activeCourses.filter(c => c.course_type === 'judge').length;
+const record = activeCourses.filter(c => c.course_type === 'record').length;
+const enrollments = activeCourses.reduce((sum, c) => sum + (Number(c.current_enrollment) || 0), 0);
 document.getElementById('kpiTotalCourses').textContent = total;
 document.getElementById('kpiOpenCourses').textContent = open;
 document.getElementById('kpiJudgeCourses').textContent = judge;
@@ -1150,6 +1155,7 @@ if (!tbody) return;
 try {
 const keyword = (document.getElementById('txtSearch')?.value || '').toLowerCase().trim();
 const filtered = (allCourses || []).filter(c => {
+if (String(c.course_status || '').trim().toLowerCase() === 'deleted') return false;
 const match = [c.course_name, c.instructor, c.location].join(' ').toLowerCase();
 return !keyword || match.includes(keyword);
 });
@@ -2181,13 +2187,20 @@ delete window[cb];
 if (script.parentNode) script.parentNode.removeChild(script);
 hideLoading();
 if (res && (res.result === 'ok' || res.result === 'success')) {
+// 1. 立刻從前端陣列移除該筆課程並更新 KPI 與列表（免重整頁面）
+allCourses = allCourses.filter(c => String(c.course_id) !== String(courseId));
+updateKpi();
+renderCourseTable();
+syncEnrollmentCourseFilter();
 showToast('課程已刪除', 'success');
-loadCourses();
+// 2. 背景同步最新課程清單（帶入時間戳防快取）
+loadCourses(false);
 } else {
 showToast((res ? res.message : '刪除失敗') + '，請重整頁面', 'error');
 }
 };
-script.src = `${baseUrl}?action=deleteCourse&course_id=${courseId}&callback=${cb}`;
+const sep = baseUrl.includes('?') ? '&' : '?';
+script.src = `${baseUrl}${sep}action=deleteCourse&course_id=${encodeURIComponent(courseId)}&callback=${cb}&_t=${Date.now()}`;
 script.onerror = function() {
 delete window[cb];
 if (script.parentNode) script.parentNode.removeChild(script);
