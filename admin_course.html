@@ -46,8 +46,8 @@ body{ margin:0; padding:0; background:#f8fafc; font-family:system-ui,-apple-syst
 .user-table td{ padding:14px 16px; vertical-align:middle; border-bottom:1px solid #e2e8f0; font-size:14px; }
 .user-table tbody tr:hover{ background:#f8fafc; }
 
-/* 簡潔操作圖示對照列 */
-.icon-legend-strip{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:8px 20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; font-size:12px; color:#64748b;　justify-content: flex-end; }
+/* 簡潔操作圖示對照列（靠右對齊快捷操作） */
+.icon-legend-strip{ display:flex; align-items:center; justify-content:flex-end; gap:6px; flex-wrap:wrap; padding:8px 16px; background:#f8fafc; border-bottom:1px solid #e2e8f0; font-size:12px; color:#64748b; }
 .icon-legend-tag{ display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:6px; background:#fff; border:1px solid #e2e8f0; color:#475569; font-weight:700; cursor:pointer; transition:.15s; }
 .icon-legend-tag:hover, .icon-legend-tag.active{ border-color:#93c5fd; background:#eff6ff; color:#1d4ed8; }
 .icon-legend-sep{ color:#cbd5e1; user-select:none; }
@@ -227,7 +227,7 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 </div>
 </div>
 
-<!-- 精簡圖示對照列 -->
+<!-- 精簡圖示對照列（靠右對齊快捷操作） -->
 <div class="icon-legend-strip" id="compactIconLegend">
 <button type="button" data-legend="payment" onclick="toggleLegendLock('payment')" class="icon-legend-tag"><i data-lucide="credit-card" class="w-3.5 h-3.5"></i><span>繳費</span></button>
 <span class="icon-legend-sep">|</span>
@@ -2187,13 +2187,11 @@ delete window[cb];
 if (script.parentNode) script.parentNode.removeChild(script);
 hideLoading();
 if (res && (res.result === 'ok' || res.result === 'success')) {
-// 1. 立刻從前端陣列移除該筆課程並更新 KPI 與列表（免重整頁面）
 allCourses = allCourses.filter(c => String(c.course_id) !== String(courseId));
 updateKpi();
 renderCourseTable();
 syncEnrollmentCourseFilter();
 showToast('課程已刪除', 'success');
-// 2. 背景同步最新課程清單（帶入時間戳防快取）
 loadCourses(false);
 } else {
 showToast((res ? res.message : '刪除失敗') + '，請重整頁面', 'error');
