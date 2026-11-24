@@ -742,6 +742,64 @@ function openFullAnalysis(userId){
   openUserDetail(userId);
 }
 
+function calcTrainingHoursFromLogs_(targetUid, logs, courses, targetYear){
+  const courseMap = {};
+  (courses || []).forEach(c => {
+    const cid = String(c.course_id ?? c.id ?? '').trim();
+    if (!cid) return;
+    const hours = Number(c.training_hours ?? c.hours ?? c.certificate_hours ?? 0) || 0;
+    const rawDate = c.date || c.course_date || '';
+    const dObj = rawDate ? new Date(String(rawDate).replace(/-/g, '/')) : null;
+    courseMap[cid] = {
+      hours,
+      date: (dObj && !isNaN(dObj.getTime())) ? dObj : null
+    };
+  });
+
+  let yearHours = 0;
+  let totalHours = 0;
+
+  (logs || []).forEach(r => {
+    const uid = String(r.user_id ?? r.uid ?? '').trim();
+    if (uid !== String(targetUid || '').trim()) return;
+
+    const status = String(r.status || '').trim().toLowerCase();
+    const attStatus = String(r.attendance_status || '').trim().toLowerCase();
+    const certVer = String(r.certificate_verified || '').trim().toLowerCase();
+
+    const isRejected =
+      ['cancelled', 'canceled', '已取消', '取消'].includes(status) ||
+      ['absent', '缺席'].includes(attStatus) ||
+      ['rejected', 'incomplete', '未通過', '不通過'].includes(certVer);
+
+    const isCompleted =
+      !isRejected && (
+        ['completed', 'attended', 'present', '已完成', '已出席', '出席'].includes(attStatus) ||
+        ['completed', 'attended', '已完成', '已出席'].includes(status) ||
+        ['completed', 'verified', '已核發', '已通過', '通過'].includes(certVer)
+      );
+
+    if (!isCompleted) return;
+
+    const cid = String(r.course_id ?? r.cid ?? '').trim();
+    const cInfo = courseMap[cid] || { hours: 0, date: null };
+    const hours = Number(cInfo.hours || r.training_hours || r.hours || 0) || 0;
+    if (hours <= 0) return;
+
+    totalHours += hours;
+
+    const rawLogDate = r.date || r.course_date || r.created_at || '';
+    const logDateObj = rawLogDate ? new Date(String(rawLogDate).replace(/-/g, '/')) : null;
+    const validLogDate = (logDateObj && !isNaN(logDateObj.getTime())) ? logDateObj : null;
+    const refDate = cInfo.date || validLogDate;
+    if (!refDate || refDate.getFullYear() === Number(targetYear)) {
+      yearHours += hours;
+    }
+  });
+
+  return { yearHours, totalHours };
+}
+
 function openUserDetail(userId){
   const all = window._yearData || [];
   const targetUid = String(userId || session.user_id || '').trim();
@@ -788,7 +846,8 @@ function openUserDetail(userId){
     });
   }
 
-  const currentYearStr = String(new Date().getFullYear());
+  const currentYear = new Date().getFullYear();
+  const currentYearStr = String(currentYear);
   const trainingHoursYear = Number(p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 0) || 0;
   const trainingHoursTotal = Number(p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 0) || 0;
   
@@ -856,11 +915,11 @@ function openUserDetail(userId){
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px; text-align:center;">
             <div style="font-size:11px; color:#64748b; font-weight:700;">📅 ${currentYearStr} 年度完訓時數</div>
-            <div style="font-size:20px; font-weight:900; color:#1e3a8a; margin-top:2px;">${trainingHoursYear} <span style="font-size:12px; font-weight:normal;">小時</span></div>
+            <div id="user-training-hours-year" style="font-size:20px; font-weight:900; color:#1e3a8a; margin-top:2px;">${trainingHoursYear} <span style="font-size:12px; font-weight:normal;">小時</span></div>
           </div>
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px; text-align:center;">
             <div style="font-size:11px; color:#64748b; font-weight:700;">📚 生涯累計完訓時數</div>
-            <div style="font-size:20px; font-weight:900; color:#16a34a; margin-top:2px;">${trainingHoursTotal} <span style="font-size:12px; font-weight:normal;">小時</span></div>
+            <div id="user-training-hours-total" style="font-size:20px; font-weight:900; color:#16a34a; margin-top:2px;">${trainingHoursTotal} <span style="font-size:12px; font-weight:normal;">小時</span></div>
           </div>
         </div>
       </div>
@@ -905,6 +964,28 @@ function openUserDetail(userId){
     </div>
   `;
   drawRoleChart(roleMap);
+
+  // ✅ 前端直接向 getTrainingLog & getCourses 核對並補齊完訓時數（即使後端統計未回傳時數也能正確顯示）
+  callApi({ action: 'getTrainingLog', user_id: targetUid }, logRes => {
+    const logs = logRes?.data || logRes?.logs || logRes?.enrollments || (Array.isArray(logRes) ? logRes : []);
+    if (!Array.isArray(logs) || logs.length === 0) return;
+
+    callApi({ action: 'getCourses' }, courseRes => {
+      const courses = courseRes?.courses || courseRes?.data || (Array.isArray(courseRes) ? courseRes : []);
+      const { yearHours, totalHours } = calcTrainingHoursFromLogs_(targetUid, logs, courses, currentYear);
+
+      const finalYear = Math.max(trainingHoursYear, yearHours);
+      const finalTotal = Math.max(trainingHoursTotal, totalHours);
+
+      p.training_hours_year = finalYear;
+      p.training_hours_total = finalTotal;
+
+      const yrEl = document.getElementById('user-training-hours-year');
+      const totEl = document.getElementById('user-training-hours-total');
+      if (yrEl) yrEl.innerHTML = `${finalYear} <span style="font-size:12px; font-weight:normal;">小時</span>`;
+      if (totEl) totEl.innerHTML = `${finalTotal} <span style="font-size:12px; font-weight:normal;">小時</span>`;
+    });
+  });
 }
 
 // 繪製圓餅圖並動態產生右側清晰圖例（Legend）
