@@ -4,43 +4,32 @@
  *       本週班表與提醒、個人數據分析、課程與系統公告顯示／管理。
  *********************************************************/
 
-// 目前登入者的 session 資訊（由 initAuth() 初始化）
 let session = null;
 
-/*********************************************************
- * ✅ 主入口
- * 用途：等 DOM 載入完成後，依序檢查 API 設定、驗證登入、
- *       初始化共用 Header 並載入首頁各個功能區塊。
- *********************************************************/
 document.addEventListener('DOMContentLoaded', () => {
-  // ✅ API 檢查：確保全域 API_BASE 已正確載入
   if (typeof API_BASE === 'undefined') {
     alert('系統錯誤：API設定未載入');
     return;
   }
 
-  // ✅ 登入驗證：未登入時由 initAuth() 處理跳轉或攔截
   session = initAuth();
   if (!session) return;
 
-  // ✅ 共用導覽列初始化
   if (window.initHeader) {
     initHeader();
   }
 
-  renderWelcome();         // ✅ 渲染歡迎詞與使用者角色
-  bindButtons();           // ✅ 綁定首頁各按鈕與彈窗觸發事件
-  loadDashboard();         // ✅ 載入裁判／紀錄完成與預約場次統計
-  loadWeeklyReminder();    // ✅ 載入本週出勤提醒橫幅
-  loadHomeUserAnalysis();  // ✅ 載入個人數據分析摘要與快取資料
-  loadHomeCourses();       // ✅ 首頁載入最新聯盟開課資訊
-  loadHomeAnnouncements(); // ✅ 載入系統公告與管理員 CMS 按鈕權限
+  renderWelcome();
+  bindButtons();
+  loadDashboard();
+  loadWeeklyReminder();
+  loadHomeUserAnalysis();
+  loadHomeCourses();
+  loadHomeAnnouncements();
 });
 
 /*********************************************************
- * ✅ 首頁載入聯盟開課資訊 (精簡為課程名稱、上課日、報名狀態)
- * 用途：向後端查詢課程清單，整理日期與報名截止狀態後，
- *       顯示前兩筆課程卡片於首頁。
+ * ✅ 首頁載入聯盟開課資訊
  *********************************************************/
 function loadHomeCourses() {
   const container = document.getElementById('home-course-container');
@@ -49,7 +38,6 @@ function loadHomeCourses() {
   callApi({ action: 'getCourses' }, res => {
     const courseList = res?.courses || res?.data || (Array.isArray(res) ? res : []);
 
-    // 無有效課程資料時顯示引導訊息
     if (!res || (res.result !== 'ok' && !Array.isArray(res)) || courseList.length === 0) {
       container.innerHTML = `
         <div style="grid-column: 1 / -1; text-align: center; color: #64748b; font-size: 13px; padding: 8px;">
@@ -63,7 +51,6 @@ function loadHomeCourses() {
     const recentCourses = courseList.slice(0, 2);
 
     container.innerHTML = recentCourses.map(c => {
-      // 將各種日期格式統一轉為 YYYY-MM-DD
       const cleanDate = (raw) => {
         if (!raw) return '';
         let str = String(raw).trim();
@@ -100,7 +87,6 @@ function loadHomeCourses() {
 
 /*********************************************************
  * ✅ Welcome
- * 用途：依目前登入者姓名與角色代碼，更新首頁歡迎標題與角色顯示。
  *********************************************************/
 function renderWelcome() {
   const roleMap = {
@@ -135,7 +121,6 @@ function renderWelcome() {
 
 /*********************************************************
  * ✅ 綁按鈕
- * 用途：集中綁定「我的班表」、「本週班表」及各項說明彈窗的開啟事件。
  *********************************************************/
 function bindButtons() {
   document.getElementById('open-schedule')?.addEventListener('click', openMySchedule);
@@ -172,8 +157,6 @@ function bindButtons() {
 
 /*********************************************************
  * ✅ 首頁歡迎及出勤提示
- * 用途：檢查登入者本週（週一至週日）且尚未過期的執勤場次，
- *       若有排班則顯示提醒橫幅，點擊可開啟「我的班表」。
  *********************************************************/
 function loadWeeklyReminder() {
   const el = document.getElementById('welcome-alert');
@@ -187,7 +170,6 @@ function loadWeeklyReminder() {
 
     const games = (res.games || []).map(safeMerge);
 
-    // 計算本週一 00:00:00 至本週日 23:59:59 區間
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     const day = now.getDay() === 0 ? 7 : now.getDay();
@@ -233,8 +215,6 @@ function loadWeeklyReminder() {
 
 /*********************************************************
  * ✅ Dashboard 統計數據
- * 用途：整合指派紀錄（getAssignments）與可報名賽事（getSignableGames），
- *       統計登入者當年度裁判／紀錄已完成場次與未來預約場次。
  *********************************************************/
 function loadDashboard() {
   callApi({ action: 'getAssignments' }, resAssign => {
@@ -257,7 +237,6 @@ function loadDashboard() {
       const assignedGameSet = new Set();
       const countedAssignedGame = new Set();
 
-      // 先統計已指派賽事（getAssignments）的完成與未來場次
       (resAssign.data || []).forEach(g => {
         const d = parseDate(g.date);
         if (!d) return;
@@ -317,8 +296,7 @@ function loadDashboard() {
         }
       });
 
-      // 再補充未列入指派清單、但出現在可報名賽事中的未來排班場次
-      const games = (resSignup.games || []).map(safeMerge);
+      const games = (resSignup?.games || []).map(safeMerge);
       const uniqueGamesMap = new Map();
       games.forEach(g => {
         if (!uniqueGamesMap.has(g.game_id)) uniqueGamesMap.set(g.game_id, g);
@@ -335,12 +313,13 @@ function loadDashboard() {
         let hasJudge = false;
         let hasRecord = false;
 
-        Object.entries(g.judges || {}).forEach(([role, name]) => {
+        Object.values(g.judges || {}).forEach(name => {
           if (name === session.name) hasJudge = true;
         });
 
-        Object.entries(g.records || {}).forEach(([role, name]) => {
-          if (name === session.name) hasRecord = true;
+        Object.values(g.records || {}).forEach(slot => {
+          const n = safeName(slot);
+          if (n === session.name) hasRecord = true;
         });
 
         if (!hasJudge && !hasRecord) return;
@@ -350,29 +329,26 @@ function loadDashboard() {
         else if (hasRecord) recordFuture++;
       });
 
-      setTimeout(() => {
-        const el1 = document.getElementById('stat-judge');
-        const el2 = document.getElementById('stat-record');
-        const el3 = document.getElementById('stat-total');
-        const sub1 = document.getElementById('stat-judge-sub');
-        const sub2 = document.getElementById('stat-record-sub');
-        const sub3 = document.getElementById('stat-total-sub');
+      const el1 = document.getElementById('stat-judge');
+      const el2 = document.getElementById('stat-record');
+      const el3 = document.getElementById('stat-total');
+      const sub1 = document.getElementById('stat-judge-sub');
+      const sub2 = document.getElementById('stat-record-sub');
+      const sub3 = document.getElementById('stat-total-sub');
 
-        if (el1) el1.textContent = judgeDone;
-        if (el2) el2.textContent = recordDone;
-        if (el3) el3.textContent = judgeDone + recordDone;
+      if (el1) el1.textContent = judgeDone;
+      if (el2) el2.textContent = recordDone;
+      if (el3) el3.textContent = judgeDone + recordDone;
 
-        if (sub1) sub1.textContent = `生 ${judgeDone} 預 ${judgeFuture}`;
-        if (sub2) sub2.textContent = `生 ${recordDone} 預 ${recordFuture}`;
-        if (sub3) sub3.textContent = `生 ${judgeDone + recordDone} 預 ${judgeFuture + recordFuture}`;
-      }, 500);
+      if (sub1) sub1.textContent = `生 ${judgeDone} 預 ${judgeFuture}`;
+      if (sub2) sub2.textContent = `生 ${recordDone} 預 ${recordFuture}`;
+      if (sub3) sub3.textContent = `生 ${judgeDone + recordDone} 預 ${judgeFuture + recordFuture}`;
     });
   });
 }
 
 /*********************************************************
  * ✅ 時間格式與工具
- * 用途：提供日期解析、比賽時間擷取、過去賽事判斷與中文日期格式化。
  *********************************************************/
 function parseDate(str) {
   if (!str) return null;
@@ -392,14 +368,6 @@ function getTime(g) {
   return '';
 }
 
-function isPastGame(dateStr) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const d = new Date((dateStr || '').replace(/\//g, '-'));
-  d.setHours(0, 0, 0, 0);
-  return d < today;
-}
-
 function formatDateTW(dateStr) {
   if (!dateStr) return '';
   const d = new Date(String(dateStr).replace(/\//g, '-'));
@@ -412,7 +380,6 @@ function formatDateTW(dateStr) {
 
 /*********************************************************
  * ✅ 我的班表
- * 用途：查詢並顯示登入者今天以後的執勤班表，依時間排序並標示本週賽事。
  *********************************************************/
 function getMyRoleText(role) {
   const map = {
@@ -448,7 +415,6 @@ function openMySchedule() {
     const games = (res.games || []).map(safeMerge);
     const s = getSession ? getSession() : session;
 
-    // 比對裁判與紀錄欄位，找出目前登入者擔任的職務位置
     games.forEach(g => {
       g.my_position = '';
       if (g.judges) {
@@ -518,7 +484,6 @@ function openMySchedule() {
 
 /*********************************************************
  * ✅ 本週聯盟班表
- * 用途：依日期與場地分組呈現本週聯盟賽事與裁判／紀錄指派名單。
  *********************************************************/
 function openWeeklySchedule() {
   const overlay = document.getElementById('weekly-overlay');
@@ -566,7 +531,6 @@ function openWeeklySchedule() {
       return;
     }
 
-    // 依「日期 -> 場地」兩層分組
     const dateGroups = {};
     weekGames.forEach(g => {
       if (!dateGroups[g.date]) dateGroups[g.date] = {};
@@ -631,7 +595,6 @@ function renderWeeklyTable(list) {
 
 /*********************************************************
  * ✅ 安全合併與快取
- * 用途：補齊賽事物件的 judges 與 records 欄位、更新快取與載入中畫面。
  *********************************************************/
 function safeMerge(g) {
   const hasJudgeData = g.judges && Object.values(g.judges).some(v => !!v);
@@ -665,176 +628,85 @@ function renderLoading(target) {
 }
 
 /*********************************************************
- * ✅ 個人數據分析模組（以 Users.level 欄位直接呈現證照：左裁判右紀錄）
- * 用途：取得後端年度統計資料，於首頁呈現出勤率與「查看完整分析」，
- *       並於彈窗顯示經驗值、參與度、出勤品質、排位分數、課程統計與角色分布。
+ * ✅ 個人數據分析模組
  *********************************************************/
-
-/** 載入個人數據分析資料並快取 */
-function loadHomeUserAnalysis(){
-
-  const targetYear =
-    new Date().getFullYear();
-
-  const targetUid =
-    String(
-      session?.user_id || ''
-    ).trim();
-
-  callApi({
-
-    action:'getYearlyExperience',
-
-    year:targetYear,
-
-    user_id:targetUid
-
-  }, res => {
-
-    if(
-      !res ||
-      res.result !== 'ok'
-    ){
-
-      const rateEl =
-        document.getElementById(
-          'stat-rate'
-        );
-
-      if(rateEl){
-        rateEl.textContent = '0%';
-      }
-
-      return;
-    }
-
-    const raw =
-      res.data || res;
-
-    const all =
-
-      Array.isArray(raw?.all)
-
-      ? raw.all
-
-      : [
-
-          ...(raw?.judge || []),
-
-          ...(raw?.record || [])
-
-        ];
-
-    console.log(
-      'YEAR DATA',
-      all
-    );
-
-    let me =
-
-      all.find(x =>
-
-        String(
-          x.user_id || ''
-        ).trim()
-
-        ===
-
-        targetUid
-
-      )
-
-      ||
-
-      all.find(x =>
-
-        String(
-          x.name || ''
-        ).trim()
-
-        ===
-
-        String(
-          session?.name || ''
-        ).trim()
-
-      )
-
-      ||
-
-      res.debugUser
-
-      ||
-
-      null;
-
-    if(!me){
-
-      me = {
-
-        user_id:targetUid,
-
-        name:
-          session?.name || '',
-
-        attendance:0,
-
-        completed:0,
-
-        late:0,
-
-        no_show:0,
-
-        score_total:0,
-
-        final_score:0,
-
-        quality:100,
-
-        role_count:{},
-
-        training_hours_year:0,
-
-        training_hours_total:0,
-
-        course_count_year:0,
-
-        course_count_total:0,
-
-        latest_course:'-'
-
-      };
-
-    }
-
-    console.log(
-      'FOUND USER',
-      me
-    );
-
-    window._yearData =
-      all.length ? all : [me];
-
-    renderHomeUserAnalysis(
-      me
-    );
-
-  });
-
+function createFallbackPersonalStats_(targetUid) {
+  return {
+    user_id: targetUid,
+    name: session?.name || '',
+    level: session?.level || 'N,N',
+    league_level: session?.league_level || 'N',
+    attendance: 0,
+    completed: 0,
+    late: 0,
+    no_show: 0,
+    career_completed: 0,
+    career_late: 0,
+    career_no_show: 0,
+    score_total: 0,
+    final_score: 0,
+    quality: 100,
+    role_count: {},
+    training_hours_year: 0,
+    training_hours_total: 0,
+    course_count_year: 0,
+    course_count_total: 0,
+    latest_course: '-'
+  };
 }
 
-/** 更新首頁出勤率與「查看完整分析」按鈕 */
+function findPersonalRecord_(sourceList, targetUid, targetName, debugUser) {
+  const cleanUid = String(targetUid || '').trim();
+  const cleanName = String(targetName || '').trim();
+  const arr = Array.isArray(sourceList) ? sourceList : [];
+
+  return (
+    arr.find(x => cleanUid && (String(x.user_id ?? x.id ?? '').trim() === cleanUid)) ||
+    arr.find(x => cleanName && String(x.name || '').trim() === cleanName) ||
+    debugUser ||
+    null
+  );
+}
+
+function loadHomeUserAnalysis() {
+  const targetYear = new Date().getFullYear();
+  const targetUid = String(session?.user_id || '').trim();
+  const targetName = String(session?.name || '').trim();
+
+  callApi({
+    action: 'getYearlyExperience',
+    year: targetYear,
+    user_id: targetUid
+  }, res => {
+    const raw = res?.data ?? res;
+    const all = Array.isArray(raw)
+      ? raw
+      : (Array.isArray(raw?.all)
+          ? raw.all
+          : [...(raw?.judge || []), ...(raw?.record || [])]);
+
+    let me = findPersonalRecord_(all, targetUid, targetName, res?.debugUser);
+
+    if (!me) {
+      me = createFallbackPersonalStats_(targetUid);
+    }
+
+    window._yearData = all.length ? all : [me];
+    renderHomeUserAnalysis(me);
+  });
+}
+
 function renderHomeUserAnalysis(p) {
-  const completed = Number(p.completed || 0);
-  const late = Number(p.late || 0);
-  const no_show = Number(p.no_show || 0);
+  const completed = Number(p.completed ?? p.completed_games ?? 0);
+  const late = Number(p.late ?? 0);
+  const no_show = Number(p.no_show ?? 0);
 
   let total = Number(p.attendance ?? p.total_games ?? 0);
   if (total === 0) {
     total = completed + late + no_show;
   }
 
-  const rate = total > 0 ? Math.round(completed / total * 100) : 0;
+  const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
   const rateEl = document.getElementById('stat-rate');
   if (rateEl) rateEl.textContent = `${rate}%`;
@@ -856,80 +728,10 @@ function renderHomeUserAnalysis(p) {
   }
 }
 
-/** 開啟指定使用者的完整個人數據分析彈窗 */
 function openFullAnalysis(userId) {
   openUserDetail(userId);
 }
 
-/** 依培訓紀錄與課程主檔計算指定年度與生涯完訓時數 */
-function calcTrainingHoursFromLogs_(targetUid, logs, courses, targetYear) {
-  const courseMap = {};
-  (courses || []).forEach(c => {
-    const cid = String(c.course_id ?? c.id ?? c.courseId ?? '').trim();
-    if (!cid) return;
-    const rawHours = c.training_hours ?? c.certificate_hours ?? c.hours ?? c.course_hours ?? 0;
-    const hours = Number(rawHours) || 0;
-    const rawDate = c.date || c.course_date || c.start_date || '';
-    const dObj = rawDate ? new Date(String(rawDate).replace(/-/g, '/')) : null;
-    courseMap[cid] = {
-      hours,
-      date: (dObj && !isNaN(dObj.getTime())) ? dObj : null
-    };
-  });
-
-  let yearHours = 0;
-  let totalHours = 0;
-  const cleanTargetUid = String(targetUid || '').trim();
-  const cleanTargetName = String(session?.name || '').trim();
-
-  (logs || []).forEach(r => {
-    const uid = String(r.user_id ?? r.uid ?? r.userId ?? '').trim();
-    const uName = String(r.name ?? r.external_name ?? '').trim();
-    const isUserMatch = (cleanTargetUid && uid === cleanTargetUid) || (!uid && cleanTargetName && uName === cleanTargetName);
-    if (!isUserMatch) return;
-
-    const status = String(r.status || '').trim().toLowerCase();
-    const attStatus = String(r.attendance_status || '').trim().toLowerCase();
-    const certVer = String(r.certificate_verified || '').trim().toLowerCase();
-    const checkinTime = String(r.checkin_time || '').trim();
-
-    const isRejected =
-      ['cancelled', 'canceled', '已取消', '取消'].includes(status) ||
-      ['absent', 'no_show', '缺席', '未到'].includes(attStatus) ||
-      ['rejected', 'incomplete', 'false', 'n', 'no', '未通過', '不通過'].includes(certVer);
-
-    const isCompleted =
-      !isRejected && (
-        ['completed', 'attended', 'present', 'y', 'yes', 'true', '1', '已完成', '已出席', '出席', '完訓'].includes(attStatus) ||
-        ['completed', 'attended', 'confirmed', 'approved', 'y', 'yes', 'true', '1', '已完成', '已出席', '已確認', '完訓'].includes(status) ||
-        ['completed', 'verified', 'y', 'yes', 'true', '1', '已核發', '已通過', '通過'].includes(certVer) ||
-        checkinTime !== ''
-      );
-
-    if (!isCompleted) return;
-
-    const cid = String(r.course_id ?? r.cid ?? r.courseId ?? '').trim();
-    const cInfo = courseMap[cid] || { hours: 0, date: null };
-    const rawRowHours = r.training_hours ?? r.certificate_hours ?? r.hours ?? 0;
-    const hours = Number(cInfo.hours || rawRowHours || 0) || 0;
-    if (hours <= 0) return;
-
-    totalHours += hours;
-
-    const rawLogDate = r.date || r.course_date || r.certificate_verified_date || r.created_at || '';
-    const logDateObj = rawLogDate ? new Date(String(rawLogDate).replace(/-/g, '/')) : null;
-    const validLogDate = (logDateObj && !isNaN(logDateObj.getTime())) ? logDateObj : null;
-    const refDate = cInfo.date || validLogDate;
-
-    if (!refDate || refDate.getFullYear() === Number(targetYear)) {
-      yearHours += hours;
-    }
-  });
-
-  return { yearHours, totalHours };
-}
-
-/** 將不同語系或欄位的出勤狀態標準化為 completed / late / no_show / scheduled */
 function normalizeDutyStatus_(raw) {
   const s = String(raw || '').trim().toLowerCase();
   if (['completed', 'done', 'finish', 'finished', 'attended', 'present', '完成', '已完成', '已出席', '出席'].includes(s)) {
@@ -947,15 +749,11 @@ function normalizeDutyStatus_(raw) {
   return s;
 }
 
-/** 渲染個人數據分析詳細彈窗（基本指標、課程統計、年度／生涯出勤、角色分布圖） */
 function openUserDetail(userId) {
   const cleanUid = String(userId || session?.user_id || '').trim();
   const cleanName = String(session?.name || '').trim();
   const all = window._yearData || [];
-  const p = all.find(x =>
-    (cleanUid && (String(x.user_id || '').trim() === cleanUid || String(x.id || '').trim() === cleanUid)) ||
-    (cleanName && String(x.name || '').trim() === cleanName)
-  ) || {};
+  const p = findPersonalRecord_(all, cleanUid, cleanName, null) || createFallbackPersonalStats_(cleanUid);
 
   const modal = document.getElementById('userModal');
   if (!modal) return;
@@ -965,9 +763,6 @@ function openUserDetail(userId) {
   const currentYear = new Date().getFullYear();
   const currentYearStr = String(currentYear);
 
-  // ==========================
-  // 出勤數據修正版
-  // ==========================
   const completed = Number(p.completed ?? p.completed_games ?? 0);
   const late = Number(p.late ?? 0);
   const no_show = Number(p.no_show ?? 0);
@@ -981,27 +776,20 @@ function openUserDetail(userId) {
   const career_late = Number(p.career_late ?? late);
   const career_no_show = Number(p.career_no_show ?? no_show);
 
-  // ==========================
-  // 角色統計修正版
-  // ==========================
   const roleMap = {};
   if (p.role_count && typeof p.role_count === 'object') {
     Object.entries(p.role_count).forEach(([k, v]) => {
       const count = Number(v || 0);
       if (count <= 0) return;
-      roleMap[mapRole(k)] = count;
+      const mapped = mapRole(k);
+      roleMap[mapped] = (roleMap[mapped] || 0) + count;
     });
   }
 
-  const trainingHoursYear = Number(p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 0);
-  const trainingHoursTotal = Number(p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 0);
   const courseCountYear = Number(p.course_count_year || 0);
   const courseCountTotal = Number(p.course_count_total || 0);
   const latestCourse = p.latest_course || '-';
 
-  // ==========================
-  // KPI
-  // ==========================
   const experienceValue = Number(
     p.score_total ??
     p.experience ??
@@ -1010,19 +798,16 @@ function openUserDetail(userId) {
   const finalScore = Number(p.final_score ?? p.score_total ?? 0);
   const quality = Number(p.quality ?? 100);
 
-  // ==========================
-  // 證照（左裁判、右紀錄）
-  // ==========================
   const dbLevel = p.level || p.user_level || session.level || 'N,N';
   const parts = String(dbLevel).split(/[\/／,，]/);
   const judgeLv = parts[0] ? parts[0].trim().toUpperCase() : 'N';
   const recordLv = parts[1] ? parts[1].trim().toUpperCase() : 'N';
 
   const validCerts = [];
-  if (judgeLv && judgeLv !== 'N' && judgeLv !== '無') {
+  if (judgeLv && judgeLv !== 'N' && judgeLv !== 'NONE' && judgeLv !== '無') {
     validCerts.push(`${judgeLv}級裁判`);
   }
-  if (recordLv && recordLv !== 'N' && recordLv !== '無') {
+  if (recordLv && recordLv !== 'N' && recordLv !== 'NONE' && recordLv !== '無') {
     validCerts.push(`${recordLv}級紀錄`);
   }
 
@@ -1040,8 +825,7 @@ function openUserDetail(userId) {
           border-radius:6px;
           display:inline-block;
         ">
-          📜 證照資格：
-          ${validCerts.join(' ')}
+          📜 證照資格：${validCerts.join(' ')}
         </span>
       </div>
     `;
@@ -1068,8 +852,7 @@ function openUserDetail(userId) {
             font-size:13px;
             margin-top:2px;
           ">
-            聯盟等級：
-            ${renderLevel(p.league_level || session.league_level || 'N')}
+            聯盟等級：${renderLevel(p.league_level || session.league_level || 'N')}
           </div>
         </div>
         ${licenseHtml}
@@ -1195,7 +978,6 @@ function openUserDetail(userId) {
   }
 }
 
-/** 渲染聯盟等級徽章顏色 */
 function renderLevel(lv) {
   const map = {
     S: { c: '#9333ea', t: 'S' },
@@ -1208,13 +990,11 @@ function renderLevel(lv) {
   return `<span style="color:${m.c};font-weight:700">${m.t}</span>`;
 }
 
-/** 關閉個人數據分析彈窗 */
 function closeUserModal() {
   const modal = document.getElementById('userModal');
   if (modal) modal.style.display = 'none';
 }
 
-/** 角色代碼轉中文名稱 */
 function mapRole(role) {
   const m = {
     PU: '主審',
@@ -1228,7 +1008,6 @@ function mapRole(role) {
   return m[role] || role;
 }
 
-/** 產生精簡數據卡片 HTML */
 function cardMini(label, value) {
   return `
     <div class="card-mini">
@@ -1238,7 +1017,6 @@ function cardMini(label, value) {
   `;
 }
 
-/** 繪製角色執勤分布圓環圖與圖例 */
 function drawRoleChart(data) {
   const canvas = document.getElementById('roleChart');
   const legend = document.getElementById('roleChartLegend');
@@ -1271,7 +1049,6 @@ function drawRoleChart(data) {
     '#0891b2'
   ];
 
-  // 繪製各角色扇形區塊
   let start = 0;
   values.forEach((v, i) => {
     const slice = (v / total) * Math.PI * 2;
@@ -1284,7 +1061,6 @@ function drawRoleChart(data) {
     start += slice;
   });
 
-  // 繪製中心挖空圓形與總場次文字
   ctx.beginPath();
   ctx.arc(90, 90, 38, 0, Math.PI * 2);
   ctx.fillStyle = '#fff';
@@ -1305,19 +1081,16 @@ function drawRoleChart(data) {
   }
 }
 
-/** 數值格式化（整數不補小數，小數保留兩位） */
 function fmt(n) {
   const num = Number(n ?? 0);
   return Number.isInteger(num) ? num : num.toFixed(2);
 }
 
-/** 隱藏指定 ID 的彈窗遮罩 */
 function hideOverlay(id) {
   const el = document.getElementById(id);
   if (el) el.style.display = 'none';
 }
 
-/** 判斷排班欄位是否屬於目前登入者 */
 function isMySlot(slot, session) {
   if (!slot || !session) return false;
   if (typeof slot === 'object') {
@@ -1330,14 +1103,12 @@ function isMySlot(slot, session) {
   return false;
 }
 
-/** 安全取得排班人員顯示名稱 */
 function safeName(slot) {
   if (!slot) return '';
   if (typeof slot === 'string') return slot;
   return slot.name || '';
 }
 
-/** 依裁判需求人數決定顯示哪些裁判角色 */
 function getJudgeRoles(g) {
   const count = Number(g.umpire_count) || Number(g.need_count) || 0;
   if (count === 0) return [];
@@ -1347,25 +1118,19 @@ function getJudgeRoles(g) {
   return ['PU', 'U1', 'U2', 'U3'];
 }
 
-/** 裁判角色代碼簡稱轉換 */
 function roleMap(r) {
   return { PU: '主審', U1: '一壘', U2: '二壘', U3: '三壘' }[r] || r;
 }
 
 /*********************************************************
- * ✅ 系統公告模組 (CMS 前台顯示 + 管理員權限保護)
- * 用途：顯示前台最新公告，並提供具 admin 權限者新增、
- *       編輯、刪除公告與插入簡易 HTML 格式標籤。
+ * ✅ 系統公告模組
  *********************************************************/
-
-/** 檢查目前登入者是否具備系統管理員（admin）權限 */
 function checkAdminPermission() {
   if (!session || !session.role) return false;
   const roles = session.role.split(',').map(r => r.trim());
   return roles.includes('admin');
 }
 
-/** 載入前台系統公告清單並控制 CMS 管理按鈕顯示 */
 function loadHomeAnnouncements() {
   const container = document.getElementById('home-notice-list');
   const adminBtn = document.getElementById('open-cms-btn');
@@ -1428,7 +1193,6 @@ function loadHomeAnnouncements() {
   }
 }
 
-/** 開啟公告 CMS 管理彈窗並重設表單 */
 function openAnnouncementAdmin() {
   if (!checkAdminPermission()) {
     alert('權限不足：只有系統管理員（admin）才能管理系統公告！');
@@ -1441,7 +1205,6 @@ function openAnnouncementAdmin() {
   loadAdminAnnouncementList();
 }
 
-/** 載入後台全部公告清單供管理員編輯或刪除 */
 function loadAdminAnnouncementList() {
   if (!checkAdminPermission()) return;
 
@@ -1491,7 +1254,6 @@ function loadAdminAnnouncementList() {
   });
 }
 
-/** 將選定公告資料填入表單以進行編輯 */
 function editAnnouncementItem(id) {
   if (!checkAdminPermission()) return;
   const item = (window._adminAnnouncements || []).find(x => Number(x.announcement_id) === Number(id));
@@ -1507,7 +1269,6 @@ function editAnnouncementItem(id) {
   document.getElementById('cms-content').value = item.content_html || '';
 }
 
-/** 重設公告新增／編輯表單為預設值 */
 function resetCmsForm() {
   document.getElementById('cms-form-title').textContent = '➕ 新增公告';
   document.getElementById('cms-id').value = '';
@@ -1519,7 +1280,6 @@ function resetCmsForm() {
   document.getElementById('cms-content').value = '';
 }
 
-/** 送出新增或修改的公告資料至後端 */
 function submitAnnouncementForm() {
   if (!checkAdminPermission()) {
     alert('權限不足！');
@@ -1562,7 +1322,6 @@ function submitAnnouncementForm() {
   });
 }
 
-/** 刪除指定 ID 的系統公告 */
 function removeAnnouncementItem(id) {
   if (!checkAdminPermission()) return;
   if (!confirm(`確定要刪除公告 ID #${id} 嗎？刪除後無法復原。`)) return;
@@ -1577,10 +1336,6 @@ function removeAnnouncementItem(id) {
   });
 }
 
-/*********************************************************
- * 🎨 CMS 公告內文格式化工具列輔助函式
- * 用途：在公告內文輸入框游標處或選取文字外圍插入 HTML 標籤。
- *********************************************************/
 function formatText(tag) {
   const textarea = document.getElementById('cms-content');
   if (!textarea) return;
