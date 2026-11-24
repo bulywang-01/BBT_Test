@@ -671,65 +671,154 @@ function renderLoading(target) {
  *********************************************************/
 
 /** 載入個人數據分析資料並快取 */
-function loadHomeUserAnalysis() {
-  const targetYear = new Date().getFullYear();
-  const targetUid = String(session.user_id || '').trim();
+function loadHomeUserAnalysis(){
+
+  const targetYear =
+    new Date().getFullYear();
+
+  const targetUid =
+    String(
+      session.user_id || ''
+    ).trim();
 
   callApi({
-    action: 'getYearlyExperience',
-    year: targetYear,
-    user_id: targetUid
-  }, function(res) {
-    if (!res || res.result !== 'ok') {
-      const rateEl = document.getElementById('stat-rate');
-      if (rateEl) rateEl.textContent = '0%';
+
+    action:'getYearlyExperience',
+
+    year:targetYear,
+
+    user_id:targetUid
+
+  },function(res){
+
+    if(
+      !res ||
+      res.result !== 'ok'
+    ){
+
+      const rateEl =
+        document.getElementById(
+          'stat-rate'
+        );
+
+      if(rateEl){
+        rateEl.textContent = '0%';
+      }
+
       return;
     }
 
-    const raw = res.data || res;
-    const judgeList = Array.isArray(raw?.judge) ? raw.judge : [];
-    const recordList = Array.isArray(raw?.record) ? raw.record : [];
-    const all = [...judgeList, ...recordList];
+    const raw =
+      res.data || res;
 
-    // 尋找目前登入者統計資料，找不到則建立預設空物件
-    const me = all.find(x =>
-      String(x.user_id || '').trim() === targetUid ||
-      String(x.id || '').trim() === targetUid
-    ) || {
-      user_id: targetUid,
-      name: session.name || '',
-      level: session.level || 'N,N',
-      league_level: session.league_level || 'N',
-      attendance: 0,
-      completed: 0,
-      late: 0,
-      no_show: 0,
-      score_total: 0,
-      final_score: 0,
-      quality: 100,
-      training_hours_year: 0,
-      training_hours_total: 0,
-      role_count: {},
-      role_career_count: {},
-      course_count_year: 0,
-      course_count_total: 0,
-      latest_course: ''
-    };
+    const judgeList =
+      Array.isArray(raw?.judge)
+        ? raw.judge
+        : [];
 
-    console.log('Personal Analysis', me);
+    const recordList =
+      Array.isArray(raw?.record)
+        ? raw.record
+        : [];
+
+    const all =
+      Array.isArray(raw?.all)
+      ? raw.all
+      : [
+          ...judgeList,
+          ...recordList
+        ];
+
+    let me =
+      all.find(x =>
+
+        String(
+          x.user_id || ''
+        ).trim() === targetUid
+
+      );
+
+    // 找不到 user_id 就改用姓名找
+    if(!me){
+
+      me =
+        all.find(x =>
+
+          String(
+            x.name || ''
+          ).trim() ===
+          String(
+            session.name || ''
+          ).trim()
+
+        );
+
+    }
+
+    // 還找不到才建立空資料
+    if(!me){
+
+      me = {
+
+        user_id:targetUid,
+
+        name:
+          session.name || '',
+
+        level:
+          session.level || 'N,N',
+
+        league_level:
+          session.league_level || 'N',
+
+        attendance:0,
+        completed:0,
+        late:0,
+        no_show:0,
+
+        score_total:0,
+        final_score:0,
+
+        quality:100,
+
+        training_hours_year:0,
+        training_hours_total:0,
+
+        course_count_year:0,
+        course_count_total:0,
+
+        latest_course:'',
+
+        role_count:{},
+        role_career_count:{}
+
+      };
+
+    }
+
+    console.log(
+      'Analysis User',
+      me
+    );
 
     window._yearRaw = {
-      judge: judgeList,
-      record: recordList
+
+      judge:judgeList,
+
+      record:recordList,
+
+      all
+
     };
 
-    window._yearData = [
-      me,
-      ...all.filter(x => String(x.user_id || '').trim() !== targetUid)
-    ];
+    window._yearData = all;
 
-    renderHomeUserAnalysis(me);
+    renderHomeUserAnalysis(
+      me
+    );
+
   });
+
 }
 
 /** 更新首頁出勤率與「查看完整分析」按鈕 */
