@@ -671,65 +671,148 @@ function renderLoading(target) {
  *********************************************************/
 
 /** 載入個人數據分析資料並快取 */
-function loadHomeUserAnalysis() {
-  const targetYear = new Date().getFullYear();
-  const targetUid = String(session?.user_id || '').trim();
+function loadHomeUserAnalysis(){
+
+  const targetYear =
+    new Date().getFullYear();
+
+  const targetUid =
+    String(
+      session?.user_id || ''
+    ).trim();
 
   callApi({
-    action: 'getYearlyExperience',
-    year: targetYear,
-    user_id: targetUid
+
+    action:'getYearlyExperience',
+
+    year:targetYear,
+
+    user_id:targetUid
+
   }, res => {
-    if (!res || res.result !== 'ok') {
-      const rateEl = document.getElementById('stat-rate');
-      if (rateEl) rateEl.textContent = '0%';
+
+    if(
+      !res ||
+      res.result !== 'ok'
+    ){
+
+      const rateEl =
+        document.getElementById(
+          'stat-rate'
+        );
+
+      if(rateEl){
+        rateEl.textContent = '0%';
+      }
+
       return;
     }
 
-    const raw = res.data || res;
-    let all = [];
+    const raw =
+      res.data || res;
 
-    // 支援新版 GAS 的 raw.all，或舊版合併 judge 與 record 陣列
-    if (Array.isArray(raw?.all)) {
-      all = raw.all;
-    } else {
-      const judge = Array.isArray(raw?.judge) ? raw.judge : [];
-      const record = Array.isArray(raw?.record) ? raw.record : [];
-      all = [...judge, ...record];
-    }
+    const all =
 
-    // 優先以 user_id 比對，找不到再以姓名比對，最後建立預設空物件
-    let me = all.find(x => String(x.user_id || '').trim() === targetUid);
-    if (!me) {
-      me = all.find(x => String(x.name || '').trim() === String(session?.name || '').trim());
-    }
-    if (!me) {
+      Array.isArray(raw?.all)
+
+      ? raw.all
+
+      : [
+
+          ...(raw?.judge || []),
+
+          ...(raw?.record || [])
+
+        ];
+
+    console.log(
+      'YEAR DATA',
+      all
+    );
+
+    let me =
+
+      all.find(x =>
+
+        String(
+          x.user_id || ''
+        ).trim()
+
+        ===
+
+        targetUid
+
+      )
+
+      ||
+
+      all.find(x =>
+
+        String(
+          x.name || ''
+        ).trim()
+
+        ===
+
+        String(
+          session?.name || ''
+        ).trim()
+
+      );
+
+    if(!me){
+
       me = {
-        user_id: targetUid,
-        name: session?.name || '',
-        level: session?.level || 'N,N',
-        league_level: session?.league_level || 'N',
-        attendance: 0,
-        completed: 0,
-        late: 0,
-        no_show: 0,
-        score_total: 0,
-        final_score: 0,
-        quality: 100,
-        training_hours_year: 0,
-        training_hours_total: 0,
-        course_count_year: 0,
-        course_count_total: 0,
-        latest_course: '',
-        role_count: {},
-        role_career_count: {}
+
+        user_id:targetUid,
+
+        name:
+          session?.name || '',
+
+        attendance:0,
+
+        completed:0,
+
+        late:0,
+
+        no_show:0,
+
+        score_total:0,
+
+        final_score:0,
+
+        quality:100,
+
+        role_count:{},
+
+        training_hours_year:0,
+
+        training_hours_total:0,
+
+        course_count_year:0,
+
+        course_count_total:0,
+
+        latest_course:''
+
       };
+
     }
 
-    console.log('Analysis User', me);
-    window._yearData = all;
-    renderHomeUserAnalysis(me);
+    console.log(
+      'FOUND USER',
+      me
+    );
+
+    window._yearData =
+      all;
+
+    renderHomeUserAnalysis(
+      me
+    );
+
   });
+
 }
 
 /** 更新首頁出勤率與「查看完整分析」按鈕 */
