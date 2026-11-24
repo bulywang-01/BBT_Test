@@ -745,10 +745,11 @@ function openFullAnalysis(userId){
 function calcTrainingHoursFromLogs_(targetUid, logs, courses, targetYear){
   const courseMap = {};
   (courses || []).forEach(c => {
-    const cid = String(c.course_id ?? c.id ?? '').trim();
+    const cid = String(c.course_id ?? c.id ?? c.courseId ?? '').trim();
     if (!cid) return;
-    const hours = Number(c.training_hours ?? c.hours ?? c.certificate_hours ?? 0) || 0;
-    const rawDate = c.date || c.course_date || '';
+    const rawHours = c.training_hours ?? c.certificate_hours ?? c.hours ?? c.course_hours ?? 0;
+    const hours = Number(rawHours) || 0;
+    const rawDate = c.date || c.course_date || c.start_date || '';
     const dObj = rawDate ? new Date(String(rawDate).replace(/-/g, '/')) : null;
     courseMap[cid] = {
       hours,
@@ -758,14 +759,17 @@ function calcTrainingHoursFromLogs_(targetUid, logs, courses, targetYear){
 
   let yearHours = 0;
   let totalHours = 0;
+  const cleanTargetUid = String(targetUid || '').trim();
 
   (logs || []).forEach(r => {
-    const uid = String(r.user_id ?? r.uid ?? '').trim();
-    if (uid !== String(targetUid || '').trim()) return;
+    const uid = String(r.user_id ?? r.uid ?? r.userId ?? '').trim();
+    if (cleanTargetUid && uid && uid !== cleanTargetUid) return;
 
     const status = String(r.status || '').trim().toLowerCase();
     const attStatus = String(r.attendance_status || '').trim().toLowerCase();
     const certVer = String(r.certificate_verified || '').trim().toLowerCase();
+    const checkinTime = String(r.checkin_time || '').trim();
+    const checkoutTime = String(r.checkout_time || '').trim();
 
     const isRejected =
       ['cancelled', 'canceled', '已取消', '取消'].includes(status) ||
@@ -776,22 +780,25 @@ function calcTrainingHoursFromLogs_(targetUid, logs, courses, targetYear){
       !isRejected && (
         ['completed', 'attended', 'present', '已完成', '已出席', '出席'].includes(attStatus) ||
         ['completed', 'attended', '已完成', '已出席'].includes(status) ||
-        ['completed', 'verified', '已核發', '已通過', '通過'].includes(certVer)
+        ['completed', 'verified', '已核發', '已通過', '通過'].includes(certVer) ||
+        (checkinTime !== '' && checkoutTime !== '')
       );
 
     if (!isCompleted) return;
 
-    const cid = String(r.course_id ?? r.cid ?? '').trim();
+    const cid = String(r.course_id ?? r.cid ?? r.courseId ?? '').trim();
     const cInfo = courseMap[cid] || { hours: 0, date: null };
-    const hours = Number(cInfo.hours || r.training_hours || r.hours || 0) || 0;
+    const rawRowHours = r.training_hours ?? r.certificate_hours ?? r.hours ?? 0;
+    const hours = Number(cInfo.hours || rawRowHours || 0) || 0;
     if (hours <= 0) return;
 
     totalHours += hours;
 
-    const rawLogDate = r.date || r.course_date || r.created_at || '';
+    const rawLogDate = r.date || r.course_date || r.certificate_verified_date || r.created_at || '';
     const logDateObj = rawLogDate ? new Date(String(rawLogDate).replace(/-/g, '/')) : null;
     const validLogDate = (logDateObj && !isNaN(logDateObj.getTime())) ? logDateObj : null;
     const refDate = cInfo.date || validLogDate;
+
     if (!refDate || refDate.getFullYear() === Number(targetYear)) {
       yearHours += hours;
     }
