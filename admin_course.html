@@ -629,7 +629,9 @@ button:disabled, .btn-disabled { opacity: 0.5; cursor: not-allowed !important; f
 <label class="font-bold text-slate-700 text-xs">證書發放 / 驗證狀態 (certificate_verified)</label>
 <select id="modal_cert_verified" class="w-full h-10 border border-slate-300 rounded-xl px-3 font-bold bg-white">
 <option value="pending">待確認 (pending)</option>
-<option value="verified">已確認/已發放 (verified)</option>
+<option value="completed">已完成課程 (completed)</option>
+<option value="verified">已完成課程並核發證書 (verified)</option>
+<option value="incomplete">未完成課程 (incomplete)</option>
 <option value="rejected">未通過 (rejected)</option>
 </select>
 </div>
@@ -1379,13 +1381,35 @@ document.getElementById('statPresentCount').textContent = totalPresent;
 document.getElementById('statCheckinCount').textContent = checkedIn;
 document.getElementById('statCheckoutCount').textContent = checkedOut;
 }
+function isCourseWithLicenseType(courseId) {
+const c = allCourses.find(item => String(item.course_id) === String(courseId));
+const ct = String((c && c.certificate_type) || '').trim().toLowerCase();
+return ct === 'judge' || ct === 'record' || ct === 'general' || ct === '裁判' || ct === '紀錄' || ct === '通識' || ct === '通識教育';
+}
+function normalizeCertStatusValue(rawVal, hasLicense) {
+const val = String(rawVal || '').trim().toLowerCase();
+if (val === 'verified' || val === 'yes' || val === 'true') {
+return hasLicense ? 'verified' : 'completed';
+}
+if (val === 'completed' || val === 'done') {
+return hasLicense ? 'verified' : 'completed';
+}
+if (val === 'incomplete' || val === 'unfinished') {
+return 'incomplete';
+}
+if (val === 'rejected' || val === 'no' || val === 'failed') {
+return hasLicense ? 'rejected' : 'incomplete';
+}
+return 'pending';
+}
 function updateCertificateStatsForActiveCourse() {
 if (!selectedCertCourseId) return;
+const hasLicense = isCourseWithLicenseType(selectedCertCourseId);
 const courseLogs = allEnrollments.filter(i => String(i.course_id) === String(selectedCertCourseId) && i.status !== 'cancelled');
 const scored = courseLogs.filter(i => i.score !== undefined && i.score !== '' && i.score !== null).length;
 const verified = courseLogs.filter(i => {
-const v = String(i.certificate_verified || '').trim().toLowerCase();
-return v === 'verified' || v === 'yes' || v === 'true';
+const norm = normalizeCertStatusValue(i.certificate_verified, hasLicense);
+return norm === 'verified' || norm === 'completed';
 }).length;
 const pending = courseLogs.length - verified;
 document.getElementById('statScoredCount').textContent = scored;
@@ -1993,6 +2017,7 @@ if (!selectedCertCourseId) {
 tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-400 font-bold">請從課程清單選擇課程場次</td></tr>`;
 return;
 }
+const hasLicense = isCourseWithLicenseType(selectedCertCourseId);
 const keyword = (document.getElementById('txtCertSearch').value || '').toLowerCase();
 const courseLogs = allEnrollments.filter(item => String(item.course_id) === String(selectedCertCourseId));
 const filtered = courseLogs.filter(item => {
@@ -2004,17 +2029,25 @@ tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-400 f
 return;
 }
 tbody.innerHTML = filtered.map(item => {
-const val = String(item.certificate_verified || '').trim().toLowerCase();
 const scoreNum = Number(item.score);
 const hasScore = item.score !== undefined && item.score !== '' && item.score !== null && !isNaN(scoreNum);
-let finalStatus = val;
-if (hasScore && scoreNum < 60 && finalStatus === 'pending') finalStatus = 'rejected';
-const isVerified = (finalStatus === 'verified' || finalStatus === 'yes' || finalStatus === 'true');
-const isRejected = (finalStatus === 'rejected' || finalStatus === 'no' || (hasScore && scoreNum < 60));
+let finalStatus = normalizeCertStatusValue(item.certificate_verified, hasLicense);
+if (hasScore && scoreNum < 60 && finalStatus === 'pending') {
+finalStatus = hasLicense ? 'rejected' : 'incomplete';
+}
 let certBadge = '';
-if (isVerified) certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已確認 (verified)</span>`;
-else if (isRejected) certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800">未通過 (rejected)</span>`;
-else certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">待確認 (pending)</span>`;
+if (finalStatus === 'completed') {
+certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已完成課程</span>`;
+} else if (finalStatus === 'verified') {
+certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">已完成課程並核發證書</span>`;
+} else if (finalStatus === 'incomplete') {
+certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-200 text-slate-700">未完成課程</span>`;
+} else if (finalStatus === 'rejected') {
+certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800">未通過</span>`;
+} else {
+certBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">待確認</span>`;
+}
+const safeName = escapeHtmlAttr(item.name || '');
 return `
 <tr class="hover:bg-slate-50 transition">
 <td class="p-4 text-xs font-bold text-slate-700">#${item.log_id || '-'}</td>
@@ -2028,7 +2061,7 @@ ${hasScore ? item.score : '<span class="text-slate-400 font-normal text-xs">未�
 <td class="p-4">${certBadge}</td>
 <td class="p-4 text-xs font-mono text-slate-600">${item.certificate_verified_date || '-'}</td>
 <td class="p-4 text-right">
-<button onclick="openScoreCertModal('${item.log_id}', '${item.name || ''}', '${hasScore ? item.score : ''}', '${item.certificate_verified || 'pending'}')" class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-extrabold transition">
+<button onclick="openScoreCertModal('${item.log_id}', '${safeName}', '${hasScore ? item.score : ''}', '${item.certificate_verified || 'pending'}')" class="px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-extrabold transition">
 編輯成績與證書
 </button>
 </td>
@@ -2037,10 +2070,26 @@ ${hasScore ? item.score : '<span class="text-slate-400 font-normal text-xs">未�
 }).join('');
 }
 function openScoreCertModal(logId, studentName, score, verified) {
+const hasLicense = isCourseWithLicenseType(selectedCertCourseId);
+const selectEl = document.getElementById('modal_cert_verified');
+const options = [
+{ value: 'pending', label: '待確認' }
+];
+if (!hasLicense) {
+options.push({ value: 'completed', label: '已完成課程' });
+} else {
+options.push({ value: 'verified', label: '已完成課程並核發證書' });
+}
+options.push({ value: 'incomplete', label: '未完成課程' });
+if (hasLicense) {
+options.push({ value: 'rejected', label: '未通過' });
+}
+selectEl.innerHTML = options.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('');
+const normalizedVal = normalizeCertStatusValue(verified, hasLicense);
 document.getElementById('modal_log_id').value = logId;
 document.getElementById('modal_student_info').textContent = `#${logId} - ${studentName}`;
 document.getElementById('modal_score').value = score;
-document.getElementById('modal_cert_verified').value = verified || 'pending';
+selectEl.value = options.some(o => o.value === normalizedVal) ? normalizedVal : 'pending';
 document.getElementById('scoreCertModal').classList.remove('hidden');
 }
 function closeScoreCertModal() {
