@@ -719,10 +719,6 @@ function loadHomeUserAnalysis(){
     const fallbackObj = (rawData && !Array.isArray(rawData) && rawData.user_id) ? rawData : {};
 
     const me = Object.assign(
-      console.log(
-        'YEAR DATA',
-        matched
-      );
       {
         user_id: targetUid,
         name: session.name || '',
