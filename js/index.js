@@ -758,7 +758,15 @@ function loadHomeUserAnalysis(){
           session?.name || ''
         ).trim()
 
-      );
+      )
+
+      ||
+
+      res.debugUser
+
+      ||
+
+      null;
 
     if(!me){
 
@@ -793,7 +801,7 @@ function loadHomeUserAnalysis(){
 
         course_count_total:0,
 
-        latest_course:''
+        latest_course:'-'
 
       };
 
@@ -805,7 +813,7 @@ function loadHomeUserAnalysis(){
     );
 
     window._yearData =
-      all;
+      all.length ? all : [me];
 
     renderHomeUserAnalysis(
       me
@@ -942,10 +950,11 @@ function normalizeDutyStatus_(raw) {
 /** 渲染個人數據分析詳細彈窗（基本指標、課程統計、年度／生涯出勤、角色分布圖） */
 function openUserDetail(userId) {
   const cleanUid = String(userId || session?.user_id || '').trim();
+  const cleanName = String(session?.name || '').trim();
   const all = window._yearData || [];
   const p = all.find(x =>
-    String(x.user_id || '').trim() === cleanUid ||
-    String(x.id || '').trim() === cleanUid
+    (cleanUid && (String(x.user_id || '').trim() === cleanUid || String(x.id || '').trim() === cleanUid)) ||
+    (cleanName && String(x.name || '').trim() === cleanName)
   ) || {};
 
   const modal = document.getElementById('userModal');
