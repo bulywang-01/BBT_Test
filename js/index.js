@@ -665,10 +665,13 @@ function renderLoading(target){
  * ✅ 個人數據分析模組（以 Users.level 欄位直接呈現證照：左裁判右紀錄）
  *********************************************************/
 function loadHomeUserAnalysis(){
+  const targetYear = new Date().getFullYear();
+  const targetUid = String(session.user_id || '').trim();
+
   callApi({
     action:'getYearlyExperience',
-    year: new Date().getFullYear(),
-    user_id: session.user_id
+    year: targetYear,
+    user_id: targetUid
   }, res=>{
     if (!res || res.result !== 'ok') {
       const rateEl = document.getElementById('stat-rate');
@@ -677,14 +680,28 @@ function loadHomeUserAnalysis(){
     }
 
     const rawData = res.data || res;
-    let judgeList = rawData.judge || rawData.judges || (Array.isArray(rawData) ? rawData : []);
-    let recordList = rawData.record || rawData.records || [];
-    
-    if (!Array.isArray(judgeList) && rawData.user_id) judgeList = [rawData];
+    let judgeList = Array.isArray(rawData.judge) ? rawData.judge : (Array.isArray(rawData.judges) ? rawData.judges : []);
+    let recordList = Array.isArray(rawData.record) ? rawData.record : (Array.isArray(rawData.records) ? rawData.records : []);
+
+    if (Array.isArray(rawData) && judgeList.length === 0 && recordList.length === 0) {
+      judgeList = rawData;
+    }
 
     const all = [...judgeList, ...recordList];
-    const targetUid = String(session.user_id);
-    const me = all.find(x => String(x.user_id) === targetUid || String(x.id) === targetUid) || rawData;
+    const matched = all.find(x => String(x.user_id || '').trim() === targetUid || String(x.id || '').trim() === targetUid);
+    const fallbackObj = (rawData && !Array.isArray(rawData) && rawData.user_id) ? rawData : {};
+    const me = Object.assign(
+      {
+        user_id: targetUid,
+        name: session.name || '',
+        level: session.level || 'N,N',
+        league_level: session.league_level || 'N',
+        training_hours_year: 0,
+        training_hours_total: 0
+      },
+      fallbackObj,
+      matched || {}
+    );
 
     callApi({action:'getAssignments'}, res2=>{
       window._yearRaw = {
@@ -692,7 +709,7 @@ function loadHomeUserAnalysis(){
         record: recordList,
         allAssignments: res2?.data || res2?.assignments || []
       };
-      window._yearData = all.length ? all : [me];
+      window._yearData = matched ? all : [me, ...all];
       renderHomeUserAnalysis(me);
     });
   });
@@ -727,8 +744,8 @@ function openFullAnalysis(userId){
 
 function openUserDetail(userId){
   const all = window._yearData || [];
-  const targetUid = String(userId || session.user_id);
-  const p = all.find(x => String(x.user_id) === targetUid || String(x.id) === targetUid) || {};
+  const targetUid = String(userId || session.user_id || '').trim();
+  const p = all.find(x => String(x.user_id || '').trim() === targetUid || String(x.id || '').trim() === targetUid) || {};
 
   const modal = document.getElementById('userModal');
   if (!modal) return;
@@ -749,7 +766,7 @@ function openUserDetail(userId){
   if (window._yearRaw?.allAssignments) {
     window._yearRaw.allAssignments.forEach(g=>{
       (g.list || []).forEach(item=>{
-        if (String(item.user_id) !== targetUid) return;
+        if (String(item.user_id || '').trim() !== targetUid) return;
 
         const year = String(g.date || new Date().getFullYear()).substring(0,4);
         if (!yearlyMap[year]){
@@ -772,8 +789,8 @@ function openUserDetail(userId){
   }
 
   const currentYearStr = String(new Date().getFullYear());
-  const trainingHoursYear = Number(p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 0); 
-  const trainingHoursTotal = Number(p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 0);
+  const trainingHoursYear = Number(p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 0) || 0;
+  const trainingHoursTotal = Number(p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 0) || 0;
   
   // ✅ 證照解析與過濾邏輯
   const dbLevel = p.level || p.user_level || session.level || 'N,N';
