@@ -291,7 +291,8 @@ function loadDashboard(){
           if (String(item.user_id) !== uid) return;
           const isRecord = String(item.role || '').toUpperCase().includes('REC');
           isMyGame = true;
-          if ((item.status === 'completed' || item.status === 'late') && isThisYear){
+          const st = normalizeDutyStatus_(item.status);
+          if ((st === 'completed' || st === 'late') && isThisYear){
             if (isRecord) hasRecordDone = true;
             else hasJudgeDone = true;
           }
@@ -760,28 +761,30 @@ function calcTrainingHoursFromLogs_(targetUid, logs, courses, targetYear){
   let yearHours = 0;
   let totalHours = 0;
   const cleanTargetUid = String(targetUid || '').trim();
+  const cleanTargetName = String(session?.name || '').trim();
 
   (logs || []).forEach(r => {
     const uid = String(r.user_id ?? r.uid ?? r.userId ?? '').trim();
-    if (cleanTargetUid && uid && uid !== cleanTargetUid) return;
+    const uName = String(r.name ?? r.external_name ?? '').trim();
+    const isUserMatch = (cleanTargetUid && uid === cleanTargetUid) || (!uid && cleanTargetName && uName === cleanTargetName);
+    if (!isUserMatch) return;
 
     const status = String(r.status || '').trim().toLowerCase();
     const attStatus = String(r.attendance_status || '').trim().toLowerCase();
     const certVer = String(r.certificate_verified || '').trim().toLowerCase();
     const checkinTime = String(r.checkin_time || '').trim();
-    const checkoutTime = String(r.checkout_time || '').trim();
 
     const isRejected =
       ['cancelled', 'canceled', '已取消', '取消'].includes(status) ||
-      ['absent', '缺席'].includes(attStatus) ||
-      ['rejected', 'incomplete', '未通過', '不通過'].includes(certVer);
+      ['absent', 'no_show', '缺席', '未到'].includes(attStatus) ||
+      ['rejected', 'incomplete', 'false', 'n', 'no', '未通過', '不通過'].includes(certVer);
 
     const isCompleted =
       !isRejected && (
-        ['completed', 'attended', 'present', '已完成', '已出席', '出席'].includes(attStatus) ||
-        ['completed', 'attended', '已完成', '已出席'].includes(status) ||
-        ['completed', 'verified', '已核發', '已通過', '通過'].includes(certVer) ||
-        (checkinTime !== '' && checkoutTime !== '')
+        ['completed', 'attended', 'present', 'y', 'yes', 'true', '1', '已完成', '已出席', '出席', '完訓'].includes(attStatus) ||
+        ['completed', 'attended', 'confirmed', 'approved', 'y', 'yes', 'true', '1', '已完成', '已出席', '已確認', '完訓'].includes(status) ||
+        ['completed', 'verified', 'y', 'yes', 'true', '1', '已核發', '已通過', '通過'].includes(certVer) ||
+        checkinTime !== ''
       );
 
     if (!isCompleted) return;
@@ -807,10 +810,23 @@ function calcTrainingHoursFromLogs_(targetUid, logs, courses, targetYear){
   return { yearHours, totalHours };
 }
 
+function normalizeDutyStatus_(raw) {
+  const s = String(raw || '').trim().toLowerCase();
+  if (['completed', 'done', 'finish', 'finished', 'attended', 'present', '完成', '已完成', '已出席', '出席'].includes(s)) {
+    return 'completed';
+  }
+  if (['late', 'tardy', '遲到'].includes(s)) {
+    return 'late';
+  }
+  if (['no_show', 'noshow', 'absent', '缺席', '未到'].includes(s)) {
+    return 'no_show';
+  }
+  return s;
+}
+
 function openUserDetail(userId){
   const all = window._yearData || [];
-  const targetUid = String(userId || session.user_id || '').trim();
-  const p = all.find(x => String(x.user_id || '').trim() === targetUid || String(x.id || '').trim() === targetUid) || {};
+  const p = all.find(x => String(x.user_id) === String(userId) || String(x.id) === String(userId)) || {};
 
   const modal = document.getElementById('userModal');
   if (!modal) return;
@@ -831,21 +847,22 @@ function openUserDetail(userId){
   if (window._yearRaw?.allAssignments) {
     window._yearRaw.allAssignments.forEach(g=>{
       (g.list || []).forEach(item=>{
-        if (String(item.user_id || '').trim() !== targetUid) return;
+        if (String(item.user_id) !== String(userId)) return;
 
         const year = String(g.date || new Date().getFullYear()).substring(0,4);
         if (!yearlyMap[year]){
           yearlyMap[year] = { completed:0, late:0, no_show:0 };
         }
-        if (item.status === 'completed') yearlyMap[year].completed++;
-        if (item.status === 'late') yearlyMap[year].late++;
-        if (item.status === 'no_show') yearlyMap[year].no_show++;
+        const st = normalizeDutyStatus_(item.status);
+        if (st === 'completed') yearlyMap[year].completed++;
+        if (st === 'late') yearlyMap[year].late++;
+        if (st === 'no_show') yearlyMap[year].no_show++;
 
-        if (item.status === 'completed') career_completed++;
-        if (item.status === 'late') career_late++;
-        if (item.status === 'no_show') career_no_show++;
+        if (st === 'completed') career_completed++;
+        if (st === 'late') career_late++;
+        if (st === 'no_show') career_no_show++;
 
-        if (item.status !== 'completed') return;
+        if (st !== 'completed') return;
 
         const role = mapRole(item.role);
         roleMap[role] = (roleMap[role] || 0) + 1;
@@ -853,11 +870,19 @@ function openUserDetail(userId){
     });
   }
 
+  // 若 allAssignments 未帶出 roleMap，從 p.role_count 補齊
+  if (Object.keys(roleMap).length === 0 && p.role_count && typeof p.role_count === 'object') {
+    Object.entries(p.role_count).forEach(([rKey, cnt]) => {
+      const rName = mapRole(rKey);
+      roleMap[rName] = (roleMap[rName] || 0) + (Number(cnt) || 0);
+    });
+  }
+
   const currentYear = new Date().getFullYear();
   const currentYearStr = String(currentYear);
   const trainingHoursYear = Number(p.training_hours_year ?? p.course_hours_year ?? p.year_hours ?? 0) || 0;
   const trainingHoursTotal = Number(p.training_hours_total ?? p.course_hours_total ?? p.total_hours ?? 0) || 0;
-  
+
   // ✅ 證照解析與過濾邏輯
   const dbLevel = p.level || p.user_level || session.level || 'N,N';
   let parts = String(dbLevel).split(/[\/／,，]/);
@@ -872,7 +897,6 @@ function openUserDetail(userId){
     validCerts.push(`${recordLv}級紀錄`);
   }
 
-  // ✅ 如果有證照就組合（改用空白間隔）；若完全沒有則不呈現該 HTML 區塊
   let licenseHtml = '';
   if (validCerts.length > 0) {
     licenseHtml = `
@@ -894,7 +918,6 @@ function openUserDetail(userId){
         ${licenseHtml}
       </div>
 
-      <!-- 4 個精緻數據卡片 -->
       <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;">
         <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 8px; text-align:center;">
           <div style="font-size:11px; color:#64748b; font-weight:700;">經驗值</div>
@@ -916,7 +939,6 @@ function openUserDetail(userId){
 
       <hr style="margin:14px 0; border:0; border-top:1px solid #e2e8f0;">
 
-      <!-- 🎓 培訓課程與完訓時數 -->
       <div>
         <div style="font-weight:700; margin-bottom:8px; font-size:14px; color:#1e293b;">🎓 培訓課程與完訓時數</div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
@@ -953,9 +975,9 @@ function openUserDetail(userId){
           `}
           <tr style="font-weight:700;">
             <td>生涯</td>
-            <td>${career_completed || completed}</td>
-            <td>${career_late || late}</td>
-            <td>${career_no_show || no_show}</td>
+            <td>${career_completed || p.career_completed || completed}</td>
+            <td>${career_late || p.career_late || late}</td>
+            <td>${career_no_show || p.career_no_show || no_show}</td>
           </tr>
         </table>
       </div>
@@ -972,14 +994,13 @@ function openUserDetail(userId){
   `;
   drawRoleChart(roleMap);
 
-  // ✅ 前端直接向 getTrainingLog & getCourses 核對並補齊完訓時數（即使後端統計未回傳時數也能正確顯示）
-  callApi({ action: 'getTrainingLog', user_id: targetUid }, logRes => {
+  callApi({ action: 'getTrainingLog', user_id: userId }, logRes => {
     const logs = logRes?.data || logRes?.logs || logRes?.enrollments || (Array.isArray(logRes) ? logRes : []);
     if (!Array.isArray(logs) || logs.length === 0) return;
 
     callApi({ action: 'getCourses' }, courseRes => {
       const courses = courseRes?.courses || courseRes?.data || (Array.isArray(courseRes) ? courseRes : []);
-      const { yearHours, totalHours } = calcTrainingHoursFromLogs_(targetUid, logs, courses, currentYear);
+      const { yearHours, totalHours } = calcTrainingHoursFromLogs_(userId, logs, courses, currentYear);
 
       const finalYear = Math.max(trainingHoursYear, yearHours);
       const finalTotal = Math.max(trainingHoursTotal, totalHours);
