@@ -788,6 +788,12 @@ function openUserDetail(userId) {
 
   const courseCountYear = Number(p.course_count_year || 0);
   const courseCountTotal = Number(p.course_count_total || 0);
+  const hoursYear = Number(
+    p.training_hours_year ?? p.course_hours_year ?? p.hours_year ?? 0
+  );
+  const hoursTotal = Number(
+    p.training_hours_total ?? p.course_hours_total ?? p.hours_total ?? 0
+  );
   const latestCourse = p.latest_course || '-';
 
   const experienceValue = Number(
@@ -904,8 +910,8 @@ function openUserDetail(userId) {
           grid-template-columns:1fr 1fr;
           gap:8px;
         ">
-          ${cardMini('年度課程', courseCountYear)}
-          ${cardMini('生涯課程', courseCountTotal)}
+          ${cardMini('年度課程', `${courseCountYear} 門`, `時數：${fmt(hoursYear)} 小時`)}
+          ${cardMini('生涯課程', `${courseCountTotal} 門`, `時數：${fmt(hoursTotal)} 小時`)}
         </div>
         <div style="
           margin-top:8px;
@@ -978,6 +984,16 @@ function openUserDetail(userId) {
   }
 }
 
+function cardMini(label, value, subText = '') {
+  return `
+    <div class="card-mini">
+      <div class="mini-title">${label}</div>
+      <div class="mini-value">${value}</div>
+      ${subText ? `<div style="margin-top:4px; font-size:12px; font-weight:700; color:#475569;">${subText}</div>` : ''}
+    </div>
+  `;
+}
+
 function renderLevel(lv) {
   const map = {
     S: { c: '#9333ea', t: 'S' },
@@ -1006,15 +1022,6 @@ function mapRole(role) {
     REC_TRAINEE: '實習紀錄員'
   };
   return m[role] || role;
-}
-
-function cardMini(label, value) {
-  return `
-    <div class="card-mini">
-      <div class="mini-title">${label}</div>
-      <div class="mini-value">${value}</div>
-    </div>
-  `;
 }
 
 function drawRoleChart(data) {
