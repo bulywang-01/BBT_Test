@@ -671,178 +671,95 @@ function renderLoading(target) {
  *********************************************************/
 
 /** 載入個人數據分析資料並快取 */
-function loadHomeUserAnalysis(){
-
-  const targetYear =
-    new Date().getFullYear();
-
-  const targetUid =
-    String(
-      session.user_id || ''
-    ).trim();
+function loadHomeUserAnalysis() {
+  const targetYear = new Date().getFullYear();
+  const targetUid = String(session?.user_id || '').trim();
 
   callApi({
-
-    action:'getYearlyExperience',
-
-    year:targetYear,
-
-    user_id:targetUid
-
-  },function(res){
-
-    if(
-      !res ||
-      res.result !== 'ok'
-    ){
-
-      const rateEl =
-        document.getElementById(
-          'stat-rate'
-        );
-
-      if(rateEl){
-        rateEl.textContent = '0%';
-      }
-
+    action: 'getYearlyExperience',
+    year: targetYear,
+    user_id: targetUid
+  }, res => {
+    if (!res || res.result !== 'ok') {
+      const rateEl = document.getElementById('stat-rate');
+      if (rateEl) rateEl.textContent = '0%';
       return;
     }
 
-    const raw =
-      res.data || res;
+    const raw = res.data || res;
+    let all = [];
 
-    const judgeList =
-      Array.isArray(raw?.judge)
-        ? raw.judge
-        : [];
-
-    const recordList =
-      Array.isArray(raw?.record)
-        ? raw.record
-        : [];
-
-    const all =
-      Array.isArray(raw?.all)
-      ? raw.all
-      : [
-          ...judgeList,
-          ...recordList
-        ];
-
-    let me =
-      all.find(x =>
-
-        String(
-          x.user_id || ''
-        ).trim() === targetUid
-
-      );
-
-    // 找不到 user_id 就改用姓名找
-    if(!me){
-
-      me =
-        all.find(x =>
-
-          String(
-            x.name || ''
-          ).trim() ===
-          String(
-            session.name || ''
-          ).trim()
-
-        );
-
+    // 支援新版 GAS 的 raw.all，或舊版合併 judge 與 record 陣列
+    if (Array.isArray(raw?.all)) {
+      all = raw.all;
+    } else {
+      const judge = Array.isArray(raw?.judge) ? raw.judge : [];
+      const record = Array.isArray(raw?.record) ? raw.record : [];
+      all = [...judge, ...record];
     }
 
-    // 還找不到才建立空資料
-    if(!me){
-
+    // 優先以 user_id 比對，找不到再以姓名比對，最後建立預設空物件
+    let me = all.find(x => String(x.user_id || '').trim() === targetUid);
+    if (!me) {
+      me = all.find(x => String(x.name || '').trim() === String(session?.name || '').trim());
+    }
+    if (!me) {
       me = {
-
-        user_id:targetUid,
-
-        name:
-          session.name || '',
-
-        level:
-          session.level || 'N,N',
-
-        league_level:
-          session.league_level || 'N',
-
-        attendance:0,
-        completed:0,
-        late:0,
-        no_show:0,
-
-        score_total:0,
-        final_score:0,
-
-        quality:100,
-
-        training_hours_year:0,
-        training_hours_total:0,
-
-        course_count_year:0,
-        course_count_total:0,
-
-        latest_course:'',
-
-        role_count:{},
-        role_career_count:{}
-
+        user_id: targetUid,
+        name: session?.name || '',
+        level: session?.level || 'N,N',
+        league_level: session?.league_level || 'N',
+        attendance: 0,
+        completed: 0,
+        late: 0,
+        no_show: 0,
+        score_total: 0,
+        final_score: 0,
+        quality: 100,
+        training_hours_year: 0,
+        training_hours_total: 0,
+        course_count_year: 0,
+        course_count_total: 0,
+        latest_course: '',
+        role_count: {},
+        role_career_count: {}
       };
-
     }
 
-    console.log(
-      'Analysis User',
-      me
-    );
-
-    window._yearRaw = {
-
-      judge:judgeList,
-
-      record:recordList,
-
-      all
-
-    };
-
+    console.log('Analysis User', me);
     window._yearData = all;
-
-    renderHomeUserAnalysis(
-      me
-    );
-
+    renderHomeUserAnalysis(me);
   });
-
 }
 
 /** 更新首頁出勤率與「查看完整分析」按鈕 */
 function renderHomeUserAnalysis(p) {
+  const completed = Number(p.completed || 0);
+  const late = Number(p.late || 0);
+  const no_show = Number(p.no_show || 0);
+
   let total = Number(p.attendance ?? p.total_games ?? 0);
   if (total === 0) {
-    total = Number(p.completed || 0) + Number(p.late || 0) + Number(p.no_show || 0);
+    total = completed + late + no_show;
   }
-  const completed = Number(p.completed ?? p.completed_games ?? 0);
-  const rate = total > 0 ? Math.round((completed / total) * 100) : (completed > 0 ? 100 : 0);
+
+  const rate = total > 0 ? Math.round(completed / total * 100) : 0;
 
   const rateEl = document.getElementById('stat-rate');
   if (rateEl) rateEl.textContent = `${rate}%`;
 
-  const fillRateEl = document.getElementById('fill-rate');
-  if (fillRateEl) fillRateEl.style.width = `${rate}%`;
+  const fillRate = document.getElementById('fill-rate');
+  if (fillRate) fillRate.style.width = `${rate}%`;
 
   const analysisEl = document.getElementById('home-user-analysis');
   if (analysisEl) {
     analysisEl.innerHTML = `
-      <div style="display:flex; flex-direction:column; gap:6px;">
-        <div style="display:flex; justify-content:flex-end;">
-          <button class="pill pill-blue" onclick="openFullAnalysis('${p.user_id || session.user_id}')">查看完整分析 →</button>
-        </div>
+      <div style="display:flex; justify-content:flex-end;">
+        <button
+          class="pill pill-blue"
+          onclick="openFullAnalysis('${p.user_id || session.user_id}')">
+          查看完整分析 →
+        </button>
       </div>
     `;
   }
