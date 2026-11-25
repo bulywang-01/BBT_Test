@@ -85,7 +85,7 @@ function openProfileModal() {
     const u = (res && res.result === 'ok' && res.user) ? res.user : session;
 
     document.getElementById('pf-username-display').textContent = u.username || session.username || session.user_id || '-';
-    document.getElementById('pf-league-display').textContent = (u.league_level || session.league_level || 'N') + ' 級';
+    // document.getElementById('pf-league-display').textContent = (u.league_level || session.league_level || 'N') + ' 級';
     document.getElementById('pf-role-display').textContent = formatRoleDisplayText_(u.role || session.role);
 
     document.getElementById('pf-name').value = u.name || '';
