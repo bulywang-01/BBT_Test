@@ -208,6 +208,67 @@ function openProfileModal() {
   });
 }
 
+// 透過隱藏 iframe + form 提交 POST，避免跨網域 CORS 預檢攔截與 URL 過長
+function postProfileViaHiddenForm_(payload, onDone) {
+  const iframeName = 'pf_post_iframe_' + Date.now();
+  const callbackName = 'pfPostCb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+  let settled = false;
+
+  const cleanup = () => {
+    try { delete window[callbackName]; } catch (_) {}
+    const iframe = document.getElementById(iframeName);
+    if (iframe && iframe.parentNode) iframe.parentNode.removeChild(iframe);
+  };
+
+  window[callbackName] = function (data) {
+    if (settled) return;
+    settled = true;
+    cleanup();
+    onDone(data);
+  };
+
+  const iframe = document.createElement('iframe');
+  iframe.id = iframeName;
+  iframe.name = iframeName;
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = API_BASE;
+  form.target = iframeName;
+  form.style.display = 'none';
+
+  const fullData = Object.assign({}, payload, { callback: callbackName });
+  Object.keys(fullData).forEach(key => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = fullData[key] !== undefined && fullData[key] !== null ? String(fullData[key]) : '';
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+
+  setTimeout(() => {
+    if (settled) return;
+    settled = true;
+    cleanup();
+    callApi({
+      action: 'getUserProfile',
+      user_id: payload.user_id
+    }, latest => {
+      if (latest && latest.result === 'ok' && latest.user) {
+        onDone({ result: 'ok', user: latest.user, photo_url: latest.user.photo_url });
+      } else {
+        onDone({ result: 'error', message: '上傳逾時或網路異常，請重新整理確認' });
+      }
+    });
+  }, 15000);
+}
+
 // 送出個人資料更新（含照片上傳至 Drive BBT_img）
 function submitProfileForm(event) {
   event.preventDefault();
@@ -272,7 +333,7 @@ function submitProfileForm(event) {
     payload.photo_name = _pendingProfilePhoto.fileName;
   }
 
-  callApi(payload, res => {
+  const handleSaveResponse = res => {
     saveBtn.disabled = false;
     saveBtn.textContent = '💾 儲存個人資料';
 
@@ -337,7 +398,13 @@ function submitProfileForm(event) {
     document.getElementById('pf-password').value = '';
     document.getElementById('pf-password-confirm').value = '';
     showPfMsg('✅ 個人資料與照片已更新完成！', false);
-  });
+  };
+
+  if (payload.photo_base64) {
+    postProfileViaHiddenForm_(payload, handleSaveResponse);
+  } else {
+    callApi(payload, handleSaveResponse);
+  }
 }
 
 /*********************************************************
