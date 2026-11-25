@@ -95,6 +95,7 @@ function openProfileModal() {
     document.getElementById('pf-team').value = u.team || '';
     document.getElementById('pf-password').value = '';
     document.getElementById('pf-password-confirm').value = '';
+    const team = (document.getElementById('pf-team')?.value || '').trim();
 
     const certs = parseCertLevels_(u.level || session.level);
     document.getElementById('pf-judge-level').value = certs.judge;
