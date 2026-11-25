@@ -1,11 +1,21 @@
 /*********************************************************
- * ✅ Index Page（最終完整整合版：含個人資料與證照等級自助維護）
+ * ✅ Index Page（最終完整整合版：含個人資料、照片上傳與證照等級自助維護）
  * 用途：首頁主控制腳本，負責登入驗證、儀表板統計、
- *       本週班表與提醒、個人數據分析、個人資料維護、
+ *       本週班表與提醒、個人數據分析、個人資料與照片維護、
  *       課程與系統公告顯示／管理。
  *********************************************************/
 
 let session = null;
+let _pendingProfilePhoto = null; // { base64, mimeType, fileName }
+
+const DEFAULT_PROFILE_PHOTO_SVG =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="68" height="68">' +
+      '<rect width="100%" height="100%" fill="#e2e8f0"/>' +
+      '<text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#64748b" font-size="11" font-family="sans-serif">無照片</text>' +
+    '</svg>'
+  );
 
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof API_BASE === 'undefined') {
@@ -30,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /*********************************************************
- * 👤 個人資料自助維護模組（支援裁判／紀錄證照等級修改）
+ * 👤 個人資料自助維護模組（支援照片上傳至 Drive BBT_img、母隊與證照等級修改）
  *********************************************************/
 function parseCertLevels_(rawLevel) {
   const parts = String(rawLevel || 'N,N').split(/[\/／,，]/);
@@ -58,6 +68,89 @@ function formatRoleDisplayText_(rawRole) {
     .join('、') || '-';
 }
 
+function extractDriveFileId_(rawUrl) {
+  const s = String(rawUrl || '').trim();
+  if (!s) return '';
+  if (/^[-\w]{20,}$/.test(s)) return s;
+  const idParam = s.match(/[?&]id=([-\w]{20,})/);
+  if (idParam) return idParam[1];
+  const pathMatch = s.match(/\/d\/([-\w]{20,})/);
+  if (pathMatch) return pathMatch[1];
+  const anyId = s.match(/[-\w]{25,}/);
+  return anyId ? anyId[0] : '';
+}
+
+function resolveDrivePhotoUrl_(rawUrl) {
+  const s = String(rawUrl || '').trim();
+  if (!s) return DEFAULT_PROFILE_PHOTO_SVG;
+  if (s.startsWith('data:image/')) return s;
+  const fileId = extractDriveFileId_(s);
+  if (fileId && s.includes('drive.google.com')) {
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w300`;
+  }
+  return s;
+}
+
+function setProfilePhotoPreview_(rawUrl) {
+  const imgEl = document.getElementById('pf-photo-preview');
+  if (!imgEl) return;
+  imgEl.onerror = () => {
+    imgEl.onerror = null;
+    imgEl.src = DEFAULT_PROFILE_PHOTO_SVG;
+  };
+  imgEl.src = resolveDrivePhotoUrl_(rawUrl);
+}
+
+function handleProfilePhotoChange(event) {
+  const file = event?.target?.files?.[0];
+  if (!file) {
+    _pendingProfilePhoto = null;
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const img = new Image();
+    img.onload = function () {
+      const maxSize = 640;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height && width > maxSize) {
+        height = Math.round((height * maxSize) / width);
+        width = maxSize;
+      } else if (height >= width && height > maxSize) {
+        width = Math.round((width * maxSize) / height);
+        height = maxSize;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      const mimeType = 'image/jpeg';
+      const dataUrl = canvas.toDataURL(mimeType, 0.84);
+      const base64 = dataUrl.split(',')[1] || '';
+
+      const baseName = String(file.name || 'user_photo')
+        .replace(/\.[^.]+$/, '')
+        .replace(/[^\w\u4e00-\u9fa5-]/g, '_');
+
+      _pendingProfilePhoto = {
+        base64: base64,
+        mimeType: mimeType,
+        fileName: `user_${session?.user_id || 'member'}_${baseName}.jpg`
+      };
+
+      setProfilePhotoPreview_(dataUrl);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 // 開啟個人資料設定彈窗並載入最新資料
 function openProfileModal() {
   const overlay = document.getElementById('profile-overlay');
@@ -66,6 +159,10 @@ function openProfileModal() {
   const msgEl = document.getElementById('pf-msg');
 
   if (!overlay || !session) return;
+
+  _pendingProfilePhoto = null;
+  const fileEl = document.getElementById('pf-photo-file');
+  if (fileEl) fileEl.value = '';
 
   overlay.style.display = 'flex';
   if (loadingEl) loadingEl.style.display = 'block';
@@ -85,7 +182,6 @@ function openProfileModal() {
     const u = (res && res.result === 'ok' && res.user) ? res.user : session;
 
     document.getElementById('pf-username-display').textContent = u.username || session.username || session.user_id || '-';
-    // document.getElementById('pf-league-display').textContent = (u.league_level || session.league_level || 'N') + ' 級';
     document.getElementById('pf-role-display').textContent = formatRoleDisplayText_(u.role || session.role);
 
     document.getElementById('pf-name').value = u.name || '';
@@ -95,11 +191,12 @@ function openProfileModal() {
     document.getElementById('pf-team').value = u.team || '';
     document.getElementById('pf-password').value = '';
     document.getElementById('pf-password-confirm').value = '';
-    const team = (document.getElementById('pf-team')?.value || '').trim();
 
     const certs = parseCertLevels_(u.level || session.level);
     document.getElementById('pf-judge-level').value = certs.judge;
     document.getElementById('pf-record-level').value = certs.record;
+
+    setProfilePhotoPreview_(u.photo_url || session.photo_url || '');
 
     const teamListEl = document.getElementById('pf-team-options');
     if (teamListEl && Array.isArray(res?.teams)) {
@@ -111,7 +208,7 @@ function openProfileModal() {
   });
 }
 
-// 送出個人資料更新
+// 送出個人資料更新（含照片上傳至 Drive BBT_img）
 function submitProfileForm(event) {
   event.preventDefault();
   if (!session) return;
@@ -154,10 +251,10 @@ function submitProfileForm(event) {
   }
 
   saveBtn.disabled = true;
-  saveBtn.textContent = '儲存中...';
+  saveBtn.textContent = _pendingProfilePhoto ? '照片上傳與儲存中...' : '儲存中...';
   msgEl.style.display = 'none';
 
-  callApi({
+  const payload = {
     action: 'updateUserProfile',
     user_id: session.user_id,
     name: name,
@@ -167,7 +264,15 @@ function submitProfileForm(event) {
     note: note,
     team: team,
     password: password
-  }, res => {
+  };
+
+  if (_pendingProfilePhoto && _pendingProfilePhoto.base64) {
+    payload.photo_base64 = _pendingProfilePhoto.base64;
+    payload.photo_mime = _pendingProfilePhoto.mimeType;
+    payload.photo_name = _pendingProfilePhoto.fileName;
+  }
+
+  callApi(payload, res => {
     saveBtn.disabled = false;
     saveBtn.textContent = '💾 儲存個人資料';
 
@@ -176,19 +281,33 @@ function submitProfileForm(event) {
       return;
     }
 
-    // 同步更新本地 session 快取與畫面顯示
+    const updatedPhotoUrl =
+      res.user?.photo_url ||
+      res.photo_url ||
+      session.photo_url ||
+      '';
+
     session.name = name;
     session.phone = phone;
     session.level = combinedLevel;
     session.email = email;
     session.note = note;
     session.team = team;
+    if (updatedPhotoUrl) session.photo_url = updatedPhotoUrl;
 
     try {
       const rawSaved = localStorage.getItem('session_user');
       if (rawSaved) {
         const parsed = JSON.parse(rawSaved);
-        Object.assign(parsed, { name, phone, level: combinedLevel, email, note, team });
+        Object.assign(parsed, {
+          name,
+          phone,
+          level: combinedLevel,
+          email,
+          note,
+          team,
+          ...(updatedPhotoUrl ? { photo_url: updatedPhotoUrl } : {})
+        });
         localStorage.setItem('session_user', JSON.stringify(parsed));
       }
     } catch (_) {}
@@ -197,19 +316,27 @@ function submitProfileForm(event) {
     const headerNameEl = document.getElementById('header-username');
     if (headerNameEl) headerNameEl.textContent = name;
 
-    // 同步更新記憶體中的個人數據分析快取，確保開啟個人數據分析時顯示最新證照
     if (Array.isArray(window._yearData)) {
       const uid = String(session.user_id || '').trim();
       const target = window._yearData.find(x => String(x.user_id ?? x.id ?? '').trim() === uid);
       if (target) {
         target.name = name;
         target.level = combinedLevel;
+        if (updatedPhotoUrl) target.photo_url = updatedPhotoUrl;
       }
     }
 
+    if (updatedPhotoUrl) {
+      setProfilePhotoPreview_(updatedPhotoUrl);
+    }
+
+    const fileEl = document.getElementById('pf-photo-file');
+    if (fileEl) fileEl.value = '';
+    _pendingProfilePhoto = null;
+
     document.getElementById('pf-password').value = '';
     document.getElementById('pf-password-confirm').value = '';
-    showPfMsg('✅ 個人資料與證照等級已更新完成！', false);
+    showPfMsg('✅ 個人資料與照片已更新完成！', false);
   });
 }
 
