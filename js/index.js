@@ -94,10 +94,6 @@ function resolveDrivePhotoUrl_(rawUrl) {
 
 function renderHomeProfilePhoto_(rawUrl) {
   const imgEl = document.getElementById('home-user-photo');
-  const captionEl = document.getElementById('home-user-photo-caption');
-  if (captionEl && session?.name) {
-    captionEl.textContent = session.name;
-  }
   if (!imgEl) return;
   imgEl.onerror = () => {
     imgEl.onerror = null;
@@ -500,7 +496,6 @@ function renderWelcome() {
   const nameEl1 = document.getElementById('welcome-name-1');
   const nameEl2 = document.getElementById('welcome-name-2');
   const roleEl = document.getElementById('welcome-role');
-  const captionEl = document.getElementById('home-user-photo-caption');
   const displayName = session.name || '使用者';
 
   if (nameEl1) {
@@ -509,10 +504,6 @@ function renderWelcome() {
 
   if (nameEl2) {
     nameEl2.textContent = `${displayName} 您好，感謝您協助維護聯盟賽事公平與品質`;
-  }
-
-  if (captionEl) {
-    captionEl.textContent = displayName;
   }
 
   if (roleEl) {
