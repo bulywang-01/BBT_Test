@@ -69,55 +69,36 @@
       margin-bottom: 14px !important;
     }
 
-    /* 左側個人照片 + 右側 2x2 精簡 KPI */
+    /* 左側滿格個人照片 + 右側 2x2 精簡 KPI */
     .hero-kpi-layout {
       display: grid;
-      grid-template-columns: 168px minmax(0, 1fr);
+      grid-template-columns: 164px minmax(0, 1fr);
       gap: 14px;
       align-items: stretch;
       margin-bottom: 10px;
     }
 
     .home-photo-card {
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-height: 176px;
-    }
-
-    .home-photo-frame {
-      width: 100%;
-      flex: 1;
-      min-height: 132px;
-      max-height: 164px;
-      border-radius: 8px;
-      overflow: hidden;
       background: #e2e8f0;
       border: 1px solid #cbd5e1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      min-height: 152px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .home-photo-card:hover {
+      border-color: #94a3b8;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
     }
 
     .home-photo-img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
-    }
-
-    .home-photo-caption {
-      font-size: 11px;
-      font-weight: 800;
-      color: #475569;
-      text-align: center;
-      white-space: nowrap;
     }
 
     .stats-grid-4 {
@@ -691,12 +672,7 @@
         gap: 10px;
       }
       .home-photo-card {
-        min-height: 156px;
-        padding: 8px;
-      }
-      .home-photo-frame {
-        min-height: 116px;
-        max-height: 132px;
+        min-height: 138px;
       }
     }
 
@@ -707,13 +683,7 @@
         gap: 8px;
       }
       .home-photo-card {
-        min-height: 146px;
-        padding: 7px;
-        gap: 6px;
-      }
-      .home-photo-frame {
-        min-height: 108px;
-        max-height: 120px;
+        min-height: 126px;
       }
       .stats-grid-4 {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -1068,18 +1038,15 @@
         <div id="welcome-name-2" style="font-size: 13px; font-weight: 700; color: #475569; text-align: left;">載入中...</div>
       </div>
 
-      <!-- 左側個人照片 ＋ 右側 2x2 精簡 KPI -->
+      <!-- 左側滿格個人照片 ＋ 右側 2x2 精簡 KPI -->
       <div class="hero-kpi-layout">
         <div class="home-photo-card" onclick="openProfileModal()" style="cursor: pointer;" title="點擊設定個人照片與資料">
-          <div class="home-photo-frame">
-            <img
-              id="home-user-photo"
-              src=""
-              alt="個人照片"
-              class="home-photo-img"
-            />
-          </div>
-          <div id="home-user-photo-caption" class="home-photo-caption">個人照片</div>
+          <img
+            id="home-user-photo"
+            src=""
+            alt="個人照片"
+            class="home-photo-img"
+          />
         </div>
 
         <div class="stats-grid-4">
