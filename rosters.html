@@ -153,7 +153,7 @@
     </div>
 
     <!-- 低干擾資料來源狀態列 -->
-    <div id="syncStatusBar" class="mt-2.5 px-1 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+    <div id="syncStatusBar" class="mt-2 px-1 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
       <div id="syncStatusText" class="flex items-center gap-1.5">
         <span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
         <span>正在從後端 Users 讀取名單...</span>
@@ -163,7 +163,7 @@
   </section>
 
   <!-- 主要名單內容區 -->
-  <main class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-7 flex-1 space-y-12">
+  <main class="max-w-6xl w-full mx-auto px-4 sm:px-6 pt-2 pb-8 flex-1 space-y-8">
 
     <!-- 載入中狀態 -->
     <div id="loadingState" class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -189,8 +189,8 @@
     </div>
 
     <!-- 裁判組大區塊 -->
-    <section id="judgeSection" class="hidden space-y-7">
-      <div class="flex items-center justify-between border-b-2 border-[#0f2342] pb-2.5">
+    <section id="judgeSection" class="hidden space-y-5">
+      <div class="flex items-center justify-between border-b-2 border-[#0f2342] pb-2">
         <div class="flex items-center gap-2.5">
           <span class="w-1.5 h-6 rounded-full bg-[#d92638]"></span>
           <h2 class="text-xl sm:text-2xl font-extrabold text-[#0f2342] tracking-tight">裁判組</h2>
@@ -199,7 +199,7 @@
       </div>
 
       <!-- 裁判長 -->
-      <div id="chiefJudgeSub" class="hidden space-y-3.5">
+      <div id="chiefJudgeSub" class="hidden space-y-3">
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-[#d92638]"></span>
           <h3 class="text-base sm:text-lg font-bold text-[#0f2342]">裁判長</h3>
@@ -209,7 +209,7 @@
       </div>
 
       <!-- 裁判員 -->
-      <div id="judgeMemberSub" class="hidden space-y-3.5">
+      <div id="judgeMemberSub" class="hidden space-y-3">
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-[#0f2342]"></span>
           <h3 class="text-base sm:text-lg font-bold text-[#0f2342]">裁判員</h3>
@@ -219,7 +219,7 @@
       </div>
 
       <!-- 外聘裁判員 -->
-      <div id="guestJudgeSub" class="hidden space-y-3.5">
+      <div id="guestJudgeSub" class="hidden space-y-3">
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-[#1d3e6e]"></span>
           <h3 class="text-base sm:text-lg font-bold text-[#0f2342]">外聘裁判員</h3>
@@ -230,8 +230,8 @@
     </section>
 
     <!-- 紀錄組大區塊 -->
-    <section id="recordSection" class="hidden space-y-7">
-      <div class="flex items-center justify-between border-b-2 border-[#162f56] pb-2.5">
+    <section id="recordSection" class="hidden space-y-5">
+      <div class="flex items-center justify-between border-b-2 border-[#162f56] pb-2">
         <div class="flex items-center gap-2.5">
           <span class="w-1.5 h-6 rounded-full bg-[#0f2342]"></span>
           <h2 class="text-xl sm:text-2xl font-extrabold text-[#0f2342] tracking-tight">紀錄組</h2>
@@ -240,7 +240,7 @@
       </div>
 
       <!-- 紀錄長 -->
-      <div id="chiefRecordSub" class="hidden space-y-3.5">
+      <div id="chiefRecordSub" class="hidden space-y-3">
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-[#d92638]"></span>
           <h3 class="text-base sm:text-lg font-bold text-[#0f2342]">紀錄長</h3>
@@ -250,7 +250,7 @@
       </div>
 
       <!-- 紀錄員 -->
-      <div id="recordMemberSub" class="hidden space-y-3.5">
+      <div id="recordMemberSub" class="hidden space-y-3">
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-[#0f2342]"></span>
           <h3 class="text-base sm:text-lg font-bold text-[#0f2342]">紀錄員</h3>
@@ -538,17 +538,21 @@
       return tags;
     }
 
-    // 渲染單一職務標籤 HTML（幹部專屬徽章使用緋紅底+星章）
+    // 渲染單一職務標籤 HTML（幹部專屬徽章使用較大字級 + 緋紅底 + 星章）
     function renderRoleTagBadge(tag, size = 'card') {
-      const paddingClass = size === 'lightbox' ? 'px-2.5 py-0.5 text-xs' : 'px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] leading-4';
       if (tag.isChief) {
-        return `<span class="inline-flex items-center gap-1 ${paddingClass} rounded-md font-bold bg-[#d92638] text-white shadow-2xs">
-          <svg class="w-2.5 h-2.5 text-amber-300 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+        const chiefClass = size === 'lightbox'
+          ? 'px-3 py-1 text-sm leading-5'
+          : 'px-2.5 py-0.5 text-xs sm:text-sm leading-5';
+        const starClass = size === 'lightbox' ? 'w-4 h-4' : 'w-3.5 h-3.5';
+        return `<span class="inline-flex items-center gap-1 ${chiefClass} rounded-md font-extrabold bg-[#d92638] text-white shadow-xs">
+          <svg class="${starClass} text-amber-300 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
           <span>${escapeHtml(tag.label)}</span>
         </span>`;
       }
+      const paddingClass = size === 'lightbox' ? 'px-2.5 py-0.5 text-xs' : 'px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] leading-4';
       return `<span class="inline-flex items-center ${paddingClass} rounded-md font-semibold bg-[#0f2342]/8 text-[#0f2342]">${escapeHtml(tag.label)}</span>`;
     }
 
@@ -646,7 +650,7 @@
             </div>
 
             <!-- 第 2 行：幹部徽章 / 跨組兼任標籤（無則空行對齊） -->
-            <div class="flex flex-wrap items-center gap-1 sm:gap-1.5 min-h-[20px]">
+            <div class="flex flex-wrap items-center gap-1 sm:gap-1.5 min-h-[22px]">
               ${roleRowHtml}
             </div>
 
@@ -755,7 +759,7 @@
 
       const keyword = String(document.getElementById('searchInput').value || '').trim().toLowerCase();
 
-      // 裁判組子分區：裁判長 / 外聘裁判員 / 裁判員
+      // 裁判組子分區：裁判長 / 裁判員 / 外聘裁判員
       const judgeAll = allStaff.filter(p => parseRoles(p.role).isJudge);
       const chiefJudgeAll = judgeAll.filter(p => parseRoles(p.role).isChiefJudge);
       const guestJudgeAll = judgeAll.filter(p => !parseRoles(p.role).isChiefJudge && isGuestStaff(p.name));
